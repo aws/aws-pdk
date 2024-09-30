@@ -1,26 +1,26 @@
-// Import models
+###TSAPI_WRITE_FILE###
+{
+  "id": "operation-config",
+  "dir": "<%= metadata.srcDir || 'src' %>/apis/DefaultApi",
+  "name": "OperationConfig",
+  "ext": ".ts",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###// Import models
 import {
-    {{#apiInfo}}
-    {{#models}}
-    {{#model}}
-    {{classname}},
-    {{classname}}FromJSON,
-    {{classname}}ToJSON,
-    {{/model}}
-    {{/models}}
-    {{/apiInfo}}
+<%_ models.forEach((model) => { _%>
+    <%- model.name %>,
+    <%- model.name %>FromJSON,
+    <%- model.name %>ToJSON,
+<%_ }); _%>
 } from '../../models';
 // Import request parameter interfaces
 import {
-    {{#apiInfo}}
-    {{#apis}}
-    {{#operations}}
-    {{#operation}}
-    {{#allParams.0}}{{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}Request,{{/allParams.0}}
-    {{/operation}}
-    {{/operations}}
-    {{/apis}}
-    {{/apiInfo}}
+<%_ allOperations.forEach((operation) => { _%>
+<%_ if (operation.parameters.length > 0) { _%>
+    <%- operation.operationIdPascalCase %>Request,
+<%_ } _%>
+<%_ }); _%>
 } from '..';
 
 // API Gateway Types
@@ -28,32 +28,20 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda
 
 // Generic type for object keyed by operation names
 export interface OperationConfig<T> {
-    {{#apiInfo}}
-    {{#apis}}
-    {{#operations}}
-    {{#operation}}
-    {{nickname}}: T;
-    {{/operation}}
-    {{/operations}}
-    {{/apis}}
-    {{/apiInfo}}
+<%_ allOperations.forEach((operation) => { _%>
+    <%- operation.name %>: T;
+<%_ }); _%>
 }
 
 // Look up path and http method for a given operation name
 export const OperationLookup = {
-    {{#apiInfo}}
-    {{#apis}}
-    {{#operations}}
-    {{#operation}}
-    {{nickname}}: {
-        path: '{{path}}',
-        method: '{{httpMethod}}',
-        contentTypes: [{{^consumes}}'application/json'{{/consumes}}{{#consumes}}{{#mediaType}}'{{{.}}}',{{/mediaType}}{{/consumes}}],
+<%_ allOperations.forEach((operation) => { _%>
+    <%- operation.name %>: {
+        path: '<%- operation.path %>',
+        method: '<%- operation.method %>',
+        contentTypes: [<%- operation.parametersBody ? operation.parametersBody.mediaTypes.map(m => `'${m}'`).join(',') : "'application/json'"%>],
     },
-    {{/operation}}
-    {{/operations}}
-    {{/apis}}
-    {{/apiInfo}}
+<%_ }); _%>
 };
 
 export class Operations {
@@ -170,7 +158,7 @@ const extractResponseHeadersFromInterceptors = (interceptors: any[]): { [key: st
   }), {} as { [key: string]: string });
 };
 
-export type OperationIds ={{#apiInfo}}{{#apis}}{{#operations}}{{#operation}} | '{{nickname}}'{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}};
+export type OperationIds =<% allOperations.forEach((operation) => { %> | '<%- operation.name %>'<% }); %>;
 export type OperationApiGatewayProxyResult<T extends OperationIds> = APIGatewayProxyResult & { __operationId?: T };
 
 // Api gateway lambda handler type
@@ -246,43 +234,38 @@ const buildHandlerChain = <RequestParameters, RequestBody, Response>(
   };
 };
 
-{{#apiInfo}}
-{{#apis}}
-{{#operations}}
-{{#operation}}
+<%_ allOperations.forEach((operation) => { _%>
 /**
- * Path, Query and Header parameters for {{operationIdCamelCase}}
+ * Path, Query and Header parameters for <%- operation.operationIdPascalCase %>
  */
-export interface {{operationIdCamelCase}}RequestParameters {
-{{#allParams}}
-{{^isBodyParam}}
-    readonly {{paramName}}{{^required}}?{{/required}}: {{{dataType}}};
-{{/isBodyParam}}
-{{/allParams}}
+export interface <%- operation.operationIdPascalCase %>RequestParameters {
+<%_ operation.parameters.filter(p => p.in !== "body").forEach((parameter) => { _%>
+    readonly <%- parameter.typescriptName %><% if (!parameter.isRequired) { %>?<% } %>: <%- parameter.typescriptType %>;
+<%_ }); _%>
 }
 
 /**
- * Request body parameter for {{operationIdCamelCase}}
+ * Request body parameter for <%- operation.operationIdPascalCase %>
  */
-export type {{operationIdCamelCase}}RequestBody = {{#bodyParam}}{{#isPrimitiveType}}string{{/isPrimitiveType}}{{^isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{/bodyParam}}{{^bodyParam}}never{{/bodyParam}};
+export type <%- operation.operationIdPascalCase %>RequestBody = <% if (operation.parametersBody) { %><%- operation.parametersBody.isPrimitive ? 'string' : operation.parametersBody.typescriptType %><% } else { %>never<% } %>;
 
-{{#responses}}
-export type {{operationIdCamelCase}}{{code}}OperationResponse = OperationResponse<{{code}}, {{#dataType}}{{#isPrimitiveType}}string{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}}{{/dataType}}{{^dataType}}undefined{{/dataType}}>;
-{{/responses}}
-export type {{operationIdCamelCase}}OperationResponses = {{#responses}}| {{operationIdCamelCase}}{{code}}OperationResponse {{/responses}};
+<%_ operation.responses.forEach((response) => { _%>
+export type <%- operation.operationIdPascalCase %><%- response.code %>OperationResponse = OperationResponse<<%- response.code %>, <% if (response.typescriptType && response.typescriptType !== 'void') { %><%- response.isPrimitive ? 'string' : response.typescriptType %><% } else { %>undefined<% } %>>;
+<%_ }); %>
+export type <%- operation.operationIdPascalCase %>OperationResponses = <% operation.responses.forEach((response) => { %>| <%- operation.operationIdPascalCase %><%- response.code %>OperationResponse <% }); %>;
 
 // Type that the handler function provided to the wrapper must conform to
-export type {{operationIdCamelCase}}HandlerFunction = LambdaHandlerFunction<{{operationIdCamelCase}}RequestParameters, {{operationIdCamelCase}}RequestBody, {{operationIdCamelCase}}OperationResponses>;
-export type {{operationIdCamelCase}}ChainedHandlerFunction = ChainedLambdaHandlerFunction<{{operationIdCamelCase}}RequestParameters, {{operationIdCamelCase}}RequestBody, {{operationIdCamelCase}}OperationResponses>;
-export type {{operationIdCamelCase}}ChainedRequestInput = ChainedRequestInput<{{operationIdCamelCase}}RequestParameters, {{operationIdCamelCase}}RequestBody, {{operationIdCamelCase}}OperationResponses>;
+export type <%- operation.operationIdPascalCase %>HandlerFunction = LambdaHandlerFunction<<%- operation.operationIdPascalCase %>RequestParameters, <%- operation.operationIdPascalCase %>RequestBody, <%- operation.operationIdPascalCase %>OperationResponses>;
+export type <%- operation.operationIdPascalCase %>ChainedHandlerFunction = ChainedLambdaHandlerFunction<<%- operation.operationIdPascalCase %>RequestParameters, <%- operation.operationIdPascalCase %>RequestBody, <%- operation.operationIdPascalCase %>OperationResponses>;
+export type <%- operation.operationIdPascalCase %>ChainedRequestInput = ChainedRequestInput<<%- operation.operationIdPascalCase %>RequestParameters, <%- operation.operationIdPascalCase %>RequestBody, <%- operation.operationIdPascalCase %>OperationResponses>;
 
 /**
- * Lambda handler wrapper to provide typed interface for the implementation of {{nickname}}
+ * Lambda handler wrapper to provide typed interface for the implementation of <%- operation.name %>
  */
-export const {{nickname}}Handler = (
-    ...handlers: [{{operationIdCamelCase}}ChainedHandlerFunction, ...{{operationIdCamelCase}}ChainedHandlerFunction[]]
-): OperationApiGatewayLambdaHandler<'{{nickname}}'> => async (event: any, context: any, _callback?: any, additionalInterceptors: {{operationIdCamelCase}}ChainedHandlerFunction[] = []): Promise<any> => {
-    const operationId = "{{nickname}}";
+export const <%- operation.name %>Handler = (
+    ...handlers: [<%- operation.operationIdPascalCase %>ChainedHandlerFunction, ...<%- operation.operationIdPascalCase %>ChainedHandlerFunction[]]
+): OperationApiGatewayLambdaHandler<'<%- operation.name %>'> => async (event: any, context: any, _callback?: any, additionalInterceptors: <%- operation.operationIdPascalCase %>ChainedHandlerFunction[] = []): Promise<any> => {
+    const operationId = "<%- operation.name %>";
 
     const rawSingleValueParameters = decodeRequestParameters({
       ...(event.pathParameters || {}),
@@ -297,13 +280,13 @@ export const {{nickname}}Handler = (
     const marshal = (statusCode: number, responseBody: any): string => {
         let marshalledBody = responseBody;
         switch(statusCode) {
-        {{#responses}}
-            case {{code}}:
-                {{^isPrimitiveType}}
-                marshalledBody = JSON.stringify({{dataType}}ToJSON(marshalledBody));
-                {{/isPrimitiveType}}
+        <%_ operation.responses.forEach((response) => { _%>
+            case <%- response.code %>:
+                <%_ if (!response.isPrimitive) { _%>
+                marshalledBody = JSON.stringify(<%- response.typescriptType %>ToJSON(marshalledBody));
+                <%_ } _%>
                 break;
-        {{/responses}}
+        <%_ }); _%>
             default:
                 break;
         }
@@ -315,16 +298,14 @@ export const {{nickname}}Handler = (
         let headers = {};
 
         switch(statusCode) {
-        {{#responses}}
-        {{^is2xx}}
-            case {{code}}: {
-                if ("{{dataType}}".endsWith("ResponseContent")) {
-                    headers["x-amzn-errortype"] = "{{dataType}}".slice(0, -"ResponseContent".length);
+        <%_ operation.responses.filter(r => r.code < 200 || r.code >= 300).forEach((response) => { _%>
+            case <%- response.code %>: {
+                if ("<%- response.typescriptType %>".endsWith("ResponseContent")) {
+                    headers["x-amzn-errortype"] = "<%- response.typescriptType %>".slice(0, -"ResponseContent".length);
                 }
                 break;
             }
-        {{/is2xx}}
-        {{/responses}}
+        <%_ }); _%>
             default:
                 break;
         }
@@ -332,15 +313,16 @@ export const {{nickname}}Handler = (
         return headers;
     };
 
-    let requestParameters: {{operationIdCamelCase}}RequestParameters | undefined = undefined;
+    let requestParameters: <%- operation.operationIdPascalCase %>RequestParameters | undefined = undefined;
 
     try {
       requestParameters = {
-        {{#allParams}}
-        {{^isBodyParam}}
-          {{paramName}}: coerceParameter("{{baseName}}", "{{{dataType}}}", {{#isArray}}{{#items}}{{isInteger}} || {{isLong}} || {{isShort}}{{/items}}{{/isArray}}{{^isArray}}{{isInteger}} || {{isLong}} || {{isShort}}{{/isArray}}, rawSingleValueParameters, rawMultiValueParameters, {{required}}) as {{{dataType}}}{{^required}} | undefined{{/required}},
-        {{/isBodyParam}}
-        {{/allParams}}
+        <%_ operation.parameters.filter(p => p.in !== "body").forEach((parameter) => { _%>
+          <%_ let isInteger = parameter.isInteger || (parameter.export === "array" && parameter.link && parameter.link.isInteger); _%>
+          <%_ let isShort = parameter.isShort || (parameter.export === "array" && parameter.link && parameter.link.isShort); _%>
+          <%_ let isLong = parameter.isLong || (parameter.export === "array" && parameter.link && parameter.link.isLong); _%>
+          <%- parameter.typescriptName %>: coerceParameter("<%- parameter.prop %>", "<%- parameter.typescriptType %>", <%- isInteger %> || <%- isLong %> || <%- isShort %>, rawSingleValueParameters, rawMultiValueParameters, <%- parameter.isRequired %>) as <%- parameter.typescriptType %><% if (!parameter.isRequired) { %> | undefined<% } %>,
+        <%_ }); %>
       };
     } catch (e: any) {
       const res = {
@@ -359,19 +341,17 @@ export const {{nickname}}Handler = (
     }
 
     const demarshal = (bodyString: string): any => {
-        {{#bodyParam}}
-        {{^isPrimitiveType}}
-        return {{dataType}}FromJSON(JSON.parse(bodyString));
-        {{/isPrimitiveType}}
-        {{#isPrimitiveType}}
+        <%_ if (operation.parametersBody) { _%>
+        <%_ if (!operation.parametersBody.isPrimitive) { _%>
+        return <%- operation.parametersBody.typescriptType %>FromJSON(JSON.parse(bodyString));
+        <%_ } else { _%>
         return bodyString;
-        {{/isPrimitiveType}}
-        {{/bodyParam}}
-        {{^bodyParam}}
+        <%_ } _%>
+        <%_ } else { _%>
         return {};
-        {{/bodyParam}}
+        <%_ } _%>
     };
-    const body = parseBody(event.body, demarshal, [{{^consumes}}'application/json'{{/consumes}}{{#consumes}}{{#mediaType}}'{{{.}}}',{{/mediaType}}{{/consumes}}]) as {{operationIdCamelCase}}RequestBody;
+    const body = parseBody(event.body, demarshal, [<%- operation.parametersBody ? operation.parametersBody.mediaTypes.map(m => `'${m}'`).join(',') : "'application/json'" %>]) as <%- operation.operationIdPascalCase %>RequestBody;
 
     const chain = buildHandlerChain(...additionalInterceptors, ...handlers);
     const response = await chain.next({
@@ -393,26 +373,17 @@ export const {{nickname}}Handler = (
         body: response.body ? marshal(response.statusCode, response.body) : '',
     };
 };
-{{/operation}}
-{{/operations}}
-{{/apis}}
-{{/apiInfo}}
+<%_ }); _%>
 
 export interface HandlerRouterHandlers {
-{{#apiInfo}}
-{{#apis}}
-{{#operations}}
-{{#operation}}
-  readonly {{nickname}}: OperationApiGatewayLambdaHandler<'{{nickname}}'>;
-{{/operation}}
-{{/operations}}
-{{/apis}}
-{{/apiInfo}}
+<%_ allOperations.forEach((operation) => { _%>
+  readonly <%- operation.name %>: OperationApiGatewayLambdaHandler<'<%- operation.name %>'>;
+<%_ }); _%>
 }
 
-export type AnyOperationRequestParameters = {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}| {{operationIdCamelCase}}RequestParameters{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}};
-export type AnyOperationRequestBodies = {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}| {{operationIdCamelCase}}RequestBody{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}};
-export type AnyOperationResponses = {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}| {{operationIdCamelCase}}OperationResponses{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}};
+export type AnyOperationRequestParameters = <% allOperations.forEach((operation) => { %>| <%- operation.operationIdPascalCase %>RequestParameters<% }); %>;
+export type AnyOperationRequestBodies = <% allOperations.forEach((operation) => { %>| <%- operation.operationIdPascalCase %>RequestBody<% }); %>;
+export type AnyOperationResponses = <% allOperations.forEach((operation) => { %>| <%- operation.operationIdPascalCase %>OperationResponses<% }); %>;
 
 export interface HandlerRouterProps<
   RequestParameters,

@@ -44,6 +44,10 @@ export class TypeSafeApiProject extends PDKProject {
         "ts-command-line-args@2.4.2", // Used by scripts
         "@faker-js/faker@8.1.0", // Used by scripts
         "reregexp@1.6.1", // Used by scripts
+        "ejs@3.1.10", // Used by scripts
+        "@types/ejs@3.1.5", // Used by scripts
+        "parse-openapi@0.0.1", // Used by scripts
+        "esbuild",
       ],
       deps: [
         `${PDK_NAMESPACE}pdk-nag@^0.x`,
@@ -68,6 +72,7 @@ export class TypeSafeApiProject extends PDKProject {
           "scripts/type-safe-api/custom/docs/asyncapi-html",
           "scripts/type-safe-api/custom/docs/asyncapi-markdown",
           "scripts/type-safe-api/generators/generate",
+          "scripts/type-safe-api/generators/generate.js",
           "scripts/type-safe-api/parser/parse-openapi-spec",
           "scripts/type-safe-api/custom/clean-openapi-generated-code/clean-openapi-generated-code",
           "scripts/type-safe-api/custom/mock-data/generate-mock-data",
@@ -82,6 +87,8 @@ export class TypeSafeApiProject extends PDKProject {
         "type-safe-api.parse-openapi-spec":
           "scripts/type-safe-api/parser/parse-openapi-spec",
         "type-safe-api.generate": "scripts/type-safe-api/generators/generate",
+        "type-safe-api.generate-next":
+          "scripts/type-safe-api/generators/generate.js",
         "type-safe-api.generate-mock-data":
           "scripts/type-safe-api/custom/mock-data/generate-mock-data",
         "type-safe-api.generate-html-redoc-docs":
@@ -131,6 +138,13 @@ export class TypeSafeApiProject extends PDKProject {
       [`{projectRoot}/${smithyAsyncTransformerJar}`]
     );
     this.gitignore.addPatterns(smithyAsyncTransformerJar);
+
+    // Build the generate script
+    const generateScript = "scripts/type-safe-api/generators/generate.js";
+    this.preCompileTask.exec(
+      `esbuild --bundle scripts/type-safe-api/generators/generate.ts --platform=node --outfile=${generateScript}`
+    );
+    this.gitignore.addPatterns(generateScript);
 
     this.generateInterfaces();
   }

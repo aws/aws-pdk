@@ -6,9 +6,8 @@ import { NodePackageManager } from "projen/lib/javascript";
 import { synthProject, synthSmithyProject } from "./snapshot-utils";
 import {
   DocumentationFormat,
-  GeneratedTypeScriptInfrastructureOptions,
-  GeneratedTypeScriptReactQueryHooksOptions,
-  GeneratedTypeScriptRuntimeOptions,
+  GeneratedPythonInfrastructureOptions,
+  GeneratedPythonRuntimeOptions,
   Language,
   Library,
   ModelLanguage,
@@ -382,19 +381,19 @@ describe("Type Safe Api Project Unit Tests", () => {
         `custom-openapi-generator-cli-configuration`
       ),
       infrastructure: {
-        language: Language.TYPESCRIPT,
+        language: Language.PYTHON,
         options: {
           typescript: {
             openApiGeneratorCliConfig,
-          } satisfies Partial<GeneratedTypeScriptInfrastructureOptions> as any,
+          } satisfies Partial<GeneratedPythonInfrastructureOptions> as any,
         },
       },
       runtime: {
-        languages: [Language.TYPESCRIPT],
+        languages: [Language.PYTHON],
         options: {
           typescript: {
             openApiGeneratorCliConfig,
-          } satisfies Partial<GeneratedTypeScriptRuntimeOptions> as any,
+          } satisfies Partial<GeneratedPythonRuntimeOptions> as any,
         },
       },
       model: {
@@ -408,14 +407,6 @@ describe("Type Safe Api Project Unit Tests", () => {
           },
         },
       },
-      library: {
-        libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
-        options: {
-          typescriptReactQueryHooks: {
-            openApiGeneratorCliConfig,
-          } satisfies Partial<GeneratedTypeScriptReactQueryHooksOptions> as any,
-        },
-      },
       documentation: {
         formats: [DocumentationFormat.HTML2],
         options: {
@@ -426,11 +417,11 @@ describe("Type Safe Api Project Unit Tests", () => {
       },
     });
 
-    expect(project.runtime.typescript).toBeDefined();
+    expect(project.runtime.typescript).not.toBeDefined();
     expect(project.runtime.java).not.toBeDefined();
-    expect(project.runtime.python).not.toBeDefined();
+    expect(project.runtime.python).toBeDefined();
 
-    expect(project.library.typescriptReactQueryHooks).toBeDefined();
+    expect(project.library.typescriptReactQueryHooks).not.toBeDefined();
 
     expect(project.documentation.html2).toBeDefined();
 
@@ -440,7 +431,7 @@ describe("Type Safe Api Project Unit Tests", () => {
       snapshot[
         `${path.relative(
           project.outdir,
-          project.infrastructure.typescript!.outdir
+          project.infrastructure.python!.outdir
         )}/.pdk/dynamic-files/openapitools.json`
       ]
     ).toMatchSnapshot();
@@ -448,15 +439,7 @@ describe("Type Safe Api Project Unit Tests", () => {
       snapshot[
         `${path.relative(
           project.outdir,
-          project.runtime.typescript!.outdir
-        )}/.pdk/dynamic-files/openapitools.json`
-      ]
-    ).toMatchSnapshot();
-    expect(
-      snapshot[
-        `${path.relative(
-          project.outdir,
-          project.library.typescriptReactQueryHooks!.outdir
+          project.runtime.python!.outdir
         )}/.pdk/dynamic-files/openapitools.json`
       ]
     ).toMatchSnapshot();

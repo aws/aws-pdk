@@ -4,7 +4,6 @@ import os from "os";
 import * as path from "path";
 import { exec } from "projen/lib/util";
 import { getTestHandlerProjects } from "./utils";
-import { OpenApiToolsJsonFile } from "../../../src/project/codegen/components/open-api-tools-json-file";
 import { GeneratedTypescriptCdkInfrastructureProject } from "../../../src/project/codegen/infrastructure/cdk/generated-typescript-cdk-infrastructure-project";
 import { GeneratedTypescriptRuntimeProject } from "../../../src/project/codegen/runtime/generated-typescript-runtime-project";
 import { withTmpDirSnapshot } from "../../project/snapshot-utils";
@@ -33,16 +32,11 @@ describe("Typescript Infrastructure Code Generation Script Unit Tests", () => {
         generatedTypescriptTypes: client,
         generatedHandlers: {},
       });
-      // Synth the openapitools.json since it's used by the generate command
-      OpenApiToolsJsonFile.of(project)!.synthesize();
       exec(`mkdir -p ${infraOutdir}`, { cwd: outdir });
-      exec(project.tasks.tryFind("create-openapitools.json")!.steps[0].exec!, {
-        cwd: infraOutdir,
-      });
       exec(
         `${path.resolve(
           __dirname,
-          "../../../scripts/type-safe-api/generators/generate"
+          "../../../scripts/type-safe-api/generators/generate.js"
         )} ${project.buildGenerateCommandArgs()}`,
         {
           cwd: infraOutdir,
@@ -84,16 +78,11 @@ describe("Typescript Infrastructure Code Generation Script Unit Tests", () => {
         },
         generatedHandlers: {},
       });
-      // Synth the openapitools.json since it's used by the generate command
-      OpenApiToolsJsonFile.of(project)!.synthesize();
       exec(`mkdir -p ${infraOutdir}`, { cwd: outdir });
-      exec(project.tasks.tryFind("create-openapitools.json")!.steps[0].exec!, {
-        cwd: infraOutdir,
-      });
       exec(
         `${path.resolve(
           __dirname,
-          "../../../scripts/type-safe-api/generators/generate"
+          "../../../scripts/type-safe-api/generators/generate.js"
         )} ${project.buildGenerateCommandArgs()}`,
         {
           cwd: infraOutdir,
@@ -128,13 +117,9 @@ describe("Typescript Infrastructure Code Generation Script Unit Tests", () => {
         });
         project.synth();
         exec(
-          project.tasks.tryFind("create-openapitools.json")!.steps[0].exec!,
-          { cwd: infraOutdir }
-        );
-        exec(
           `${path.resolve(
             __dirname,
-            "../../../scripts/type-safe-api/generators/generate"
+            "../../../scripts/type-safe-api/generators/generate.js"
           )} ${project.buildGenerateCommandArgs()}`,
           {
             cwd: infraOutdir,

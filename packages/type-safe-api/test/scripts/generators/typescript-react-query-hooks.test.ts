@@ -25,16 +25,10 @@ describe("Typescript React Query Hooks Code Generation Script Unit Tests", () =>
               outdir,
               specPath: "spec.yaml",
             });
-            // Synth the project so that the generate command honours the .openapi-generator-ignore-handlebars file
-            project.synth();
-            exec(
-              project.tasks.tryFind("create-openapitools.json")!.steps[0].exec!,
-              { cwd: outdir }
-            );
             exec(
               `${path.resolve(
                 __dirname,
-                "../../../scripts/type-safe-api/generators/generate"
+                "../../../scripts/type-safe-api/generators/generate.js"
               )} ${project.buildGenerateCommandArgs()}`,
               {
                 cwd: outdir,
@@ -42,11 +36,7 @@ describe("Typescript React Query Hooks Code Generation Script Unit Tests", () =>
             );
           },
           {
-            excludeGlobs: [
-              ...TypescriptReactQueryHooksLibrary.openApiIgnorePatterns,
-              ".projen/*",
-              "spec.yaml",
-            ],
+            excludeGlobs: [".projen/*", "spec.yaml"],
           }
         )
       ).toMatchSnapshot();

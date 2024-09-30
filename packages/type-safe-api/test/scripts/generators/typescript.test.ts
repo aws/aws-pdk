@@ -3,7 +3,6 @@ SPDX-License-Identifier: Apache-2.0 */
 import os from "os";
 import * as path from "path";
 import { exec } from "projen/lib/util";
-import { OpenApiToolsJsonFile } from "../../../src/project/codegen/components/open-api-tools-json-file";
 import { GeneratedTypescriptRuntimeProject } from "../../../src/project/codegen/runtime/generated-typescript-runtime-project";
 import { withTmpDirSnapshot } from "../../project/snapshot-utils";
 
@@ -26,16 +25,10 @@ describe("Typescript Client Code Generation Script Unit Tests", () => {
               outdir,
               specPath: "spec.yaml",
             });
-            // Synth the openapitools.json since it's used by the generate command
-            OpenApiToolsJsonFile.of(project)!.synthesize();
-            exec(
-              project.tasks.tryFind("create-openapitools.json")!.steps[0].exec!,
-              { cwd: outdir }
-            );
             exec(
               `${path.resolve(
                 __dirname,
-                "../../../scripts/type-safe-api/generators/generate"
+                "../../../scripts/type-safe-api/generators/generate.js"
               )} ${project.buildGenerateCommandArgs()}`,
               {
                 cwd: outdir,
@@ -43,10 +36,7 @@ describe("Typescript Client Code Generation Script Unit Tests", () => {
             );
           },
           {
-            excludeGlobs: [
-              ...GeneratedTypescriptRuntimeProject.openApiIgnorePatterns,
-              "spec.yaml",
-            ],
+            excludeGlobs: ["spec.yaml"],
           }
         )
       ).toMatchSnapshot();

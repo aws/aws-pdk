@@ -4,7 +4,18 @@ import {
   GeneratedTypescriptRuntimeBaseProject,
   GeneratedTypescriptRuntimeBaseProjectOptions,
 } from "./generated-typescript-runtime-base-project";
-import { GenerationOptions, OtherGenerators } from "../components/utils";
+import { Language } from "../../languages";
+import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
+import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
+import {
+  buildCleanOpenApiGeneratedCodeCommand,
+  buildInvokeOpenApiGeneratorCommandArgs,
+  buildTypeSafeApiExecCommand,
+  CodegenOptions,
+  GenerationOptions,
+  OtherGenerators,
+  TypeSafeApiScript,
+} from "../components/utils";
 
 /**
  * Configuration for the generated typescript client project
@@ -16,17 +27,73 @@ export interface GeneratedTypescriptAsyncRuntimeProjectOptions
  * Typescript project containing types generated using OpenAPI Generator CLI
  */
 export class GeneratedTypescriptAsyncRuntimeProject extends GeneratedTypescriptRuntimeBaseProject {
+  // TODO: remove
+  /**
+   * Patterns that are excluded from code generation
+   */
+  public static openApiIgnorePatterns: string[] = [
+    "package.json",
+    "tsconfig.json",
+    "tsconfig.esm.json",
+    ".npmignore",
+  ];
+
+  protected readonly openapiGeneratorIgnore: OpenApiGeneratorIgnoreFile;
+
   constructor(options: GeneratedTypescriptAsyncRuntimeProjectOptions) {
     super(options);
 
     this.addDeps("@aws-sdk/client-apigatewaymanagementapi");
 
-    this.openapiGeneratorIgnore.addPatterns(
+    // TODO: remove this in favour of new codegen
+    // Tell OpenAPI Generator CLI not to generate files that we will generate via this project, or don't need.
+    const openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);
+    this.openapiGeneratorIgnore = openapiGeneratorIgnore;
+    openapiGeneratorIgnore.addPatterns(
+      ...GeneratedTypescriptAsyncRuntimeProject.openApiIgnorePatterns
+    );
+
+    // Add OpenAPI Generator cli configuration
+    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
+      options.openApiGeneratorCliConfig
+    );
+
+    openapiGeneratorIgnore.addPatterns(
       // Skip generating http clients
       `${this.srcdir}/apis/**/*`,
       `${this.srcdir}/apis/*`
     );
+
+    // TODO: remove this in favour of new codegen
+    this.generateTask.reset();
+    this.generateTask.exec(buildCleanOpenApiGeneratedCodeCommand());
+    this.generateTask.exec(
+      buildTypeSafeApiExecCommand(
+        TypeSafeApiScript.GENERATE,
+        this.buildGenerateCommandArgs()
+      )
+    );
   }
+
+  protected buildCodegenOptions(): CodegenOptions {
+    // TODO: not currently used, adjust these when removing openapi generator for websocket apis
+    return {
+      specPath: this.options.specPath,
+      templateDirs: [
+        OtherGenerators.TYPESCRIPT_ASYNC_RUNTIME,
+        `${Language.TYPESCRIPT}/templates/client/models`,
+      ],
+      metadata: {
+        srcDir: this.srcdir,
+      },
+    };
+  }
+
+  public buildGenerateCommandArgs = (): string => {
+    return buildInvokeOpenApiGeneratorCommandArgs(
+      this.buildOpenApiGeneratorOptions()
+    );
+  };
 
   protected buildOpenApiGeneratorOptions(): GenerationOptions {
     return {

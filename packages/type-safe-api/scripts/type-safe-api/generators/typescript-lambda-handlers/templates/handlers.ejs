@@ -1,0 +1,42 @@
+
+<%_ services.forEach((service) => { _%>
+<%_ service.operations.forEach((operation) => { _%>
+<%_ if (operation.vendorExtensions && operation.vendorExtensions['x-handler'] && operation.vendorExtensions['x-handler'].language === 'typescript') { _%>
+###TSAPI_WRITE_FILE###
+{
+  "id": "<%= operation.name %>",
+  "dir": "<%= metadata.srcDir || 'src' %>",
+  "name": "<%= operation.operationIdKebabCase %>",
+  "ext": ".ts",
+  "overwrite": false
+}
+###/TSAPI_WRITE_FILE###import {
+  <%= operation.name %>Handler,
+  <%= operation.operationIdPascalCase %>ChainedHandlerFunction,
+  INTERCEPTORS,
+  Response,
+  LoggingInterceptor,
+} from "<%= metadata.runtimePackageName %>";
+
+/**
+ * Type-safe handler for the <%= operation.operationIdPascalCase %> operation
+ */
+export const <%= operation.name %>: <%= operation.operationIdPascalCase %>ChainedHandlerFunction = async (request) => {
+  LoggingInterceptor.getLogger(request).info("Start <%= operation.operationIdPascalCase %> Operation");
+
+  // TODO: Implement <%= operation.operationIdPascalCase %> Operation. `input` contains the request input.
+  const { input } = request;
+
+  return Response.internalFailure({
+    message: "Not Implemented!",
+  });
+};
+
+/**
+ * Entry point for the AWS Lambda handler for the <%= operation.operationIdPascalCase %> operation.
+ * The <%= operation.name %>Handler method wraps the type-safe handler and manages marshalling inputs and outputs
+ */
+export const handler = <%= operation.name %>Handler(...INTERCEPTORS, <%= operation.name %>);
+<%_ } _%>
+<%_ }); _%>
+<%_ }); _%>

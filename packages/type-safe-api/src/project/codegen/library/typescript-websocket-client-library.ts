@@ -5,7 +5,16 @@ import {
   GeneratedTypescriptLibraryProjectOptions,
 } from "./generated-typescript-library-project";
 import { WebSocketLibrary } from "../../languages";
-import { GenerationOptions } from "../components/utils";
+import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
+import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
+import {
+  buildCleanOpenApiGeneratedCodeCommand,
+  buildInvokeOpenApiGeneratorCommandArgs,
+  buildTypeSafeApiExecCommand,
+  CodegenOptions,
+  GenerationOptions,
+  TypeSafeApiScript,
+} from "../components/utils";
 
 /**
  * Configuration for the generated typescript websocket client project
@@ -17,6 +26,18 @@ export interface TypescriptWebsocketClientLibraryOptions
  * Typescript project containing a generated websocket client
  */
 export class TypescriptWebsocketClientLibrary extends GeneratedTypescriptLibraryProject {
+  /**
+   * Patterns that are excluded from code generation
+   */
+  public static openApiIgnorePatterns: string[] = [
+    "package.json",
+    "tsconfig.json",
+    "tsconfig.esm.json",
+    ".npmignore",
+  ];
+
+  protected readonly openapiGeneratorIgnore: OpenApiGeneratorIgnoreFile;
+
   constructor(options: TypescriptWebsocketClientLibraryOptions) {
     super(options);
 
@@ -33,12 +54,47 @@ export class TypescriptWebsocketClientLibrary extends GeneratedTypescriptLibrary
     );
     this.addDeps("@types/ws@^8", "@types/uuid@^9");
 
-    this.openapiGeneratorIgnore.addPatterns(
+    // Tell OpenAPI Generator CLI not to generate files that we will generate via this project, or don't need.
+    const openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);
+    this.openapiGeneratorIgnore = openapiGeneratorIgnore;
+    openapiGeneratorIgnore.addPatterns(
+      ...TypescriptWebsocketClientLibrary.openApiIgnorePatterns
+    );
+
+    // Add OpenAPI Generator cli configuration
+    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
+      options.openApiGeneratorCliConfig
+    );
+
+    this.generateTask.reset();
+    this.generateTask.exec(buildCleanOpenApiGeneratedCodeCommand());
+    this.generateTask.exec(
+      buildTypeSafeApiExecCommand(
+        TypeSafeApiScript.GENERATE,
+        this.buildGenerateCommandArgs()
+      )
+    );
+
+    openapiGeneratorIgnore.addPatterns(
       // Skip generating http clients
       `${this.srcdir}/apis/*`,
       `${this.srcdir}/apis/**/*`
     );
   }
+
+  protected buildCodegenOptions(): CodegenOptions {
+    // TODO: update when switch to new codegen
+    return {
+      specPath: this.options.specPath,
+      templateDirs: [WebSocketLibrary.TYPESCRIPT_WEBSOCKET_CLIENT],
+    };
+  }
+
+  public buildGenerateCommandArgs = (): string => {
+    return buildInvokeOpenApiGeneratorCommandArgs(
+      this.buildOpenApiGeneratorOptions()
+    );
+  };
 
   public buildOpenApiGeneratorOptions(): GenerationOptions {
     return {

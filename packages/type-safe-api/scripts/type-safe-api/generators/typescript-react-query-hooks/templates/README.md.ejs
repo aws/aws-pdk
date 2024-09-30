@@ -1,4 +1,12 @@
-# TypeScript React Query Hooks
+###TSAPI_WRITE_FILE###
+{
+  "dir": ".",
+  "name": "README",
+  "ext": ".md",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE#### TypeScript React Query Hooks
+<%_ const serviceClassName = services[0] ? services[0].className : 'DefaultApi' _%>
 
 This project contains [react-query](https://tanstack.com/query/latest) hooks for interacting with your API.
 
@@ -21,7 +29,7 @@ new CloudscapeReactTsWebsite({
 Next, create an instance of the API client (making sure to set the base URL and fetch instance). For example:
 
 ```ts
-export const use{{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}Client = () => useMemo(() => new {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}(new Configuration({
+export const use<%- serviceClassName %>Client = () => useMemo(() => new <%- serviceClassName %>(new Configuration({
     basePath: 'https://example123.execute-api.ap-southeast-2.amazonaws.com/prod',
     fetchApi: window.fetch.bind(window),
 })), []);
@@ -31,9 +39,9 @@ Note that if you are using the [Cloudscape React Website](https://github.com/aws
 an instance of `fetch` which will sign requests with the logged in user's credentials. For example:
 
 ```ts
-export const use{{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}Client = () => {
+export const use<%- serviceClassName %>Client = () => {
     const client = useSigv4Client();
-    return useMemo(() => new {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}(new Configuration({
+    return useMemo(() => new <%- serviceClassName %>(new Configuration({
         basePath: 'https://example123.execute-api.ap-southeast-2.amazonaws.com/prod',
         fetchApi: client,
     })), [client]);
@@ -43,12 +51,12 @@ export const use{{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}Clien
 Next, instantiate the client provider above where you would like to use the hooks in your component hierarchy (such as above your router). For example:
 
 ```tsx
-const api = use{{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}Client();
+const api = use<%- serviceClassName %>Client();
 
 return (
-    <{{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}ClientProvider apiClient={api}>
+    <<%- serviceClassName %>ClientProvider apiClient={api}>
         { /* Components within the provider may make use of the hooks */ }
-    </{{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}ClientProvider>
+    </<%- serviceClassName %>ClientProvider>
 );
 ```
 

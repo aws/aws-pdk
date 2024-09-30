@@ -1,0 +1,75 @@
+###TSAPI_WRITE_FILE###
+{
+  "dir": "<%- metadata.srcDir || 'src' %>",
+  "name": "mock-integrations",
+  "ext": ".ts",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###import {
+<%_ models.forEach((model) => { _%>
+  <%- model.name %>,
+  <%- model.name %>ToJSON,
+<%_ }); _%>
+} from "<%- metadata.runtimePackageName %>";
+import { Integrations, MockIntegration } from "@aws/pdk/type-safe-api";
+import * as fs from "fs";
+import * as path from "path";
+
+/**
+ * Type-safe mock integrations for API operations
+ */
+export class MockIntegrations {
+  /**
+   * Read a mock data file for the given operation
+   */
+  private static readMockDataFile(method: string, urlPath: string, statusCode: number): string {
+    return fs.readFileSync(path.join(__dirname, "..", "mocks", `${method.toLowerCase()}${urlPath.replace(/\//g, "-")}-${statusCode}.json`), "utf-8");
+  }
+
+  <%_ if (metadata.enableMockIntegrations) { _%>
+  <%_ allOperations.forEach((operation) => { _%>
+  <%_ operation.responses.forEach((response) => { _%>
+  /**
+   * Mock integration to return a <%- response.code %> response from the <%- operation.name %> operation
+  <%_ if (!response.isPrimitive) { _%>
+   * Call this with no arguments to use a generated mock response
+  <%_ } _%>
+   */
+  public static <%- operation.name %><%- response.code %>(<% if (response.type !== 'void') { %>body<% if (response.isPrimitive) { %>: string<% } else { %>?: <%- response.typescriptType %><% } %><% } %>): MockIntegration {
+    return Integrations.mock({
+      statusCode: <%- response.code %>,
+      <%_ if (response.type !== 'void') { _%>
+      <%_ if (response.isPrimitive) { _%>
+      body,
+      <%_ } else { _%>
+      body: body === undefined
+        ? MockIntegrations.readMockDataFile("<%- operation.method %>", "<%- operation.path %>", <%- response.code %>)
+        : JSON.stringify(<%- response.typescriptType %>ToJSON(body)),
+      <%_ } _%>
+      <%_ } _%>
+    });
+  }
+
+  <%_ }); _%>
+  <%_ }); _%>
+
+  /**
+   * Mock all operations for which generated JSON data can be returned.
+   * The first available response is used for each operation. In most cases this is the successful 200 response.
+   */
+  public static mockAll() {
+    return {
+      <%_ allOperations.forEach((operation) => { _%>
+      <%_ const firstResponse = operation.results[0] || operation.responses[0]; _%>
+      <%_ if (firstResponse && !firstResponse.isPrimitive) { _%>
+      <%- operation.name %>: {
+        integration: MockIntegrations.<%- operation.name %><%- firstResponse.code %>(),
+      },
+      <%_ } _%>
+      <%_ }); _%>
+    };
+  }
+  <%_ } else { _%>
+  // No mock integrations have been generated, since mock data generation is disabled.
+  <%_ } %>
+}

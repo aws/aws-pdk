@@ -27,7 +27,8 @@ public class SmithyAsyncTransformerTest {
         .settings(Node.objectNode())
         .build());
 
-    OperationShape operation = result.getShape(ShapeId.from("com.aws#SayHello")).orElseThrow().asOperationShape().orElseThrow();
+    OperationShape operation = result.getShape(ShapeId.from("com.aws#SayHello"))
+        .orElseThrow(() -> new RuntimeException()).asOperationShape().orElseThrow(() -> new RuntimeException());
 
     assertTrue(operation.hasTrait(HttpTrait.ID));
     assertTrue(operation.hasTrait("com.aws#async"));
@@ -45,7 +46,8 @@ public class SmithyAsyncTransformerTest {
         .settings(Node.objectNode())
         .build());
 
-    ServiceShape service = result.getShape(ShapeId.from("com.aws#MyService")).orElseThrow().asServiceShape().orElseThrow();
+    ServiceShape service = result.getShape(ShapeId.from("com.aws#MyService"))
+        .orElseThrow(() -> new RuntimeException()).asServiceShape().orElseThrow(() -> new RuntimeException());
 
     assertTrue(service.hasTrait(RestJson1Trait.ID));
     assertTrue(service.hasTrait("com.aws#websocketJson"));

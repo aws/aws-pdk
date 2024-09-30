@@ -1,7 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
-import { DependencyType, IgnoreFile, SampleDir } from "projen";
+import { DependencyType, IgnoreFile, SampleDir, Task } from "projen";
 import { NodePackageManager } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { NodeVersion } from "../../languages";
@@ -9,15 +9,11 @@ import {
   CodeGenerationSourceOptions,
   GeneratedTypeScriptHandlersOptions,
 } from "../../types";
-import { OpenApiGeneratorHandlebarsIgnoreFile } from "../components/open-api-generator-handlebars-ignore-file";
-import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
-import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
 import { TypeSafeApiCommandEnvironment } from "../components/type-safe-api-command-environment";
 import {
-  buildCleanOpenApiGeneratedCodeCommand,
-  buildInvokeOpenApiGeneratorCommandArgs,
+  buildCodegenCommandArgs,
   buildTypeSafeApiExecCommand,
-  GenerationOptions,
+  CodegenOptions,
   TypeSafeApiScript,
 } from "../components/utils";
 import { GeneratedTypescriptRuntimeBaseProject } from "../runtime/generated-typescript-runtime-base-project";
@@ -47,6 +43,8 @@ export abstract class GeneratedTypescriptHandlersBaseProject extends TypeScriptP
    * Node runtime version for the handlers
    */
   public readonly runtimeVersion: NodeVersion;
+
+  protected readonly generateTask: Task;
 
   constructor(options: GeneratedTypescriptHandlersBaseProjectOptions) {
     super({
@@ -91,39 +89,18 @@ export abstract class GeneratedTypescriptHandlersBaseProject extends TypeScriptP
     const npmignore = new IgnoreFile(this, ".npmignore");
     npmignore.addPatterns("/.projen/", "/src", "/dist");
 
-    // Ignore everything for the regular open api generator pass
-    const openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);
-    openapiGeneratorIgnore.addPatterns("/*", "**/*", "*");
-    // Ignore everything but the handler files for the handlebars pass
-    const openapiGeneratorHandlebarsIgnore =
-      new OpenApiGeneratorHandlebarsIgnoreFile(this);
-    openapiGeneratorHandlebarsIgnore.addPatterns(
-      "/*",
-      "**/*",
-      "*",
-      // This will be split into a file per targeted handler
-      `!${this.srcdir}/__all_handlers.ts`,
-      `!${this.testdir}/__all_tests.ts`
-    );
-
-    // Add OpenAPI Generator cli configuration
-    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
-      options.openApiGeneratorCliConfig
-    );
-
-    const generateTask = this.addTask("generate");
-    generateTask.exec(buildCleanOpenApiGeneratedCodeCommand());
-    generateTask.exec(
+    this.generateTask = this.addTask("generate");
+    this.generateTask.exec(
       buildTypeSafeApiExecCommand(
-        TypeSafeApiScript.GENERATE,
+        TypeSafeApiScript.GENERATE_NEXT,
         this.buildGenerateCommandArgs()
       )
     );
 
-    this.preCompileTask.spawn(generateTask);
+    this.preCompileTask.spawn(this.generateTask);
 
     // Ignore the openapi generator metadata
-    this.gitignore.addPatterns(".openapi-generator");
+    this.gitignore.addPatterns(".openapi-generator", ".tsapi-metadata");
 
     // Create a separate lambda bundle for each handler as part of the package task.
     // Note that every typescript file directly in src is bundled by default, but users may specify their own
@@ -177,10 +154,8 @@ export abstract class GeneratedTypescriptHandlersBaseProject extends TypeScriptP
   }
 
   public buildGenerateCommandArgs = () => {
-    return buildInvokeOpenApiGeneratorCommandArgs(
-      this.buildOpenApiGeneratorOptions()
-    );
+    return buildCodegenCommandArgs(this.buildCodegenOptions());
   };
 
-  protected abstract buildOpenApiGeneratorOptions(): GenerationOptions;
+  protected abstract buildCodegenOptions(): CodegenOptions;
 }
