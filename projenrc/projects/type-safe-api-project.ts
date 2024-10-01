@@ -144,6 +144,10 @@ export class TypeSafeApiProject extends PDKProject {
     this.preCompileTask.exec(
       `esbuild --bundle scripts/type-safe-api/generators/generate.ts --platform=node --outfile=${generateScript}`
     );
+    NxProject.of(this)?.addBuildTargetFiles(
+      [],
+      [`{projectRoot}/${generateScript}`]
+    );
     this.gitignore.addPatterns(generateScript);
 
     this.generateInterfaces();
