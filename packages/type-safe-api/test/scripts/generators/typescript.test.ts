@@ -7,7 +7,7 @@ import { GeneratedTypescriptRuntimeProject } from "../../../src/project/codegen/
 import { withTmpDirSnapshot } from "../../project/snapshot-utils";
 
 describe("Typescript Client Code Generation Script Unit Tests", () => {
-  it.each(["single.yaml", "multiple-tags.yaml"])(
+  it.each(["single.yaml", "multiple-tags.yaml", "data-types.yaml"])(
     "Generates With %s",
     (spec) => {
       const specPath = path.resolve(__dirname, `../../resources/specs/${spec}`);
