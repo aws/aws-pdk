@@ -7,39 +7,41 @@ import { GeneratedTypescriptRuntimeProject } from "../../../src/project/codegen/
 import { withTmpDirSnapshot } from "../../project/snapshot-utils";
 
 describe("Typescript Client Code Generation Script Unit Tests", () => {
-  it.each(["single.yaml", "multiple-tags.yaml", "data-types.yaml"])(
-    "Generates With %s",
-    (spec) => {
-      const specPath = path.resolve(__dirname, `../../resources/specs/${spec}`);
+  it.each([
+    "single.yaml",
+    "multiple-tags.yaml",
+    "data-types.yaml",
+    "edge-cases.yaml",
+  ])("Generates With %s", (spec) => {
+    const specPath = path.resolve(__dirname, `../../resources/specs/${spec}`);
 
-      expect(
-        withTmpDirSnapshot(
-          os.tmpdir(),
-          (outdir) => {
-            exec(`cp ${specPath} ${outdir}/spec.yaml`, {
-              cwd: path.resolve(__dirname),
-            });
-            const project = new GeneratedTypescriptRuntimeProject({
-              name: "test",
-              defaultReleaseBranch: "main",
-              outdir,
-              specPath: "spec.yaml",
-            });
-            exec(
-              `${path.resolve(
-                __dirname,
-                "../../../scripts/type-safe-api/generators/generate.js"
-              )} ${project.buildGenerateCommandArgs()}`,
-              {
-                cwd: outdir,
-              }
-            );
-          },
-          {
-            excludeGlobs: ["spec.yaml"],
-          }
-        )
-      ).toMatchSnapshot();
-    }
-  );
+    expect(
+      withTmpDirSnapshot(
+        os.tmpdir(),
+        (outdir) => {
+          exec(`cp ${specPath} ${outdir}/spec.yaml`, {
+            cwd: path.resolve(__dirname),
+          });
+          const project = new GeneratedTypescriptRuntimeProject({
+            name: "test",
+            defaultReleaseBranch: "main",
+            outdir,
+            specPath: "spec.yaml",
+          });
+          exec(
+            `${path.resolve(
+              __dirname,
+              "../../../scripts/type-safe-api/generators/generate.js"
+            )} ${project.buildGenerateCommandArgs()}`,
+            {
+              cwd: outdir,
+            }
+          );
+        },
+        {
+          excludeGlobs: ["spec.yaml"],
+        }
+      )
+    ).toMatchSnapshot();
+  });
 });
