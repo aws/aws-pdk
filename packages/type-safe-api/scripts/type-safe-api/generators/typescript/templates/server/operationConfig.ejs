@@ -318,9 +318,9 @@ export const <%- operation.name %>Handler = (
     try {
       requestParameters = {
         <%_ operation.parameters.filter(p => p.in !== "body").forEach((parameter) => { _%>
-          <%_ let isInteger = parameter.isInteger || (parameter.export === "array" && parameter.link && parameter.link.isInteger); _%>
-          <%_ let isShort = parameter.isShort || (parameter.export === "array" && parameter.link && parameter.link.isShort); _%>
-          <%_ let isLong = parameter.isLong || (parameter.export === "array" && parameter.link && parameter.link.isLong); _%>
+          <%_ let isInteger = parameter.isInteger || !!(parameter.export === "array" && parameter.link && parameter.link.isInteger); _%>
+          <%_ let isShort = parameter.isShort || !!(parameter.export === "array" && parameter.link && parameter.link.isShort); _%>
+          <%_ let isLong = parameter.isLong || !!(parameter.export === "array" && parameter.link && parameter.link.isLong); _%>
           <%- parameter.typescriptName %>: coerceParameter("<%- parameter.prop %>", "<%- parameter.typescriptType %>", <%- isInteger %> || <%- isLong %> || <%- isShort %>, rawSingleValueParameters, rawMultiValueParameters, <%- parameter.isRequired %>) as <%- parameter.typescriptType %><% if (!parameter.isRequired) { %> | undefined<% } %>,
         <%_ }); %>
       };

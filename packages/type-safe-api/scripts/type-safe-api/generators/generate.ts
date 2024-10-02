@@ -6,7 +6,16 @@ import SwaggerParser from "@apidevtools/swagger-parser";
 import { parse } from "ts-command-line-args";
 import * as ejs from "ejs";
 import * as path from "path";
-import * as _ from "lodash";
+import _get from "lodash/get";
+import _set from "lodash/set";
+import _trim from "lodash/trim";
+import _upperFirst from "lodash/upperFirst";
+import _camelCase from "lodash/camelCase";
+import _snakeCase from "lodash/snakeCase";
+import _kebabCase from "lodash/kebabCase";
+import _orderBy from "lodash/orderBy";
+import _uniq from "lodash/uniq";
+import _uniqBy from "lodash/uniqBy";
 import { OpenAPIV3 } from "openapi-types";
 import * as parseOpenapi from "parse-openapi";
 import { getOperationResponses } from "parse-openapi/dist/parser/getOperationResponses";
@@ -79,7 +88,7 @@ const splitRef = (ref: string): string[] =>
  */
 const resolveRef = (spec: OpenAPIV3.Document, ref: string): any => {
   const refParts = splitRef(ref);
-  const resolved = _.get(spec, refParts);
+  const resolved = _get(spec, refParts);
   if (!resolved) {
     throw new Error(`Unable to resolve ref ${ref} in spec`);
   }
@@ -236,12 +245,12 @@ const toTypeScriptType = (property: parseOpenapi.Model): string => {
  * Mutates the given model to add language specific types and names
  */
 const mutateModelWithAdditionalTypes = (model: parseOpenapi.Model) => {
-  (model as any).typescriptName = _.camelCase(model.name);
+  (model as any).typescriptName = model.name;
   (model as any).typescriptType = toTypeScriptType(model);
   (model as any).isPrimitive = PRIMITIVE_TYPES.has(model.type);
 
   // Trim any surrounding quotes from name
-  model.name = _.trim(model.name, `"'`);
+  model.name = _trim(model.name, `"'`);
 };
 
 const mutateWithOpenapiSchemaProperties = (spec: OpenAPIV3.Document, model: parseOpenapi.Model, schema: OpenAPIV3.SchemaObject, visited: Set<parseOpenapi.Model> = new Set()) => {
@@ -292,7 +301,7 @@ const hoistInlineObjectSubSchemas = (nameParts: string[], schema: OpenAPIV3.Sche
 
   // Clone the object subschemas to build the refs
   const refs = inlineSubSchemas.filter(s => s.schema.type === "object" && ["items", "additionalProperties"].includes(s.prop)).map(s => {
-    const name = s.nameParts.map(_.upperFirst).join('');
+    const name = s.nameParts.map(_upperFirst).join('');
     const $ref = `#/components/schemas/${name}`;
     const ref = {
       $ref,
@@ -301,7 +310,7 @@ const hoistInlineObjectSubSchemas = (nameParts: string[], schema: OpenAPIV3.Sche
     };
 
     // Replace each subschema with a ref in the spec
-    _.set(schema, s.prop, { $ref });
+    _set(schema, s.prop, { $ref });
 
     return ref;
   });
@@ -341,7 +350,7 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
         const response = resolveIfRef(spec, res);
         const jsonResponseSchema = response?.content?.['application/json']?.schema;
         if (jsonResponseSchema && !isRef(jsonResponseSchema) && ["object", "array"].includes(jsonResponseSchema.type!)) {
-          const schemaName = `${_.upperFirst(_.camelCase(operation.operationId ?? `${path}-${method}`))}${code}Response`;
+          const schemaName = `${_upperFirst(_camelCase(operation.operationId ?? `${path}-${method}`))}${code}Response`;
           spec.components!.schemas![schemaName] = jsonResponseSchema;
           response!.content!['application/json'].schema = {
             $ref: `#/components/schemas/${schemaName}`,
@@ -413,7 +422,7 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
         // If the operation didn't specify an operationId, we need to generate one in a backwards compatible way
         // which matches openapi generator
         if (!specOp.operationId) {
-          (op as any).name = _.camelCase(`${op.path.replace(/{(.*?)}/g, 'by-$1').replace(/[/:]/g, '-')}-${op.method}`);
+          (op as any).name = _camelCase(`${op.path.replace(/{(.*?)}/g, 'by-$1').replace(/[/:]/g, '-')}-${op.method}`);
         }
       }
 
@@ -434,7 +443,7 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
 
         if (parameter.in === "body") {
           // Parameter name for the body is it's type in camelCase
-          parameter.name = parameter.export === "reference" ? _.camelCase(parameter.type) : "body";
+          parameter.name = parameter.export === "reference" ? _camelCase(parameter.type) : "body";
 
           // The request body is not in the "parameters" section of the openapi spec so we won't have added the schema
           // properties above. Find it here.
@@ -469,16 +478,16 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
       [...((op as any).responses ?? []), ...op.results].forEach(mutateModelWithAdditionalTypes);
 
       // Add variants of operation name
-      (op as any).operationIdPascalCase = _.upperFirst(op.name);
-      (op as any).operationIdKebabCase = _.kebabCase(op.name);
-      (op as any).operationIdSnakeCase = _.snakeCase(op.name);
+      (op as any).operationIdPascalCase = _upperFirst(op.name);
+      (op as any).operationIdKebabCase = _kebabCase(op.name);
+      (op as any).operationIdSnakeCase = _snakeCase(op.name);
     });
 
     // Lexicographical ordering of operations to match openapi generator
-    service.operations = _.orderBy(service.operations, (op) => op.name);
+    service.operations = _orderBy(service.operations, (op) => op.name);
 
     // Add the models to import
-    (service as any).modelImports = _.orderBy(_.uniq([...service.imports, ...responseModelImports]));
+    (service as any).modelImports = _orderBy(_uniq([...service.imports, ...responseModelImports]));
 
     // Add the service class name
     (service as any).className = `${service.name}Api`;
@@ -492,7 +501,7 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
       const specModel = isRef(matchingSpecModel) ? resolveRef(spec, matchingSpecModel.$ref) as OpenAPIV3.SchemaObject : matchingSpecModel;
 
       // Add unique imports
-      (model as any).uniqueImports = _.orderBy(_.uniq(model.imports));
+      (model as any).uniqueImports = _orderBy(_uniq(model.imports));
 
       // Add deprecated flag if present
       (model as any).deprecated = specModel.deprecated || false;
@@ -521,13 +530,13 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
   });
 
   // Order models lexicographically by name
-  data.models = _.orderBy(data.models, d => d.name);
+  data.models = _orderBy(data.models, d => d.name);
 
   // Order services so default appears first, then otherwise by name
-  data.services = _.orderBy(data.services, (s => s.name === "Default" ? "" : s.name));
+  data.services = _orderBy(data.services, (s => s.name === "Default" ? "" : s.name));
 
   // All operations across all services
-  const allOperations = _.uniqBy(data.services.flatMap(s => s.operations), o => o.name);
+  const allOperations = _uniqBy(data.services.flatMap(s => s.operations), o => o.name);
 
   return {
     ...data,
