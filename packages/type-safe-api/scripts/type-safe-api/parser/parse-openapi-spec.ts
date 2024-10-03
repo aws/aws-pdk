@@ -3,7 +3,6 @@ SPDX-License-Identifier: Apache-2.0 */
 import SwaggerParser from "@apidevtools/swagger-parser";
 import { writeFile } from "projen/lib/util";
 import { parse } from "ts-command-line-args";
-import * as _ from "lodash";
 import fs from "fs";
 
 // Smithy HTTP trait is used to map Smithy operations to their location in the spec
@@ -92,12 +91,12 @@ const getVendorExtensionFromTrait = (traitId: string): string => {
     ?? `x-${traitId}`;
 };
 
-void (async () => {
+export default async (argv: string[]) => {
   const args = parse<Arguments>({
     specPath: { type: String, alias: "s" },
     smithyJsonPath: { type: String, optional: true },
     outputPath: { type: String, alias: "o" },
-  });
+  }, { argv });
 
   const spec = (await SwaggerParser.bundle(args.specPath)) as any;
 
@@ -207,4 +206,4 @@ void (async () => {
   writeFile(args.outputPath, JSON.stringify(spec, null, 2), {
     readonly: true,
   });
-})();
+};

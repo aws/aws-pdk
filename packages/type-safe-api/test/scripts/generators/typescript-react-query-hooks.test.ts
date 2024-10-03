@@ -28,7 +28,7 @@ describe("Typescript React Query Hooks Code Generation Script Unit Tests", () =>
             exec(
               `${path.resolve(
                 __dirname,
-                "../../../scripts/type-safe-api/generators/generate.js"
+                "../../../scripts/type-safe-api/run.js generate"
               )} ${project.buildGenerateCommandArgs()}`,
               {
                 cwd: outdir,

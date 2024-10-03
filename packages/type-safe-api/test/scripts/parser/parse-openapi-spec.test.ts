@@ -14,7 +14,7 @@ describe("Parse OpenAPI Spec Script Unit Tests", () => {
           path.relative(path.resolve(__dirname), tmpDir),
           ".api.json"
         );
-        const command = `../../../scripts/type-safe-api/parser/parse-openapi-spec --spec-path ${specPath} --output-path ${outputPath}`;
+        const command = `../../../scripts/type-safe-api/run.js parse-openapi-spec --specPath ${specPath} --outputPath ${outputPath}`;
         exec(command, {
           cwd: path.resolve(__dirname),
         });
@@ -33,7 +33,7 @@ describe("Parse OpenAPI Spec Script Unit Tests", () => {
           path.relative(path.resolve(__dirname), tmpDir),
           ".api.json"
         );
-        const command = `../../../scripts/type-safe-api/parser/parse-openapi-spec --spec-path ${specPath} --output-path ${outputPath} --smithy-json-path ${smithyJsonModelPath}`;
+        const command = `../../../scripts/type-safe-api/run.js parse-openapi-spec --specPath ${specPath} --outputPath ${outputPath} --smithyJsonPath ${smithyJsonModelPath}`;
         exec(command, {
           cwd: path.resolve(__dirname),
         });
@@ -52,7 +52,7 @@ describe("Parse OpenAPI Spec Script Unit Tests", () => {
           path.relative(path.resolve(__dirname), tmpDir),
           ".api.json"
         );
-        const command = `../../../scripts/type-safe-api/parser/parse-openapi-spec --spec-path ${specPath} --output-path ${outputPath} --smithy-json-path ${smithyJsonModelPath}`;
+        const command = `../../../scripts/type-safe-api/run.js parse-openapi-spec --specPath ${specPath} --outputPath ${outputPath} --smithyJsonPath ${smithyJsonModelPath}`;
         exec(command, {
           cwd: path.resolve(__dirname),
         });
@@ -67,7 +67,7 @@ describe("Parse OpenAPI Spec Script Unit Tests", () => {
         path.relative(path.resolve(__dirname), tmpDir),
         ".api.json"
       );
-      const command = `../../../scripts/type-safe-api/parser/parse-openapi-spec --spec-path ${specPath} --output-path ${outputPath}`;
+      const command = `../../../scripts/type-safe-api/run.js parse-openapi-spec --specPath ${specPath} --outputPath ${outputPath}`;
       expect(() => {
         exec(command, {
           cwd: path.resolve(__dirname),
@@ -86,7 +86,7 @@ describe("Parse OpenAPI Spec Script Unit Tests", () => {
           path.relative(path.resolve(__dirname), tmpDir),
           ".api.json"
         );
-        const command = `../../../scripts/type-safe-api/parser/parse-openapi-spec --spec-path ${specPath} --output-path ${outputPath}`;
+        const command = `../../../scripts/type-safe-api/run.js parse-openapi-spec --specPath ${specPath} --outputPath ${outputPath}`;
         exec(command, {
           cwd: path.resolve(__dirname),
         });
@@ -104,7 +104,7 @@ describe("Parse OpenAPI Spec Script Unit Tests", () => {
           path.relative(path.resolve(__dirname), tmpDir),
           ".api.json"
         );
-        const command = `../../../scripts/type-safe-api/parser/parse-openapi-spec --spec-path ${specPath} --output-path ${outputPath} --smithy-json-path ${smithyJsonModelPath}`;
+        const command = `../../../scripts/type-safe-api/run.js parse-openapi-spec --specPath ${specPath} --outputPath ${outputPath} --smithyJsonPath ${smithyJsonModelPath}`;
         exec(command, {
           cwd: path.resolve(__dirname),
         });
