@@ -11,7 +11,7 @@ describe("Generate Mock Data Unit Tests", () => {
       withTmpDirSnapshot(os.tmpdir(), (tmpDir) => {
         const specPath = "../../../resources/specs/single.yaml";
         const outputPath = path.relative(path.resolve(__dirname), tmpDir);
-        const command = `../../../../scripts/type-safe-api/custom/mock-data/generate-mock-data --spec-path ${specPath} --output-path ${outputPath}`;
+        const command = `../../../../scripts/type-safe-api/run.js generate-mock-data --specPath ${specPath} --outputPath ${outputPath}`;
         exec(command, {
           cwd: path.resolve(__dirname),
         });
@@ -24,7 +24,7 @@ describe("Generate Mock Data Unit Tests", () => {
       withTmpDirSnapshot(os.tmpdir(), (tmpDir) => {
         const specPath = "../../../resources/specs/recursive.yaml";
         const outputPath = path.relative(path.resolve(__dirname), tmpDir);
-        const command = `../../../../scripts/type-safe-api/custom/mock-data/generate-mock-data --spec-path ${specPath} --output-path ${outputPath}`;
+        const command = `../../../../scripts/type-safe-api/run.js generate-mock-data --specPath ${specPath} --outputPath ${outputPath}`;
         exec(command, {
           cwd: path.resolve(__dirname),
         });
@@ -37,7 +37,7 @@ describe("Generate Mock Data Unit Tests", () => {
       withTmpDirSnapshot(os.tmpdir(), (tmpDir) => {
         const specPath = "../../../resources/specs/recursive-required.yaml";
         const outputPath = path.relative(path.resolve(__dirname), tmpDir);
-        const command = `../../../../scripts/type-safe-api/custom/mock-data/generate-mock-data --spec-path ${specPath} --output-path ${outputPath}`;
+        const command = `../../../../scripts/type-safe-api/run.js generate-mock-data --specPath ${specPath} --outputPath ${outputPath}`;
         exec(command, {
           cwd: path.resolve(__dirname),
         });
@@ -50,7 +50,7 @@ describe("Generate Mock Data Unit Tests", () => {
       withTmpDirSnapshot(os.tmpdir(), (tmpDir) => {
         const specPath = "../../../resources/specs/data-types.yaml";
         const outputPath = path.relative(path.resolve(__dirname), tmpDir);
-        const command = `../../../../scripts/type-safe-api/custom/mock-data/generate-mock-data --spec-path ${specPath} --output-path ${outputPath}`;
+        const command = `../../../../scripts/type-safe-api/run.js generate-mock-data --specPath ${specPath} --outputPath ${outputPath}`;
         exec(command, {
           cwd: path.resolve(__dirname),
         });

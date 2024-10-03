@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
@@ -545,9 +544,9 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
   };
 };
 
-const resolveTemplateDir = (templateDir: string) => {
+const resolveTemplateDir = (rootScriptDir: string, templateDir: string) => {
   // Prefer built in template, eg "typescript-lambda-handlers"
-  const builtinTemplateDir = path.resolve(__dirname, templateDir);
+  const builtinTemplateDir = path.join(rootScriptDir, "generators", templateDir);
   if (fs.existsSync(builtinTemplateDir)) {
     return builtinTemplateDir;
   }
@@ -560,13 +559,13 @@ const resolveTemplateDir = (templateDir: string) => {
   throw new Error(`Template directory ${templateDir} does not exist!`);
 };
 
-void (async () => {
+export default async (argv: string[], rootScriptDir: string) => {
   const args = parse<Arguments>({
     specPath: { type: String },
     metadata: { type: String, optional: true },
     templateDirs: { type: String, multiple: true },
     outputPath: { type: String },
-  });
+  }, { argv });
 
   const spec = (await SwaggerParser.bundle(args.specPath)) as any;
 
@@ -587,7 +586,7 @@ void (async () => {
   const data = buildData(spec, JSON.parse(args.metadata ?? '{}'));
 
   // Read all .ejs files in each template directory
-  const templates = args.templateDirs.flatMap(t => fs.readdirSync(resolveTemplateDir(t), {
+  const templates = args.templateDirs.flatMap(t => fs.readdirSync(resolveTemplateDir(rootScriptDir, t), {
     recursive: true,
     withFileTypes: true
   }).filter(f => f.isFile() && f.name.endsWith('.ejs')).map(f => path.join(f.parentPath, f.name)));
@@ -603,4 +602,4 @@ void (async () => {
 
   // Write the rendered files
   splitAndWriteFiles(renderedFiles, args.outputPath);
-})();
+};

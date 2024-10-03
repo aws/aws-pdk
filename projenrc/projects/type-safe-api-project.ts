@@ -72,10 +72,8 @@ export class TypeSafeApiProject extends PDKProject {
           "scripts/type-safe-api/custom/docs/asyncapi-html",
           "scripts/type-safe-api/custom/docs/asyncapi-markdown",
           "scripts/type-safe-api/generators/generate",
-          "scripts/type-safe-api/generators/generate.js",
-          "scripts/type-safe-api/parser/parse-openapi-spec",
+          "scripts/type-safe-api/run.js",
           "scripts/type-safe-api/custom/clean-openapi-generated-code/clean-openapi-generated-code",
-          "scripts/type-safe-api/custom/mock-data/generate-mock-data",
           "scripts/type-safe-api/custom/gradle-wrapper/copy-gradle-wrapper",
           "scripts/type-safe-api/custom/gradle-wrapper/gradlew",
           "scripts/type-safe-api/custom/gradle-wrapper/gradlew.bat",
@@ -84,13 +82,8 @@ export class TypeSafeApiProject extends PDKProject {
         ],
       },
       bin: {
-        "type-safe-api.parse-openapi-spec":
-          "scripts/type-safe-api/parser/parse-openapi-spec",
+        "type-safe-api": "scripts/type-safe-api/run.js",
         "type-safe-api.generate": "scripts/type-safe-api/generators/generate",
-        "type-safe-api.generate-next":
-          "scripts/type-safe-api/generators/generate.js",
-        "type-safe-api.generate-mock-data":
-          "scripts/type-safe-api/custom/mock-data/generate-mock-data",
         "type-safe-api.generate-html-redoc-docs":
           "scripts/type-safe-api/custom/docs/html-redoc",
         "type-safe-api.generate-asyncapi-html-docs":
@@ -139,16 +132,17 @@ export class TypeSafeApiProject extends PDKProject {
     );
     this.gitignore.addPatterns(smithyAsyncTransformerJar);
 
-    // Build the generate script
-    const generateScript = "scripts/type-safe-api/generators/generate.js";
+    // Build the "run" script
+    const runScript = "scripts/type-safe-api/run";
     this.preCompileTask.exec(
-      `esbuild --bundle scripts/type-safe-api/generators/generate.ts --platform=node --outfile=${generateScript}`
+      `esbuild --bundle ${runScript}.ts --platform=node --outfile=${runScript}.js`
     );
+    this.preCompileTask.exec(`chmod +x ${runScript}.js`);
     NxProject.of(this)?.addBuildTargetFiles(
       [],
-      [`{projectRoot}/${generateScript}`]
+      [`{projectRoot}/${runScript}.js`]
     );
-    this.gitignore.addPatterns(generateScript);
+    this.gitignore.addPatterns(`${runScript}.js`);
 
     this.generateInterfaces();
   }

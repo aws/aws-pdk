@@ -38,10 +38,10 @@ export enum OtherGenerators {
  * If adding a script here, ensure you map it in TypeSafeApiProject (in /projenrc/projects)
  */
 export enum TypeSafeApiScript {
-  PARSE_OPENAPI_SPEC = "type-safe-api.parse-openapi-spec",
+  PARSE_OPENAPI_SPEC = "type-safe-api parse-openapi-spec",
   GENERATE = "type-safe-api.generate",
-  GENERATE_NEXT = "type-safe-api.generate-next",
-  GENERATE_MOCK_DATA = "type-safe-api.generate-mock-data",
+  GENERATE_NEXT = "type-safe-api generate",
+  GENERATE_MOCK_DATA = "type-safe-api generate-mock-data",
   GENERATE_HTML_REDOC_DOCS = "type-safe-api.generate-html-redoc-docs",
   GENERATE_ASYNCAPI_HTML_DOCS = "type-safe-api.generate-asyncapi-html-docs",
   GENERATE_ASYNCAPI_MARKDOWN_DOCS = "type-safe-api.generate-asyncapi-markdown-docs",
@@ -233,12 +233,12 @@ export const buildInvokeMockDataGeneratorCommand = (
   const locale = options.locale ? ` --locale ${options.locale}` : "";
   const maxArrayLength =
     options.maxArrayLength !== undefined
-      ? ` --max-array-length ${options.maxArrayLength}`
+      ? ` --maxArrayLength ${options.maxArrayLength}`
       : "";
   const seed = options.seed !== undefined ? ` --seed ${options.seed}` : "";
   return buildTypeSafeApiExecCommand(
     TypeSafeApiScript.GENERATE_MOCK_DATA,
-    `--spec-path ${options.specPath} --output-path ${outputPath}${locale}${maxArrayLength}${seed}`
+    `--specPath ${options.specPath} --outputPath ${outputPath}${locale}${maxArrayLength}${seed}`
   );
 };
 

@@ -125,12 +125,10 @@ export abstract class TypeSafeApiModelProjectBase extends Project {
     this.generateTask.exec(
       buildTypeSafeApiExecCommand(
         TypeSafeApiScript.PARSE_OPENAPI_SPEC,
-        `--spec-path ${openApiSpecificationPath} --output-path ${
+        `--specPath ${openApiSpecificationPath} --outputPath ${
           this.parsedSpecFile
         }${
-          smithyJsonModelPath
-            ? ` --smithy-json-path ${smithyJsonModelPath}`
-            : ""
+          smithyJsonModelPath ? ` --smithyJsonPath ${smithyJsonModelPath}` : ""
         }`
       )
     );

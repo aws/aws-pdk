@@ -250,14 +250,14 @@ const generateMockString = (faker: Faker, schema: OpenAPIV3.SchemaObject, inProp
 };
 
 // Entry point
-void (async () => {
+export default async (argv: string[]) => {
   const args = parse<Arguments>({
     specPath: { type: String },
     outputPath: { type: String },
-    locale: { type: String },
-    maxArrayLength: { type: Number },
-    seed: { type: Number },
-  });
+    locale: { type: String, defaultValue: 'en' },
+    maxArrayLength: { type: Number, defaultValue: 3 },
+    seed: { type: Number, defaultValue: 1337 },
+  }, { argv });
 
   const faker = allFakers[args.locale as keyof typeof allFakers];
 
@@ -273,6 +273,11 @@ void (async () => {
   // Dereference all but circular references
   spec = await SwaggerParser.dereference(spec, { dereference: { circular: 'ignore' } }) as OpenAPIV3.Document;
 
+  // Write mocks to a "mocks" directory. Clean it up if it doesn't exist already.
+  const outPath = path.join(args.outputPath, "mocks");
+  fs.rmSync(outPath, { recursive: true, force: true });
+  fs.mkdirSync(outPath, { recursive: true });
+
   Object.entries(spec.paths ?? {}).forEach(([p, pathOp]) => {
     Object.entries(pathOp ?? {}).forEach(([method, operation]) => {
       if (operation && typeof operation === "object" && "responses" in operation) {
@@ -280,7 +285,7 @@ void (async () => {
           if (!isRef(response)) {
             const schema = response?.content?.['application/json']?.schema;
             if (schema) {
-              const mockResponseFilePath = path.join(args.outputPath, `${method.toLowerCase()}${p.replace(/\//g, "-")}-${responseCode}.json`);
+              const mockResponseFilePath = path.join(outPath, `${method.toLowerCase()}${p.replace(/\//g, "-")}-${responseCode}.json`);
               const mockResponse = generateMockResponse(spec, {
                 faker,
                 maxArrayLength: args.maxArrayLength,
@@ -293,4 +298,4 @@ void (async () => {
       }
     });
   });
-})();
+};
