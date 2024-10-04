@@ -616,10 +616,19 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
   // All operations across all services
   const allOperations = _uniqBy(data.services.flatMap(s => s.operations), o => o.name);
 
+  // Add top level vendor extensions
+  const vendorExtensions: { [key: string]: any } = {};
+  Object.entries(spec ?? {}).forEach(([key, value]) => {
+    if (key.startsWith('x-')) {
+      vendorExtensions[key] = value;
+    }
+  });
+
   return {
     ...data,
     allOperations,
     info: spec.info,
+    vendorExtensions,
   };
 };
 
