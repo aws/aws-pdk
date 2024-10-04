@@ -4,6 +4,7 @@ import os from "os";
 import * as path from "path";
 import { Project } from "projen";
 import { exec } from "projen/lib/util";
+import { buildCodegenCommandArgs } from "../../../lib/project/codegen/components/utils";
 import { DocumentationFormat } from "../../../src";
 import { OpenApiToolsJsonFile } from "../../../src/project/codegen/components/open-api-tools-json-file";
 import {
@@ -17,7 +18,7 @@ describe("Docs Generation Script Unit Tests", () => {
     DocumentationFormat.HTML2,
     DocumentationFormat.MARKDOWN,
     DocumentationFormat.PLANTUML,
-  ])("Generates %s", (generator) => {
+  ])("Generates %s", (format) => {
     const specPath = path.resolve(
       __dirname,
       `../../resources/specs/single.yaml`
@@ -36,14 +37,23 @@ describe("Docs Generation Script Unit Tests", () => {
           openApiToolsJsonFile.synthesize();
           exec(openApiToolsJsonFile.createTask.steps[0].exec!, { cwd: outdir });
           exec(
-            `${path.resolve(
-              __dirname,
-              "../../../scripts/type-safe-api/generators/generate"
-            )} ${buildInvokeOpenApiGeneratorCommandArgs({
-              generator,
-              specPath: "spec.yaml",
-              generatorDirectory: OtherGenerators.DOCS,
-            })}`,
+            // Use the old openapi generator command for html2
+            format === DocumentationFormat.HTML2
+              ? `${path.resolve(
+                  __dirname,
+                  "../../../scripts/type-safe-api/generators/generate"
+                )} ${buildInvokeOpenApiGeneratorCommandArgs({
+                  generator: format,
+                  specPath: "spec.yaml",
+                  generatorDirectory: OtherGenerators.DOCS,
+                })}`
+              : `${path.resolve(
+                  __dirname,
+                  "../../../scripts/type-safe-api/run.js generate"
+                )} ${buildCodegenCommandArgs({
+                  specPath: "spec.yaml",
+                  templateDirs: [`docs/templates/${format}`],
+                })}`,
             {
               cwd: outdir,
             }

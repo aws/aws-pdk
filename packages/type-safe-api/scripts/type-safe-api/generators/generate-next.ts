@@ -44,6 +44,10 @@ interface Arguments {
    * Location to write the generated code to
    */
   readonly outputPath: string;
+  /**
+   * Print the data passed to the ejs templates
+   */
+  readonly printData?: boolean;
 }
 
 interface WriteFileConfig {
@@ -240,12 +244,58 @@ const toTypeScriptType = (property: parseOpenapi.Model): string => {
   }
 };
 
+const toJavaPrimitive = (property: parseOpenapi.Model): string => {
+  if (property.type === "string" && ["date", "date-time"].includes(property.format ?? '')) {
+    return "Date";
+  } else if (property.type === "binary") {
+    return "byte[]";
+  } else if (property.type === "number") {
+    switch(property.format) {
+      case "int32":
+        return "Integer";
+      case "int64":
+        return "BigInteger";
+      case "float":
+        return "Float";
+      case "double":
+        return "Double";
+      default:
+        break;
+    }
+
+    if ((property as any).openapiType === "integer") {
+      return "Integer";
+    }
+    return "BigDecimal";
+  } else if (property.type === "boolean") {
+    return "Boolean";
+  } else if (property.type === "string") {
+    return "String";
+  }
+  return property.type;
+};
+
+const toJavaType = (property: parseOpenapi.Model): string => {
+  switch (property.export) {
+    case "generic":
+    case "reference":
+      return toJavaPrimitive(property);
+    case "array":
+      return `${property.uniqueItems ? 'Set' : 'List'}<${property.link ? toTypeScriptType(property.link) : property.type}>`;
+    case "dictionary":
+      return `Map<String, ${property.link ? toTypeScriptType(property.link) : property.type}>`;
+    default:
+      return property.type;
+  }
+};
+
 /**
  * Mutates the given model to add language specific types and names
  */
 const mutateModelWithAdditionalTypes = (model: parseOpenapi.Model) => {
   (model as any).typescriptName = model.name;
   (model as any).typescriptType = toTypeScriptType(model);
+  (model as any).javaType = toJavaType(model);
   (model as any).isPrimitive = PRIMITIVE_TYPES.has(model.type);
 
   // Trim any surrounding quotes from name
@@ -259,6 +309,7 @@ const mutateWithOpenapiSchemaProperties = (spec: OpenAPIV3.Document, model: pars
   (model as any).isShort = schema.format === "int32";
   (model as any).isLong = schema.format === "int64";
   (model as any).deprecated = !!schema.deprecated;
+  (model as any).openapiType = schema.type;
 
   visited.add(model);
 
@@ -414,6 +465,9 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
             // When there's no content, we set the type to 'void'
             if (!specResponse.content) {
               response.type = 'void';
+            } else {
+              // Add the response media types
+              (response as any).mediaTypes = Object.keys(specResponse.content);
             }
           }
         });
@@ -443,6 +497,7 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
         if (parameter.in === "body") {
           // Parameter name for the body is it's type in camelCase
           parameter.name = parameter.export === "reference" ? _camelCase(parameter.type) : "body";
+          parameter.prop = "body";
 
           // The request body is not in the "parameters" section of the openapi spec so we won't have added the schema
           // properties above. Find it here.
@@ -565,6 +620,7 @@ export default async (argv: string[], rootScriptDir: string) => {
     metadata: { type: String, optional: true },
     templateDirs: { type: String, multiple: true },
     outputPath: { type: String },
+    printData: { type: Boolean, optional: true },
   }, { argv });
 
   const spec = (await SwaggerParser.bundle(args.specPath)) as any;
@@ -584,6 +640,10 @@ export default async (argv: string[], rootScriptDir: string) => {
 
   // Build data
   const data = buildData(spec, JSON.parse(args.metadata ?? '{}'));
+
+  if (args.printData) {
+    console.log(JSON.stringify(data, null, 2));
+  }
 
   // Read all .ejs files in each template directory
   const templates = args.templateDirs.flatMap(t => fs.readdirSync(resolveTemplateDir(rootScriptDir, t), {

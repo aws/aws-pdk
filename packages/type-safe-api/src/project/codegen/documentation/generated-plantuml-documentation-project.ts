@@ -1,14 +1,12 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { Project, ProjectOptions, Task } from "projen";
-import { DocumentationFormat } from "../../languages";
 import { GeneratedPlantumlDocumentationOptions } from "../../types";
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
 import { TypeSafeApiCommandEnvironment } from "../components/type-safe-api-command-environment";
 import {
-  buildInvokeOpenApiGeneratorCommandArgs,
+  buildCodegenCommandArgs,
   buildTypeSafeApiExecCommand,
-  OtherGenerators,
   TypeSafeApiScript,
 } from "../components/utils";
 
@@ -36,11 +34,10 @@ export class GeneratedPlantumlDocumentationProject extends Project {
     this.generateTask = this.addTask("generate");
     this.generateTask.exec(
       buildTypeSafeApiExecCommand(
-        TypeSafeApiScript.GENERATE,
-        buildInvokeOpenApiGeneratorCommandArgs({
-          generator: DocumentationFormat.PLANTUML,
+        TypeSafeApiScript.GENERATE_NEXT,
+        buildCodegenCommandArgs({
           specPath: options.specPath,
-          generatorDirectory: OtherGenerators.DOCS,
+          templateDirs: ["docs/templates/plantuml"],
         })
       )
     );

@@ -68,7 +68,6 @@ export class TypeSafeApiProject extends PDKProject {
       publishConfig: {
         executableFiles: [
           "scripts/type-safe-api/common/common.sh",
-          "scripts/type-safe-api/custom/docs/html-redoc",
           "scripts/type-safe-api/custom/docs/asyncapi-html",
           "scripts/type-safe-api/custom/docs/asyncapi-markdown",
           "scripts/type-safe-api/generators/generate",
@@ -84,8 +83,6 @@ export class TypeSafeApiProject extends PDKProject {
       bin: {
         "type-safe-api": "scripts/type-safe-api/run.js",
         "type-safe-api.generate": "scripts/type-safe-api/generators/generate",
-        "type-safe-api.generate-html-redoc-docs":
-          "scripts/type-safe-api/custom/docs/html-redoc",
         "type-safe-api.generate-asyncapi-html-docs":
           "scripts/type-safe-api/custom/docs/asyncapi-html",
         "type-safe-api.generate-asyncapi-markdown-docs":

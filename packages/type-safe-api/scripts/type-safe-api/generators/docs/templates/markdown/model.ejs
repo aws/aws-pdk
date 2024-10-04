@@ -1,0 +1,21 @@
+<%_ models.forEach(model => { _%>
+###TSAPI_WRITE_FILE###
+{
+  "id": "model-<%- model.name %>",
+  "dir": "Models",
+  "name": "<%- model.name %>",
+  "ext": ".md",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE#### <%- model.name %>
+## Properties
+
+| Name | Type | Description | Notes |
+|------------ | ------------- | ------------- | -------------|
+<%_ model.resolvedProperties.forEach(property => { _%>
+| **<%- property.name %>** | <% if (property.isPrimitive || property.export === "array" || property.export === "dictionary") { %>**<%- property.javaType %>**<% } else { %>[**<%- property.type %>**](<%- property.type %>.md)<% } %> | <%- property.description || '' %> | <% if (!property.isRequired) { %>[optional] <% } %><% if (property.isReadOnly) { %>[readonly] <% } %><% if (property.defaultValue) { %>[default to <%- property.defaultValue %>]<% } %> |
+<%_ }); _%>
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+<%_ }); _%>
