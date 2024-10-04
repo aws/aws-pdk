@@ -1,0 +1,30 @@
+###TSAPI_WRITE_FILE###
+{
+  "id": "schemas",
+  "dir": ".",
+  "name": "schemas",
+  "ext": ".plantuml",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###@startuml
+
+title <%- info.title %> Schemas Diagram
+
+<%_ models.forEach((model) => { _%>
+entity <%- model.name %> {
+<%_ model.resolvedProperties.forEach(property => { _%>
+    <% if (property.isRequired) { %>* <% } %><%- property.name %>: <%- property.javaType %>
+<%_ }); _%>
+}
+
+<%_ }); _%>
+
+<%_ models.forEach((model) => { _%>
+<%_ model.resolvedProperties.forEach((property) => { _%>
+<%_ if (!property.isPrimitive) { _%>
+<%- model.name %> -- <% if (["array", "dictionary"].includes(property.export)) { %>"0..*" <% } %><%- property.type %> : <%- property.name %>
+<%_ } _%>
+<%_ }); _%>
+<%_ }); _%>
+
+@enduml

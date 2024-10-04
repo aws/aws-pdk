@@ -1,0 +1,54 @@
+<%_ services.forEach(service => { _%>
+###TSAPI_WRITE_FILE###
+{
+  "id": "service-<%- service.name %>",
+  "dir": "Apis",
+  "name": "<%- service.className %>",
+  "ext": ".md",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE#### <%- service.className %>
+    <%- service.description || '' %>
+
+| Method | HTTP request | Description |
+|------------- | ------------- | -------------|
+<%_ service.operations.forEach(operation => { _%>
+| [**<%- operation.name %>**](<%- operation.service %>Api.md#<%- operation.name %>) | **<%- operation.method %>** <%- operation.path %> | <%- operation.description || '' %> |
+<%_ }); _%>
+
+<%_ service.operations.forEach(operation => { _%>
+<a name="<%- operation.name %>"></a>
+# **<%- operation.name %>**
+<%_ const result = operation.results[0] _%>
+> <% if (result && result.type !== 'void') { %><%- result.javaType %> <% } %><%- operation.name %>(<% operation.parameters.forEach((param, i) => { %><%- param.prop %><% if (i < operation.parameters.length - 1) { %>, <% } %><% }); %>)
+
+<%_ if (operation.description) { _%>
+    <%- operation.description %>
+<%_ } _%>
+
+### Parameters
+<%_ if (operation.parameters.length === 0) { _%>
+This endpoint does not need any parameters.
+<%_ } else { _%>
+|Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+<%_ operation.parameters.forEach((param) => { _%>
+| **<%- param.prop %>** | <% if (param.isPrimitive || param.export === "array" || param.export === "dictionary") { %>**<%- param.javaType %>**<% } else { %>[**<%- param.type %>**](../Models/<%- param.type %>.md)<% } %>| <%- param.description || '' %> |<% if (!param.isRequired) { %> [optional]<% } %><% if (param.defaultValue) { %> [default to <%- param.defaultValue %>]<% } %><% if (param.enum.length > 0) { %> [enum: <% param.enum.forEach((e, i) => { %><%- e.value %><% if (i < param.enum.length - 1) { %>, <% } %><% }); %><% } %> |
+<%_ }); _%>
+<%_ } _%>
+
+### Return type
+
+<%_ if (result && result.type !== 'void') { _%>
+<% if (result.isPrimitive || result.export === "array" || result.export === "dictionary") { %>**<%- result.javaType %>**<% } else { %>[**<%- result.type %>**](../Models/<%- result.type %>.md)<% } %>
+<%_ } else { _%>
+null (empty response body)
+<%_ } _%>
+
+### HTTP request headers
+
+- **Content-Type**: <% if (operation.parametersBody && operation.parametersBody.mediaTypes && operation.parametersBody.mediaTypes.length > 0) { %><%- operation.parametersBody.mediaTypes.join(', ') %><% } else { %>Not defined<% } %>
+- **Accept**: <% if (result && result.mediaTypes && result.mediaTypes.length > 0) { %><%- result.mediaTypes.join(', ') %><% } else { %>Not defined<% } %>
+
+<%_ }); _%>
+<%_ }); _%>

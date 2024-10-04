@@ -4,10 +4,6 @@ import { Project, ProjectOptions, Task } from "projen";
 import { GeneratedHtmlRedocDocumentationOptions } from "../../types";
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
 import { TypeSafeApiCommandEnvironment } from "../components/type-safe-api-command-environment";
-import {
-  buildTypeSafeApiExecCommand,
-  TypeSafeApiScript,
-} from "../components/utils";
 
 export interface GeneratedHtmlRedocDocumentationProjectOptions
   extends ProjectOptions,
@@ -32,10 +28,7 @@ export class GeneratedHtmlRedocDocumentationProject extends Project {
 
     this.generateTask = this.addTask("generate");
     this.generateTask.exec(
-      buildTypeSafeApiExecCommand(
-        TypeSafeApiScript.GENERATE_HTML_REDOC_DOCS,
-        `--spec-path ${options.specPath} --output-path .`
-      )
+      `npx --yes @redocly/cli@1.25.4 build-docs "${options.specPath}" --output ./index.html`
     );
     this.compileTask.spawn(this.generateTask);
 
