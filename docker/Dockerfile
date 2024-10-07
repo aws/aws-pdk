@@ -10,20 +10,21 @@ RUN set -ex \
     && chmod 600 ~/.ssh/known_hosts \
     && dnf install docker -y \
     && dnf install -y gzip jq openssl openssl-devel tar wget which sudo unzip make gettext gcc curl-devel expat-devel iptables \
-    && dnf install -y bzip2-devel libffi-devel ncurses-devel readline-devel sqlite-devel xz-devel zlib-devel libicu procps-ng
+    && dnf install -y bzip2-devel libffi-devel ncurses-devel readline-devel sqlite-devel xz-devel zlib-devel libicu procps-ng \
+    && dnf install -y rsync ncurses
 
 # Install Git
 RUN set -ex \
-   && GIT_VERSION=2.43.0 \
-   && GIT_TAR_FILE=git-$GIT_VERSION.tar.gz \
-   && GIT_SRC=https://github.com/git/git/archive/v${GIT_VERSION}.tar.gz  \
-   && curl -L -o $GIT_TAR_FILE $GIT_SRC \
-   && tar zxvf $GIT_TAR_FILE \
-   && cd git-$GIT_VERSION \
-   && make -j4 prefix=/usr \
-   && make install prefix=/usr \
-   && cd .. ; rm -rf git-$GIT_VERSION \
-   && rm -rf $GIT_TAR_FILE /tmp/*
+    && GIT_VERSION=2.43.0 \
+    && GIT_TAR_FILE=git-$GIT_VERSION.tar.gz \
+    && GIT_SRC=https://github.com/git/git/archive/v${GIT_VERSION}.tar.gz  \
+    && curl -L -o $GIT_TAR_FILE $GIT_SRC \
+    && tar zxvf $GIT_TAR_FILE \
+    && cd git-$GIT_VERSION \
+    && make -j4 prefix=/usr \
+    && make install prefix=/usr \
+    && cd .. ; rm -rf git-$GIT_VERSION \
+    && rm -rf $GIT_TAR_FILE /tmp/*
 
 # Install AWS CLI v2
 # https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-linux.html
@@ -44,7 +45,7 @@ RUN curl -Lo copilot https://github.com/aws/copilot-cli/releases/download/v1.32.
     && rm -rf copilot.asc
 
 # Install nodejs
-ENV NODE_VERSION="v18.19.0"
+ENV NODE_VERSION="v18.20.4"
 
 RUN wget https://nodejs.org/download/release/$NODE_VERSION/node-$NODE_VERSION-linux-x64.tar.gz -O /tmp/nodejs.tar.gz \
     && tar -xvf /tmp/nodejs.tar.gz --directory /usr/local --strip-components 1 \
@@ -91,12 +92,12 @@ RUN set -ex \
     # Install Gradle
     && mkdir -p $GRADLE_PATH \
     && for version in $INSTALLED_GRADLE_VERSIONS; do { \
-       wget -nv "https://services.gradle.org/distributions/gradle-$version-all.zip" -O "$GRADLE_PATH/gradle-$version-all.zip" \
-       && unzip "$GRADLE_PATH/gradle-$version-all.zip" -d /usr/local \
-       && echo -e "$GRADLE_DOWNLOADS_SHA256" | grep "$version" | sed "s|$version|$GRADLE_PATH/gradle-$version-all.zip|" | sha256sum -c - \
-       && rm "$GRADLE_PATH/gradle-$version-all.zip" \
-       && if [ "$version" != "$GRADLE_VERSION" ]; then rm -rf "/usr/local/gradle-$version"; fi; \
-     }; done \
+    wget -nv "https://services.gradle.org/distributions/gradle-$version-all.zip" -O "$GRADLE_PATH/gradle-$version-all.zip" \
+    && unzip "$GRADLE_PATH/gradle-$version-all.zip" -d /usr/local \
+    && echo -e "$GRADLE_DOWNLOADS_SHA256" | grep "$version" | sed "s|$version|$GRADLE_PATH/gradle-$version-all.zip|" | sha256sum -c - \
+    && rm "$GRADLE_PATH/gradle-$version-all.zip" \
+    && if [ "$version" != "$GRADLE_VERSION" ]; then rm -rf "/usr/local/gradle-$version"; fi; \
+    }; done \
     # Install default GRADLE_VERSION to path
     && ln -s /usr/local/gradle-$GRADLE_VERSION/bin/gradle /usr/bin/gradle \
     && rm -rf $GRADLE_PATH
