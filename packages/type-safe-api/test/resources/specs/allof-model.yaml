@@ -1,0 +1,54 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: My API
+  description: See https://github.com/aws/aws-pdk/issues/841
+paths:
+  /hello:
+    get:
+      operationId: sayHello
+      responses:
+        200:
+          description: Successful response
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/Template'
+components:
+  schemas:
+    Template:
+      allOf:
+        - $ref: '#/components/schemas/TemplateBase'
+        - $ref: '#/components/schemas/TemplateBody'
+        - title: Template
+          description: |
+            Represents a complete template in the system.
+    TemplateBase:
+      type: object
+      title: TemplateBase
+      description: |
+        Represents the base properties of a template.
+      additionalProperties: false
+      required:
+        - id
+      properties:
+        id:
+          $ref: '#/components/schemas/TemplateID'
+    TemplateBody:
+      type: object
+      title: TemplateBody
+      description: |
+        Represents the body of a template.
+      additionalProperties: false
+      properties:
+        parent_id:
+          $ref: '#/components/schemas/TemplateID'
+        boolean:
+          type: boolean
+          description: A boolean value.
+    TemplateID:
+      type: string
+      format: uuid
+      title: TemplateID
+      description: The unique identifier for a template.
+      maxLength: 36

@@ -573,14 +573,19 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
     if (matchingSpecModel) {
       const specModel = isRef(matchingSpecModel) ? resolveRef(spec, matchingSpecModel.$ref) as OpenAPIV3.SchemaObject : matchingSpecModel;
 
+      // Resolve properties inherited from composed schemas
+      const composedProperties = resolveComposedProperties(data, model);
+      (model as any).resolvedProperties = composedProperties;
+
       // Add unique imports
-      (model as any).uniqueImports = _orderBy(_uniq(model.imports));
+      (model as any).uniqueImports = _orderBy(_uniq([
+        ...model.imports,
+        // Include composed property imports, if any
+        ...composedProperties.filter(p => p.export === "reference").map(p => p.type),
+      ]));
 
       // Add deprecated flag if present
       (model as any).deprecated = specModel.deprecated || false;
-
-      // Resolve properties inherited from composed schemas
-      (model as any).resolvedProperties = resolveComposedProperties(data, model);
 
       // If the model has "additionalProperties" there should be a "dictionary" property
       if (specModel.additionalProperties) {
