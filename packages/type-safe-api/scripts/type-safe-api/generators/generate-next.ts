@@ -15,9 +15,11 @@ import _kebabCase from "lodash/kebabCase";
 import _orderBy from "lodash/orderBy";
 import _uniq from "lodash/uniq";
 import _uniqBy from "lodash/uniqBy";
+import _isEqual from "lodash/isEqual";
 import { OpenAPIV3 } from "openapi-types";
 import * as parseOpenapi from "parse-openapi";
 import { getOperationResponses } from "parse-openapi/dist/parser/getOperationResponses";
+import { getOperationResponse } from "parse-openapi/dist/parser/getOperationResponse";
 
 const TSAPI_WRITE_FILE_START = "###TSAPI_WRITE_FILE###";
 const TSAPI_WRITE_FILE_END = "###/TSAPI_WRITE_FILE###";
@@ -453,12 +455,24 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
         // Add all response models to the response model imports
         responseModelImports.push(...responses.filter(r => r.export === "reference").map(r => r.type));
 
-        // parseOpenapi does not distinguish between returning an "any" or returning "void"
-        // We distinguish this by looking back each response in the spec, and checking whether it
-        // has content
+        const defaultResponse = resolveIfRef(spec, specOp.responses?.['default']);
+
         [...responses, ...op.results].forEach((response) => {
+          // Check whether this response is actually the "default" response.
+          if (response.code === 200 && defaultResponse && _isEqual(response, getOperationResponse(spec, defaultResponse, 200))) {
+            // For backwards compatibility with OpenAPI generator, we set the response code for the default response to 0.
+            // See: https://github.com/OpenAPITools/openapi-generator/blob/8f2676c5c2bcbcc41942307e5c8648cee38bcc44/modules/openapi-generator/src/main/java/org/openapitools/codegen/CodegenResponse.java#L622
+            // TODO: we should likely revisit this to make the handler wrappers more intuitive for the default response case, as
+            // the code 0 would actually need to be returned by the server for marshalling etc to work for the model associated with
+            // the default response.
+            response.code = 0;
+          }
+
           const matchingSpecResponse = specOp.responses[`${response.code}`];
 
+          // parseOpenapi does not distinguish between returning an "any" or returning "void"
+          // We distinguish this by looking back each response in the spec, and checking whether it
+          // has content
           if (matchingSpecResponse) {
             // Resolve the ref if necessary
             const specResponse = resolveIfRef(spec, matchingSpecResponse);

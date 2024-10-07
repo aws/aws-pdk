@@ -13,6 +13,7 @@ describe("Typescript Client Code Generation Script Unit Tests", () => {
     "data-types.yaml",
     "edge-cases.yaml",
     "parameter-refs.yaml",
+    "default-response.yaml",
   ])("Generates With %s", (spec) => {
     const specPath = path.resolve(__dirname, `../../resources/specs/${spec}`);
 
