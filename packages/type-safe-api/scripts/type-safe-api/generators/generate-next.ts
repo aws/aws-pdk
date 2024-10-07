@@ -427,7 +427,8 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
   // Augment operations with additional data
   data.services.forEach((service) => {
 
-    // Keep track of the response models we need the service (ie api client) to import
+    // Keep track of the request and response models we need the service (ie api client) to import
+    const requestModelImports: string[] = [];
     const responseModelImports: string[] = [];
 
     service.operations.forEach((op) => {
@@ -486,8 +487,12 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
 
       // Loop through the parameters
       op.parameters.forEach((parameter) => {
-        const specParameter = specParametersByName[parameter.prop];
+        // Add the request model import
+        if (parameter.export === "reference") {
+          requestModelImports.push(parameter.type);
+        }
 
+        const specParameter = specParametersByName[parameter.prop];
         const specParameterSchema = resolveIfRef(spec, specParameter?.schema);
 
         if (specParameterSchema) {
@@ -541,7 +546,7 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
     service.operations = _orderBy(service.operations, (op) => op.name);
 
     // Add the models to import
-    (service as any).modelImports = _orderBy(_uniq([...service.imports, ...responseModelImports]));
+    (service as any).modelImports = _orderBy(_uniq([...service.imports, ...requestModelImports, ...responseModelImports]));
 
     // Add the service class name
     (service as any).className = `${service.name}Api`;
