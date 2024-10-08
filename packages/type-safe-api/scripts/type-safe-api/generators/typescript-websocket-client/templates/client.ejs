@@ -1,14 +1,18 @@
-// Import models
+###TSAPI_WRITE_FILE###
+{
+  "id": "client",
+  "dir": "<%= metadata.srcDir || 'src' %>/client",
+  "name": "client",
+  "ext": ".ts",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###// Import models
 import {
-    {{#apiInfo}}
-    {{#models}}
-    {{#model}}
-    {{classname}},
-    {{classname}}FromJSON,
-    {{classname}}ToJSON,
-    {{/model}}
-    {{/models}}
-    {{/apiInfo}}
+<%_ models.forEach((model) => { _%>
+    <%- model.name %>,
+    <%- model.name %>FromJSON,
+    <%- model.name %>ToJSON,
+<%_ }); _%>
 } from "../models";
 import { AwsCredentialIdentity, AwsCredentialIdentityProvider } from '@aws-sdk/types';
 import { HttpRequest } from "@aws-sdk/protocol-http";
@@ -18,6 +22,7 @@ import { v4 as uuid } from "uuid";
 
 import WebSocket from "isomorphic-ws";
 
+<%_ const serviceClassName = services[0] ? services[0].className : "DefaultApi"; _%>
 export interface IamAuthenticationStrategy {
   readonly region: string;
   readonly credentials: AwsCredentialIdentity | AwsCredentialIdentityProvider;
@@ -42,7 +47,7 @@ export type AuthenticationStrategy = { iam: IamAuthenticationStrategy } | { none
 /**
  * Options for the client
  */
-export interface {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}WebSocketClientOptions {
+export interface <%- serviceClassName %>WebSocketClientOptions {
   /**
    * Websocket url to connect to (wss://xxxx)
    */
@@ -107,17 +112,17 @@ interface ErrorListener {
 /**
  * Client for sending messages from clients to the server
  */
-export class {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}WebSocketClient {
+export class <%- serviceClassName %>WebSocketClient {
   /**
    * Create a new WebSocket connection to the server
    */
-  public static connect = async (options: {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}WebSocketClientOptions) => {
-    const client = new {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}WebSocketClient(options);
+  public static connect = async (options: <%- serviceClassName %>WebSocketClientOptions) => {
+    const client = new <%- serviceClassName %>WebSocketClient(options);
     await client.$connect();
     return client;
   };
 
-  private readonly options: {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}WebSocketClientOptions;
+  private readonly options: <%- serviceClassName %>WebSocketClientOptions;
 
   private socket: WebSocket | undefined;
   private status: SocketStatus = SocketStatus.CONNECTING;
@@ -129,7 +134,7 @@ export class {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}WebSocke
   private connectionAttempt: number = 0;
   private lastConnected: number = Date.now();
 
-  private constructor(options: {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}WebSocketClientOptions) {
+  private constructor(options: <%- serviceClassName %>WebSocketClientOptions) {
     this.options = options;
   }
 
@@ -376,31 +381,25 @@ export class {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}WebSocke
     };
   };
 
-{{#apiInfo}}
-{{#apis}}
-{{#operations}}
-{{#operation}}
-{{#vendorExtensions.x-async-to-server}}
+<%_ allOperations.forEach((operation) => { _%>
+<%_ if (operation.vendorExtensions && operation.vendorExtensions['x-async'] && ['client_to_server', 'bidirectional'].includes(operation.vendorExtensions['x-async'].direction)) { _%>
   /**
-   * Send a "{{operationIdCamelCase}}" message to the server
+   * Send a "<%- operation.operationIdPascalCase %>" message to the server
    */
-  public {{nickname}} = async ({{#bodyParam}}{{#isPrimitiveType}}input: string{{/isPrimitiveType}}{{^isPrimitiveType}}input: {{dataType}}{{/isPrimitiveType}}{{/bodyParam}}): Promise<void> => {
-    await this._sendOrQueueMessage("{{operationIdCamelCase}}"{{#bodyParam}}, input{{/bodyParam}});
+  public <%- operation.name %> = async (<% if (operation.parametersBody) { %>input: <%- operation.parametersBody.isPrimitive ? 'string' : operation.parametersBody.typescriptType %><% } %>): Promise<void> => {
+    await this._sendOrQueueMessage("<%- operation.operationIdPascalCase %>"<% if (operation.parametersBody) { %>, input<% } %>);
   };
-{{/vendorExtensions.x-async-to-server}}
+<%_ } _%>
 
-{{#vendorExtensions.x-async-to-client}}
+<%_ if (operation.vendorExtensions && operation.vendorExtensions['x-async'] && ['server_to_client', 'bidirectional'].includes(operation.vendorExtensions['x-async'].direction)) { _%>
   /**
-   * Register a listener to be called whenever a "{{operationIdCamelCase}}" message is received from the server
+   * Register a listener to be called whenever a "<%- operation.operationIdPascalCase %>" message is received from the server
    * @returns a function which will remove the listener when called.
    */
-  public on{{operationIdCamelCase}} = (callback: ({{#bodyParam}}{{#isPrimitiveType}}input: string{{/isPrimitiveType}}{{^isPrimitiveType}}input: {{dataType}}{{/isPrimitiveType}}{{/bodyParam}}) => void): () => void => {
-    return this._listen("{{operationIdCamelCase}}", callback);
+  public on<%- operation.operationIdPascalCase %> = (callback: (<% if (operation.parametersBody) { %>input: <%- operation.parametersBody.isPrimitive ? 'string' : operation.parametersBody.typescriptType %><% } %>) => void): () => void => {
+    return this._listen("<%- operation.operationIdPascalCase %>", callback);
   };
-{{/vendorExtensions.x-async-to-client}}
+<%_ } _%>
 
-{{/operation}}
-{{/operations}}
-{{/apis}}
-{{/apiInfo}}
+<%_ }); _%>
 }

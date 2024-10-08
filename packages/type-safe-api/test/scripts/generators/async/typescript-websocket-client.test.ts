@@ -24,27 +24,17 @@ describe("Typescript Async Client Code Generation Script Unit Tests", () => {
           outdir,
           specPath: "spec.yaml",
         });
-        // Synth the project so that the generate command honours the .openapi-generator-ignore-handlebars file
-        project.synth();
-        exec(
-          project.tasks.tryFind("create-openapitools.json")!.steps[0].exec!,
-          { cwd: outdir }
-        );
         exec(
           `${path.resolve(
             __dirname,
-            "../../../../scripts/type-safe-api/generators/generate"
+            "../../../../scripts/type-safe-api/run.js generate"
           )} ${project.buildGenerateCommandArgs()}`,
           {
             cwd: outdir,
           }
         );
         return {
-          excludeGlobs: [
-            ...(project as any).openapiGeneratorIgnore._patterns,
-            ".projen/*",
-            "spec.yaml",
-          ],
+          excludeGlobs: ["spec.yaml"],
         };
       })
     ).toMatchSnapshot();
