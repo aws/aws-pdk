@@ -509,6 +509,7 @@ export class MonorepoTsProject
         NodePackageUtils.command.exec(
           this.package.packageManager,
           "npm-check-updates",
+          "--reject projen",
           "--deep",
           "--rejectVersion",
           "0.0.0",

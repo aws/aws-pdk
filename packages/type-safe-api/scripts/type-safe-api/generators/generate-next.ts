@@ -673,7 +673,7 @@ export default async (argv: string[], rootScriptDir: string) => {
   const templates = args.templateDirs.flatMap(t => fs.readdirSync(resolveTemplateDir(rootScriptDir, t), {
     recursive: true,
     withFileTypes: true
-  }).filter(f => f.isFile() && f.name.endsWith('.ejs')).map(f => path.join(f.parentPath, f.name)));
+  }).filter(f => f.isFile() && f.name.endsWith('.ejs')).map(f => path.join(f.parentPath ?? f.path, f.name)));
 
   // Render the templates with the data from the spec
   const renderedFiles = templates.map((template) => {
