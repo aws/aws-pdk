@@ -1,0 +1,65 @@
+###TSAPI_WRITE_FILE###
+{
+  "id": "operation-config",
+  "dir": "<%= metadata.srcDir || 'src' %>/server",
+  "name": "server-sdk",
+  "ext": ".ts",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###// Import models
+import {
+<%_ models.forEach((model) => { _%>
+    <%- model.name %>,
+    <%- model.name %>FromJSON,
+    <%- model.name %>ToJSON,
+<%_ }); _%>
+} from "../models";
+import {
+  ApiGatewayManagementApiClient,
+  PostToConnectionCommand,
+  DeleteConnectionCommand,
+} from "@aws-sdk/client-apigatewaymanagementapi";
+
+<%_ const serviceClassName = services[0] ? services[0].className : "DefaultApi"; _%>
+/**
+ * Options for the server SDK
+ */
+export interface <%- serviceClassName %>ServerSdkProps {
+  /**
+   * API Gateway management API callback url
+   */
+  readonly callbackUrl: string;
+}
+
+<%_ const toClientOperations = allOperations.filter(op => op.vendorExtensions && op.vendorExtensions['x-async'] && ['server_to_client', 'bidirectional'].includes(op.vendorExtensions['x-async'].direction)) _%>
+/**
+ * SDK for sending messages from the server to connected clients
+ */
+export class <%- serviceClassName %>ServerSdk {
+  private readonly client: ApiGatewayManagementApiClient;
+
+  constructor(props: <%- serviceClassName %>ServerSdkProps) {
+    this.client = new ApiGatewayManagementApiClient({ endpoint: props.callbackUrl });
+  }
+
+<%_ toClientOperations.forEach((operation) => { _%>
+  public async <%- operation.name %>(connectionId: string<% if (operation.parametersBody) { %>, input: <%- operation.parametersBody.isPrimitive ? 'string' : operation.parametersBody.typescriptType %><% } %>): Promise<void> {
+    await this.client.send(new PostToConnectionCommand({
+      ConnectionId: connectionId,
+      Data: JSON.stringify({
+        route: "<%- operation.operationIdPascalCase %>",
+        payload: input,
+      }),
+    }));
+  }
+<%_ }); _%>
+
+  /**
+   * Disconnect a connected client
+   */
+  public async $disconnect(connectionId: string): Promise<void> {
+    await this.client.send(new DeleteConnectionCommand({
+      ConnectionId: connectionId,
+    }));
+  }
+}

@@ -1,3 +1,158 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Typescript Async Hooks Code Generation Script Unit Tests Generates With single.yaml 1`] = `{}`;
+exports[`Typescript Async Hooks Code Generation Script Unit Tests Generates With single.yaml 1`] = `
+{
+  ".tsapi-manifest": "src/hooks/hooks.tsx
+src/index.ts
+src/hooks/provider.tsx",
+  "src/hooks/hooks.tsx": "import {
+  ApiError,
+  MapRequest,
+  MapRequestMapPropertyValue,
+  TestRequest,
+  TestResponse,
+  TestResponseMessagesInner,
+  DefaultApiWebSocketClient,
+} from "ts-ws-client";
+import {
+  DefaultApiWebSocketClientContext,
+} from "./provider";
+import { useContext, useEffect, useCallback, DependencyList } from "react";
+
+const NO_CLIENT_ERROR = new Error(\`DefaultApiWebSocketClient is missing. Please ensure you have instantiated the DefaultApiWebSocketClientProvider with a client instance.\`);
+
+/**
+ * Hook to retrieve the websocket client from the context
+ */
+export const useDefaultApiWebSocketClient = () => {
+  const client = useContext(DefaultApiWebSocketClientContext);
+  if (!client) {
+    throw NO_CLIENT_ERROR;
+  }
+  return client;
+};
+
+/**
+ * Listen to AnyRequest messages from the server
+ * Provided callback should use the useCallback hook to memoise the function
+ */
+export const useOnAnyRequest = (callback: (input: string) => void, deps: DependencyList) => {
+  const client = useDefaultApiWebSocketClient();
+  const cb = useCallback(callback, deps);
+  useEffect(() => {
+    return client.onAnyRequest(cb);
+  }, [client, cb]);
+};
+
+/**
+ * Listen to Bidirectional messages from the server
+ * Provided callback should use the useCallback hook to memoise the function
+ */
+export const useOnBidirectional = (callback: (input: TestRequest) => void, deps: DependencyList) => {
+  const client = useDefaultApiWebSocketClient();
+  const cb = useCallback(callback, deps);
+  useEffect(() => {
+    return client.onBidirectional(cb);
+  }, [client, cb]);
+};
+
+/**
+ * Listen to Empty messages from the server
+ * Provided callback should use the useCallback hook to memoise the function
+ */
+export const useOnEmpty = (callback: () => void, deps: DependencyList) => {
+  const client = useDefaultApiWebSocketClient();
+  const cb = useCallback(callback, deps);
+  useEffect(() => {
+    return client.onEmpty(cb);
+  }, [client, cb]);
+};
+
+/**
+ * Listen to MapRequest messages from the server
+ * Provided callback should use the useCallback hook to memoise the function
+ */
+export const useOnMapRequest = (callback: (input: MapRequest) => void, deps: DependencyList) => {
+  const client = useDefaultApiWebSocketClient();
+  const cb = useCallback(callback, deps);
+  useEffect(() => {
+    return client.onMapRequest(cb);
+  }, [client, cb]);
+};
+
+/**
+ * Listen to MediaTypes messages from the server
+ * Provided callback should use the useCallback hook to memoise the function
+ */
+export const useOnMediaTypes = (callback: (input: string) => void, deps: DependencyList) => {
+  const client = useDefaultApiWebSocketClient();
+  const cb = useCallback(callback, deps);
+  useEffect(() => {
+    return client.onMediaTypes(cb);
+  }, [client, cb]);
+};
+
+/**
+ * Listen to MultipleContentTypes messages from the server
+ * Provided callback should use the useCallback hook to memoise the function
+ */
+export const useOnMultipleContentTypes = (callback: (input: TestRequest) => void, deps: DependencyList) => {
+  const client = useDefaultApiWebSocketClient();
+  const cb = useCallback(callback, deps);
+  useEffect(() => {
+    return client.onMultipleContentTypes(cb);
+  }, [client, cb]);
+};
+
+/**
+ * Listen to ServerToClient messages from the server
+ * Provided callback should use the useCallback hook to memoise the function
+ */
+export const useOnServerToClient = (callback: (input: TestRequest) => void, deps: DependencyList) => {
+  const client = useDefaultApiWebSocketClient();
+  const cb = useCallback(callback, deps);
+  useEffect(() => {
+    return client.onServerToClient(cb);
+  }, [client, cb]);
+};
+
+/**
+ * Listen to WithoutOperationIdPost messages from the server
+ * Provided callback should use the useCallback hook to memoise the function
+ */
+export const useOnWithoutOperationIdPost = (callback: (input: TestRequest) => void, deps: DependencyList) => {
+  const client = useDefaultApiWebSocketClient();
+  const cb = useCallback(callback, deps);
+  useEffect(() => {
+    return client.onWithoutOperationIdPost(cb);
+  }, [client, cb]);
+};
+
+",
+  "src/hooks/provider.tsx": "import {
+  DefaultApiWebSocketClient,
+} from "ts-ws-client";
+import React, { createContext, ReactNode, FC } from "react";
+
+export const DefaultApiWebSocketClientContext = createContext<DefaultApiWebSocketClient | undefined>(undefined);
+
+export interface DefaultApiWebSocketClientProviderProps {
+  readonly client: DefaultApiWebSocketClient;
+  readonly children?: ReactNode;
+}
+
+export const DefaultApiWebSocketClientProvider: FC<DefaultApiWebSocketClientProviderProps> = (props) => {
+  return (
+    <DefaultApiWebSocketClientContext.Provider value={props.client}>
+      {props.children}
+    </DefaultApiWebSocketClientContext.Provider>
+  );
+};
+",
+  "src/index.ts": "/* tslint:disable */
+/* eslint-disable */
+export * from './hooks/hooks';
+export * from './hooks/provider';
+",
+}
+`;

@@ -1,0 +1,48 @@
+###TSAPI_WRITE_FILE###
+{
+  "id": "hooks",
+  "dir": "<%= metadata.srcDir || 'src' %>/hooks",
+  "name": "hooks",
+  "ext": ".tsx",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###import {
+<%_ models.forEach((model) => { _%>
+  <%- model.name %>,
+<%_ }); _%>
+<%_ const serviceClassName = services[0] ? services[0].className : "DefaultApi"; _%>
+  <%- serviceClassName %>WebSocketClient,
+} from "<%- metadata.websocketClientPackageName %>";
+import {
+  <%- serviceClassName %>WebSocketClientContext,
+} from "./provider";
+import { useContext, useEffect, useCallback, DependencyList } from "react";
+
+const NO_CLIENT_ERROR = new Error(`<%- serviceClassName %>WebSocketClient is missing. Please ensure you have instantiated the <%- serviceClassName %>WebSocketClientProvider with a client instance.`);
+
+/**
+ * Hook to retrieve the websocket client from the context
+ */
+export const use<%- serviceClassName %>WebSocketClient = () => {
+  const client = useContext(<%- serviceClassName %>WebSocketClientContext);
+  if (!client) {
+    throw NO_CLIENT_ERROR;
+  }
+  return client;
+};
+
+<%_ const toClientOperations = allOperations.filter(op => op.vendorExtensions && op.vendorExtensions['x-async'] && ['server_to_client', 'bidirectional'].includes(op.vendorExtensions['x-async'].direction)) _%>
+<%_ toClientOperations.forEach((operation) => { _%>
+/**
+ * Listen to <%- operation.operationIdPascalCase %> messages from the server
+ * Provided callback should use the useCallback hook to memoise the function
+ */
+export const useOn<%- operation.operationIdPascalCase %> = (callback: (<% if (operation.parametersBody) { %>input: <%- operation.parametersBody.isPrimitive ? 'string' : operation.parametersBody.typescriptType %><% } %>) => void, deps: DependencyList) => {
+  const client = use<%- serviceClassName %>WebSocketClient();
+  const cb = useCallback(callback, deps);
+  useEffect(() => {
+    return client.on<%- operation.operationIdPascalCase %>(cb);
+  }, [client, cb]);
+};
+
+<%_ }); _%>

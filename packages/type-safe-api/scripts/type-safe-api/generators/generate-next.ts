@@ -616,10 +616,19 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
   // All operations across all services
   const allOperations = _uniqBy(data.services.flatMap(s => s.operations), o => o.name);
 
+  // Add top level vendor extensions
+  const vendorExtensions: { [key: string]: any } = {};
+  Object.entries(spec ?? {}).forEach(([key, value]) => {
+    if (key.startsWith('x-')) {
+      vendorExtensions[key] = value;
+    }
+  });
+
   return {
     ...data,
     allOperations,
     info: spec.info,
+    vendorExtensions,
   };
 };
 
@@ -648,19 +657,6 @@ export default async (argv: string[], rootScriptDir: string) => {
   }, { argv });
 
   const spec = (await SwaggerParser.bundle(args.specPath)) as any;
-
-  // TODO: consider ripping out??
-  Object.entries(spec?.paths ?? {}).forEach(([_path, methods]) => Object.entries(methods ?? {}).forEach(([_method, operation]) => {
-    // Add helper vendor extensions to make code generation easier for async operations
-    if (operation?.["x-async"]) {
-      if (["client_to_server", "bidirectional"].includes(operation?.['x-async']?.direction)) {
-        operation["x-async-to-server"] = true;
-      }
-      if (["server_to_client", "bidirectional"].includes(operation?.['x-async']?.direction)) {
-        operation["x-async-to-client"] = true;
-      }
-    }
-  }));
 
   // Build data
   const data = buildData(spec, JSON.parse(args.metadata ?? '{}'));

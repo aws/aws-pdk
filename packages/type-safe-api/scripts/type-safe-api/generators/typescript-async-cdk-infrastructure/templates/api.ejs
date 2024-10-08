@@ -1,6 +1,14 @@
-import { TypeSafeWebsocketApi, TypeSafeWebsocketApiProps, TypeSafeWebsocketApiIntegration } from "@aws/pdk/type-safe-api";
+###TSAPI_WRITE_FILE###
+{
+  "id": "api",
+  "dir": "<%= metadata.srcDir || 'src' %>",
+  "name": "api",
+  "ext": ".ts",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###import { TypeSafeWebsocketApi, TypeSafeWebsocketApiProps, TypeSafeWebsocketApiIntegration } from "@aws/pdk/type-safe-api";
 import { Construct } from "constructs";
-import { OperationConfig, OperationLookup } from "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package-name}}{{/apis.0}}{{/apiInfo}}";
+import { OperationConfig, OperationLookup } from "<%- metadata.runtimePackageName %>";
 import * as path from "path";
 
 export type WebSocketApiIntegrations = OperationConfig<TypeSafeWebsocketApiIntegration>;
@@ -19,7 +27,7 @@ export class WebSocketApi extends TypeSafeWebsocketApi {
       ...props,
       integrations: props.integrations as any,
       operationLookup: OperationLookup,
-      specPath: path.resolve(__dirname, "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-relative-spec-path}}{{/apis.0}}{{/apiInfo}}"),
+      specPath: path.resolve(__dirname, "<%- metadata.relativeSpecPath %>"),
     });
   }
 }

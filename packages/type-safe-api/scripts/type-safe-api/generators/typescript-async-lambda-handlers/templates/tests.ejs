@@ -1,0 +1,45 @@
+<%_ allOperations.filter(op => op.vendorExtensions['x-handler'] && op.vendorExtensions['x-handler'].language === 'typescript').forEach((operation) => { _%>
+###TSAPI_WRITE_FILE###
+{
+  "id": "<%- operation.name %>Test",
+  "dir": "<%= metadata.tstDir || 'tst' %>",
+  "name": "<%- operation.operationIdKebabCase %>",
+  "ext": ".test.ts",
+  "overwrite": false,
+  "generateConditionallyId": "<%- operation.name %>"
+}
+###/TSAPI_WRITE_FILE###import {
+  <%- operation.operationIdPascalCase %>ChainedRequestInput,
+} from "<%= metadata.runtimePackageName %>";
+import {
+  <%- operation.name %>
+} from "../src/<%- operation.operationIdKebabCase %>";
+
+// Common request arguments
+const requestArguments = {
+  chain: undefined as never,
+  connectionId: 'test',
+  sdk: {} as any,
+  event: {} as any,
+  context: {} as any,
+  interceptorContext: {
+    logger: {
+      info: jest.fn(),
+    },
+  },
+} satisfies Omit<<%- operation.operationIdPascalCase %>ChainedRequestInput, 'input'>;
+
+describe('<%- operation.operationIdPascalCase %>', () => {
+
+  it('should not throw', async () => {
+    // TODO: Update the test as appropriate when you implement your handler
+    await <%- operation.name %>({
+      ...requestArguments,
+      // TODO: remove the "as any" below and fill in test values for the input
+      input: {} as any,
+    });
+  });
+
+});
+
+<%_ }); _%>

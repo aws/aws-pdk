@@ -1,52 +1,42 @@
-// Import models
+###TSAPI_WRITE_FILE###
+{
+  "id": "operation-config",
+  "dir": "<%= metadata.srcDir || 'src' %>/server",
+  "name": "operation-config",
+  "ext": ".ts",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###// Import models
 import {
-    {{#apiInfo}}
-    {{#models}}
-    {{#model}}
-    {{classname}},
-    {{classname}}FromJSON,
-    {{classname}}ToJSON,
-    {{/model}}
-    {{/models}}
-    {{/apiInfo}}
+<%_ models.forEach((model) => { _%>
+    <%- model.name %>,
+    <%- model.name %>FromJSON,
+    <%- model.name %>ToJSON,
+<%_ }); _%>
 } from '../models';
 
+<%_ const serviceClassName = services[0] ? services[0].className : "DefaultApi"; _%>
 // API Gateway Types
 import { APIGatewayProxyWebsocketEventV2, APIGatewayProxyResultV2, Context } from "aws-lambda";
-import { {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}ServerSdk } from "./server-sdk";
+import { <%- serviceClassName %>ServerSdk } from "./server-sdk";
 
+<%_ const toServerOperations = allOperations.filter(op => op.vendorExtensions && op.vendorExtensions['x-async'] && ['client_to_server', 'bidirectional'].includes(op.vendorExtensions['x-async'].direction)); _%>
 // Generic type for object keyed by operation names
 export interface OperationConfig<T> {
-    {{#apiInfo}}
-    {{#apis}}
-    {{#operations}}
-    {{#operation}}
-    {{#vendorExtensions.x-async-to-server}}
-    {{nickname}}: T;
-    {{/vendorExtensions.x-async-to-server}}
-    {{/operation}}
-    {{/operations}}
-    {{/apis}}
-    {{/apiInfo}}
+<%_ toServerOperations.forEach((operation) => { _%>
+    <%- operation.name %>: T;
+<%_ }); _%>
 }
 
 // Look up path and http method for a given operation name
 export const OperationLookup = {
-    {{#apiInfo}}
-    {{#apis}}
-    {{#operations}}
-    {{#operation}}
-    {{#vendorExtensions.x-async-to-server}}
-    {{nickname}}: {
-        path: '{{path}}',
-        method: '{{httpMethod}}',
-        contentTypes: [{{^consumes}}'application/json'{{/consumes}}{{#consumes}}{{#mediaType}}'{{{.}}}',{{/mediaType}}{{/consumes}}],
+<%_ toServerOperations.forEach((operation) => { _%>
+    <%- operation.name %>: {
+        path: '<%- operation.path %>',
+        method: '<%- operation.method %>',
+        contentTypes: [<%- operation.parametersBody ? operation.parametersBody.mediaTypes.map(m => `'${m}'`).join(',') : "'application/json'"%>],
     },
-    {{/vendorExtensions.x-async-to-server}}
-    {{/operation}}
-    {{/operations}}
-    {{/apis}}
-    {{/apiInfo}}
+<%_ }); _%>
 };
 
 export class Operations {
@@ -90,7 +80,7 @@ export class $PendingConnection {
   };
 }
 
-export type OperationIds = "$connect" | "$disconnect"{{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}{{#vendorExtensions.x-async-to-server}} | '{{nickname}}'{{/vendorExtensions.x-async-to-server}}{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}};
+export type OperationIds = "$connect" | "$disconnect"<% toServerOperations.forEach((operation) => { %> | '<%- operation.name %>'<% }); %>;
 export type OperationApiGatewayProxyResult<T extends OperationIds> = APIGatewayProxyResultV2 & { __operationId?: T };
 
 // Api gateway lambda handler type
@@ -100,7 +90,7 @@ export type InterceptorContext = { [key: string]: any };
 
 export interface PayloadlessRequestInput {
     connectionId: string;
-    sdk: {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}ServerSdk;
+    sdk: <%- serviceClassName %>ServerSdk;
     event: APIGatewayProxyWebsocketEventV2;
     context: Context;
     interceptorContext: InterceptorContext;
@@ -173,50 +163,44 @@ const buildHandlerChain = <RequestBody>(
   };
 };
 
-{{#apiInfo}}
-{{#apis}}
-{{#operations}}
-{{#operation}}
-{{#vendorExtensions.x-async-to-server}}
+<%_ toServerOperations.forEach((operation) => { _%>
 
 /**
- * Request body parameter for {{operationIdCamelCase}}
+ * Request body parameter for <%- operation.operationIdPascalCase %>
  */
-export type {{operationIdCamelCase}}RequestBody = {{#bodyParam}}{{#isPrimitiveType}}string{{/isPrimitiveType}}{{^isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{/bodyParam}}{{^bodyParam}}never{{/bodyParam}};
+export type <%- operation.operationIdPascalCase %>RequestBody = <% if (operation.parametersBody) { %><%- operation.parametersBody.isPrimitive ? 'string' : operation.parametersBody.typescriptType %><% } else { %>never<% } %>;
 
 // Type that the handler function provided to the wrapper must conform to
-export type {{operationIdCamelCase}}HandlerFunction = LambdaHandlerFunction<{{operationIdCamelCase}}RequestBody>;
-export type {{operationIdCamelCase}}ChainedHandlerFunction = ChainedLambdaHandlerFunction<{{operationIdCamelCase}}RequestBody>;
-export type {{operationIdCamelCase}}ChainedRequestInput = ChainedRequestInput<{{operationIdCamelCase}}RequestBody>;
+export type <%- operation.operationIdPascalCase %>HandlerFunction = LambdaHandlerFunction<<%- operation.operationIdPascalCase %>RequestBody>;
+export type <%- operation.operationIdPascalCase %>ChainedHandlerFunction = ChainedLambdaHandlerFunction<<%- operation.operationIdPascalCase %>RequestBody>;
+export type <%- operation.operationIdPascalCase %>ChainedRequestInput = ChainedRequestInput<<%- operation.operationIdPascalCase %>RequestBody>;
 
 /**
- * Lambda handler wrapper to provide typed interface for the implementation of {{nickname}}
+ * Lambda handler wrapper to provide typed interface for the implementation of <%- operation.name %>
  */
-export const {{nickname}}Handler = (
-    ...handlers: [...(PayloadlessChainedLambdaHandlerFunction | {{operationIdCamelCase}}ChainedHandlerFunction)[], {{operationIdCamelCase}}ChainedHandlerFunction]
-): OperationApiGatewayLambdaHandler<'{{nickname}}'> => async (event: APIGatewayProxyWebsocketEventV2, context: any, _callback?: any, additionalInterceptors: (PayloadlessChainedLambdaHandlerFunction | {{operationIdCamelCase}}ChainedHandlerFunction)[] = []): Promise<APIGatewayProxyResultV2> => {
-    const operationId = "{{nickname}}";
+export const <%- operation.name %>Handler = (
+    ...handlers: [...(PayloadlessChainedLambdaHandlerFunction | <%- operation.operationIdPascalCase %>ChainedHandlerFunction)[], <%- operation.operationIdPascalCase %>ChainedHandlerFunction]
+): OperationApiGatewayLambdaHandler<'<%- operation.name %>'> => async (event: APIGatewayProxyWebsocketEventV2, context: any, _callback?: any, additionalInterceptors: (PayloadlessChainedLambdaHandlerFunction | <%- operation.operationIdPascalCase %>ChainedHandlerFunction)[] = []): Promise<APIGatewayProxyResultV2> => {
+    const operationId = "<%- operation.name %>";
 
     const demarshal = (bodyString: string): any => {
-        {{#bodyParam}}
-        {{^isPrimitiveType}}
-        return {{dataType}}FromJSON(JSON.parse(bodyString)?.payload ?? {});
-        {{/isPrimitiveType}}
-        {{#isPrimitiveType}}
+        <%_ if (operation.parametersBody) { _%>
+        <%_ if (!operation.parametersBody.isPrimitive) { _%>
+        return <%- operation.parametersBody.typescriptType %>FromJSON(JSON.parse(bodyString)?.payload ?? {});
+        <%_ } else { _%>
         return bodyString;
-        {{/isPrimitiveType}}
-        {{/bodyParam}}
-        {{^bodyParam}}
+        <%_ } _%>
+        <%_ } else { _%>
         return {};
-        {{/bodyParam}}
+        <%_ } _%>
     };
-    const body = parseBody(event.body, demarshal, [{{^consumes}}'application/json'{{/consumes}}{{#consumes}}{{#mediaType}}'{{{.}}}',{{/mediaType}}{{/consumes}}]) as {{operationIdCamelCase}}RequestBody;
+    const body = parseBody(event.body, demarshal, [<%- operation.parametersBody ? operation.parametersBody.mediaTypes.map(m => `'${m}'`).join(',') : "'application/json'" %>]) as <%- operation.operationIdPascalCase %>RequestBody;
 
     const chain = buildHandlerChain(...additionalInterceptors, ...handlers);
     await chain.next({
         input: body,
         connectionId: event.requestContext.connectionId,
-        sdk: new {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}ServerSdk({
+        sdk: new <%- serviceClassName %>ServerSdk({
           callbackUrl: `https://${event.requestContext.domainName}/${event.requestContext.stage}`,
         }),
         event,
@@ -230,11 +214,7 @@ export const {{nickname}}Handler = (
         statusCode: 200,
     };
 };
-{{/vendorExtensions.x-async-to-server}}
-{{/operation}}
-{{/operations}}
-{{/apis}}
-{{/apiInfo}}
+<%_ }); _%>
 
 export type $ConnectChainedLambdaHandlerFunction = PayloadlessChainedLambdaHandlerFunction;
 
@@ -246,7 +226,7 @@ export const $connectHandler = (
   const interceptorContext = { operationId };
   await chain.next({
       connectionId: event.requestContext.connectionId,
-      sdk: new {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}ServerSdk({
+      sdk: new <%- serviceClassName %>ServerSdk({
         callbackUrl: `https://${event.requestContext.domainName}/${event.requestContext.stage}`,
       }),
       event,
@@ -269,7 +249,7 @@ export const $disconnectHandler = (
   const chain = buildHandlerChain(...additionalInterceptors, ...handlers) as PayloadlessLambdaHandlerChain;
   await chain.next({
       connectionId: event.requestContext.connectionId,
-      sdk: new {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}ServerSdk({
+      sdk: new <%- serviceClassName %>ServerSdk({
         callbackUrl: `https://${event.requestContext.domainName}/${event.requestContext.stage}`,
       }),
       event,
@@ -285,22 +265,14 @@ export const $disconnectHandler = (
 };
 
 export interface HandlerRouterHandlers {
-{{#apiInfo}}
-{{#apis}}
-{{#operations}}
-{{#operation}}
-{{#vendorExtensions.x-async-to-server}}
-  readonly {{nickname}}: OperationApiGatewayLambdaHandler<'{{nickname}}'>;
-{{/vendorExtensions.x-async-to-server}}
-{{/operation}}
-{{/operations}}
-{{/apis}}
-{{/apiInfo}}
+<%_ toServerOperations.forEach((operation) => { _%>
+  readonly <%- operation.name %>: OperationApiGatewayLambdaHandler<'<%- operation.name %>'>;
+<%_ }); _%>
   readonly $connect?: OperationApiGatewayLambdaHandler<'$connect'>;
   readonly $disconnect?: OperationApiGatewayLambdaHandler<'$disconnect'>;
 }
 
-export type AnyOperationRequestBodies = {{#apiInfo}}{{#apis}}{{^operations.0}}never{{/operations.0}}{{#operations}}{{#operation}}{{#vendorExtensions.x-async-to-server}}| {{operationIdCamelCase}}RequestBody{{/vendorExtensions.x-async-to-server}}{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}};
+export type AnyOperationRequestBodies = <% toServerOperations.forEach((operation) => { %>| <%- operation.operationIdPascalCase %>RequestBody<% }); %>;
 
 export interface HandlerRouterProps<
   RequestBody,

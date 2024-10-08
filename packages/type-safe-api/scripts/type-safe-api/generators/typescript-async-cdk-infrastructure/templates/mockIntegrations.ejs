@@ -1,0 +1,31 @@
+###TSAPI_WRITE_FILE###
+{
+  "dir": "<%- metadata.srcDir || 'src' %>",
+  "name": "mock-integrations",
+  "ext": ".ts",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###import {
+  WebSocketMockIntegration,
+} from "aws-cdk-lib/aws-apigatewayv2-integrations";
+
+<%_ const toServerOperations = allOperations.filter(op => op.vendorExtensions && op.vendorExtensions['x-async'] && ['client_to_server', 'bidirectional'].includes(op.vendorExtensions['x-async'].direction)); _%>
+
+/**
+ * Type-safe mock integrations for WebSocket API operations
+ */
+export class MockIntegrations {
+
+  /**
+   * Mock all operations
+   */
+  public static mockAll() {
+    return {
+      <%_ toServerOperations.forEach((operation) => { _%>
+      <%- operation.name %>: {
+        integration: new WebSocketMockIntegration("Mock<%- operation.operationIdPascalCase %>Integration"),
+      },
+      <%_ }); _%>
+    };
+  }
+}
