@@ -41,6 +41,9 @@ export class TypescriptWebsocketClientLibrary extends GeneratedTypescriptLibrary
         WebSocketLibrary.TYPESCRIPT_WEBSOCKET_CLIENT,
         "typescript/templates/client/models",
       ],
+      metadata: {
+        srcDir: this.srcdir,
+      },
     };
   }
 }

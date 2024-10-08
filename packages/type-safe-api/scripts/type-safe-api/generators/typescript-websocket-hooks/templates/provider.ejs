@@ -1,0 +1,28 @@
+###TSAPI_WRITE_FILE###
+{
+  "id": "hooks",
+  "dir": "<%= metadata.srcDir || 'src' %>/hooks",
+  "name": "provider",
+  "ext": ".tsx",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###import {
+<%_ const serviceClassName = services[0] ? services[0].className : "DefaultApi"; _%>
+  <%- serviceClassName %>WebSocketClient,
+} from "<%- metadata.websocketClientPackageName %>";
+import React, { createContext, ReactNode, FC } from "react";
+
+export const <%- serviceClassName %>WebSocketClientContext = createContext<<%- serviceClassName %>WebSocketClient | undefined>(undefined);
+
+export interface <%- serviceClassName %>WebSocketClientProviderProps {
+  readonly client: <%- serviceClassName %>WebSocketClient;
+  readonly children?: ReactNode;
+}
+
+export const <%- serviceClassName %>WebSocketClientProvider: FC<<%- serviceClassName %>WebSocketClientProviderProps> = (props) => {
+  return (
+    <<%- serviceClassName %>WebSocketClientContext.Provider value={props.client}>
+      {props.children}
+    </<%- serviceClassName %>WebSocketClientContext.Provider>
+  );
+};

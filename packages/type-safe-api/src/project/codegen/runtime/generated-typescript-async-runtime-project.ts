@@ -24,7 +24,6 @@ export class GeneratedTypescriptAsyncRuntimeProject extends GeneratedTypescriptR
   }
 
   protected buildCodegenOptions(): CodegenOptions {
-    // TODO: not currently used, adjust these when removing openapi generator for websocket apis
     return {
       specPath: this.options.specPath,
       templateDirs: [
