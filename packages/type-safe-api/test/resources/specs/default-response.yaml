@@ -1,0 +1,51 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: My API
+  description: See https://github.com/aws/aws-pdk/issues/841
+paths:
+  /hello:
+    get:
+      operationId: sayHello
+      x-handler:
+        language: typescript
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: Successful response
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/SayHelloResponseContent'
+        default:
+          description: An error due to the client not being authorized to access the resource
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/ServiceUnavailableErrorResponseContent'
+components:
+  schemas:
+    SayHelloResponseContent:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/HelloId'
+        message:
+          type: string
+      required:
+        - message
+    HelloId:
+      type: string
+      format: uuid
+    ServiceUnavailableErrorResponseContent:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message

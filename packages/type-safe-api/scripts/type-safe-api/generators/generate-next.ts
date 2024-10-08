@@ -15,9 +15,11 @@ import _kebabCase from "lodash/kebabCase";
 import _orderBy from "lodash/orderBy";
 import _uniq from "lodash/uniq";
 import _uniqBy from "lodash/uniqBy";
+import _isEqual from "lodash/isEqual";
 import { OpenAPIV3 } from "openapi-types";
 import * as parseOpenapi from "parse-openapi";
 import { getOperationResponses } from "parse-openapi/dist/parser/getOperationResponses";
+import { getOperationResponse } from "parse-openapi/dist/parser/getOperationResponse";
 
 const TSAPI_WRITE_FILE_START = "###TSAPI_WRITE_FILE###";
 const TSAPI_WRITE_FILE_END = "###/TSAPI_WRITE_FILE###";
@@ -427,7 +429,8 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
   // Augment operations with additional data
   data.services.forEach((service) => {
 
-    // Keep track of the response models we need the service (ie api client) to import
+    // Keep track of the request and response models we need the service (ie api client) to import
+    const requestModelImports: string[] = [];
     const responseModelImports: string[] = [];
 
     service.operations.forEach((op) => {
@@ -452,12 +455,24 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
         // Add all response models to the response model imports
         responseModelImports.push(...responses.filter(r => r.export === "reference").map(r => r.type));
 
-        // parseOpenapi does not distinguish between returning an "any" or returning "void"
-        // We distinguish this by looking back each response in the spec, and checking whether it
-        // has content
+        const defaultResponse = resolveIfRef(spec, specOp.responses?.['default']);
+
         [...responses, ...op.results].forEach((response) => {
+          // Check whether this response is actually the "default" response.
+          if (response.code === 200 && defaultResponse && _isEqual(response, getOperationResponse(spec, defaultResponse, 200))) {
+            // For backwards compatibility with OpenAPI generator, we set the response code for the default response to 0.
+            // See: https://github.com/OpenAPITools/openapi-generator/blob/8f2676c5c2bcbcc41942307e5c8648cee38bcc44/modules/openapi-generator/src/main/java/org/openapitools/codegen/CodegenResponse.java#L622
+            // TODO: we should likely revisit this to make the handler wrappers more intuitive for the default response case, as
+            // the code 0 would actually need to be returned by the server for marshalling etc to work for the model associated with
+            // the default response.
+            response.code = 0;
+          }
+
           const matchingSpecResponse = specOp.responses[`${response.code}`];
 
+          // parseOpenapi does not distinguish between returning an "any" or returning "void"
+          // We distinguish this by looking back each response in the spec, and checking whether it
+          // has content
           if (matchingSpecResponse) {
             // Resolve the ref if necessary
             const specResponse = resolveIfRef(spec, matchingSpecResponse);
@@ -486,8 +501,12 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
 
       // Loop through the parameters
       op.parameters.forEach((parameter) => {
-        const specParameter = specParametersByName[parameter.prop];
+        // Add the request model import
+        if (parameter.export === "reference") {
+          requestModelImports.push(parameter.type);
+        }
 
+        const specParameter = specParametersByName[parameter.prop];
         const specParameterSchema = resolveIfRef(spec, specParameter?.schema);
 
         if (specParameterSchema) {
@@ -541,7 +560,7 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
     service.operations = _orderBy(service.operations, (op) => op.name);
 
     // Add the models to import
-    (service as any).modelImports = _orderBy(_uniq([...service.imports, ...responseModelImports]));
+    (service as any).modelImports = _orderBy(_uniq([...service.imports, ...requestModelImports, ...responseModelImports]));
 
     // Add the service class name
     (service as any).className = `${service.name}Api`;
@@ -554,14 +573,19 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
     if (matchingSpecModel) {
       const specModel = isRef(matchingSpecModel) ? resolveRef(spec, matchingSpecModel.$ref) as OpenAPIV3.SchemaObject : matchingSpecModel;
 
+      // Resolve properties inherited from composed schemas
+      const composedProperties = resolveComposedProperties(data, model);
+      (model as any).resolvedProperties = composedProperties;
+
       // Add unique imports
-      (model as any).uniqueImports = _orderBy(_uniq(model.imports));
+      (model as any).uniqueImports = _orderBy(_uniq([
+        ...model.imports,
+        // Include composed property imports, if any
+        ...composedProperties.filter(p => p.export === "reference").map(p => p.type),
+      ]));
 
       // Add deprecated flag if present
       (model as any).deprecated = specModel.deprecated || false;
-
-      // Resolve properties inherited from composed schemas
-      (model as any).resolvedProperties = resolveComposedProperties(data, model);
 
       // If the model has "additionalProperties" there should be a "dictionary" property
       if (specModel.additionalProperties) {
