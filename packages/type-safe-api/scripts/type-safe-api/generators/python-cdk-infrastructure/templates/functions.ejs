@@ -1,0 +1,59 @@
+###TSAPI_WRITE_FILE###
+{
+  "dir": "<%- metadata.srcDir || 'src' %>",
+  "name": "functions",
+  "ext": ".py",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###from aws_cdk import Duration
+from aws_cdk.aws_lambda import (
+    Function, Runtime, Tracing, Code
+)
+from aws_pdk.type_safe_api import SnapStartFunction
+from os import path
+from pathlib import Path
+
+<%_ allOperations.forEach((operation) => { _%>
+<%_ if (operation.vendorExtensions && operation.vendorExtensions['x-handler']) { _%>
+<%_ const language = operation.vendorExtensions['x-handler'].language; _%>
+<%_ const isTypeScript = language === 'typescript'; _%>
+<%_ const isJava = language === 'java'; _%>
+<%_ const isPython = language === 'python'; _%>
+
+class <%- operation.operationIdPascalCase %>Function(<% if (isJava) { %>SnapStart<% } %>Function):
+    """
+    Lambda function construct which points to the <%- language %> implementation of <%- operation.operationIdPascalCase %>
+    """
+    def __init__(self, scope, id, **kwargs):
+        super().__init__(scope, id,
+            <%_ if (isTypeScript) { _%>
+            runtime=Runtime.<%- metadata['x-handlers-node-lambda-runtime-version'] %>,
+            <%_ } else if (isPython) { _%>
+            runtime=Runtime.<%- metadata['x-handlers-python-lambda-runtime-version'] %>,
+            <%_ } else if (isJava) { _%>
+            runtime=Runtime.<%- metadata['x-handlers-java-lambda-runtime-version'] %>,
+            <%_ } _%>
+            <%_ if (isTypeScript) { _%>
+            handler="index.handler",
+            <%_ } else if (isPython) { _%>
+            handler="<%- metadata['x-handlers-python-module'] %>.<%- operation.operationIdSnakeCase %>.handler",
+            <%_ } else if (isJava) { _%>
+            handler="<%- metadata['x-handlers-java-package'] %>.<%- operation.operationIdPascalCase %>Handler",
+            <%_ } _%>
+            code=Code.from_asset(path.join(str(Path(__file__).absolute().parent), "..",
+                <%_ if (isTypeScript) { _%>
+                "<%- metadata['x-handlers-typescript-asset-path'] %>",
+                "<%- operation.operationIdKebabCase %>",
+                <%_ } else if (isPython) { _%>
+                "<%- metadata['x-handlers-python-asset-path'] %>",
+                <%_ } else if (isJava) { _%>
+                "<%- metadata['x-handlers-java-asset-path'] %>",
+                <%_ } _%>
+            )),
+            tracing=Tracing.ACTIVE,
+            timeout=Duration.seconds(30),
+            **kwargs,
+        )
+
+<%_ } _%>
+<%_ }); _%>

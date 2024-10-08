@@ -1,10 +1,18 @@
-from dataclasses import fields
+###TSAPI_WRITE_FILE###
+{
+  "id": "api",
+  "dir": "<%= metadata.srcDir || 'src' %>",
+  "name": "api",
+  "ext": ".py",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###from dataclasses import fields
 from aws_pdk.type_safe_api import TypeSafeRestApi, TypeSafeApiIntegration
-from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.api.operation_config import OperationLookup, OperationConfig
+from <%- metadata.runtimeModuleName %>.api.operation_config import OperationLookup, OperationConfig
 from os import path
 from pathlib import Path
 
-SPEC_PATH = path.join(str(Path(__file__).absolute().parent), "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-relative-spec-path}}{{/apis.0}}{{/apiInfo}}")
+SPEC_PATH = path.join(str(Path(__file__).absolute().parent), "<%- metadata.relativeSpecPath %>")
 
 class Api(TypeSafeRestApi):
     """

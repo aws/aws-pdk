@@ -7,15 +7,11 @@ import {
   CodeGenerationSourceOptions,
   GeneratedWithOpenApiGeneratorOptions,
 } from "../../../types";
-import { OpenApiGeneratorHandlebarsIgnoreFile } from "../../components/open-api-generator-handlebars-ignore-file";
-import { OpenApiGeneratorIgnoreFile } from "../../components/open-api-generator-ignore-file";
-import { OpenApiToolsJsonFile } from "../../components/open-api-tools-json-file";
 import { TypeSafeApiCommandEnvironment } from "../../components/type-safe-api-command-environment";
 import {
-  buildCleanOpenApiGeneratedCodeCommand,
-  buildInvokeOpenApiGeneratorCommandArgs,
+  buildCodegenCommandArgs,
   buildTypeSafeApiExecCommand,
-  GenerationOptions,
+  CodegenOptions,
   TypeSafeApiScript,
 } from "../../components/utils";
 import { GeneratedHandlersProjects } from "../../generate";
@@ -45,7 +41,6 @@ export abstract class GeneratedPythonCdkInfrastructureBaseProject extends Python
   protected readonly options: GeneratedPythonCdkInfrastructureBaseProjectOptions;
 
   protected readonly generateTask: Task;
-  protected readonly openapiGeneratorIgnore: OpenApiGeneratorIgnoreFile;
 
   constructor(options: GeneratedPythonCdkInfrastructureBaseProjectOptions) {
     super({
@@ -76,38 +71,11 @@ export abstract class GeneratedPythonCdkInfrastructureBaseProject extends Python
       .filter((dep) => !this.deps.tryGetDependency(dep, DependencyType.RUNTIME))
       .forEach((dep) => this.addDependency(dep));
 
-    // Ignore everything but the target files
-    const openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);
-    this.openapiGeneratorIgnore = openapiGeneratorIgnore;
-    openapiGeneratorIgnore.addPatterns(
-      "/*",
-      "**/*",
-      "*",
-      `!${this.moduleName}/__init__.py`,
-      `!${this.moduleName}/api.py`
-    );
-
-    const openapiGeneratorHandlebarsIgnore =
-      new OpenApiGeneratorHandlebarsIgnoreFile(this);
-    openapiGeneratorHandlebarsIgnore.addPatterns(
-      "/*",
-      "**/*",
-      "*",
-      `!${this.moduleName}/__functions.py`
-    );
-
-    // Add OpenAPI Generator cli configuration
-    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig({
-      version: "6.6.0",
-      ...options.openApiGeneratorCliConfig,
-    });
-
     const generateTask = this.addTask("generate");
     this.generateTask = generateTask;
-    generateTask.exec(buildCleanOpenApiGeneratedCodeCommand());
     generateTask.exec(
       buildTypeSafeApiExecCommand(
-        TypeSafeApiScript.GENERATE,
+        TypeSafeApiScript.GENERATE_NEXT,
         this.buildGenerateCommandArgs()
       )
     );
@@ -116,14 +84,10 @@ export abstract class GeneratedPythonCdkInfrastructureBaseProject extends Python
 
     if (!options.commitGeneratedCode) {
       // Ignore the generated code
-      this.gitignore.addPatterns(
-        this.moduleName,
-        ".openapi-generator",
-        "mocks"
-      );
-    } else {
-      this.gitignore.addPatterns(".openapi-generator");
+      this.gitignore.addPatterns(this.moduleName, "mocks");
     }
+
+    this.gitignore.addPatterns(".openapi-generator", ".tsapi-manifest");
 
     // The poetry install that runs as part of post synthesis expects there to be some code present, but code isn't
     // generated until build time. This means that the first install will fail when either generating the project for
@@ -140,10 +104,8 @@ export abstract class GeneratedPythonCdkInfrastructureBaseProject extends Python
   }
 
   public buildGenerateCommandArgs = () => {
-    return buildInvokeOpenApiGeneratorCommandArgs(
-      this.buildOpenApiGeneratorOptions()
-    );
+    return buildCodegenCommandArgs(this.buildCodegenOptions());
   };
 
-  protected abstract buildOpenApiGeneratorOptions(): GenerationOptions;
+  protected abstract buildCodegenOptions(): CodegenOptions;
 }

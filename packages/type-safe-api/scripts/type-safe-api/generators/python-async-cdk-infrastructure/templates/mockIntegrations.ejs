@@ -1,0 +1,85 @@
+###TSAPI_WRITE_FILE###
+{
+  "id": "mock-integrations",
+  "dir": "<%= metadata.srcDir || 'src' %>",
+  "name": "mock_integrations",
+  "ext": ".py",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###import json
+from aws_pdk.type_safe_api import Integrations, MockIntegration, TypeSafeApiIntegration
+from <%- metadata.runtimeModuleName %>.models import *
+from <%- metadata.runtimeModuleName %>.api.operation_config import OperationConfig
+from os import path
+from pathlib import Path
+
+MOCK_DATA_PATH = path.join(str(Path(__file__).absolute().parent), "..", "mocks")
+
+class MockIntegrations:
+    """
+    Type-safe mock integrations for API operations
+    """
+    <%_ if (metadata.enableMockIntegrations) { _%>
+    <%_ allOperations.forEach((operation) => { _%>
+    <%_ operation.responses.forEach((response) => { _%>
+    @staticmethod
+    def <%- operation.operationIdSnakeCase %>_<%- response.code %>(<% if (response.type !== 'void') { %>body: <% if (!response.isPrimitive) { %><%- response.pythonType %> = None<% } else { %>str<% } %><% } %>) -> MockIntegration:
+        """
+        Mock integration to return a <%- response.code %> response from the <%- operation.name %> operation
+        <%_ if (!response.isPrimitive) { _%>
+        Call this with no arguments to use a generated mock response
+        <%_ } _%>
+        """
+        <%_ if (response.type !== 'void') { _%>
+        <%_ if (!response.isPrimitive) { _%>
+        response_body = None
+        if body is None:
+            with open(path.join(MOCK_DATA_PATH, "{{httpMethod}}{}-{{code}}.json".format("{{path}}".replace("/", "-").lower())), "r") as f:
+                response_body = f.read()
+        else:
+            response_body = body.to_json()
+        <%_ } _%>
+        <%_ } _%>
+        return Integrations.mock(
+            status_code=<%- response.code %>,
+            <%_ if (response.type !== 'void') { _%>
+            <%_ if (!response.isPrimitive) { _%>
+            body=response_body,
+            <%_ } else { _%>
+            body=body,
+            <%_ } _%>
+            <%_ } _%>
+        )
+
+    <%_ }); _%>
+    <%_ }); _%>
+    @staticmethod
+    def mock_all(**kwargs) -> OperationConfig[TypeSafeApiIntegration]:
+        """
+        Mock all operations for which generated JSON data can be returned.
+        The first available response is used for each operation. In most cases this is the successful 200 response.
+        Pass any additional or overridden integrations as kwargs, for example:
+
+        MockIntegrations.mock_all(
+            say_hello=TypeSafeApiIntegration(
+                integration=Integrations.lambda_(...)
+            )
+        )
+        """
+        return OperationConfig(**{
+            **{
+                <%_ allOperations.forEach((operation) => { _%>
+                <%_ const firstResponse = operation.results[0] || operation.responses[0]; _%>
+                <%_ if (firstResponse && !firstResponse.isPrimitive) { _%>
+                "<%- operation.operationIdSnakeCase %>": TypeSafeApiIntegration(
+                    integration=MockIntegrations.<%- operation.operationIdSnakeCase %>_<%- firstResponse.code %>(),
+                ),
+                <%_ } _%>
+                <%_ }); _%>
+            },
+            **kwargs
+        })
+    <%_ } else { _%>
+    # No mock integrations have been generated, since mock data generation is disabled.
+    pass
+    <%_ } _%>

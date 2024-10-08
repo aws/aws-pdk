@@ -291,6 +291,51 @@ const toJavaType = (property: parseOpenapi.Model): string => {
   }
 };
 
+const toPythonPrimitive = (property: parseOpenapi.Model): string => {
+  if (property.type === "string" && property.format === "date") {
+    return "date";
+  } else if (property.type === "string" && property.format === "date-time") {
+    return "datetime"
+  } else if (property.type === "any") {
+    return "object";
+  } else if (property.type === "binary") {
+    return "bytearray";
+  } else if (property.type === "number") {
+    if ((property as any).openapiType === "integer") {
+      return "int";
+    }
+
+    switch(property.format) {
+      case "int32":
+      case "int64":
+        return "int";
+      case "float":
+      case "double":
+      default:
+        return "float";
+    }
+  } else if (property.type === "boolean") {
+    return "bool";
+  } else if (property.type === "string") {
+    return "str";
+  }
+  return property.type;
+};
+
+const toPythonType = (property: parseOpenapi.Model): string => {
+  switch (property.export) {
+    case "generic":
+    case "reference":
+      return toPythonPrimitive(property);
+    case "array":
+      return `List[${property.link ? toPythonType(property.link) : property.type}]`;
+    case "dictionary":
+      return `Dict[str, ${property.link ? toPythonType(property.link) : property.type}]`;
+    default:
+      return property.type;
+  }
+};
+
 /**
  * Mutates the given model to add language specific types and names
  */
@@ -298,6 +343,7 @@ const mutateModelWithAdditionalTypes = (model: parseOpenapi.Model) => {
   (model as any).typescriptName = model.name;
   (model as any).typescriptType = toTypeScriptType(model);
   (model as any).javaType = toJavaType(model);
+  (model as any).pythonType = toPythonType(model);
   (model as any).isPrimitive = PRIMITIVE_TYPES.has(model.type);
 
   // Trim any surrounding quotes from name

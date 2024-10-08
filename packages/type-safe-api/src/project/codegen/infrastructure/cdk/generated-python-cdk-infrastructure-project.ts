@@ -8,7 +8,7 @@ import {
 import { MockResponseGenerationOptions } from "../../../types";
 import {
   buildInvokeMockDataGeneratorCommand,
-  GenerationOptions,
+  CodegenOptions,
   getHandlersProjectVendorExtensions,
   OtherGenerators,
 } from "../../components/utils";
@@ -30,28 +30,17 @@ export class GeneratedPythonCdkInfrastructureProject extends GeneratedPythonCdkI
     if (!this.options.mockDataOptions?.disable) {
       this.generateTask.exec(this.buildGenerateMockDataCommand());
     }
-
-    this.openapiGeneratorIgnore.addPatterns(
-      `!${this.moduleName}/mock_integrations.py`
-    );
   }
 
-  public buildOpenApiGeneratorOptions(): GenerationOptions {
+  public buildCodegenOptions(): CodegenOptions {
     return {
-      generator: "python-nextgen",
       specPath: this.options.specPath,
-      generatorDirectory: OtherGenerators.PYTHON_CDK_INFRASTRUCTURE,
-      // Tell the generator where python source files live
-      srcDir: this.moduleName,
-      normalizers: {
-        KEEP_ONLY_FIRST_TAG_IN_OPERATION: true,
-      },
-      extraVendorExtensions: {
-        "x-runtime-module-name": this.options.generatedPythonTypes.moduleName,
-        // Spec path relative to the source directory
-        "x-relative-spec-path": path.join("..", this.options.specPath),
-        // Enable mock integration generation by default
-        "x-enable-mock-integrations": !this.options.mockDataOptions?.disable,
+      templateDirs: [OtherGenerators.PYTHON_CDK_INFRASTRUCTURE],
+      metadata: {
+        srcDir: this.moduleName,
+        runtimeModuleName: this.options.generatedPythonTypes.moduleName,
+        relativeSpecPath: path.join("..", this.options.specPath),
+        enableMockIntegrations: !this.options.mockDataOptions?.disable,
         ...getHandlersProjectVendorExtensions(
           this,
           this.options.generatedHandlers
