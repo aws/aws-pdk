@@ -1,17 +1,17 @@
-###TSAPI_SPLIT_FILE###
-{{#apiInfo ~}}
-{{#apis ~}}
-{{#operations ~}}
-{{#operation ~}}
-{{#if vendorExtensions.x-handler}}
+<%_ allOperations.forEach((operation) => { _%>
+<%_ if (operation.vendorExtensions && operation.vendorExtensions['x-handler']) { _%>
+<%_ const language = operation.vendorExtensions['x-handler'].language; _%>
+<%_ const isTypeScript = language === 'typescript'; _%>
+<%_ const isJava = language === 'java'; _%>
+<%_ const isPython = language === 'python'; _%>
 ###TSAPI_WRITE_FILE###
 {
-  "dir": "functions",
-  "name": "{{operationIdCamelCase}}Function",
+  "dir": "<%= metadata.srcDir || 'src' %>/functions",
+  "name": "<%- operation.operationIdPascalCase %>Function",
   "ext": ".java",
   "overwrite": true
 }
-###/TSAPI_WRITE_FILE###package {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-infrastructure-package}}{{/apis.0}}{{/apiInfo}}.functions;
+###/TSAPI_WRITE_FILE###package <%- metadata.packageName %>.functions;
 
 import org.jetbrains.annotations.NotNull;
 import software.amazon.awscdk.services.lambda.Function;
@@ -19,25 +19,25 @@ import software.aws.pdk.type_safe_api.SnapStartFunction;
 import software.constructs.Construct;
 
 /**
- * Lambda function construct which points to the {{vendorExtensions.x-handler.language}} implementation of {{operationIdCamelCase}}
+ * Lambda function construct which points to the <%- language %> implementation of <%- operation.operationIdPascalCase %>
  */
-public class {{operationIdCamelCase}}Function extends {{#startsWith vendorExtensions.x-handler.language 'java' ~}}SnapStart{{~/startsWith}}Function {
-    public {{operationIdCamelCase}}Function(@NotNull Construct scope, @NotNull String id, @NotNull {{operationIdCamelCase}}FunctionProps props) {
+public class <%- operation.operationIdPascalCase %>Function extends <% if (isJava) { %>SnapStart<% } %>Function {
+    public <%- operation.operationIdPascalCase %>Function(@NotNull Construct scope, @NotNull String id, @NotNull <%- operation.operationIdPascalCase %>FunctionProps props) {
         super(scope, id, props);
     }
 
-    public {{operationIdCamelCase}}Function(@NotNull Construct scope, @NotNull String id) {
-        this(scope, id, {{operationIdCamelCase}}FunctionProps.builder().build());
+    public <%- operation.operationIdPascalCase %>Function(@NotNull Construct scope, @NotNull String id) {
+        this(scope, id, <%- operation.operationIdPascalCase %>FunctionProps.builder().build());
     }
 }
 ###TSAPI_WRITE_FILE###
 {
-  "dir": "functions",
-  "name": "{{operationIdCamelCase}}FunctionProps",
+  "dir": "<%= metadata.srcDir || 'src' %>/functions",
+  "name": "<%- operation.operationIdPascalCase %>FunctionProps",
   "ext": ".java",
   "overwrite": true
 }
-###/TSAPI_WRITE_FILE###package {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-infrastructure-package}}{{/apis.0}}{{/apiInfo}}.functions;
+###/TSAPI_WRITE_FILE###package <%- metadata.packageName %>.functions;
 
 import org.jetbrains.annotations.NotNull;
 import software.amazon.awscdk.Duration;
@@ -79,12 +79,12 @@ import java.util.List;
 import java.util.Map;
 
 @lombok.Builder @lombok.Getter
-public class {{operationIdCamelCase}}FunctionProps implements {{#startsWith vendorExtensions.x-handler.language 'java' ~}}SnapStart{{~/startsWith}}FunctionProps {
+public class <%- operation.operationIdPascalCase %>FunctionProps implements <% if (isJava) { %>SnapStart<% } %>FunctionProps {
     private static String infraProjectAbsolutePath;
 
     static {
         try {
-            try (InputStream stream = {{operationIdCamelCase}}FunctionProps.class.getClassLoader()
+            try (InputStream stream = <%- operation.operationIdPascalCase %>FunctionProps.class.getClassLoader()
                     .getResourceAsStream("project-absolute-path.txt")) {
                 try (InputStreamReader inputStreamReader = new InputStreamReader(stream)) {
                     infraProjectAbsolutePath = new BufferedReader(inputStreamReader).lines().findFirst()
@@ -98,28 +98,28 @@ public class {{operationIdCamelCase}}FunctionProps implements {{#startsWith vend
 
     // Fixed props
     private final Code code = Code.fromAsset(Paths.get(infraProjectAbsolutePath).resolve(
-        {{#startsWith vendorExtensions.x-handler.language 'typescript' ~}}
-        "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-typescript-asset-path}}{{/apis.0}}{{/apiInfo}}/###TSAPI_FN###{ "function": "kebabCase", "args": ["{{operationIdCamelCase}}"] }###/TSAPI_FN###"
-        {{~/startsWith}}{{#startsWith vendorExtensions.x-handler.language 'python' ~}}
-        "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-python-asset-path}}{{/apis.0}}{{/apiInfo}}"
-        {{~/startsWith}}{{#startsWith vendorExtensions.x-handler.language 'java' ~}}
-        "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-java-asset-path}}{{/apis.0}}{{/apiInfo}}"
-        {{~/startsWith}}
+        <%_ if (isTypeScript) { _%>
+        "<%- metadata['x-handlers-typescript-asset-path'] %>/<%- operation.operationIdKebabCase %>"
+        <%_ } else if (isPython) { _%>
+        "<%- metadata['x-handlers-python-asset-path'] %>"
+        <%_ } else if (isJava) { _%>
+        "<%- metadata['x-handlers-java-asset-path'] %>"
+        <%_ } _%>
     ).toAbsolutePath().toString());
-    {{#startsWith vendorExtensions.x-handler.language 'typescript' ~}}
+    <%_ if (isTypeScript) { _%>
     private final String handler = "index.handler";
-    {{~/startsWith}}{{#startsWith vendorExtensions.x-handler.language 'python' ~}}
-    private final String handler = "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-python-module}}{{/apis.0}}{{/apiInfo}}.{{operationIdSnakeCase}}.handler";
-    {{~/startsWith}}{{#startsWith vendorExtensions.x-handler.language 'java' ~}}
-    private final String handler = "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-java-package}}{{/apis.0}}{{/apiInfo}}.{{operationIdCamelCase}}Handler";
-    {{~/startsWith}}
-    {{#startsWith vendorExtensions.x-handler.language 'typescript' ~}}
-    private final Runtime runtime = Runtime.{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-node-lambda-runtime-version}}{{/apis.0}}{{/apiInfo}};
-    {{~/startsWith}}{{#startsWith vendorExtensions.x-handler.language 'python' ~}}
-    private final Runtime runtime = Runtime.{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-python-lambda-runtime-version}}{{/apis.0}}{{/apiInfo}};
-    {{~/startsWith}}{{#startsWith vendorExtensions.x-handler.language 'java' ~}}
-    private final Runtime runtime = Runtime.{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-java-lambda-runtime-version}}{{/apis.0}}{{/apiInfo}};
-    {{~/startsWith}}
+    <%_ } else if (isPython) { _%>
+    private final String handler = "<%- metadata['x-handlers-python-module'] %>.<%- operation.operationIdSnakeCase %>.handler";
+    <%_ } else if (isJava) { _%>
+    private final String handler = "<%- metadata['x-handlers-java-package'] %>.<%- operation.operationIdPascalCase %>Handler";
+    <%_ } _%>
+    <%_ if (isTypeScript) { _%>
+    private final Runtime runtime = Runtime.<%- metadata['x-handlers-node-lambda-runtime-version'] %>;
+    <%_ } else if (isPython) { _%>
+    private final Runtime runtime = Runtime.<%- metadata['x-handlers-python-lambda-runtime-version'] %>;
+    <%_ } else if (isJava) { _%>
+    private final Runtime runtime = Runtime.<%- metadata['x-handlers-java-lambda-runtime-version'] %>;
+    <%_ } _%>
 
     // Props with defaults
     @lombok.Builder.Default
@@ -165,8 +165,5 @@ public class {{operationIdCamelCase}}FunctionProps implements {{#startsWith vend
     IDestination onSuccess;
     Number retryAttempts;
 }
-{{/if}}
-{{~/operation}}
-{{~/operations}}
-{{~/apis}}
-{{~/apiInfo}}
+<%_ } _%>
+<%_ }); _%>

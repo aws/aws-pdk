@@ -7,7 +7,7 @@ import {
 import { MockResponseGenerationOptions } from "../../../types";
 import {
   buildInvokeMockDataGeneratorCommand,
-  GenerationOptions,
+  CodegenOptions,
   getHandlersProjectVendorExtensions,
   OtherGenerators,
 } from "../../components/utils";
@@ -26,33 +26,22 @@ export class GeneratedJavaCdkInfrastructureProject extends GeneratedJavaCdkInfra
     if (!this.options.mockDataOptions?.disable) {
       this.generateTask.exec(this.buildGenerateMockDataCommand());
     }
-
-    this.openapiGeneratorIgnore.addPatterns(
-      `!${this.srcDir}/MockIntegrations.java`
-    );
   }
 
-  public buildOpenApiGeneratorOptions(): GenerationOptions {
+  public buildCodegenOptions(): CodegenOptions {
     return {
-      generator: "java",
       specPath: this.options.specPath,
-      generatorDirectory: OtherGenerators.JAVA_CDK_INFRASTRUCTURE,
-      srcDir: this.srcDir,
-      normalizers: {
-        KEEP_ONLY_FIRST_TAG_IN_OPERATION: true,
-      },
-      extraVendorExtensions: {
-        "x-infrastructure-package": this.packageName,
-        "x-runtime-package": this.options.generatedJavaTypes.packageName,
-        // Enable mock integration generation by default
-        "x-enable-mock-integrations": !this.options.mockDataOptions?.disable,
+      templateDirs: [OtherGenerators.JAVA_CDK_INFRASTRUCTURE],
+      metadata: {
+        srcDir: this.srcDir,
+        packageName: this.packageName,
+        runtimePackageName: this.options.generatedJavaTypes.packageName,
+        enableMockIntegrations: !this.options.mockDataOptions?.disable,
         ...getHandlersProjectVendorExtensions(
           this,
           this.options.generatedHandlers
         ),
       },
-      // Do not generate map/list types. Generator will use built in HashMap, ArrayList instead
-      generateAliasAsModel: false,
     };
   }
 
