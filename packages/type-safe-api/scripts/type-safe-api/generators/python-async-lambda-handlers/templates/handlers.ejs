@@ -1,0 +1,40 @@
+<%_ services.forEach((service) => { _%>
+<%_ service.operations.forEach((operation) => { _%>
+<%_ if (operation.vendorExtensions && operation.vendorExtensions['x-handler'] && operation.vendorExtensions['x-handler'].language === 'python') { _%>
+###TSAPI_WRITE_FILE###
+{
+  "id": "<%- operation.name %>",
+  "dir": "<%- metadata.srcDir || 'src' %>",
+  "name": "<%- operation.operationIdSnakeCase %>",
+  "ext": ".py",
+  "overwrite": false
+}
+###/TSAPI_WRITE_FILE###from <%- metadata.runtimeModuleName %>.models import *
+from <%- metadata.runtimeModuleName %>.response import Response
+from <%- metadata.runtimeModuleName %>.interceptors import INTERCEPTORS
+from <%- metadata.runtimeModuleName %>.interceptors.powertools.logger import LoggingInterceptor
+from <%- metadata.runtimeModuleName %>.api.operation_config import (
+    <%- operation.operationIdSnakeCase %>_handler, <%- operation.operationIdPascalCase %>Request, <%- operation.operationIdPascalCase %>OperationResponses
+)
+
+
+def <%- operation.operationIdSnakeCase %>(input: <%- operation.operationIdPascalCase %>Request, **kwargs) -> <%- operation.operationIdPascalCase %>OperationResponses:
+    """
+    Type-safe handler for the <%- operation.operationIdPascalCase %> operation
+    """
+    LoggingInterceptor.get_logger(input).info("Start <%- operation.operationIdPascalCase %> Operation")
+
+    # TODO: Implement <%- operation.operationIdPascalCase %> Operation. `input` contains the request input
+
+    return Response.internal_failure(InternalFailureErrorResponseContent(
+        message="Not Implemented!"
+    ))
+
+
+# Entry point for the AWS Lambda handler for the <%- operation.operationIdPascalCase %> operation.
+# The <%- operation.operationIdSnakeCase %>_handler method wraps the type-safe handler and manages marshalling inputs and outputs
+handler = <%- operation.operationIdSnakeCase %>_handler(interceptors=INTERCEPTORS)(<%- operation.operationIdSnakeCase %>)
+
+<%_ } _%>
+<%_ }); _%>
+<%_ }); _%>

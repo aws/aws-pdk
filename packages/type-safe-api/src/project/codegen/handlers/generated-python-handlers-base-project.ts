@@ -9,15 +9,11 @@ import {
   GeneratedPythonHandlersOptions,
   Architecture,
 } from "../../types";
-import { OpenApiGeneratorHandlebarsIgnoreFile } from "../components/open-api-generator-handlebars-ignore-file";
-import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
-import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
 import { TypeSafeApiCommandEnvironment } from "../components/type-safe-api-command-environment";
 import {
-  buildCleanOpenApiGeneratedCodeCommand,
-  buildInvokeOpenApiGeneratorCommandArgs,
+  buildCodegenCommandArgs,
   buildTypeSafeApiExecCommand,
-  GenerationOptions,
+  CodegenOptions,
   TypeSafeApiScript,
 } from "../components/utils";
 import { GeneratedPythonRuntimeBaseProject } from "../runtime/generated-python-runtime-base-project";
@@ -86,32 +82,10 @@ export abstract class GeneratedPythonHandlersBaseProject extends PythonProject {
       .filter((dep) => !this.deps.tryGetDependency(dep, DependencyType.RUNTIME))
       .forEach((dep) => this.addDependency(dep));
 
-    // Ignore everything for the first mustache pass
-    const openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);
-    openapiGeneratorIgnore.addPatterns("/*", "**/*", "*");
-    // Ignore everything but the handler files for the handlebars pass
-    const openapiGeneratorHandlebarsIgnore =
-      new OpenApiGeneratorHandlebarsIgnoreFile(this);
-    openapiGeneratorHandlebarsIgnore.addPatterns(
-      "/*",
-      "**/*",
-      "*",
-      // This will be split into a file per targeted handler
-      `!${this.moduleName}/__all_handlers.py`,
-      `!${this.tstDir}/__all_tests.py`
-    );
-
-    // Add OpenAPI Generator cli configuration
-    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig({
-      version: "6.6.0",
-      ...options.openApiGeneratorCliConfig,
-    });
-
     const generateTask = this.addTask("generate");
-    generateTask.exec(buildCleanOpenApiGeneratedCodeCommand());
     generateTask.exec(
       buildTypeSafeApiExecCommand(
-        TypeSafeApiScript.GENERATE,
+        TypeSafeApiScript.GENERATE_NEXT,
         this.buildGenerateCommandArgs()
       )
     );
@@ -119,7 +93,7 @@ export abstract class GeneratedPythonHandlersBaseProject extends PythonProject {
     this.preCompileTask.spawn(generateTask);
 
     // Ignore the generated code
-    this.gitignore.addPatterns(".openapi-generator");
+    this.gitignore.addPatterns(".openapi-generator", ".tsapi-manifest");
 
     // Write __init__.py as sample code
     new SampleFile(this, path.join(this.moduleName, "__init__.py"), {
@@ -148,10 +122,8 @@ export abstract class GeneratedPythonHandlersBaseProject extends PythonProject {
   }
 
   public buildGenerateCommandArgs = () => {
-    return buildInvokeOpenApiGeneratorCommandArgs(
-      this.buildOpenApiGeneratorOptions()
-    );
+    return buildCodegenCommandArgs(this.buildCodegenOptions());
   };
 
-  public abstract buildOpenApiGeneratorOptions(): GenerationOptions;
+  public abstract buildCodegenOptions(): CodegenOptions;
 }
