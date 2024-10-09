@@ -8,51 +8,56 @@ import { GeneratedJavaRuntimeProject } from "../../../src/project/codegen/runtim
 import { withTmpDirSnapshot } from "../../project/snapshot-utils";
 
 describe("Java Client Code Generation Script Unit Tests", () => {
-  it.each(["single.yaml", "multiple-tags.yaml"])(
-    "Generates With %s",
-    (spec) => {
-      const specPath = path.resolve(__dirname, `../../resources/specs/${spec}`);
+  it.each([
+    "single.yaml",
+    "multiple-tags.yaml",
+    "data-types.yaml",
+    "edge-cases.yaml",
+    "parameter-refs.yaml",
+    "default-response.yaml",
+    "allof-model.yaml",
+  ])("Generates With %s", (spec) => {
+    const specPath = path.resolve(__dirname, `../../resources/specs/${spec}`);
 
-      expect(
-        withTmpDirSnapshot(
-          os.tmpdir(),
-          (outdir) => {
-            exec(`cp ${specPath} ${outdir}/spec.yaml`, {
-              cwd: path.resolve(__dirname),
-            });
-            const project = new GeneratedJavaRuntimeProject({
-              name: "test",
-              artifactId: "com.aws.pdk.test",
-              groupId: "test",
-              version: "1.0.0",
-              outdir,
-              specPath: "spec.yaml",
-            });
-            // Synth the openapitools.json since it's used by the generate command
-            OpenApiToolsJsonFile.of(project)!.synthesize();
-            exec(
-              project.tasks.tryFind("create-openapitools.json")!.steps[0].exec!,
-              { cwd: outdir }
-            );
-            exec(
-              `${path.resolve(
-                __dirname,
-                "../../../scripts/type-safe-api/generators/generate"
-              )} ${project.buildGenerateCommandArgs()}`,
-              {
-                cwd: outdir,
-              }
-            );
-          },
-          {
-            excludeGlobs: [
-              ...GeneratedJavaRuntimeProject.openApiIgnorePatterns,
-              "spec.yaml",
-            ],
-            parseJson: false,
-          }
-        )
-      ).toMatchSnapshot();
-    }
-  );
+    expect(
+      withTmpDirSnapshot(
+        os.tmpdir(),
+        (outdir) => {
+          exec(`cp ${specPath} ${outdir}/spec.yaml`, {
+            cwd: path.resolve(__dirname),
+          });
+          const project = new GeneratedJavaRuntimeProject({
+            name: "test",
+            artifactId: "com.aws.pdk.test",
+            groupId: "test",
+            version: "1.0.0",
+            outdir,
+            specPath: "spec.yaml",
+          });
+          // Synth the openapitools.json since it's used by the generate command
+          OpenApiToolsJsonFile.of(project)!.synthesize();
+          exec(
+            project.tasks.tryFind("create-openapitools.json")!.steps[0].exec!,
+            { cwd: outdir }
+          );
+          exec(
+            `${path.resolve(
+              __dirname,
+              "../../../scripts/type-safe-api/generators/generate"
+            )} ${project.buildGenerateCommandArgs()}`,
+            {
+              cwd: outdir,
+            }
+          );
+        },
+        {
+          excludeGlobs: [
+            ...GeneratedJavaRuntimeProject.openApiIgnorePatterns,
+            "spec.yaml",
+          ],
+          parseJson: false,
+        }
+      )
+    ).toMatchSnapshot();
+  });
 });
