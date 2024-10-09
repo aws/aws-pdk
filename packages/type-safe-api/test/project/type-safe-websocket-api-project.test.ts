@@ -382,9 +382,7 @@ describe("Type Safe Api Project Unit Tests", () => {
             },
           },
         });
-      }).toThrow(
-        "Python and Java are not yet supported by Type Safe WebSocket API! Support is coming soon..."
-      );
+      }).toThrow(/.*not supported.*/);
     }
   );
 });

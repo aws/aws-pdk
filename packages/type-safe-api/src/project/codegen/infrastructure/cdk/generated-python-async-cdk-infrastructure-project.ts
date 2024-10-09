@@ -6,7 +6,7 @@ import {
   GeneratedPythonCdkInfrastructureBaseProjectOptions,
 } from "./generated-python-cdk-infrastructure-base-project";
 import {
-  GenerationOptions,
+  CodegenOptions,
   OtherGenerators,
   getHandlersProjectVendorExtensions,
 } from "../../components/utils";
@@ -19,20 +19,14 @@ export class GeneratedPythonAsyncCdkInfrastructureProject extends GeneratedPytho
     super(options);
   }
 
-  public buildOpenApiGeneratorOptions(): GenerationOptions {
+  public buildCodegenOptions(): CodegenOptions {
     return {
-      generator: "python-nextgen",
       specPath: this.options.specPath,
-      generatorDirectory: OtherGenerators.PYTHON_ASYNC_CDK_INFRASTRUCTURE,
-      // Tell the generator where python source files live
-      srcDir: this.moduleName,
-      normalizers: {
-        KEEP_ONLY_FIRST_TAG_IN_OPERATION: true,
-      },
-      extraVendorExtensions: {
-        "x-runtime-module-name": this.options.generatedPythonTypes.moduleName,
-        // Spec path relative to the source directory
-        "x-relative-spec-path": path.join("..", this.options.specPath),
+      templateDirs: [OtherGenerators.PYTHON_ASYNC_CDK_INFRASTRUCTURE],
+      metadata: {
+        srcDir: this.moduleName,
+        runtimeModuleName: this.options.generatedPythonTypes.moduleName,
+        relativeSpecPath: path.join("..", this.options.specPath),
         ...getHandlersProjectVendorExtensions(
           this,
           this.options.generatedHandlers

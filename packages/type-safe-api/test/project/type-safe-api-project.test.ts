@@ -6,8 +6,8 @@ import { NodePackageManager } from "projen/lib/javascript";
 import { synthProject, synthSmithyProject } from "./snapshot-utils";
 import {
   DocumentationFormat,
-  GeneratedPythonInfrastructureOptions,
-  GeneratedPythonRuntimeOptions,
+  GeneratedJavaInfrastructureOptions,
+  GeneratedJavaRuntimeOptions,
   Language,
   Library,
   ModelLanguage,
@@ -381,19 +381,19 @@ describe("Type Safe Api Project Unit Tests", () => {
         `custom-openapi-generator-cli-configuration`
       ),
       infrastructure: {
-        language: Language.PYTHON,
+        language: Language.JAVA,
         options: {
-          typescript: {
+          java: {
             openApiGeneratorCliConfig,
-          } satisfies Partial<GeneratedPythonInfrastructureOptions> as any,
+          } satisfies Partial<GeneratedJavaInfrastructureOptions> as any,
         },
       },
       runtime: {
-        languages: [Language.PYTHON],
+        languages: [Language.JAVA],
         options: {
-          typescript: {
+          java: {
             openApiGeneratorCliConfig,
-          } satisfies Partial<GeneratedPythonRuntimeOptions> as any,
+          } satisfies Partial<GeneratedJavaRuntimeOptions> as any,
         },
       },
       model: {
@@ -418,8 +418,8 @@ describe("Type Safe Api Project Unit Tests", () => {
     });
 
     expect(project.runtime.typescript).not.toBeDefined();
-    expect(project.runtime.java).not.toBeDefined();
-    expect(project.runtime.python).toBeDefined();
+    expect(project.runtime.java).toBeDefined();
+    expect(project.runtime.python).not.toBeDefined();
 
     expect(project.library.typescriptReactQueryHooks).not.toBeDefined();
 
@@ -431,7 +431,7 @@ describe("Type Safe Api Project Unit Tests", () => {
       snapshot[
         `${path.relative(
           project.outdir,
-          project.infrastructure.python!.outdir
+          project.infrastructure.java!.outdir
         )}/.pdk/dynamic-files/openapitools.json`
       ]
     ).toMatchSnapshot();
@@ -439,7 +439,7 @@ describe("Type Safe Api Project Unit Tests", () => {
       snapshot[
         `${path.relative(
           project.outdir,
-          project.runtime.python!.outdir
+          project.runtime.java!.outdir
         )}/.pdk/dynamic-files/openapitools.json`
       ]
     ).toMatchSnapshot();

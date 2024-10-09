@@ -229,9 +229,19 @@ export class TypeSafeWebSocketApiProject extends Project {
       runtimeLanguages.includes(Language.JAVA) ||
       runtimeLanguages.includes(Language.PYTHON)
     ) {
-      throw new Error(
-        `Python and Java are not yet supported by Type Safe WebSocket API! Support is coming soon...`
-      );
+      const errorMessages = [
+        ...(runtimeLanguages.includes(Language.PYTHON)
+          ? [
+              "Python is not supported by Type Safe WebSocket API. Please +1 this issue if needed: https://github.com/aws/aws-pdk/issues/741",
+            ]
+          : []),
+        ...(runtimeLanguages.includes(Language.JAVA)
+          ? [
+              "Java is not supported by Type Safe WebSocket API. Please +1 this issue if needed: https://github.com/aws/aws-pdk/issues/740",
+            ]
+          : []),
+      ];
+      throw new Error(errorMessages.join("\n"));
     }
 
     const generatedDir = "generated";

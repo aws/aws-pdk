@@ -42,13 +42,10 @@ describe("Python Async Infrastructure Code Generation Script Unit Tests", () => 
         generatedHandlers: {},
       });
       project.synth();
-      exec(project.tasks.tryFind("create-openapitools.json")!.steps[0].exec!, {
-        cwd: infraOutdir,
-      });
       exec(
         `${path.resolve(
           __dirname,
-          "../../../../scripts/type-safe-api/generators/generate"
+          "../../../../scripts/type-safe-api/run.js generate"
         )} ${project.buildGenerateCommandArgs()}`,
         {
           cwd: infraOutdir,
@@ -89,13 +86,9 @@ describe("Python Async Infrastructure Code Generation Script Unit Tests", () => 
         });
         project.synth();
         exec(
-          project.tasks.tryFind("create-openapitools.json")!.steps[0].exec!,
-          { cwd: infraOutdir }
-        );
-        exec(
           `${path.resolve(
             __dirname,
-            "../../../../scripts/type-safe-api/generators/generate"
+            "../../../../scripts/type-safe-api/run.js generate"
           )} ${project.buildGenerateCommandArgs()}`,
           {
             cwd: infraOutdir,
