@@ -8,15 +8,11 @@ import {
   CodeGenerationSourceOptions,
   GeneratedJavaHandlersOptions,
 } from "../../types";
-import { OpenApiGeneratorHandlebarsIgnoreFile } from "../components/open-api-generator-handlebars-ignore-file";
-import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
-import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
 import { TypeSafeApiCommandEnvironment } from "../components/type-safe-api-command-environment";
 import {
-  buildCleanOpenApiGeneratedCodeCommand,
-  buildInvokeOpenApiGeneratorCommandArgs,
+  buildCodegenCommandArgs,
   buildTypeSafeApiExecCommand,
-  GenerationOptions,
+  CodegenOptions,
   TypeSafeApiScript,
 } from "../components/utils";
 import { GeneratedJavaRuntimeBaseProject } from "../runtime/generated-java-runtime-base-project";
@@ -117,31 +113,10 @@ export abstract class GeneratedJavaHandlersBaseProject extends JavaProject {
       id: `${options.generatedJavaTypes.pom.groupId}-${options.generatedJavaTypes.pom.artifactId}-repo`,
     });
 
-    // Ignore everything for the first mustache pass
-    const openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);
-    openapiGeneratorIgnore.addPatterns("/*", "**/*", "*");
-    // Ignore everything but the handler files for the handlebars pass
-    const openapiGeneratorHandlebarsIgnore =
-      new OpenApiGeneratorHandlebarsIgnoreFile(this);
-    openapiGeneratorHandlebarsIgnore.addPatterns(
-      "/*",
-      "**/*",
-      "*",
-      // This will be split into a file per targeted handler
-      `!${this.srcDir}/__all_handlers.java`,
-      `!${this.tstDir}/__all_tests.java`
-    );
-
-    // Add OpenAPI Generator cli configuration
-    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
-      options.openApiGeneratorCliConfig
-    );
-
     const generateTask = this.addTask("generate");
-    generateTask.exec(buildCleanOpenApiGeneratedCodeCommand());
     generateTask.exec(
       buildTypeSafeApiExecCommand(
-        TypeSafeApiScript.GENERATE,
+        TypeSafeApiScript.GENERATE_NEXT,
         this.buildGenerateCommandArgs()
       )
     );
@@ -149,7 +124,7 @@ export abstract class GeneratedJavaHandlersBaseProject extends JavaProject {
     this.preCompileTask.spawn(generateTask);
 
     // Ignore the openapi generator metadata files
-    this.gitignore.addPatterns(".openapi-generator");
+    this.gitignore.addPatterns(".openapi-generator", ".tsapi-manifest");
 
     // Use the maven shade plugin to build a "super jar" which we can deploy to AWS Lambda
     this.pom.addPlugin("org.apache.maven.plugins/maven-shade-plugin@3.3.0", {
@@ -205,10 +180,8 @@ export abstract class GeneratedJavaHandlersBaseProject extends JavaProject {
   }
 
   public buildGenerateCommandArgs = () => {
-    return buildInvokeOpenApiGeneratorCommandArgs(
-      this.buildOpenApiGeneratorOptions()
-    );
+    return buildCodegenCommandArgs(this.buildCodegenOptions());
   };
 
-  public abstract buildOpenApiGeneratorOptions(): GenerationOptions;
+  public abstract buildCodegenOptions(): CodegenOptions;
 }
