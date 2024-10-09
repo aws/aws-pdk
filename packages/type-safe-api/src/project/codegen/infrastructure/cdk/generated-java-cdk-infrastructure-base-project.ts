@@ -8,15 +8,11 @@ import {
   CodeGenerationSourceOptions,
   GeneratedWithOpenApiGeneratorOptions,
 } from "../../../types";
-import { OpenApiGeneratorHandlebarsIgnoreFile } from "../../components/open-api-generator-handlebars-ignore-file";
-import { OpenApiGeneratorIgnoreFile } from "../../components/open-api-generator-ignore-file";
-import { OpenApiToolsJsonFile } from "../../components/open-api-tools-json-file";
 import { TypeSafeApiCommandEnvironment } from "../../components/type-safe-api-command-environment";
 import {
-  buildCleanOpenApiGeneratedCodeCommand,
-  buildInvokeOpenApiGeneratorCommandArgs,
+  buildCodegenCommandArgs,
   buildTypeSafeApiExecCommand,
-  GenerationOptions,
+  CodegenOptions,
   TypeSafeApiScript,
 } from "../../components/utils";
 import { GeneratedHandlersProjects } from "../../generate";
@@ -59,7 +55,6 @@ export abstract class GeneratedJavaCdkInfrastructureBaseProject extends JavaProj
    * Code generation task
    */
   protected readonly generateTask: Task;
-  protected readonly openapiGeneratorIgnore: OpenApiGeneratorIgnoreFile;
 
   constructor(options: GeneratedJavaCdkInfrastructureBaseProjectOptions) {
     super({
@@ -113,37 +108,11 @@ export abstract class GeneratedJavaCdkInfrastructureBaseProject extends JavaProj
       id: `${options.generatedJavaTypes.pom.groupId}-${options.generatedJavaTypes.pom.artifactId}-repo`,
     });
 
-    // Ignore everything but the target files
-    const openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);
-    this.openapiGeneratorIgnore = openapiGeneratorIgnore;
-    openapiGeneratorIgnore.addPatterns(
-      "/*",
-      "**/*",
-      "*",
-      `!${this.srcDir}/Api.java`,
-      `!${this.srcDir}/ApiProps.java`
-    );
-
-    const openapiGeneratorHandlebarsIgnore =
-      new OpenApiGeneratorHandlebarsIgnoreFile(this);
-    openapiGeneratorHandlebarsIgnore.addPatterns(
-      "/*",
-      "**/*",
-      "*",
-      `!${this.srcDir}/__functions.java`
-    );
-
-    // Add OpenAPI Generator cli configuration
-    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
-      options.openApiGeneratorCliConfig
-    );
-
     const generateTask = this.addTask("generate");
     this.generateTask = generateTask;
-    generateTask.exec(buildCleanOpenApiGeneratedCodeCommand());
     generateTask.exec(
       buildTypeSafeApiExecCommand(
-        TypeSafeApiScript.GENERATE,
+        TypeSafeApiScript.GENERATE_NEXT,
         this.buildGenerateCommandArgs()
       )
     );
@@ -163,10 +132,8 @@ export abstract class GeneratedJavaCdkInfrastructureBaseProject extends JavaProj
   }
 
   public buildGenerateCommandArgs = () => {
-    return buildInvokeOpenApiGeneratorCommandArgs(
-      this.buildOpenApiGeneratorOptions()
-    );
+    return buildCodegenCommandArgs(this.buildCodegenOptions());
   };
 
-  protected abstract buildOpenApiGeneratorOptions(): GenerationOptions;
+  protected abstract buildCodegenOptions(): CodegenOptions;
 }

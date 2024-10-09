@@ -1,0 +1,108 @@
+###TSAPI_WRITE_FILE###
+{
+  "id": "mock-integrations",
+  "dir": "<%= metadata.srcDir || 'src' %>",
+  "name": "MockIntegrations",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###package <%- metadata.packageName %>;
+
+import <%- metadata.runtimePackageName %>.JSON;
+import <%- metadata.runtimePackageName %>.api.operation_config.OperationConfig;
+import <%- metadata.runtimePackageName %>.model.*;
+import software.aws.pdk.type_safe_api.Integrations;
+import software.aws.pdk.type_safe_api.MockIntegration;
+import software.aws.pdk.type_safe_api.MockIntegrationResponse;
+import software.aws.pdk.type_safe_api.TypeSafeApiIntegration;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.file.Paths;
+import java.util.stream.Collectors;
+
+
+/**
+ * Type-safe mock integrations for API operations
+ */
+public class MockIntegrations {
+    static {
+        // Instantiate json instance so that any .toJson() methods can be used
+        new JSON();
+    }
+
+    /**
+     * Read a mock data file for the given operation
+     */
+    private static String readMockDataFile(final String method, final String path, final int statusCode) {
+        try {
+            try (InputStream stream = MockIntegrations.class.getClassLoader()
+                    .getResourceAsStream(Paths.get("mocks", method + path.replaceAll("/", "-") + String.format("-%d.json", statusCode)).toString())) {
+                try (InputStreamReader inputStreamReader = new InputStreamReader(stream)) {
+                    return new BufferedReader(inputStreamReader).lines().collect(Collectors.joining(System.lineSeparator()));
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    <%_ if (metadata.enableMockIntegrations) { _%>
+    <%_ allOperations.forEach((operation) => { _%>
+    <%_ operation.responses.forEach((response) => { _%>
+    /**
+     * Mock integration to return a <%- response.code %> response from the <%- operation.name %> operation
+     */
+    public static MockIntegration <%- operation.name %><%- response.code %>(<% if (response.type !== 'void') { %>final <% if (response.isPrimitive) { %>String<% } else { %><%- response.javaType %><% } %> body<% } %>) {
+        return Integrations.mock(MockIntegrationResponse.builder()
+                .statusCode(<%- response.code %>)
+                <%_ if (response.type !== 'void') { _%>
+                <%_ if (response.isPrimitive) { _%>
+                .body(body)
+                <%_ } else { _%>
+                .body(body.toJson())
+                <%_ } _%>
+                <%_ } _%>
+                .build());
+    }
+    <%_ if (response.type !== 'void') { _%>
+    <%_ if (!response.isPrimitive) { _%>
+
+    /**
+     * Mock integration to return a <%- response.code %> response from the <%- operation.name %> operation, with generated mock data
+     */
+    public static MockIntegration <%- operation.name %><%- response.code %>() {
+        return Integrations.mock(MockIntegrationResponse.builder()
+                .statusCode(<%- response.code %>)
+                .body(MockIntegrations.readMockDataFile("<%- operation.method.toLowerCase() %>", "<%- operation.path %>", <%- response.code %>))
+                .build());
+    }
+    <%_ } _%>
+    <%_ } _%>
+
+    <%_ }); _%>
+    <%_ }); _%>
+
+    /**
+     * Mock all operations for which generated JSON data can be returned.
+     * The first available response is used for each operation. In most cases this is the successful 200 response.
+     * @return a builder which you can use to override integrations for operations before calling .build()
+     */
+    public static OperationConfig.OperationConfigBuilder<TypeSafeApiIntegration> mockAll() {
+        return OperationConfig.<TypeSafeApiIntegration>builder()
+                <%_ allOperations.forEach((operation) => { _%>
+                <%_ const firstResponse = operation.results[0] || operation.responses[0]; _%>
+                <%_ if (firstResponse && !firstResponse.isPrimitive) { _%>
+                .<%- operation.name %>(TypeSafeApiIntegration.builder()
+                        .integration(MockIntegrations.<%- operation.name %><%- firstResponse.code %>())
+                        .build())
+                <%_ } _%>
+                <%_ }); _%>
+                ;
+    }
+    <%_ } else { _%>
+    // No mock integrations have been generated, since mock data generation is disabled.
+    <%_ } _%>
+}
