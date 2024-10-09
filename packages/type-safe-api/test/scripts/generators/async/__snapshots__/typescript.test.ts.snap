@@ -11,6 +11,7 @@ src/interceptors/index.ts
 src/server/operation-config.ts
 src/server/server-sdk.ts
 src/models/index.ts
+src/models/model-utils.ts
 src/models/ApiError.ts
 src/models/MapRequest.ts
 src/models/MapRequestMapPropertyValue.ts
@@ -216,7 +217,7 @@ export const tryCatchInterceptor = buildTryCatchInterceptor();
  * NOTE: This class is auto generated.
  * Do not edit the class manually.
  */
-import { exists, mapValues } from '../runtime';
+import { exists, mapValues } from './model-utils';
 
 /**
  * 
@@ -283,7 +284,7 @@ export function ApiErrorToJSON(value?: ApiError | null): any {
  * NOTE: This class is auto generated.
  * Do not edit the class manually.
  */
-import { exists, mapValues } from '../runtime';
+import { exists, mapValues } from './model-utils';
 import type { MapRequestMapPropertyValue } from './MapRequestMapPropertyValue';
 import {
     MapRequestMapPropertyValueFromJSON,
@@ -356,7 +357,7 @@ export function MapRequestToJSON(value?: MapRequest | null): any {
  * NOTE: This class is auto generated.
  * Do not edit the class manually.
  */
-import { exists, mapValues } from '../runtime';
+import { exists, mapValues } from './model-utils';
 
 /**
  * 
@@ -431,7 +432,7 @@ export function MapRequestMapPropertyValueToJSON(value?: MapRequestMapPropertyVa
  * NOTE: This class is auto generated.
  * Do not edit the class manually.
  */
-import { exists, mapValues } from '../runtime';
+import { exists, mapValues } from './model-utils';
 
 /**
  * This is a test request
@@ -497,7 +498,7 @@ export function TestRequestToJSON(value?: TestRequest | null): any {
  * NOTE: This class is auto generated.
  * Do not edit the class manually.
  */
-import { exists, mapValues } from '../runtime';
+import { exists, mapValues } from './model-utils';
 import type { TestResponseMessagesInner } from './TestResponseMessagesInner';
 import {
     TestResponseMessagesInnerFromJSON,
@@ -570,7 +571,7 @@ export function TestResponseToJSON(value?: TestResponse | null): any {
  * NOTE: This class is auto generated.
  * Do not edit the class manually.
  */
-import { exists, mapValues } from '../runtime';
+import { exists, mapValues } from './model-utils';
 
 /**
  * 
@@ -641,6 +642,21 @@ export * from './MapRequestMapPropertyValue';
 export * from './TestRequest';
 export * from './TestResponse';
 export * from './TestResponseMessagesInner';
+",
+  "src/models/model-utils.ts": "/* tslint:disable */
+/* eslint-disable */
+
+export function mapValues(data: any, fn: (item: any) => any) {
+  return Object.keys(data).reduce(
+    (acc, key) => ({ ...acc, [key]: fn(data[key]) }),
+    {}
+  );
+}
+
+export function exists(json: any, key: string) {
+  const value = json[key];
+  return value !== null && value !== undefined;
+}
 ",
   "src/server/operation-config.ts": "// Import models
 import {
