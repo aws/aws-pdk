@@ -1,0 +1,65 @@
+###TSAPI_WRITE_FILE###
+{
+  "dir": "<%- metadata.tstDir || 'tst' %>",
+  "name": "__init__",
+  "ext": ".py",
+  "overwrite": false
+}
+###/TSAPI_WRITE_FILE####
+<%_ services.forEach((service) => { _%>
+<%_ service.operations.forEach((operation) => { _%>
+<%_ if (operation.vendorExtensions && operation.vendorExtensions['x-handler'] && operation.vendorExtensions['x-handler'].language === 'python') { _%>
+###TSAPI_WRITE_FILE###
+{
+  "id": "test_<%- operation.operationIdSnakeCase %>",
+  "dir": "<%- metadata.tstDir || 'tst' %>",
+  "name": "test_<%- operation.operationIdSnakeCase %>",
+  "ext": ".py",
+  "overwrite": false,
+  "generateConditionallyId": "<%- operation.name %>"
+}
+###/TSAPI_WRITE_FILE###import pytest
+from aws_lambda_powertools import Logger
+
+from <%- metadata.moduleName %>.<%- operation.operationIdSnakeCase %> import <%- operation.operationIdSnakeCase %>
+from <%- metadata.runtimeModuleName %>.api.operation_config import (
+    <%- operation.operationIdPascalCase %>Request, <%- operation.operationIdPascalCase %>RequestParameters, <%- operation.operationIdPascalCase %>RequestBody
+)
+
+
+@pytest.fixture
+def request_arguments():
+    """
+    Fixture for constructing common request arguments
+    """
+    return {
+        "event": {},
+        "context": None,
+        "interceptor_context": {
+            "logger": Logger(),
+        },
+    }
+
+
+def test_<%- operation.operationIdSnakeCase %>_should_return_not_implemented_error(request_arguments):
+    # TODO: Update the test as appropriate when you implement your handler
+    response = <%- operation.operationIdSnakeCase %>(<%- operation.operationIdPascalCase %>Request(
+        **request_arguments,
+        # request_parameters=<%- operation.operationIdPascalCase %>RequestParameters(
+        #     # Add request parameters here...
+        # ),
+        request_parameters=None,
+        <%_ if (operation.parametersBody) { %>
+        # body=<%- operation.operationIdPascalCase %>RequestBody(
+        #     # Add body fields here...
+        # )
+        <%_ } _%>
+        body=None,
+    ))
+
+    assert response.status_code == 500
+    assert response.body.message == "Not Implemented!"
+
+<%_ } _%>
+<%_ }); _%>
+<%_ }); _%>
