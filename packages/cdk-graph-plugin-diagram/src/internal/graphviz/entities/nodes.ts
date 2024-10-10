@@ -72,6 +72,10 @@ export class Node extends Dot.Node {
     return this.attributes.get("label") as string;
   }
 
+  set position(pos: Dot.Point) {
+    this.attributes.set("pos", pos);
+  }
+
   /** @internal */
   constructor(node: Graph.Node) {
     super(`node_${node.uuid}`);

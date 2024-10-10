@@ -27,6 +27,7 @@ export interface DiagramOptions {
   readonly title: string;
   readonly preset?: FilterPreset;
   readonly theme?: GraphThemeConfigProp;
+  readonly nodePositions?: Map<string, Dot.Point>;
 }
 
 /**
@@ -129,7 +130,7 @@ export function buildDiagram(
   store: Graph.Store,
   options: DiagramOptions
 ): Diagram.Diagram {
-  const { title } = options;
+  const { title, nodePositions } = options;
 
   const edgeResolve = new EdgeResolver();
 
@@ -183,6 +184,12 @@ export function buildDiagram(
           gNode.addFlag(FlagEnum.CLUSTER);
         }
         break;
+      }
+    }
+
+    if (nodePositions && entity instanceof Diagram.Node) {
+      if (nodePositions.has(entity.graphNode.id)) {
+        entity.position = nodePositions.get(entity.graphNode.id)!;
       }
     }
 

@@ -203,7 +203,11 @@ export class CdkGraphDiagramPlugin implements ICdkGraphPlugin {
         title: config.title,
         preset: config.filterPlan?.preset,
         theme: config.theme,
+        nodePositions: config.nodePositions,
       });
+
+      // Only the neato- and fdp layout engines support node positions
+      const layout = config.nodePositions?.size ? "fdp" : undefined;
 
       const dot = diagram.toDot();
 
@@ -230,7 +234,7 @@ export class CdkGraphDiagramPlugin implements ICdkGraphPlugin {
           );
 
           const svg = await this.streamToBuffer(
-            await toStream(dot, { format: "svg" })
+            await toStream(dot, { format: "svg", layout })
           );
           const resolvedSvg = await resolveSvgAwsArchAssetImagesInline(
             svg.toString()
@@ -261,6 +265,7 @@ export class CdkGraphDiagramPlugin implements ICdkGraphPlugin {
               const png = await this.streamToBuffer(
                 await toStream(pngifiedDot, {
                   format: "png",
+                  layout,
                 })
               );
 

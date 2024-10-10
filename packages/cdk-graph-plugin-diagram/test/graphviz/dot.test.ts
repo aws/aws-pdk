@@ -189,4 +189,32 @@ describe("dot", () => {
       );
     });
   });
+
+  it("should set node position", async () => {
+    const outdir = await makeCdkOutdir("node-position");
+
+    const app = new FixtureApp({ outdir });
+    const plugin = new CdkGraphDiagramPlugin({
+      defaults: {
+        nodePositions: new Map([["WebServer", "0,10!"]]),
+      },
+    });
+    const graph = new CdkGraph(app, {
+      plugins: [plugin],
+    });
+    app.synth();
+    await graph.report();
+
+    expect(plugin.defaultDotArtifact).toBeDefined();
+    expect(
+      await fs.pathExists(plugin.defaultDotArtifact!.filepath)
+    ).toBeTruthy();
+    expect(
+      testUtils.cleanseDotSnapshot(
+        await fs.readFile(plugin.defaultDotArtifact!.filepath, {
+          encoding: "utf-8",
+        })
+      )
+    ).toMatchSnapshot();
+  });
 });

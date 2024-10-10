@@ -1,6 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { FilterPreset, IGraphFilterPlan } from "@aws/cdk-graph";
+import { Point } from "ts-graphviz";
 import { GraphThemeConfigProp } from "./internal/graphviz";
 
 /**
@@ -51,6 +52,9 @@ export interface IDiagramConfigBase {
 
   /** Config for graph theme */
   readonly theme?: GraphThemeConfigProp;
+
+  /** Config for predetermined node positions */
+  readonly nodePositions?: Map<string, Point>;
 }
 
 /** Diagram configuration definition
