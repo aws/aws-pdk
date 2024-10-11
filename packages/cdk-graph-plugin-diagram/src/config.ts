@@ -1,8 +1,8 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { FilterPreset, IGraphFilterPlan } from "@aws/cdk-graph";
-import { Point } from "ts-graphviz";
 import { GraphThemeConfigProp } from "./internal/graphviz";
+import { NodePosition } from "./internal/graphviz/entities";
 
 /**
  * Supported diagram formats that can be generated.
@@ -53,8 +53,8 @@ export interface IDiagramConfigBase {
   /** Config for graph theme */
   readonly theme?: GraphThemeConfigProp;
 
-  /** Config for predetermined node positions */
-  readonly nodePositions?: Map<string, Point>;
+  /** Config for predetermined node positions given their CDK construct id. */
+  readonly nodePositions?: Record<string, NodePosition>;
 }
 
 /** Diagram configuration definition

@@ -196,7 +196,9 @@ describe("dot", () => {
     const app = new FixtureApp({ outdir });
     const plugin = new CdkGraphDiagramPlugin({
       defaults: {
-        nodePositions: new Map([["WebServer", "0,10!"]]),
+        nodePositions: {
+          WebServer: { x: 0, y: 10 },
+        },
       },
     });
     const graph = new CdkGraph(app, {

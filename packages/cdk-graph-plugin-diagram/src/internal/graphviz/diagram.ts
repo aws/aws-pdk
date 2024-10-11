@@ -12,7 +12,7 @@ import {
 import uniqBy = require("lodash.uniqby"); // eslint-disable-line @typescript-eslint/no-require-imports
 import * as Dot from "ts-graphviz";
 import * as Diagram from "./entities";
-import { ChildLink, ImageNode } from "./entities";
+import { ChildLink, ImageNode, NodePosition } from "./entities";
 import { GraphTheme, GraphThemeConfigProp } from "./theme";
 import { IS_DEBUG } from "../debug";
 
@@ -27,7 +27,7 @@ export interface DiagramOptions {
   readonly title: string;
   readonly preset?: FilterPreset;
   readonly theme?: GraphThemeConfigProp;
-  readonly nodePositions?: Map<string, Dot.Point>;
+  readonly nodePositions?: Record<string, NodePosition>;
 }
 
 /**
@@ -188,8 +188,8 @@ export function buildDiagram(
     }
 
     if (nodePositions && entity instanceof Diagram.Node) {
-      if (nodePositions.has(entity.graphNode.id)) {
-        entity.position = nodePositions.get(entity.graphNode.id)!;
+      if (entity.graphNode.id in nodePositions) {
+        entity.position = nodePositions[entity.graphNode.id]!;
       }
     }
 

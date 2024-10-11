@@ -60,6 +60,11 @@ function marshallLabelForRendering(original: string): MarshalledLabel {
 }
 
 /**
+ * Positional coordinates for a node
+ */
+export type NodePosition = { x: number; y: number };
+
+/**
  * Node class defines a {@link Graph.Node} based diagram {@link Dot.Node}
  * @internal
  */
@@ -72,8 +77,8 @@ export class Node extends Dot.Node {
     return this.attributes.get("label") as string;
   }
 
-  set position(pos: Dot.Point) {
-    this.attributes.set("pos", pos);
+  set position(pos: NodePosition) {
+    this.attributes.set("pos", `${pos.x},${pos.y}!`);
   }
 
   /** @internal */
