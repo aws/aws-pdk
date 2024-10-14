@@ -54,7 +54,7 @@ export interface IDiagramConfigBase {
   readonly theme?: GraphThemeConfigProp;
 
   /** Config for predetermined node positions given their CDK construct id. */
-  readonly nodePositions?: Record<string, NodePosition>;
+  readonly nodePositions?: { [cdkConstructId: string]: NodePosition };
 }
 
 /** Diagram configuration definition

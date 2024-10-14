@@ -27,7 +27,7 @@ export interface DiagramOptions {
   readonly title: string;
   readonly preset?: FilterPreset;
   readonly theme?: GraphThemeConfigProp;
-  readonly nodePositions?: Record<string, NodePosition>;
+  readonly nodePositions?: { [cdkConstructId: string]: NodePosition };
 }
 
 /**

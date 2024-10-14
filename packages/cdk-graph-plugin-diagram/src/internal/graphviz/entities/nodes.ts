@@ -60,9 +60,12 @@ function marshallLabelForRendering(original: string): MarshalledLabel {
 }
 
 /**
- * Positional coordinates for a node
+ * Positional coordinates for a node in inches
  */
-export type NodePosition = { x: number; y: number };
+export interface NodePosition {
+  x: number;
+  y: number;
+}
 
 /**
  * Node class defines a {@link Graph.Node} based diagram {@link Dot.Node}
