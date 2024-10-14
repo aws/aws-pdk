@@ -388,8 +388,6 @@ new CdkGraphDiagramPlugin({
 
 </details>
 
-<details>
-
 ---
 
 ### Future Enhancements
