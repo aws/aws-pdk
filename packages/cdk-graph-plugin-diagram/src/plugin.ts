@@ -207,7 +207,7 @@ export class CdkGraphDiagramPlugin implements ICdkGraphPlugin {
       });
 
       // Only the neato- and fdp layout engines support node positions
-      const layout = config.nodePositions?.size ? "fdp" : undefined;
+      const layout = config.nodePositions ? "fdp" : undefined;
 
       const dot = diagram.toDot();
 
