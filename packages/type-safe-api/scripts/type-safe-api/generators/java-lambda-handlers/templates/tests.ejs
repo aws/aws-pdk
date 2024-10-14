@@ -1,0 +1,50 @@
+<%_ services.forEach((service) => { _%>
+<%_ service.operations.forEach((operation) => { _%>
+<%_ if (operation.vendorExtensions && operation.vendorExtensions['x-handler'] && operation.vendorExtensions['x-handler'].language === 'java') { _%>
+###TSAPI_WRITE_FILE###
+{
+  "id": "<%- operation.name %>Test",
+  "dir": "<%- metadata.tstDir || 'tst' %>",
+  "name": "<%- operation.operationIdPascalCase %>HandlerTest",
+  "ext": ".java",
+  "generateConditionallyId": "<%- operation.name %>"
+}
+###/TSAPI_WRITE_FILE###package <%- metadata.packageName %>;
+
+import <%- metadata.runtimePackageName %>.api.handlers.<%- operation.operationIdSnakeCase %>.<%- operation.operationIdPascalCase %>Input;
+import <%- metadata.runtimePackageName %>.api.handlers.<%- operation.operationIdSnakeCase %>.<%- operation.operationIdPascalCase %>500Response;
+import <%- metadata.runtimePackageName %>.api.handlers.<%- operation.operationIdSnakeCase %>.<%- operation.operationIdPascalCase %>RequestInput;
+import <%- metadata.runtimePackageName %>.api.handlers.<%- operation.operationIdSnakeCase %>.<%- operation.operationIdPascalCase %>RequestParameters;
+import <%- metadata.runtimePackageName %>.api.handlers.<%- operation.operationIdSnakeCase %>.<%- operation.operationIdPascalCase %>Response;
+import org.junit.jupiter.api.Test;
+
+import java.util.HashMap;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+/**
+ * Tests for <%- operation.operationIdPascalCase %>Handler
+ */
+public class <%- operation.operationIdPascalCase %>HandlerTest {
+    @Test
+    public void shouldReturnNotImplementedError() {
+        // TODO: Update the test as appropriate when you implement your handler
+        <%- operation.operationIdPascalCase %>Response response = new <%- operation.operationIdPascalCase %>Handler().handle(<%- operation.operationIdPascalCase %>RequestInput.builder()
+                .interceptorContext(new HashMap<>())
+                .input(<%- operation.operationIdPascalCase %>Input.builder()
+                        .requestParameters(<%- operation.operationIdPascalCase %>RequestParameters.builder()
+                                // Add request parameters here...
+                                .build())
+                        // If the request has a body you can add it here...
+                        .build())
+                .build());
+        assertEquals(500, response.getStatusCode());
+
+        // Cast to the particular type of response returned to access the typed response body
+        assertEquals("Not Implemented!", ((<%- operation.operationIdPascalCase %>500Response) response).getTypedBody().getMessage());
+    }
+}
+
+<%_ } _%>
+<%_ }); _%>
+<%_ }); _%>

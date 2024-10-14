@@ -4,7 +4,7 @@ import {
   GeneratedJavaHandlersBaseProject,
   GeneratedJavaHandlersBaseProjectOptions,
 } from "./generated-java-handlers-base-project";
-import { GenerationOptions, OtherGenerators } from "../components/utils";
+import { CodegenOptions, OtherGenerators } from "../components/utils";
 
 export interface GeneratedJavaHandlersProjectOptions
   extends GeneratedJavaHandlersBaseProjectOptions {}
@@ -14,22 +14,16 @@ export class GeneratedJavaHandlersProject extends GeneratedJavaHandlersBaseProje
     super(options);
   }
 
-  public buildOpenApiGeneratorOptions(): GenerationOptions {
+  public buildCodegenOptions(): CodegenOptions {
     return {
-      generator: "java",
       specPath: this.options.specPath,
-      generatorDirectory: OtherGenerators.JAVA_LAMBDA_HANDLERS,
-      srcDir: this.srcDir,
-      tstDir: this.tstDir,
-      normalizers: {
-        KEEP_ONLY_FIRST_TAG_IN_OPERATION: true,
+      templateDirs: [OtherGenerators.JAVA_LAMBDA_HANDLERS],
+      metadata: {
+        srcDir: this.srcDir,
+        tstDir: this.tstDir,
+        packageName: this.packageName,
+        runtimePackageName: this.options.generatedJavaTypes.packageName,
       },
-      extraVendorExtensions: {
-        "x-handlers-package": this.packageName,
-        "x-runtime-package": this.options.generatedJavaTypes.packageName,
-      },
-      // Do not generate map/list types. Generator will use built in HashMap, ArrayList instead
-      generateAliasAsModel: false,
     };
   }
 }

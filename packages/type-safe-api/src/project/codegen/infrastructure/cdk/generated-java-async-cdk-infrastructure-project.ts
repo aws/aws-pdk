@@ -5,7 +5,7 @@ import {
   GeneratedJavaCdkInfrastructureBaseProjectOptions,
 } from "./generated-java-cdk-infrastructure-base-project";
 import {
-  GenerationOptions,
+  CodegenOptions,
   OtherGenerators,
   getHandlersProjectVendorExtensions,
 } from "../../components/utils";
@@ -18,25 +18,19 @@ export class GeneratedJavaAsyncCdkInfrastructureProject extends GeneratedJavaCdk
     super(options);
   }
 
-  public buildOpenApiGeneratorOptions(): GenerationOptions {
+  public buildCodegenOptions(): CodegenOptions {
     return {
-      generator: "java",
       specPath: this.options.specPath,
-      generatorDirectory: OtherGenerators.JAVA_ASYNC_CDK_INFRASTRUCTURE,
-      srcDir: this.srcDir,
-      normalizers: {
-        KEEP_ONLY_FIRST_TAG_IN_OPERATION: true,
-      },
-      extraVendorExtensions: {
-        "x-infrastructure-package": this.packageName,
-        "x-runtime-package": this.options.generatedJavaTypes.packageName,
+      templateDirs: [OtherGenerators.JAVA_ASYNC_CDK_INFRASTRUCTURE],
+      metadata: {
+        srcDir: this.srcDir,
+        packageName: this.packageName,
+        runtimePackageName: this.options.generatedJavaTypes.packageName,
         ...getHandlersProjectVendorExtensions(
           this,
           this.options.generatedHandlers
         ),
       },
-      // Do not generate map/list types. Generator will use built in HashMap, ArrayList instead
-      generateAliasAsModel: false,
     };
   }
 }

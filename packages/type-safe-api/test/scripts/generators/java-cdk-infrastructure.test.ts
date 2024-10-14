@@ -4,7 +4,6 @@ import os from "os";
 import * as path from "path";
 import { exec } from "projen/lib/util";
 import { getTestHandlerProjects } from "./utils";
-import { OpenApiToolsJsonFile } from "../../../src/project/codegen/components/open-api-tools-json-file";
 import { GeneratedJavaCdkInfrastructureProject } from "../../../src/project/codegen/infrastructure/cdk/generated-java-cdk-infrastructure-project";
 import { GeneratedJavaRuntimeProject } from "../../../src/project/codegen/runtime/generated-java-runtime-project";
 import { withTmpDirSnapshot } from "../../project/snapshot-utils";
@@ -39,17 +38,11 @@ describe("Java Infrastructure Code Generation Script Unit Tests", () => {
           generatedJavaTypes: client,
           generatedHandlers: {},
         });
-        // Synth the openapitools.json since it's used by the generate command
-        OpenApiToolsJsonFile.of(project)!.synthesize();
         exec(`mkdir -p ${infraOutdir}`, { cwd: outdir });
-        exec(
-          project.tasks.tryFind("create-openapitools.json")!.steps[0].exec!,
-          { cwd: infraOutdir }
-        );
         exec(
           `${path.resolve(
             __dirname,
-            "../../../scripts/type-safe-api/generators/generate"
+            "../../../scripts/type-safe-api/run.js generate"
           )} ${project.buildGenerateCommandArgs()}`,
           {
             cwd: infraOutdir,
@@ -57,7 +50,6 @@ describe("Java Infrastructure Code Generation Script Unit Tests", () => {
         );
       },
       {
-        excludeGlobs: GeneratedJavaRuntimeProject.openApiIgnorePatterns,
         parseJson: false,
       }
     );
@@ -110,17 +102,11 @@ describe("Java Infrastructure Code Generation Script Unit Tests", () => {
           },
           generatedHandlers: {},
         });
-        // Synth the openapitools.json since it's used by the generate command
-        OpenApiToolsJsonFile.of(project)!.synthesize();
         exec(`mkdir -p ${infraOutdir}`, { cwd: outdir });
-        exec(
-          project.tasks.tryFind("create-openapitools.json")!.steps[0].exec!,
-          { cwd: infraOutdir }
-        );
         exec(
           `${path.resolve(
             __dirname,
-            "../../../scripts/type-safe-api/generators/generate"
+            "../../../scripts/type-safe-api/run.js generate"
           )} ${project.buildGenerateCommandArgs()}`,
           {
             cwd: infraOutdir,
@@ -170,13 +156,9 @@ describe("Java Infrastructure Code Generation Script Unit Tests", () => {
           });
           project.synth();
           exec(
-            project.tasks.tryFind("create-openapitools.json")!.steps[0].exec!,
-            { cwd: infraOutdir }
-          );
-          exec(
             `${path.resolve(
               __dirname,
-              "../../../scripts/type-safe-api/generators/generate"
+              "../../../scripts/type-safe-api/run.js generate"
             )} ${project.buildGenerateCommandArgs()}`,
             {
               cwd: infraOutdir,
@@ -184,7 +166,6 @@ describe("Java Infrastructure Code Generation Script Unit Tests", () => {
           );
         },
         {
-          excludeGlobs: GeneratedJavaRuntimeProject.openApiIgnorePatterns,
           parseJson: false,
         }
       );

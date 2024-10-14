@@ -1,0 +1,81 @@
+<%_ services.forEach((service) => { _%>
+<%_ service.operations.forEach((operation) => { _%>
+<%_ if (operation.vendorExtensions && operation.vendorExtensions['x-handler'] && operation.vendorExtensions['x-handler'].language === 'java') { _%>
+###TSAPI_WRITE_FILE###
+{
+  "id": "<%- operation.name %>",
+  "dir": "<%- metadata.srcDir || 'src' %>",
+  "name": "<%- operation.operationIdPascalCase %>Handler",
+  "ext": ".java",
+  "overwrite": false
+}
+###/TSAPI_WRITE_FILE###package <%- metadata.packageName %>;
+
+import <%- metadata.runtimePackageName %>.api.interceptors.DefaultInterceptors;
+import <%- metadata.runtimePackageName %>.api.handlers.Interceptor;
+import <%- metadata.runtimePackageName %>.api.handlers.<%- operation.operationIdSnakeCase %>.<%- operation.operationIdPascalCase %>;
+import <%- metadata.runtimePackageName %>.api.handlers.<%- operation.operationIdSnakeCase %>.<%- operation.operationIdPascalCase %>Input;
+import <%- metadata.runtimePackageName %>.api.handlers.<%- operation.operationIdSnakeCase %>.<%- operation.operationIdPascalCase %>500Response;
+import <%- metadata.runtimePackageName %>.api.handlers.<%- operation.operationIdSnakeCase %>.<%- operation.operationIdPascalCase %>RequestInput;
+import <%- metadata.runtimePackageName %>.api.handlers.<%- operation.operationIdSnakeCase %>.<%- operation.operationIdPascalCase %>Response;
+import <%- metadata.runtimePackageName %>.model.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.List;
+
+/**
+ * Entry point for the AWS Lambda handler for the <%- operation.operationIdPascalCase %> operation.
+ * The <%- operation.operationIdPascalCase %> class manages marshalling inputs and outputs.
+ */
+public class <%- operation.operationIdPascalCase %>Handler extends <%- operation.operationIdPascalCase %> {
+    /**
+     * Interceptors are initialised once during the lambda "init" phase
+     */
+    private final List<Interceptor<<%- operation.operationIdPascalCase %>Input>> interceptors = DefaultInterceptors.all();
+
+    /**
+     * Use the logger to log requests. The LoggingInterceptor sets up all loggers to include lambda context values in your logs.
+     */
+    private final Logger log = LogManager.getLogger(<%- operation.operationIdPascalCase %>Handler.class);
+
+    /**
+     * Return the interceptors for this handler.
+     * You can also use the @Interceptors annotation on the class to add interceptors
+     */
+    @Override
+    public List<Interceptor<<%- operation.operationIdPascalCase %>Input>> getInterceptors() {
+        return this.interceptors;
+    }
+
+    /**
+     * This method is executed prior to the Java SnapStart snapshot being taken.
+     * Perform any warmup activities to "prime" your function here. Code in this function will be just-in-time compiled,
+     * before the snapshot is taken, and thus optimised ready for the first invocation.
+     * For example if your function interacts with DynamoDB, perform a simple read operation here.
+     * @see https://aws.amazon.com/blogs/compute/reducing-java-cold-starts-on-aws-lambda-functions-with-snapstart/
+     */
+    @Override
+    public void warmUp() {
+
+    }
+
+    /**
+     * Type-safe handler for the <%- operation.operationIdPascalCase %> operation
+     */
+    @Override
+    public <%- operation.operationIdPascalCase %>Response handle(final <%- operation.operationIdPascalCase %>RequestInput request) {
+        log.info("Start <%- operation.operationIdPascalCase %> Operation");
+
+        // TODO: Implement <%- operation.operationIdPascalCase %> Operation. `input` contains the request input.
+        <%- operation.operationIdPascalCase %>Input input = request.getInput();
+
+        return <%- operation.operationIdPascalCase %>500Response.of(InternalFailureErrorResponseContent.builder()
+                .message("Not Implemented!")
+                .build());
+    }
+}
+
+<%_ } _%>
+<%_ }); _%>
+<%_ }); _%>
