@@ -17931,6 +17931,12 @@ components:
           maximum: 7
           minimum: 3
           type: integer
+        myExclusiveInt:
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          maximum: 7
+          minimum: 3
+          type: integer
         myString:
           type: string
         myStringLength:
@@ -17969,6 +17975,10 @@ components:
           type: string
         myByte:
           format: byte
+          type: string
+        myConstrainedByte:
+          format: byte
+          maxLength: 42
           type: string
         myDateTime:
           format: date-time
@@ -18027,6 +18037,7 @@ components:
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
 |**myInt** | **Integer** |  |  [optional] |
+|**myExclusiveInt** | **Integer** |  |  [optional] |
 |**myString** | **String** |  |  [optional] |
 |**myStringLength** | **String** |  |  [optional] |
 |**myLongMinStringLength** | **String** |  |  [optional] |
@@ -18040,6 +18051,7 @@ components:
 |**myIpv6** | **String** |  |  [optional] |
 |**myUuid** | **UUID** |  |  [optional] |
 |**myByte** | **byte[]** |  |  [optional] |
+|**myConstrainedByte** | **byte[]** |  |  [optional] |
 |**myDateTime** | **OffsetDateTime** |  |  [optional] |
 |**myRegexPattern** | **String** |  |  [optional] |
 |**myOneOf** | [**DataTypes200ResponseMyOneOf**](DataTypes200ResponseMyOneOf.md) |  |  [optional] |
@@ -23294,6 +23306,10 @@ public class DataTypes200Response {
   @SerializedName(SERIALIZED_NAME_MY_INT)
   private Integer myInt;
 
+  public static final String SERIALIZED_NAME_MY_EXCLUSIVE_INT = "myExclusiveInt";
+  @SerializedName(SERIALIZED_NAME_MY_EXCLUSIVE_INT)
+  private Integer myExclusiveInt;
+
   public static final String SERIALIZED_NAME_MY_STRING = "myString";
   @SerializedName(SERIALIZED_NAME_MY_STRING)
   private String myString;
@@ -23345,6 +23361,10 @@ public class DataTypes200Response {
   public static final String SERIALIZED_NAME_MY_BYTE = "myByte";
   @SerializedName(SERIALIZED_NAME_MY_BYTE)
   private byte[] myByte;
+
+  public static final String SERIALIZED_NAME_MY_CONSTRAINED_BYTE = "myConstrainedByte";
+  @SerializedName(SERIALIZED_NAME_MY_CONSTRAINED_BYTE)
+  private byte[] myConstrainedByte;
 
   public static final String SERIALIZED_NAME_MY_DATE_TIME = "myDateTime";
   @SerializedName(SERIALIZED_NAME_MY_DATE_TIME)
@@ -23406,6 +23426,30 @@ public class DataTypes200Response {
 
   public void setMyInt(Integer myInt) {
     this.myInt = myInt;
+  }
+
+
+  public DataTypes200Response myExclusiveInt(Integer myExclusiveInt) {
+    
+    this.myExclusiveInt = myExclusiveInt;
+    return this;
+  }
+
+   /**
+   * Get myExclusiveInt
+   * minimum: 3
+   * maximum: 7
+   * @return myExclusiveInt
+  **/
+  @javax.annotation.Nullable
+
+  public Integer getMyExclusiveInt() {
+    return myExclusiveInt;
+  }
+
+
+  public void setMyExclusiveInt(Integer myExclusiveInt) {
+    this.myExclusiveInt = myExclusiveInt;
   }
 
 
@@ -23703,6 +23747,28 @@ public class DataTypes200Response {
   }
 
 
+  public DataTypes200Response myConstrainedByte(byte[] myConstrainedByte) {
+    
+    this.myConstrainedByte = myConstrainedByte;
+    return this;
+  }
+
+   /**
+   * Get myConstrainedByte
+   * @return myConstrainedByte
+  **/
+  @javax.annotation.Nullable
+
+  public byte[] getMyConstrainedByte() {
+    return myConstrainedByte;
+  }
+
+
+  public void setMyConstrainedByte(byte[] myConstrainedByte) {
+    this.myConstrainedByte = myConstrainedByte;
+  }
+
+
   public DataTypes200Response myDateTime(OffsetDateTime myDateTime) {
     
     this.myDateTime = myDateTime;
@@ -23920,6 +23986,7 @@ public class DataTypes200Response {
     }
     DataTypes200Response dataTypes200Response = (DataTypes200Response) o;
     return Objects.equals(this.myInt, dataTypes200Response.myInt) &&
+        Objects.equals(this.myExclusiveInt, dataTypes200Response.myExclusiveInt) &&
         Objects.equals(this.myString, dataTypes200Response.myString) &&
         Objects.equals(this.myStringLength, dataTypes200Response.myStringLength) &&
         Objects.equals(this.myLongMinStringLength, dataTypes200Response.myLongMinStringLength) &&
@@ -23933,6 +24000,7 @@ public class DataTypes200Response {
         Objects.equals(this.myIpv6, dataTypes200Response.myIpv6) &&
         Objects.equals(this.myUuid, dataTypes200Response.myUuid) &&
         Arrays.equals(this.myByte, dataTypes200Response.myByte) &&
+        Arrays.equals(this.myConstrainedByte, dataTypes200Response.myConstrainedByte) &&
         Objects.equals(this.myDateTime, dataTypes200Response.myDateTime) &&
         Objects.equals(this.myRegexPattern, dataTypes200Response.myRegexPattern) &&
         Objects.equals(this.myOneOf, dataTypes200Response.myOneOf) &&
@@ -23950,7 +24018,7 @@ public class DataTypes200Response {
 
   @Override
   public int hashCode() {
-    return Objects.hash(myInt, myString, myStringLength, myLongMinStringLength, myBool, myNumber, myDateArray, myEmail, myUrl, myHostname, myIpv4, myIpv6, myUuid, Arrays.hashCode(myByte), myDateTime, myRegexPattern, myOneOf, myAnyOf, myAllOf, myNot, myNotString, myAdditionalProperties, myObject);
+    return Objects.hash(myInt, myExclusiveInt, myString, myStringLength, myLongMinStringLength, myBool, myNumber, myDateArray, myEmail, myUrl, myHostname, myIpv4, myIpv6, myUuid, Arrays.hashCode(myByte), Arrays.hashCode(myConstrainedByte), myDateTime, myRegexPattern, myOneOf, myAnyOf, myAllOf, myNot, myNotString, myAdditionalProperties, myObject);
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -23965,6 +24033,7 @@ public class DataTypes200Response {
     StringBuilder sb = new StringBuilder();
     sb.append("class DataTypes200Response {\\n");
     sb.append("    myInt: ").append(toIndentedString(myInt)).append("\\n");
+    sb.append("    myExclusiveInt: ").append(toIndentedString(myExclusiveInt)).append("\\n");
     sb.append("    myString: ").append(toIndentedString(myString)).append("\\n");
     sb.append("    myStringLength: ").append(toIndentedString(myStringLength)).append("\\n");
     sb.append("    myLongMinStringLength: ").append(toIndentedString(myLongMinStringLength)).append("\\n");
@@ -23978,6 +24047,7 @@ public class DataTypes200Response {
     sb.append("    myIpv6: ").append(toIndentedString(myIpv6)).append("\\n");
     sb.append("    myUuid: ").append(toIndentedString(myUuid)).append("\\n");
     sb.append("    myByte: ").append(toIndentedString(myByte)).append("\\n");
+    sb.append("    myConstrainedByte: ").append(toIndentedString(myConstrainedByte)).append("\\n");
     sb.append("    myDateTime: ").append(toIndentedString(myDateTime)).append("\\n");
     sb.append("    myRegexPattern: ").append(toIndentedString(myRegexPattern)).append("\\n");
     sb.append("    myOneOf: ").append(toIndentedString(myOneOf)).append("\\n");
@@ -24010,6 +24080,7 @@ public class DataTypes200Response {
     // a set of all properties/fields (JSON key names)
     openapiFields = new HashSet<String>();
     openapiFields.add("myInt");
+    openapiFields.add("myExclusiveInt");
     openapiFields.add("myString");
     openapiFields.add("myStringLength");
     openapiFields.add("myLongMinStringLength");
@@ -24023,6 +24094,7 @@ public class DataTypes200Response {
     openapiFields.add("myIpv6");
     openapiFields.add("myUuid");
     openapiFields.add("myByte");
+    openapiFields.add("myConstrainedByte");
     openapiFields.add("myDateTime");
     openapiFields.add("myRegexPattern");
     openapiFields.add("myOneOf");
