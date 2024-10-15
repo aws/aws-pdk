@@ -14,6 +14,7 @@ import * as Dot from "ts-graphviz";
 import * as Diagram from "./entities";
 import { ChildLink, ImageNode } from "./entities";
 import { GraphTheme, GraphThemeConfigProp } from "./theme";
+import { INodePosition } from "../../config";
 import { IS_DEBUG } from "../debug";
 
 /**
@@ -27,6 +28,7 @@ export interface DiagramOptions {
   readonly title: string;
   readonly preset?: FilterPreset;
   readonly theme?: GraphThemeConfigProp;
+  readonly nodePositions?: { [cdkConstructId: string]: INodePosition };
 }
 
 /**
@@ -129,7 +131,7 @@ export function buildDiagram(
   store: Graph.Store,
   options: DiagramOptions
 ): Diagram.Diagram {
-  const { title } = options;
+  const { title, nodePositions } = options;
 
   const edgeResolve = new EdgeResolver();
 
@@ -183,6 +185,12 @@ export function buildDiagram(
           gNode.addFlag(FlagEnum.CLUSTER);
         }
         break;
+      }
+    }
+
+    if (nodePositions && entity instanceof Diagram.Node) {
+      if (entity.graphNode.id in nodePositions) {
+        entity.position = nodePositions[entity.graphNode.id]!;
       }
     }
 

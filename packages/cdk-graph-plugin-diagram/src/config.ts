@@ -36,6 +36,14 @@ export enum DiagramFormat {
 }
 
 /**
+ * Positional coordinates for a node in inches
+ */
+export interface INodePosition {
+  readonly x: number;
+  readonly y: number;
+}
+
+/**
  * Base config to specific a unique diagram to be generated.
  * @struct
  */
@@ -51,6 +59,9 @@ export interface IDiagramConfigBase {
 
   /** Config for graph theme */
   readonly theme?: GraphThemeConfigProp;
+
+  /** Config for predetermined node positions given their CDK construct id. */
+  readonly nodePositions?: { [cdkConstructId: string]: INodePosition };
 }
 
 /** Diagram configuration definition

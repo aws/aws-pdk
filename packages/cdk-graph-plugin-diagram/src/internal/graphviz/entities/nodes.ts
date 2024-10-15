@@ -5,6 +5,7 @@ import startCase = require("lodash.startcase"); // eslint-disable-line @typescri
 import words = require("lodash.words"); // eslint-disable-line @typescript-eslint/no-require-imports
 import * as Dot from "ts-graphviz";
 import wordWrap = require("word-wrap"); // eslint-disable-line @typescript-eslint/no-require-imports
+import { INodePosition } from "../../../config";
 import {
   resolveCfnResourceImage,
   resolveCustomResourceImage,
@@ -70,6 +71,10 @@ export class Node extends Dot.Node {
   /** Get the label attribute for this node */
   get label(): string {
     return this.attributes.get("label") as string;
+  }
+
+  set position(pos: INodePosition) {
+    this.attributes.set("pos", `${pos.x},${pos.y}!`);
   }
 
   /** @internal */
