@@ -10064,6 +10064,7 @@ Endpoints do not require authorization.
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **my_int** | **int** |  | [optional] 
+**my_exclusive_int** | **int** |  | [optional] 
 **my_string** | **str** |  | [optional] 
 **my_string_length** | **str** |  | [optional] 
 **my_long_min_string_length** | **str** |  | [optional] 
@@ -10077,6 +10078,7 @@ Name | Type | Description | Notes
 **my_ipv6** | **str** |  | [optional] 
 **my_uuid** | **str** |  | [optional] 
 **my_byte** | **bytearray** |  | [optional] 
+**my_constrained_byte** | **bytearray** |  | [optional] 
 **my_date_time** | **datetime** |  | [optional] 
 **my_regex_pattern** | **str** |  | [optional] 
 **my_one_of** | [**DataTypes200ResponseMyOneOf**](DataTypes200ResponseMyOneOf.md) |  | [optional] 
@@ -12664,6 +12666,7 @@ class DataTypes200Response(BaseModel):
     DataTypes200Response
     """ # noqa: E501
     my_int: Optional[Annotated[int, Field(le=7, strict=True, ge=3)]] = Field(default=None, alias="myInt")
+    my_exclusive_int: Optional[Annotated[int, Field(lt=7, strict=True, gt=3)]] = Field(default=None, alias="myExclusiveInt")
     my_string: Optional[StrictStr] = Field(default=None, alias="myString")
     my_string_length: Optional[Annotated[str, Field(min_length=4, strict=True, max_length=5)]] = Field(default=None, alias="myStringLength")
     my_long_min_string_length: Optional[Annotated[str, Field(min_length=1000, strict=True)]] = Field(default=None, alias="myLongMinStringLength")
@@ -12677,6 +12680,7 @@ class DataTypes200Response(BaseModel):
     my_ipv6: Optional[StrictStr] = Field(default=None, alias="myIpv6")
     my_uuid: Optional[StrictStr] = Field(default=None, alias="myUuid")
     my_byte: Optional[Union[StrictBytes, StrictStr]] = Field(default=None, alias="myByte")
+    my_constrained_byte: Optional[Union[Annotated[bytes, Field(strict=True, max_length=42)], Annotated[str, Field(strict=True, max_length=42)]]] = Field(default=None, alias="myConstrainedByte")
     my_date_time: Optional[datetime] = Field(default=None, alias="myDateTime")
     my_regex_pattern: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, alias="myRegexPattern")
     my_one_of: Optional[DataTypes200ResponseMyOneOf] = Field(default=None, alias="myOneOf")
@@ -12686,7 +12690,7 @@ class DataTypes200Response(BaseModel):
     my_not_string: Optional[Any] = Field(default=None, alias="myNotString")
     my_additional_properties: Optional[Dict[str, Annotated[List[Annotated[int, Field(le=20, strict=True, ge=10)]], Field(min_length=2, max_length=5)]]] = Field(default=None, alias="myAdditionalProperties")
     my_object: Optional[DataTypes200ResponseMyObject] = Field(default=None, alias="myObject")
-    __properties: ClassVar[List[str]] = ["myInt", "myString", "myStringLength", "myLongMinStringLength", "myBool", "myNumber", "myDateArray", "myEmail", "myUrl", "myHostname", "myIpv4", "myIpv6", "myUuid", "myByte", "myDateTime", "myRegexPattern", "myOneOf", "myAnyOf", "myAllOf", "myNot", "myNotString", "myAdditionalProperties", "myObject"]
+    __properties: ClassVar[List[str]] = ["myInt", "myExclusiveInt", "myString", "myStringLength", "myLongMinStringLength", "myBool", "myNumber", "myDateArray", "myEmail", "myUrl", "myHostname", "myIpv4", "myIpv6", "myUuid", "myByte", "myConstrainedByte", "myDateTime", "myRegexPattern", "myOneOf", "myAnyOf", "myAllOf", "myNot", "myNotString", "myAdditionalProperties", "myObject"]
 
     @field_validator('my_regex_pattern')
     def my_regex_pattern_validate_regular_expression(cls, value):
@@ -12769,6 +12773,7 @@ class DataTypes200Response(BaseModel):
 
         _obj = cls.model_validate({
             "myInt": obj.get("myInt"),
+            "myExclusiveInt": obj.get("myExclusiveInt"),
             "myString": obj.get("myString"),
             "myStringLength": obj.get("myStringLength"),
             "myLongMinStringLength": obj.get("myLongMinStringLength"),
@@ -12782,6 +12787,7 @@ class DataTypes200Response(BaseModel):
             "myIpv6": obj.get("myIpv6"),
             "myUuid": obj.get("myUuid"),
             "myByte": obj.get("myByte"),
+            "myConstrainedByte": obj.get("myConstrainedByte"),
             "myDateTime": obj.get("myDateTime"),
             "myRegexPattern": obj.get("myRegexPattern"),
             "myOneOf": DataTypes200ResponseMyOneOf.from_dict(obj.get("myOneOf")) if obj.get("myOneOf") is not None else None,
