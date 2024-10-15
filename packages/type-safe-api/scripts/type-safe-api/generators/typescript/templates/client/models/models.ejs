@@ -20,14 +20,19 @@
  * Do not edit the class manually.
  */
 import { exists, mapValues } from './model-utils';
+<%_ const modelsByName = Object.fromEntries(models.map(m => [m.name, m])); _%>
 <%_ model.uniqueImports.forEach((importName) => { _%>
 import type { <%= importName %> } from './<%= importName %>';
 import {
     <%= importName %>FromJSON,
     <%= importName %>FromJSONTyped,
     <%= importName %>ToJSON,
+    <%_ if (!(modelsByName[importName] && modelsByName[importName].export === "enum")) { _%>
+    instanceOf<%= importName %>,
+    <%_ } _%>
 } from './<%= importName %>';
 <%_ }); _%>
+<%_ const isComposite = model.export === "one-of" || model.export === "any-of" || model.export === "all-of"; _%>
 
 <%_ if (model.export === "enum") { _%>
 /**
@@ -40,6 +45,13 @@ export type <%= model.name %> =
   <%- enumMember.value %><% if (i < model.enum.length - 1) { %> | <% } %>
 <%_ }); _%>
 
+<%_ } else if (isComposite) { _%>
+/**
+ * @type <%= model.name %>
+ * <%- model.description || '' %>
+ * @export
+ */
+export type <%- model.name %> =<% model.properties.forEach((composedType, i) => { %><% if (i > 0) { %><% if (model.export === "all-of") { %> &<% } else { %> |<% } %><% } %> <%- composedType.typescriptType %><% }); %>;
 <%_ } else { _%>
 /**
  * <%- model.description || '' %>
@@ -53,7 +65,7 @@ export interface <%= model.name %> {
 <%_ if (model.additionalProperties) { _%>
     [key: string]: <%- model.additionalProperties.typescriptType %>;
 <%_ } _%>
-<%_ model.resolvedProperties.forEach((property) => { _%>
+<%_ model.properties.forEach((property) => { _%>
     /**
      * <%- property.description || '' %>
      * @type {<%- property.typescriptType %>}
@@ -65,20 +77,25 @@ export interface <%= model.name %> {
     <%= property.isReadOnly ? 'readonly ' : '' %><%= property.typescriptName %><%= property.isRequired ? '' : '?' %>: <%- property.typescriptType %><%= (property.isNullable || property.type === "any") ? ' | null' : '' %>;
 <%_ }); _%>
 }
+<%_ } _%>
 
 
+<%_ if (model.export !== "enum") { _%>
 /**
  * Check if a given object implements the <%= model.name %> interface.
  */
 export function instanceOf<%= model.name %>(value: object): boolean {
+<%_ if (isComposite) { _%>
+    return <% model.properties.forEach((property, i) => { %><% if (i > 0) { %> <% if (model.export === "all-of") { %>&&<% } else { %>||<% } %> <% } %><% if (property.isPrimitive) { %>typeof value === "<%- property.typescriptType %>"<% } else { %>instanceOf<%- property.type %>(value)<% } %><% }); %>
+<%_ } else { _%>
     let isInstance = true;
-<%_ model.resolvedProperties.forEach((property) => { _%>
+<%_ model.properties.forEach((property) => { _%>
 <%_ if (property.isRequired) { _%>
     isInstance = isInstance && "<%= property.name %>" in value;
 <%_ } _%>
 <%_ }); _%>
-
     return isInstance;
+<%_ } _%>
 }
 <%_ } _%>
 
@@ -87,16 +104,32 @@ export function <%= model.name %>FromJSON(json: any): <%= model.name %> {
 }
 
 export function <%= model.name %>FromJSONTyped(json: any, ignoreDiscriminator: boolean): <%= model.name %> {
-<%_ if (model.resolvedProperties.length > 0) { _%>
+<%_ if (model.properties.length > 0) { _%>
     if ((json === undefined) || (json === null)) {
         return json;
     }
+<%_ if (isComposite) { _%>
+<%_ model.composedPrimitives.forEach((primitive) => { _%>
+    if (typeof json === "<%- primitive.typescriptType %>") {
+        return json;
+    }
+<%_ }); _%>
+<%_ if (model.composedModels.length > 0) { _%>
+    return {
+        <%_ model.properties.filter(p => !p.isPrimitive).forEach((composedType) => { _%>
+        ...<%- composedType.typescriptType %>FromJSONTyped(json, true),
+        <%_ }); _%>
+    };
+<%_ } else { _%>
+    return json;
+<%_ } _%>
+<%_ } else { _%>
     return {
 
 <%_ if (model.additionalProperties) { _%>
             ...json,
 <%_ } _%>
-<%_ model.resolvedProperties.forEach((property) => { _%>
+<%_ model.properties.forEach((property) => { _%>
     <%_ if (property.isPrimitive) { _%>
         '<%= property.typescriptName %>': <% if (!property.isRequired) { %>!exists(json, '<%- property.name %>') ? undefined : <% } %><% if (["date", "date-time"].includes(property.format) && property.isNullable) { %>json['<%- property.name %>'] === null ? null : <% } %><% if (["date", "date-time"].includes(property.format)) { %>(new Date(json['<%= property.name %>']))<% } else { %>json['<%= property.name %>']<% } %>,
     <%_ } else if (property.export === 'array') { _%>
@@ -108,25 +141,42 @@ export function <%= model.name %>FromJSONTyped(json: any, ignoreDiscriminator: b
     <%_ } _%>
 <%_ }); _%>
     };
+<%_ } _%>
 <%_ } else { _%>
     return json;
 <%_ } _%>
 }
 
 export function <%= model.name %>ToJSON(value?: <%= model.name %> | null): any {
-<%_ if (model.resolvedProperties.length > 0) { _%>
+<%_ if (model.properties.length > 0) { _%>
     if (value === undefined) {
         return undefined;
     }
     if (value === null) {
         return null;
     }
+<%_ if (isComposite) { _%>
+    <%_ model.composedPrimitives.forEach((primitive) => { _%>
+    if (typeof value === "<%- primitive.typescriptType %>") {
+        return value;
+    }
+    <%_ }); _%>
+    <%_ if (model.composedModels.length > 0) { _%>
+    return {
+        <%_ model.properties.filter(p => !p.isPrimitive).forEach((property, i) => { _%>
+        ...<%- property.typescriptType %>ToJSON(value as any),
+        <%_ }); _%>
+    };
+    <%_ } else { _%>
+    return value;
+    <%_ } _%>
+<%_ } else { _%>
     return {
 
 <%_ if (model.additionalProperties) { _%>
             ...value,
 <%_ } _%>
-<%_ model.resolvedProperties.forEach((property) => { _%>
+<%_ model.properties.forEach((property) => { _%>
 <%_ if (!property.isReadOnly) { _%>
     <%_ if (property.isPrimitive && ["date", "date-time"].includes(property.format)) { _%>
         '<%= property.name %>': <% if (!property.isRequired) { %>value.<%- property.typescriptName %> === undefined ? undefined : <% } %>(<% if (property.isNullable) { %>value.<%- property.typescriptName %> === null ? null : <% } %>value.<%- property.typescriptName %>.toISOString()<% if (property.format === 'date') { %>.substr(0,10)<% } %>),
@@ -144,6 +194,7 @@ export function <%= model.name %>ToJSON(value?: <%= model.name %> | null): any {
 <%_ } _%>
 <%_ }); _%>
     };
+<%_ } _%>
 <%_ } else { _%>
     return value;
 <%_ } _%>

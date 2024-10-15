@@ -1,0 +1,145 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: composite models
+paths:
+  /op:
+    get:
+      responses:
+        200:
+          description: Successful response
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/Wrapper'
+components:
+  schemas:
+    A:
+      type: object
+      required:
+        - a
+      properties:
+        a:
+          type: string
+    B:
+      type: object
+      required:
+        - b
+      properties:
+        b:
+          type: string
+    C:
+      type: object
+      required:
+        - c
+      properties:
+        c:
+          type: string
+    AllOfInlineAndRefs:
+      allOf:
+        - type: object
+          required:
+            - d
+          properties:
+            d:
+              type: string
+        - $ref: '#/components/schemas/A'
+        - $ref: '#/components/schemas/B'
+        - $ref: '#/components/schemas/C'
+        - type: object
+          properties:
+            e:
+              type: string
+    AllOfRefs:
+      allOf:
+        - $ref: '#/components/schemas/A'
+        - $ref: '#/components/schemas/B'
+        - $ref: '#/components/schemas/C'
+    AnyOfPrimitives:
+      anyOf:
+        - type: string
+        - type: integer
+    AnyOfPrimitivesAndRefs:
+      anyOf:
+        - type: string
+        - $ref: '#/components/schemas/A'
+    AnyOfRefs:
+      anyOf:
+        - $ref: '#/components/schemas/A'
+        - $ref: '#/components/schemas/B'
+        - $ref: '#/components/schemas/C'
+    AnyOfInlineAndRefs:
+      anyOf:
+        - type: object
+          required:
+            - d
+          properties:
+            d:
+              type: string
+        - $ref: '#/components/schemas/A'
+        - $ref: '#/components/schemas/B'
+        - $ref: '#/components/schemas/C'
+        - type: object
+          properties:
+            e:
+              type: string
+    OneOfPrimitives:
+      oneOf:
+        - type: string
+        - type: integer
+    OneOfPrimitivesAndRefs:
+      oneOf:
+        - type: string
+        - $ref: '#/components/schemas/A'
+    OneOfRefs:
+      oneOf:
+        - $ref: '#/components/schemas/A'
+        - $ref: '#/components/schemas/B'
+        - $ref: '#/components/schemas/C'
+    OneOfInlineAndRefs:
+      oneOf:
+        - type: object
+          required:
+            - d
+          properties:
+            d:
+              type: string
+        - $ref: '#/components/schemas/A'
+        - $ref: '#/components/schemas/B'
+        - $ref: '#/components/schemas/C'
+        - type: object
+          properties:
+            e:
+              type: string
+    Wrapper:
+      type: object
+      properties:
+        allOf:
+          type: object
+          properties:
+            refs:
+              $ref: '#/components/schemas/AllOfRefs'
+            inlineAndRefs:
+              $ref: '#/components/schemas/AllOfInlineAndRefs'
+        anyOf:
+          type: object
+          properties:
+            refs:
+              $ref: '#/components/schemas/AnyOfRefs'
+            inlineAndRefs:
+              $ref: '#/components/schemas/AnyOfInlineAndRefs'
+            primitives:
+              $ref: '#/components/schemas/AnyOfPrimitives'
+            primitivesAndRefs:
+              $ref: '#/components/schemas/AnyOfPrimitivesAndRefs'
+        oneOf:
+          type: object
+          properties:
+            refs:
+              $ref: '#/components/schemas/OneOfRefs'
+            inlineAndRefs:
+              $ref: '#/components/schemas/OneOfInlineAndRefs'
+            primitives:
+              $ref: '#/components/schemas/OneOfPrimitives'
+            primitivesAndRefs:
+              $ref: '#/components/schemas/OneOfPrimitivesAndRefs'

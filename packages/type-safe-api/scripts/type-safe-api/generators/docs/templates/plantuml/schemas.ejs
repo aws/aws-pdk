@@ -12,7 +12,7 @@ title <%- info.title %> Schemas Diagram
 
 <%_ models.forEach((model) => { _%>
 entity <%- model.name %> {
-<%_ model.resolvedProperties.forEach(property => { _%>
+<%_ model.properties.forEach(property => { _%>
     <% if (property.isRequired) { %>* <% } %><%- property.name %>: <%- property.javaType %>
 <%_ }); _%>
 }
@@ -20,7 +20,7 @@ entity <%- model.name %> {
 <%_ }); _%>
 
 <%_ models.forEach((model) => { _%>
-<%_ model.resolvedProperties.forEach((property) => { _%>
+<%_ model.properties.forEach((property) => { _%>
 <%_ if (!property.isPrimitive) { _%>
 <%- model.name %> -- <% if (["array", "dictionary"].includes(property.export)) { %>"0..*" <% } %><%- property.type %> : <%- property.name %>
 <%_ } _%>

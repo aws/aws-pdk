@@ -201,23 +201,39 @@ const splitAndWriteFiles = (renderedFileContents: string[], outputPath: string) 
 const COMPOSED_SCHEMA_TYPES = new Set(["one-of", "any-of", "all-of"]);
 const PRIMITIVE_TYPES = new Set(["string", "integer", "number", "boolean", "null", "any", "binary", "void"]);
 
-const resolveComposedProperties = (data: parseOpenapi.ParsedSpecification, model: parseOpenapi.Model): parseOpenapi.Model[] => {
-  if (COMPOSED_SCHEMA_TYPES.has(model.export)) {
-    // Find the composed model, if any
-    const parentModelProperty = model.properties.find(p => !p.name && p.export === "reference");
-    const composedModel = data.models.find(m => m.name === parentModelProperty?.type);
+/**
+ * Mutates the given data to ensure composite models (ie allOf, oneOf, anyOf) have the necessary
+ * properties for representing them in generated code. Adds `composedModels` and `composedPrimitives`
+ * which contain the models and primitive types that each model is composed of.
+ */
+const ensureCompositeModels = (data: parseOpenapi.ParsedSpecification) => {
+  const visited = new Set<parseOpenapi.Model>();
+  data.models.forEach(model => mutateModelWithCompositeProperties(data, model, visited));
+}
 
-    // The actual properties for a composed model are nested under a special property called "properties"
-    return [
-      ...(model.properties.find(p => p.name === "properties")?.properties ?? []),
-      ...(composedModel ? resolveComposedProperties(data, composedModel).map((p => {
-        (p as any)._composedFrom = composedModel.name;
-        return p;
-      })) : []),
-    ];
+const mutateModelWithCompositeProperties = (data: parseOpenapi.ParsedSpecification, model: parseOpenapi.Model, visited: Set<parseOpenapi.Model>) => {
+  if (COMPOSED_SCHEMA_TYPES.has(model.export) && !visited.has(model)) {
+    visited.add(model);
+
+    // Find the models/primitives which this is composed from
+    const composedModelReferences = model.properties.filter(p => !p.name && p.export === "reference");
+    const composedPrimitives = model.properties.filter(p => !p.name && p.export !== "reference");
+
+    const modelsByName = Object.fromEntries(data.models.map(m => [m.name, m]));
+    const composedModels = composedModelReferences.flatMap(r => modelsByName[r.type] ? [modelsByName[r.type]] : []);
+    // Recursively resolve composed properties of properties, to ensure mixins for all-of include all recursive all-of properties
+    composedModels.forEach(m => mutateModelWithCompositeProperties(data, m, visited));
+
+    // For all-of models, we include all composed model properties.
+    if (model.export === "all-of") {
+      if (composedPrimitives.length > 0) {
+        throw new Error(`Schema "${model.name}" defines allOf with non-object types. allOf may only compose object types in the OpenAPI specification.`);
+      }
+    }
+
+    (model as any).composedModels = composedModels;
+    (model as any).composedPrimitives = composedPrimitives;
   }
-
-  return model.properties ?? [];
 };
 
 const toTypescriptPrimitive = (property: parseOpenapi.Model): string => {
@@ -340,24 +356,26 @@ const toPythonType = (property: parseOpenapi.Model): string => {
  * Mutates the given model to add language specific types and names
  */
 const mutateModelWithAdditionalTypes = (model: parseOpenapi.Model) => {
-  (model as any).typescriptName = model.name;
-  (model as any).typescriptType = toTypeScriptType(model);
-  (model as any).javaType = toJavaType(model);
-  (model as any).pythonType = toPythonType(model);
-  (model as any).isPrimitive = PRIMITIVE_TYPES.has(model.type);
-
   // Trim any surrounding quotes from name
   model.name = _trim(model.name, `"'`);
+
+  (model as any).typescriptName = model.name;
+  (model as any).typescriptType = toTypeScriptType(model);
+  (model as any).javaName = model.name;
+  (model as any).javaType = toJavaType(model);
+  (model as any).pythonName = _snakeCase(model.name);
+  (model as any).pythonType = toPythonType(model);
+  (model as any).isPrimitive = PRIMITIVE_TYPES.has(model.type);
 };
 
 const mutateWithOpenapiSchemaProperties = (spec: OpenAPIV3.Document, model: parseOpenapi.Model, schema: OpenAPIV3.SchemaObject, visited: Set<parseOpenapi.Model> = new Set()) => {
   (model as any).format = schema.format;
-  (model as any).oapiType = schema.type;
   (model as any).isInteger = schema.type === "integer";
   (model as any).isShort = schema.format === "int32";
   (model as any).isLong = schema.format === "int64";
   (model as any).deprecated = !!schema.deprecated;
   (model as any).openapiType = schema.type;
+  (model as any).isNotSchema = !!schema.not;
 
   visited.add(model);
 
@@ -366,6 +384,19 @@ const mutateWithOpenapiSchemaProperties = (spec: OpenAPIV3.Document, model: pars
     const subSchema = resolveIfRef(spec, schema.items);
     mutateWithOpenapiSchemaProperties(spec, model.link, subSchema, visited);
   }
+
+  // Also apply to object properties recursively
+  if (model.export === "dictionary" && model.link && 'additionalProperties' in schema && schema.additionalProperties && !visited.has(model.link)) {
+    const subSchema = resolveIfRef(spec, schema.additionalProperties);
+    // Additional properties can be "true" rather than a type
+    if (subSchema !== true) {
+      mutateWithOpenapiSchemaProperties(spec, model.link, subSchema, visited);
+    }
+  }
+  model.properties.filter(p => !visited.has(p) && schema.properties?.[p.name]).forEach(property => {
+    const subSchema = resolveIfRef(spec, schema.properties![property.name]);
+    mutateWithOpenapiSchemaProperties(spec, property, subSchema, visited);
+  });
 };
 
 interface SubSchema {
@@ -380,25 +411,41 @@ interface SubSchemaRef {
   readonly schema: OpenAPIV3.SchemaObject;
 }
 
-const isInlineObjectOrArraySubSchema = (schema?: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject): schema is OpenAPIV3.SchemaObject => !!schema && !isRef(schema) && ["object", "array"].includes(schema.type as any);
+const isCompositeSchema = (schema: OpenAPIV3.SchemaObject) =>
+  !!schema.allOf || !!schema.anyOf || !!schema.oneOf;
+
+const hasSubSchemasToVisit = (schema?: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject): schema is OpenAPIV3.SchemaObject =>
+  !!schema && !isRef(schema) && (["object", "array"].includes(schema.type as any) || isCompositeSchema(schema) || !!schema.not);
+
+const filterInlineCompositeSchemas = (schemas: (OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject)[], nameParts: string[], namePartPrefix: string, prop: string): SubSchema[] => {
+  let inlineSchemaIndex = 0;
+  return schemas.flatMap((s, i) => {
+    if (hasSubSchemasToVisit(s)) {
+      const subSchema: SubSchema = { nameParts: [...nameParts, `${namePartPrefix}${inlineSchemaIndex === 0 ? '' : inlineSchemaIndex}`], schema: s, prop: `${prop}.[${i}]` };
+      inlineSchemaIndex++;
+      return [subSchema];
+    }
+    return [];
+  });
+}
 
 const hoistInlineObjectSubSchemas = (nameParts: string[], schema: OpenAPIV3.SchemaObject): SubSchemaRef[] => {
-  // Find all the inline subschemas
+  // Find all the inline subschemas we should visit
   const inlineSubSchemas: SubSchema[] = [
-    ...(isInlineObjectOrArraySubSchema(schema.not) ? [{ nameParts: [...nameParts, 'Not'], schema: schema.not, prop: 'not' }] : []),
-    ...(schema.anyOf ? schema.anyOf.filter(isInlineObjectOrArraySubSchema).map((s, i) => ({ nameParts: [...nameParts, `${i}`], schema: s, prop: `anyOf.[${i}]` })) : []),
-    ...(schema.allOf ? schema.allOf.filter(isInlineObjectOrArraySubSchema).map((s, i) => ({ nameParts: [...nameParts, `${i}`], schema: s, prop: `allOf.[${i}]` })) : []),
-    ...(schema.oneOf ? schema.oneOf.filter(isInlineObjectOrArraySubSchema).map((s, i) => ({ nameParts: [...nameParts, `${i}`], schema: s, prop: `oneOf.[${i}]` })) : []),
-    ...('items' in schema && isInlineObjectOrArraySubSchema(schema.items) ? [{ nameParts: [...nameParts, 'Inner'], schema: schema.items, prop: 'items' }] : []),
-    ...(Object.entries(schema.properties ?? {}).filter(([, s]) => isInlineObjectOrArraySubSchema(s)).map(([name, s]) => ({ nameParts: [...nameParts, name], schema: s as OpenAPIV3.SchemaObject, prop: `properties.${name}` }))),
-    ...((typeof schema.additionalProperties !== "boolean" && isInlineObjectOrArraySubSchema(schema.additionalProperties)) ? [{ nameParts: [...nameParts, 'Value'], schema: schema.additionalProperties, prop: `additionalProperties` }] : []),
+    ...(hasSubSchemasToVisit(schema.not) ? [{ nameParts: [...nameParts, 'Not'], schema: schema.not, prop: 'not' }] : []),
+    ...(schema.anyOf ? filterInlineCompositeSchemas(schema.anyOf, nameParts, 'AnyOf', 'anyOf') : []),
+    ...(schema.allOf ? filterInlineCompositeSchemas(schema.allOf, nameParts, 'AllOf', 'allOf') : []),
+    ...(schema.oneOf ? filterInlineCompositeSchemas(schema.oneOf, nameParts, 'OneOf', 'oneOf') : []),
+    ...('items' in schema && hasSubSchemasToVisit(schema.items) ? [{ nameParts: [...nameParts, 'Inner'], schema: schema.items, prop: 'items' }] : []),
+    ...(Object.entries(schema.properties ?? {}).filter(([, s]) => hasSubSchemasToVisit(s)).map(([name, s]) => ({ nameParts: [...nameParts, name], schema: s as OpenAPIV3.SchemaObject, prop: `properties.${name}` }))),
+    ...((typeof schema.additionalProperties !== "boolean" && hasSubSchemasToVisit(schema.additionalProperties)) ? [{ nameParts: [...nameParts, 'Value'], schema: schema.additionalProperties, prop: `additionalProperties` }] : []),
   ];
 
   // Hoist these recursively first (ie depth first search) so that we don't miss refs
   const recursiveRefs = inlineSubSchemas.flatMap((s) => hoistInlineObjectSubSchemas(s.nameParts, s.schema));
 
-  // Clone the object subschemas to build the refs
-  const refs = inlineSubSchemas.filter(s => s.schema.type === "object" && ["items", "additionalProperties"].includes(s.prop)).map(s => {
+  // Clone the object subschemas to build the refs. Note that only objects with "properties" are hoisted as these are non-dictionary types
+  const refs = inlineSubSchemas.filter(s => (s.schema.type === "object" && s.schema.properties) || isCompositeSchema(s.schema)).map(s => {
     const name = s.nameParts.map(_upperFirst).join('');
     const $ref = `#/components/schemas/${name}`;
     const ref = {
@@ -471,6 +518,9 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
 
   // Start with the data from https://github.com/webpro/parse-openapi which extracts most of what we need
   const data = { ...parseOpenapi.parse(spec), metadata };
+
+  // Mutate the models with enough data to render composite models in the templates
+  ensureCompositeModels(data);
 
   // Augment operations with additional data
   data.services.forEach((service) => {
@@ -614,20 +664,19 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
 
   // Augment models with additional data
   data.models.forEach((model) => {
+    // Add a snake_case name
+    (model as any).nameSnakeCase = _snakeCase(model.name);
+
     const matchingSpecModel = spec?.components?.schemas?.[model.name]
 
     if (matchingSpecModel) {
       const specModel = isRef(matchingSpecModel) ? resolveRef(spec, matchingSpecModel.$ref) as OpenAPIV3.SchemaObject : matchingSpecModel;
 
-      // Resolve properties inherited from composed schemas
-      const composedProperties = resolveComposedProperties(data, model);
-      (model as any).resolvedProperties = composedProperties;
-
       // Add unique imports
       (model as any).uniqueImports = _orderBy(_uniq([
         ...model.imports,
-        // Include composed property imports, if any
-        ...composedProperties.filter(p => p.export === "reference").map(p => p.type),
+        // Include property imports, if any
+        ...model.properties.filter(p => p.export === "reference").map(p => p.type),
       ]));
 
       // Add deprecated flag if present
@@ -639,7 +688,7 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
       }
 
       // Augment properties with additional data
-      [...model.properties, ...((model as any).resolvedProperties as parseOpenapi.Model[])].forEach((property) => {
+      model.properties.forEach((property) => {
         const matchingSpecProperty = specModel.properties?.[property.name];
 
         if (matchingSpecProperty) {

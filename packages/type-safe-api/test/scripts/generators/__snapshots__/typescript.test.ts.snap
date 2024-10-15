@@ -784,43 +784,29 @@ import {
     TemplateBaseFromJSON,
     TemplateBaseFromJSONTyped,
     TemplateBaseToJSON,
+    instanceOfTemplateBase,
 } from './TemplateBase';
 import type { TemplateBody } from './TemplateBody';
 import {
     TemplateBodyFromJSON,
     TemplateBodyFromJSONTyped,
     TemplateBodyToJSON,
+    instanceOfTemplateBody,
 } from './TemplateBody';
-import type { TemplateID } from './TemplateID';
-import {
-    TemplateIDFromJSON,
-    TemplateIDFromJSONTyped,
-    TemplateIDToJSON,
-} from './TemplateID';
 
 /**
+ * @type Template
  * 
  * @export
- * @interface Template
  */
-export interface Template {
-    /**
-     * 
-     * @type {TemplateID}
-     * @memberof Template
-     */
-    id: TemplateID;
-}
+export type Template = TemplateBase & TemplateBody;
 
 
 /**
  * Check if a given object implements the Template interface.
  */
 export function instanceOfTemplate(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "id" in value;
-
-    return isInstance;
+    return instanceOfTemplateBase(value) && instanceOfTemplateBody(value)
 }
 
 export function TemplateFromJSON(json: any): Template {
@@ -832,8 +818,8 @@ export function TemplateFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
         return json;
     }
     return {
-
-        'id': TemplateIDFromJSON(json['id']),
+        ...TemplateBaseFromJSONTyped(json, true),
+        ...TemplateBodyFromJSONTyped(json, true),
     };
 }
 
@@ -845,8 +831,8 @@ export function TemplateToJSON(value?: Template | null): any {
         return null;
     }
     return {
-
-        'id': TemplateIDToJSON(value.id),
+        ...TemplateBaseToJSON(value as any),
+        ...TemplateBodyToJSON(value as any),
     };
 }
 
@@ -869,6 +855,7 @@ import {
     TemplateIDFromJSON,
     TemplateIDFromJSONTyped,
     TemplateIDToJSON,
+    instanceOfTemplateID,
 } from './TemplateID';
 
 /**
@@ -893,7 +880,6 @@ export interface TemplateBase {
 export function instanceOfTemplateBase(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "id" in value;
-
     return isInstance;
 }
 
@@ -943,6 +929,7 @@ import {
     TemplateIDFromJSON,
     TemplateIDFromJSONTyped,
     TemplateIDToJSON,
+    instanceOfTemplateID,
 } from './TemplateID';
 
 /**
@@ -972,7 +959,6 @@ export interface TemplateBody {
  */
 export function instanceOfTemplateBody(value: object): boolean {
     let isInstance = true;
-
     return isInstance;
 }
 
@@ -1034,7 +1020,6 @@ export interface TemplateID {
  */
 export function instanceOfTemplateID(value: object): boolean {
     let isInstance = true;
-
     return isInstance;
 }
 
@@ -1540,6 +1525,3166 @@ export class TextApiResponse {
 }
 `;
 
+exports[`Typescript Client Code Generation Script Unit Tests Generates With composite-models.yaml 1`] = `
+{
+  ".tsapi-manifest": "src/index.ts
+src/runtime.ts
+src/interceptors/try-catch.ts
+src/interceptors/cors.ts
+src/interceptors/powertools/logger.ts
+src/interceptors/powertools/tracer.ts
+src/interceptors/powertools/metrics.ts
+src/interceptors/index.ts
+src/apis/DefaultApi/OperationConfig.ts
+src/response/response.ts
+src/apis/DefaultApi.ts
+src/apis/index.ts
+src/models/index.ts
+src/models/model-utils.ts
+src/models/A.ts
+src/models/AllOfInlineAndRefs.ts
+src/models/AllOfInlineAndRefsAllOf.ts
+src/models/AllOfInlineAndRefsAllOf1.ts
+src/models/AllOfRefs.ts
+src/models/AnyOfInlineAndRefs.ts
+src/models/AnyOfInlineAndRefsAnyOf.ts
+src/models/AnyOfInlineAndRefsAnyOf1.ts
+src/models/AnyOfPrimitives.ts
+src/models/AnyOfPrimitivesAndRefs.ts
+src/models/AnyOfRefs.ts
+src/models/B.ts
+src/models/C.ts
+src/models/OneOfInlineAndRefs.ts
+src/models/OneOfInlineAndRefsOneOf.ts
+src/models/OneOfInlineAndRefsOneOf1.ts
+src/models/OneOfPrimitives.ts
+src/models/OneOfPrimitivesAndRefs.ts
+src/models/OneOfRefs.ts
+src/models/Wrapper.ts
+src/models/WrapperAllOf.ts
+src/models/WrapperAnyOf.ts
+src/models/WrapperOneOf.ts",
+  "src/apis/DefaultApi.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * composite models
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+import * as runtime from '../runtime';
+import type {
+  Wrapper,
+} from '../models';
+import {
+    WrapperFromJSON,
+    WrapperToJSON,
+} from '../models';
+
+
+/**
+ * 
+ */
+export class DefaultApi extends runtime.BaseAPI {
+    /**
+     * 
+     */
+    async opGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Wrapper>> {
+        const queryParameters: any = {};
+
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+
+        const response = await this.request({
+            path: \`/op\`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => WrapperFromJSON(jsonValue));
+    }
+
+    /**
+     * 
+     */
+    async opGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Wrapper> {
+        const response = await this.opGetRaw(initOverrides);
+        return await response.value();
+    }
+
+}
+
+",
+  "src/apis/DefaultApi/OperationConfig.ts": "// Import models
+import {
+    A,
+    AFromJSON,
+    AToJSON,
+    AllOfInlineAndRefs,
+    AllOfInlineAndRefsFromJSON,
+    AllOfInlineAndRefsToJSON,
+    AllOfInlineAndRefsAllOf,
+    AllOfInlineAndRefsAllOfFromJSON,
+    AllOfInlineAndRefsAllOfToJSON,
+    AllOfInlineAndRefsAllOf1,
+    AllOfInlineAndRefsAllOf1FromJSON,
+    AllOfInlineAndRefsAllOf1ToJSON,
+    AllOfRefs,
+    AllOfRefsFromJSON,
+    AllOfRefsToJSON,
+    AnyOfInlineAndRefs,
+    AnyOfInlineAndRefsFromJSON,
+    AnyOfInlineAndRefsToJSON,
+    AnyOfInlineAndRefsAnyOf,
+    AnyOfInlineAndRefsAnyOfFromJSON,
+    AnyOfInlineAndRefsAnyOfToJSON,
+    AnyOfInlineAndRefsAnyOf1,
+    AnyOfInlineAndRefsAnyOf1FromJSON,
+    AnyOfInlineAndRefsAnyOf1ToJSON,
+    AnyOfPrimitives,
+    AnyOfPrimitivesFromJSON,
+    AnyOfPrimitivesToJSON,
+    AnyOfPrimitivesAndRefs,
+    AnyOfPrimitivesAndRefsFromJSON,
+    AnyOfPrimitivesAndRefsToJSON,
+    AnyOfRefs,
+    AnyOfRefsFromJSON,
+    AnyOfRefsToJSON,
+    B,
+    BFromJSON,
+    BToJSON,
+    C,
+    CFromJSON,
+    CToJSON,
+    OneOfInlineAndRefs,
+    OneOfInlineAndRefsFromJSON,
+    OneOfInlineAndRefsToJSON,
+    OneOfInlineAndRefsOneOf,
+    OneOfInlineAndRefsOneOfFromJSON,
+    OneOfInlineAndRefsOneOfToJSON,
+    OneOfInlineAndRefsOneOf1,
+    OneOfInlineAndRefsOneOf1FromJSON,
+    OneOfInlineAndRefsOneOf1ToJSON,
+    OneOfPrimitives,
+    OneOfPrimitivesFromJSON,
+    OneOfPrimitivesToJSON,
+    OneOfPrimitivesAndRefs,
+    OneOfPrimitivesAndRefsFromJSON,
+    OneOfPrimitivesAndRefsToJSON,
+    OneOfRefs,
+    OneOfRefsFromJSON,
+    OneOfRefsToJSON,
+    Wrapper,
+    WrapperFromJSON,
+    WrapperToJSON,
+    WrapperAllOf,
+    WrapperAllOfFromJSON,
+    WrapperAllOfToJSON,
+    WrapperAnyOf,
+    WrapperAnyOfFromJSON,
+    WrapperAnyOfToJSON,
+    WrapperOneOf,
+    WrapperOneOfFromJSON,
+    WrapperOneOfToJSON,
+} from '../../models';
+// Import request parameter interfaces
+import {
+} from '..';
+
+// API Gateway Types
+import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda";
+
+// Generic type for object keyed by operation names
+export interface OperationConfig<T> {
+    opGet: T;
+}
+
+// Look up path and http method for a given operation name
+export const OperationLookup = {
+    opGet: {
+        path: '/op',
+        method: 'GET',
+        contentTypes: ['application/json'],
+    },
+};
+
+export class Operations {
+  /**
+   * Return an OperationConfig with the same value for every operation
+   */
+  public static all = <T>(value: T): OperationConfig<T> => Object.fromEntries(
+    Object.keys(OperationLookup).map((operationId) => [operationId, value])
+  ) as unknown as OperationConfig<T>;
+}
+
+// Standard apigateway request parameters (query parameters or path parameters, multi or single value)
+type ApiGatewayRequestParameters = { [key: string]: string | string[] | undefined };
+
+/**
+ * URI decode for a string or array of strings
+ */
+const uriDecode = (value: string | string[]): string | string[] =>
+    typeof value === 'string' ? decodeURIComponent(value) : value.map((v) => decodeURIComponent(v));
+
+/**
+ * URI decodes apigateway request parameters (query or path parameters)
+ */
+const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGatewayRequestParameters => {
+    const decodedParameters = {};
+    Object.keys(parameters || {}).forEach((key) => {
+        decodedParameters[key] = parameters[key] ? uriDecode(parameters[key]) : parameters[key];
+    });
+    return decodedParameters;
+};
+
+/**
+ * Parse the body if the content type is json, otherwise leave as a raw string
+ */
+const parseBody = (body: string, demarshal: (body: string) => any, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? demarshal(body || '{}') : body;
+
+const assertRequired = (required: boolean, baseName: string, parameters: any) => {
+    if(required && parameters[baseName] === undefined) {
+        throw new Error(\`Missing required request parameter '\${baseName}'\`);
+    }
+};
+
+const coerceNumber = (baseName: string, s: string, isInteger: boolean): number => {
+    const n = Number(s);
+    if (isNaN(n)) {
+        throw new Error(\`Expected a number for request parameter '\${baseName}'\`);
+    }
+    if (isInteger && !Number.isInteger(n)) {
+        throw new Error(\`Expected an integer for request parameter '\${baseName}'\`);
+    }
+    return n;
+};
+
+const coerceBoolean = (baseName: string, s: string): boolean => {
+    switch (s) {
+        case "true":
+          return true;
+        case "false":
+          return false;
+        default:
+          throw new Error(\`Expected a boolean (true or false) for request parameter '\${baseName}'\`);
+    }
+};
+
+const coerceDate = (baseName: string, s: string): Date => {
+    const d = new Date(s);
+    if (isNaN(d as any)) {
+        throw new Error(\`Expected a valid date (iso format) for request parameter '\${baseName}'\`);
+    }
+    return d;
+};
+
+const coerceParameter = (
+    baseName: string,
+    dataType: string,
+    isInteger: boolean,
+    rawStringParameters: { [key: string]: string | undefined },
+    rawStringArrayParameters: { [key: string]: string[] | undefined },
+    required: boolean,
+) => {
+    switch (dataType) {
+      case "number":
+        assertRequired(required, baseName, rawStringParameters);
+        return rawStringParameters[baseName] !== undefined ? coerceNumber(baseName, rawStringParameters[baseName], isInteger) : undefined;
+      case "boolean":
+        assertRequired(required, baseName, rawStringParameters);
+        return rawStringParameters[baseName] !== undefined ? coerceBoolean(baseName, rawStringParameters[baseName]) : undefined;
+      case "Date":
+        assertRequired(required, baseName, rawStringParameters);
+        return rawStringParameters[baseName] !== undefined ? coerceDate(baseName, rawStringParameters[baseName]) : undefined;
+      case "Array<number>":
+        assertRequired(required, baseName, rawStringArrayParameters);
+        return rawStringArrayParameters[baseName] !== undefined ? rawStringArrayParameters[baseName].map(n => coerceNumber(baseName, n, isInteger)) : undefined;
+      case "Array<boolean>":
+        assertRequired(required, baseName, rawStringArrayParameters);
+        return rawStringArrayParameters[baseName] !== undefined ? rawStringArrayParameters[baseName].map(n => coerceBoolean(baseName, n)) : undefined;
+      case "Array<Date>":
+        assertRequired(required, baseName, rawStringArrayParameters);
+        return rawStringArrayParameters[baseName] !== undefined ? rawStringArrayParameters[baseName].map(n => coerceDate(baseName, n)) : undefined;
+      case "Array<string>":
+        assertRequired(required, baseName, rawStringArrayParameters);
+        return rawStringArrayParameters[baseName];
+      case "string":
+      default:
+        assertRequired(required, baseName, rawStringParameters);
+        return rawStringParameters[baseName];
+    }
+};
+
+const extractResponseHeadersFromInterceptors = (interceptors: any[]): { [key: string]: string } => {
+  return (interceptors ?? []).reduce((interceptor: any, headers: { [key: string]: string }) => ({
+    ...headers,
+    ...(interceptor?.__type_safe_api_response_headers ?? {}),
+  }), {} as { [key: string]: string });
+};
+
+export type OperationIds = | 'opGet';
+export type OperationApiGatewayProxyResult<T extends OperationIds> = APIGatewayProxyResult & { __operationId?: T };
+
+// Api gateway lambda handler type
+export type OperationApiGatewayLambdaHandler<T extends OperationIds> = (event: APIGatewayProxyEvent, context: Context) => Promise<OperationApiGatewayProxyResult<T>>;
+
+// Type of the response to be returned by an operation lambda handler
+export interface OperationResponse<StatusCode extends number, Body> {
+    statusCode: StatusCode;
+    headers?: { [key: string]: string };
+    multiValueHeaders?: { [key: string]: string[] };
+    body: Body;
+}
+
+// Input for a lambda handler for an operation
+export type LambdaRequestParameters<RequestParameters, RequestBody> = {
+    requestParameters: RequestParameters,
+    body: RequestBody,
+};
+
+export type InterceptorContext = { [key: string]: any };
+
+export interface RequestInput<RequestParameters, RequestBody> {
+    input: LambdaRequestParameters<RequestParameters, RequestBody>;
+    event: APIGatewayProxyEvent;
+    context: Context;
+    interceptorContext: InterceptorContext;
+}
+
+export interface ChainedRequestInput<RequestParameters, RequestBody, Response> extends RequestInput<RequestParameters, RequestBody> {
+    chain: LambdaHandlerChain<RequestParameters, RequestBody, Response>;
+}
+
+/**
+ * A lambda handler function which is part of a chain. It may invoke the remainder of the chain via the given chain input
+ */
+export type ChainedLambdaHandlerFunction<RequestParameters, RequestBody, Response> = (
+  input: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+) => Promise<Response>;
+
+// Type for a lambda handler function to be wrapped
+export type LambdaHandlerFunction<RequestParameters, RequestBody, Response> = (
+  input: RequestInput<RequestParameters, RequestBody>,
+) => Promise<Response>;
+
+export interface LambdaHandlerChain<RequestParameters, RequestBody, Response> {
+  next: LambdaHandlerFunction<RequestParameters, RequestBody, Response>;
+}
+
+// Interceptor is a type alias for ChainedLambdaHandlerFunction
+export type Interceptor<RequestParameters, RequestBody, Response> = ChainedLambdaHandlerFunction<RequestParameters, RequestBody, Response>;
+
+/**
+ * Build a chain from the given array of chained lambda handlers
+ */
+const buildHandlerChain = <RequestParameters, RequestBody, Response>(
+  ...handlers: ChainedLambdaHandlerFunction<RequestParameters, RequestBody, Response>[]
+): LambdaHandlerChain<RequestParameters, RequestBody, Response> => {
+  if (handlers.length === 0) {
+    return {
+      next: () => {
+        throw new Error("No more handlers remain in the chain! The last handler should not call next.");
+      }
+    };
+  }
+  const [currentHandler, ...remainingHandlers] = handlers;
+  return {
+    next: (input) => {
+      return currentHandler({
+        ...input,
+        chain: buildHandlerChain(...remainingHandlers),
+      });
+    },
+  };
+};
+
+/**
+ * Path, Query and Header parameters for OpGet
+ */
+export interface OpGetRequestParameters {
+}
+
+/**
+ * Request body parameter for OpGet
+ */
+export type OpGetRequestBody = never;
+
+export type OpGet200OperationResponse = OperationResponse<200, Wrapper>;
+
+export type OpGetOperationResponses = | OpGet200OperationResponse ;
+
+// Type that the handler function provided to the wrapper must conform to
+export type OpGetHandlerFunction = LambdaHandlerFunction<OpGetRequestParameters, OpGetRequestBody, OpGetOperationResponses>;
+export type OpGetChainedHandlerFunction = ChainedLambdaHandlerFunction<OpGetRequestParameters, OpGetRequestBody, OpGetOperationResponses>;
+export type OpGetChainedRequestInput = ChainedRequestInput<OpGetRequestParameters, OpGetRequestBody, OpGetOperationResponses>;
+
+/**
+ * Lambda handler wrapper to provide typed interface for the implementation of opGet
+ */
+export const opGetHandler = (
+    ...handlers: [OpGetChainedHandlerFunction, ...OpGetChainedHandlerFunction[]]
+): OperationApiGatewayLambdaHandler<'opGet'> => async (event: any, context: any, _callback?: any, additionalInterceptors: OpGetChainedHandlerFunction[] = []): Promise<any> => {
+    const operationId = "opGet";
+
+    const rawSingleValueParameters = decodeRequestParameters({
+      ...(event.pathParameters || {}),
+      ...(event.queryStringParameters || {}),
+      ...(event.headers || {}),
+    }) as { [key: string]: string | undefined };
+    const rawMultiValueParameters = decodeRequestParameters({
+      ...(event.multiValueQueryStringParameters || {}),
+      ...(event.multiValueHeaders || {}),
+    }) as { [key: string]: string[] | undefined };
+
+    const marshal = (statusCode: number, responseBody: any): string => {
+        let marshalledBody = responseBody;
+        switch(statusCode) {
+            case 200:
+                marshalledBody = JSON.stringify(WrapperToJSON(marshalledBody));
+                break;
+            default:
+                break;
+        }
+
+        return marshalledBody;
+    };
+
+    const errorHeaders = (statusCode: number): { [key: string]: string } => {
+        let headers = {};
+
+        switch(statusCode) {
+            default:
+                break;
+        }
+
+        return headers;
+    };
+
+    let requestParameters: OpGetRequestParameters | undefined = undefined;
+
+    try {
+      requestParameters = {
+
+      };
+    } catch (e: any) {
+      const res = {
+        statusCode: 400,
+        body: { message: e.message },
+        headers: extractResponseHeadersFromInterceptors(handlers),
+      };
+      return {
+        ...res,
+        headers: {
+          ...errorHeaders(res.statusCode),
+          ...res.headers,
+        },
+        body: res.body ? marshal(res.statusCode, res.body) : '',
+      };
+    }
+
+    const demarshal = (bodyString: string): any => {
+        return {};
+    };
+    const body = parseBody(event.body, demarshal, ['application/json']) as OpGetRequestBody;
+
+    const chain = buildHandlerChain(...additionalInterceptors, ...handlers);
+    const response = await chain.next({
+        input: {
+            requestParameters,
+            body,
+        },
+        event,
+        context,
+        interceptorContext: { operationId },
+    });
+
+    return {
+        ...response,
+        headers: {
+          ...errorHeaders(response.statusCode),
+          ...response.headers,
+        },
+        body: response.body ? marshal(response.statusCode, response.body) : '',
+    };
+};
+
+export interface HandlerRouterHandlers {
+  readonly opGet: OperationApiGatewayLambdaHandler<'opGet'>;
+}
+
+export type AnyOperationRequestParameters = | OpGetRequestParameters;
+export type AnyOperationRequestBodies = | OpGetRequestBody;
+export type AnyOperationResponses = | OpGetOperationResponses;
+
+export interface HandlerRouterProps<
+  RequestParameters,
+  RequestBody,
+  Response extends AnyOperationResponses
+> {
+  /**
+   * Interceptors to apply to all handlers
+   */
+  readonly interceptors?: ChainedLambdaHandlerFunction<
+    RequestParameters,
+    RequestBody,
+    Response
+  >[];
+
+  /**
+   * Handlers to register for each operation
+   */
+  readonly handlers: HandlerRouterHandlers;
+}
+
+const concatMethodAndPath = (method: string, path: string) => \`\${method.toLowerCase()}||\${path}\`;
+
+const OperationIdByMethodAndPath = Object.fromEntries(Object.entries(OperationLookup).map(
+  ([operationId, methodAndPath]) => [concatMethodAndPath(methodAndPath.method, methodAndPath.path), operationId]
+));
+
+/**
+ * Returns a lambda handler which can be used to route requests to the appropriate typed lambda handler function.
+ */
+export const handlerRouter = (props: HandlerRouterProps<
+  AnyOperationRequestParameters,
+  AnyOperationRequestBodies,
+  AnyOperationResponses
+>): OperationApiGatewayLambdaHandler<OperationIds> => async (event, context) => {
+  const operationId = OperationIdByMethodAndPath[concatMethodAndPath(event.requestContext.httpMethod, event.requestContext.resourcePath)];
+  const handler = props.handlers[operationId];
+  return handler(event, context, undefined, props.interceptors);
+};
+",
+  "src/apis/index.ts": "/* tslint:disable */
+/* eslint-disable */
+export * from './DefaultApi';
+",
+  "src/index.ts": "/* tslint:disable */
+/* eslint-disable */
+export * from './runtime';
+export * from './apis';
+export * from './models';
+export * from './apis/DefaultApi/OperationConfig';
+export * from './response/response';
+export * from './interceptors'
+",
+  "src/interceptors/cors.ts": "import { ChainedRequestInput, OperationResponse } from '..';
+
+// By default, allow all origins and headers
+const DEFAULT_CORS_HEADERS: { [key: string]: string } = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': '*',
+};
+
+/**
+ * Create an interceptor for adding headers to the response
+ * @param additionalHeaders headers to add to the response
+ */
+export const buildResponseHeaderInterceptor = (additionalHeaders: { [key: string]: string }) => {
+  const interceptor = async <
+    RequestParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(
+    request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+  ): Promise<Response> => {
+    const result = await request.chain.next(request);
+    return {
+      ...result,
+      headers: {
+        ...additionalHeaders,
+        ...result.headers,
+      },
+    };
+  };
+
+  // Any error responses returned during request validation will include the headers
+  (interceptor as any).__type_safe_api_response_headers = additionalHeaders;
+
+  return interceptor;
+};
+
+/**
+ * An interceptor for adding cross-origin resource sharing (CORS) headers to the response.
+ * Allows all origins and headers. Use buildResponseHeaderInterceptor to customise.
+ */
+export const corsInterceptor = buildResponseHeaderInterceptor(DEFAULT_CORS_HEADERS);
+",
+  "src/interceptors/index.ts": "import { corsInterceptor } from './cors';
+import { LoggingInterceptor } from './powertools/logger';
+import { MetricsInterceptor } from './powertools/metrics';
+import { TracingInterceptor } from './powertools/tracer';
+import { tryCatchInterceptor } from './try-catch';
+
+export * from './cors';
+export * from './try-catch';
+export * from './powertools/tracer';
+export * from './powertools/metrics';
+export * from './powertools/logger';
+
+/**
+ * All default interceptors, for logging, tracing, metrics, cors headers and error handling
+ */
+export const INTERCEPTORS = [
+  corsInterceptor,
+  LoggingInterceptor.intercept,
+  tryCatchInterceptor,
+  TracingInterceptor.intercept,
+  MetricsInterceptor.intercept,
+] as const;
+",
+  "src/interceptors/powertools/logger.ts": "import { Logger } from '@aws-lambda-powertools/logger';
+import { ChainedRequestInput, OperationResponse } from '../..';
+
+const logger = new Logger();
+
+export class LoggingInterceptor {
+  /**
+   * Interceptor which adds an aws lambda powertools logger to the interceptor context,
+   * and adds the lambda context
+   * @see https://docs.powertools.aws.dev/lambda/typescript/latest/core/logger/
+   */
+  public static intercept = async <
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(
+    request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+  ): Promise<Response> => {
+    logger.addContext(request.context);
+    logger.appendKeys({ operationId: request.interceptorContext.operationId });
+    request.interceptorContext.logger = logger;
+    const response = await request.chain.next(request);
+    logger.removeKeys(['operationId']);
+    return response;
+  };
+
+  /**
+   * Retrieve the logger from the interceptor context
+   */
+  public static getLogger = <
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(request: ChainedRequestInput<RequestParameters, RequestBody, Response>): Logger => {
+    if (!request.interceptorContext.logger) {
+      throw new Error('No logger found, did you configure the LoggingInterceptor?');
+    }
+    return request.interceptorContext.logger;
+  };
+}
+",
+  "src/interceptors/powertools/metrics.ts": "import { Metrics } from '@aws-lambda-powertools/metrics';
+import { ChainedRequestInput, OperationResponse } from '../..';
+
+const metrics = new Metrics();
+
+export class MetricsInterceptor {
+  /**
+   * Interceptor which adds an instance of aws lambda powertools metrics to the interceptor context,
+   * and ensures metrics are flushed prior to finishing the lambda execution
+   * @see https://docs.powertools.aws.dev/lambda/typescript/latest/core/metrics/
+   */
+  public static intercept = async <
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(
+    request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+  ): Promise<Response> => {
+    metrics.addDimension("operationId", request.interceptorContext.operationId);
+    request.interceptorContext.metrics = metrics;
+    try {
+      return await request.chain.next(request);
+    } finally {
+      // Flush metrics
+      metrics.publishStoredMetrics();
+    }
+  };
+
+  /**
+   * Retrieve the metrics logger from the request
+   */
+  public static getMetrics = <
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(
+    request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+  ): Metrics => {
+    if (!request.interceptorContext.metrics) {
+      throw new Error('No metrics logger found, did you configure the MetricsInterceptor?');
+    }
+    return request.interceptorContext.metrics;
+  };
+}
+",
+  "src/interceptors/powertools/tracer.ts": "import { Tracer } from '@aws-lambda-powertools/tracer';
+import { ChainedRequestInput, OperationResponse } from '../..';
+
+const tracer = new Tracer();
+
+export interface TracingInterceptorOptions {
+  /**
+   * Whether to add the response as metadata to the trace
+   */
+  readonly addResponseAsMetadata?: boolean;
+}
+
+/**
+ * Create an interceptor which adds an aws lambda powertools tracer to the interceptor context,
+ * creating the appropriate segment for the handler execution and annotating with recommended
+ * details.
+ * @see https://docs.powertools.aws.dev/lambda/typescript/latest/core/tracer/#lambda-handler
+ */
+export const buildTracingInterceptor = (options?: TracingInterceptorOptions) => async <
+  RequestParameters,
+  RequestBody,
+  Response extends OperationResponse<number, any>
+>(
+  request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+): Promise<Response> => {
+  const handler = request.interceptorContext.operationId ?? process.env._HANDLER ?? 'index.handler';
+  const segment = tracer.getSegment();
+  let subsegment;
+  if (segment) {
+    subsegment = segment.addNewSubsegment(handler);
+    tracer.setSegment(subsegment);
+  }
+
+  tracer.annotateColdStart();
+  tracer.addServiceNameAnnotation();
+
+  if (request.interceptorContext.logger) {
+    tracer.provider.setLogger(request.interceptorContext.logger);
+  }
+
+  request.interceptorContext.tracer = tracer;
+
+  try {
+    const result = await request.chain.next(request);
+    if (options?.addResponseAsMetadata) {
+      tracer.addResponseAsMetadata(result, handler);
+    }
+    return result;
+  } catch (e) {
+    tracer.addErrorAsMetadata(e as Error);
+    throw e;
+  } finally {
+    if (segment && subsegment) {
+      subsegment.close();
+      tracer.setSegment(segment);
+    }
+  }
+};
+
+export class TracingInterceptor {
+  /**
+   * Interceptor which adds an aws lambda powertools tracer to the interceptor context,
+   * creating the appropriate segment for the handler execution and annotating with recommended
+   * details.
+   */
+  public static intercept = buildTracingInterceptor();
+
+  /**
+   * Get the tracer from the interceptor context
+   */
+  public static getTracer = <
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(
+    request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+  ): Tracer => {
+    if (!request.interceptorContext.tracer) {
+      throw new Error('No tracer found, did you configure the TracingInterceptor?');
+    }
+    return request.interceptorContext.tracer;
+  };
+}
+",
+  "src/interceptors/try-catch.ts": "import {
+  ChainedRequestInput,
+  OperationResponse,
+} from '..';
+
+/**
+ * Create an interceptor which returns the given error response and status should an error occur
+ * @param statusCode the status code to return when an error is thrown
+ * @param errorResponseBody the body to return when an error occurs
+ */
+export const buildTryCatchInterceptor = <TStatus extends number, ErrorResponseBody>(
+  statusCode: TStatus,
+  errorResponseBody: ErrorResponseBody,
+) => async <
+  RequestParameters,
+  RequestBody,
+  Response extends OperationResponse<number, any>,
+>(
+  request: ChainedRequestInput<
+  RequestParameters,
+  RequestBody,
+  Response
+  >,
+): Promise<Response | OperationResponse<TStatus, ErrorResponseBody>> => {
+  try {
+    return await request.chain.next(request);
+  } catch (e: any) {
+    // If the error looks like a response, return it as the response
+    if ('statusCode' in e) {
+      return e;
+    }
+
+    // Log the error if the logger is present
+    if (request.interceptorContext.logger && request.interceptorContext.logger.error) {
+      request.interceptorContext.logger.error('Interceptor caught exception', e as Error);
+    } else {
+      console.error('Interceptor caught exception', e);
+    }
+
+    // Return the default error message
+    return { statusCode, body: errorResponseBody };
+  }
+};
+
+/**
+ * Interceptor for catching unhandled exceptions and returning a 500 error.
+ * Uncaught exceptions which look like OperationResponses will be returned, such that deeply nested code may return error
+ * responses, eg: \`throw ApiResponse.notFound({ message: 'Not found!' })\`
+ */
+export const tryCatchInterceptor = buildTryCatchInterceptor(500, { message: 'Internal Error' });
+",
+  "src/models/A.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * composite models
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * 
+ * @export
+ * @interface A
+ */
+export interface A {
+    /**
+     * 
+     * @type {string}
+     * @memberof A
+     */
+    a: string;
+}
+
+
+/**
+ * Check if a given object implements the A interface.
+ */
+export function instanceOfA(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "a" in value;
+    return isInstance;
+}
+
+export function AFromJSON(json: any): A {
+    return AFromJSONTyped(json, false);
+}
+
+export function AFromJSONTyped(json: any, ignoreDiscriminator: boolean): A {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'a': json['a'],
+    };
+}
+
+export function AToJSON(value?: A | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'a': value.a,
+    };
+}
+
+",
+  "src/models/AllOfInlineAndRefs.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * composite models
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+import type { A } from './A';
+import {
+    AFromJSON,
+    AFromJSONTyped,
+    AToJSON,
+    instanceOfA,
+} from './A';
+import type { AllOfInlineAndRefsAllOf } from './AllOfInlineAndRefsAllOf';
+import {
+    AllOfInlineAndRefsAllOfFromJSON,
+    AllOfInlineAndRefsAllOfFromJSONTyped,
+    AllOfInlineAndRefsAllOfToJSON,
+    instanceOfAllOfInlineAndRefsAllOf,
+} from './AllOfInlineAndRefsAllOf';
+import type { AllOfInlineAndRefsAllOf1 } from './AllOfInlineAndRefsAllOf1';
+import {
+    AllOfInlineAndRefsAllOf1FromJSON,
+    AllOfInlineAndRefsAllOf1FromJSONTyped,
+    AllOfInlineAndRefsAllOf1ToJSON,
+    instanceOfAllOfInlineAndRefsAllOf1,
+} from './AllOfInlineAndRefsAllOf1';
+import type { B } from './B';
+import {
+    BFromJSON,
+    BFromJSONTyped,
+    BToJSON,
+    instanceOfB,
+} from './B';
+import type { C } from './C';
+import {
+    CFromJSON,
+    CFromJSONTyped,
+    CToJSON,
+    instanceOfC,
+} from './C';
+
+/**
+ * @type AllOfInlineAndRefs
+ * 
+ * @export
+ */
+export type AllOfInlineAndRefs = AllOfInlineAndRefsAllOf & A & B & C & AllOfInlineAndRefsAllOf1;
+
+
+/**
+ * Check if a given object implements the AllOfInlineAndRefs interface.
+ */
+export function instanceOfAllOfInlineAndRefs(value: object): boolean {
+    return instanceOfAllOfInlineAndRefsAllOf(value) && instanceOfA(value) && instanceOfB(value) && instanceOfC(value) && instanceOfAllOfInlineAndRefsAllOf1(value)
+}
+
+export function AllOfInlineAndRefsFromJSON(json: any): AllOfInlineAndRefs {
+    return AllOfInlineAndRefsFromJSONTyped(json, false);
+}
+
+export function AllOfInlineAndRefsFromJSONTyped(json: any, ignoreDiscriminator: boolean): AllOfInlineAndRefs {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+        ...AllOfInlineAndRefsAllOfFromJSONTyped(json, true),
+        ...AFromJSONTyped(json, true),
+        ...BFromJSONTyped(json, true),
+        ...CFromJSONTyped(json, true),
+        ...AllOfInlineAndRefsAllOf1FromJSONTyped(json, true),
+    };
+}
+
+export function AllOfInlineAndRefsToJSON(value?: AllOfInlineAndRefs | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+        ...AllOfInlineAndRefsAllOfToJSON(value as any),
+        ...AToJSON(value as any),
+        ...BToJSON(value as any),
+        ...CToJSON(value as any),
+        ...AllOfInlineAndRefsAllOf1ToJSON(value as any),
+    };
+}
+
+",
+  "src/models/AllOfInlineAndRefsAllOf.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * composite models
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * 
+ * @export
+ * @interface AllOfInlineAndRefsAllOf
+ */
+export interface AllOfInlineAndRefsAllOf {
+    /**
+     * 
+     * @type {string}
+     * @memberof AllOfInlineAndRefsAllOf
+     */
+    d: string;
+}
+
+
+/**
+ * Check if a given object implements the AllOfInlineAndRefsAllOf interface.
+ */
+export function instanceOfAllOfInlineAndRefsAllOf(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "d" in value;
+    return isInstance;
+}
+
+export function AllOfInlineAndRefsAllOfFromJSON(json: any): AllOfInlineAndRefsAllOf {
+    return AllOfInlineAndRefsAllOfFromJSONTyped(json, false);
+}
+
+export function AllOfInlineAndRefsAllOfFromJSONTyped(json: any, ignoreDiscriminator: boolean): AllOfInlineAndRefsAllOf {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'd': json['d'],
+    };
+}
+
+export function AllOfInlineAndRefsAllOfToJSON(value?: AllOfInlineAndRefsAllOf | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'd': value.d,
+    };
+}
+
+",
+  "src/models/AllOfInlineAndRefsAllOf1.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * composite models
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * 
+ * @export
+ * @interface AllOfInlineAndRefsAllOf1
+ */
+export interface AllOfInlineAndRefsAllOf1 {
+    /**
+     * 
+     * @type {string}
+     * @memberof AllOfInlineAndRefsAllOf1
+     */
+    e?: string;
+}
+
+
+/**
+ * Check if a given object implements the AllOfInlineAndRefsAllOf1 interface.
+ */
+export function instanceOfAllOfInlineAndRefsAllOf1(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function AllOfInlineAndRefsAllOf1FromJSON(json: any): AllOfInlineAndRefsAllOf1 {
+    return AllOfInlineAndRefsAllOf1FromJSONTyped(json, false);
+}
+
+export function AllOfInlineAndRefsAllOf1FromJSONTyped(json: any, ignoreDiscriminator: boolean): AllOfInlineAndRefsAllOf1 {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'e': !exists(json, 'e') ? undefined : json['e'],
+    };
+}
+
+export function AllOfInlineAndRefsAllOf1ToJSON(value?: AllOfInlineAndRefsAllOf1 | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'e': value.e,
+    };
+}
+
+",
+  "src/models/AllOfRefs.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * composite models
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+import type { A } from './A';
+import {
+    AFromJSON,
+    AFromJSONTyped,
+    AToJSON,
+    instanceOfA,
+} from './A';
+import type { B } from './B';
+import {
+    BFromJSON,
+    BFromJSONTyped,
+    BToJSON,
+    instanceOfB,
+} from './B';
+import type { C } from './C';
+import {
+    CFromJSON,
+    CFromJSONTyped,
+    CToJSON,
+    instanceOfC,
+} from './C';
+
+/**
+ * @type AllOfRefs
+ * 
+ * @export
+ */
+export type AllOfRefs = A & B & C;
+
+
+/**
+ * Check if a given object implements the AllOfRefs interface.
+ */
+export function instanceOfAllOfRefs(value: object): boolean {
+    return instanceOfA(value) && instanceOfB(value) && instanceOfC(value)
+}
+
+export function AllOfRefsFromJSON(json: any): AllOfRefs {
+    return AllOfRefsFromJSONTyped(json, false);
+}
+
+export function AllOfRefsFromJSONTyped(json: any, ignoreDiscriminator: boolean): AllOfRefs {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+        ...AFromJSONTyped(json, true),
+        ...BFromJSONTyped(json, true),
+        ...CFromJSONTyped(json, true),
+    };
+}
+
+export function AllOfRefsToJSON(value?: AllOfRefs | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+        ...AToJSON(value as any),
+        ...BToJSON(value as any),
+        ...CToJSON(value as any),
+    };
+}
+
+",
+  "src/models/AnyOfInlineAndRefs.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * composite models
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+import type { A } from './A';
+import {
+    AFromJSON,
+    AFromJSONTyped,
+    AToJSON,
+    instanceOfA,
+} from './A';
+import type { AnyOfInlineAndRefsAnyOf } from './AnyOfInlineAndRefsAnyOf';
+import {
+    AnyOfInlineAndRefsAnyOfFromJSON,
+    AnyOfInlineAndRefsAnyOfFromJSONTyped,
+    AnyOfInlineAndRefsAnyOfToJSON,
+    instanceOfAnyOfInlineAndRefsAnyOf,
+} from './AnyOfInlineAndRefsAnyOf';
+import type { AnyOfInlineAndRefsAnyOf1 } from './AnyOfInlineAndRefsAnyOf1';
+import {
+    AnyOfInlineAndRefsAnyOf1FromJSON,
+    AnyOfInlineAndRefsAnyOf1FromJSONTyped,
+    AnyOfInlineAndRefsAnyOf1ToJSON,
+    instanceOfAnyOfInlineAndRefsAnyOf1,
+} from './AnyOfInlineAndRefsAnyOf1';
+import type { B } from './B';
+import {
+    BFromJSON,
+    BFromJSONTyped,
+    BToJSON,
+    instanceOfB,
+} from './B';
+import type { C } from './C';
+import {
+    CFromJSON,
+    CFromJSONTyped,
+    CToJSON,
+    instanceOfC,
+} from './C';
+
+/**
+ * @type AnyOfInlineAndRefs
+ * 
+ * @export
+ */
+export type AnyOfInlineAndRefs = AnyOfInlineAndRefsAnyOf | A | B | C | AnyOfInlineAndRefsAnyOf1;
+
+
+/**
+ * Check if a given object implements the AnyOfInlineAndRefs interface.
+ */
+export function instanceOfAnyOfInlineAndRefs(value: object): boolean {
+    return instanceOfAnyOfInlineAndRefsAnyOf(value) || instanceOfA(value) || instanceOfB(value) || instanceOfC(value) || instanceOfAnyOfInlineAndRefsAnyOf1(value)
+}
+
+export function AnyOfInlineAndRefsFromJSON(json: any): AnyOfInlineAndRefs {
+    return AnyOfInlineAndRefsFromJSONTyped(json, false);
+}
+
+export function AnyOfInlineAndRefsFromJSONTyped(json: any, ignoreDiscriminator: boolean): AnyOfInlineAndRefs {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+        ...AnyOfInlineAndRefsAnyOfFromJSONTyped(json, true),
+        ...AFromJSONTyped(json, true),
+        ...BFromJSONTyped(json, true),
+        ...CFromJSONTyped(json, true),
+        ...AnyOfInlineAndRefsAnyOf1FromJSONTyped(json, true),
+    };
+}
+
+export function AnyOfInlineAndRefsToJSON(value?: AnyOfInlineAndRefs | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+        ...AnyOfInlineAndRefsAnyOfToJSON(value as any),
+        ...AToJSON(value as any),
+        ...BToJSON(value as any),
+        ...CToJSON(value as any),
+        ...AnyOfInlineAndRefsAnyOf1ToJSON(value as any),
+    };
+}
+
+",
+  "src/models/AnyOfInlineAndRefsAnyOf.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * composite models
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * 
+ * @export
+ * @interface AnyOfInlineAndRefsAnyOf
+ */
+export interface AnyOfInlineAndRefsAnyOf {
+    /**
+     * 
+     * @type {string}
+     * @memberof AnyOfInlineAndRefsAnyOf
+     */
+    d: string;
+}
+
+
+/**
+ * Check if a given object implements the AnyOfInlineAndRefsAnyOf interface.
+ */
+export function instanceOfAnyOfInlineAndRefsAnyOf(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "d" in value;
+    return isInstance;
+}
+
+export function AnyOfInlineAndRefsAnyOfFromJSON(json: any): AnyOfInlineAndRefsAnyOf {
+    return AnyOfInlineAndRefsAnyOfFromJSONTyped(json, false);
+}
+
+export function AnyOfInlineAndRefsAnyOfFromJSONTyped(json: any, ignoreDiscriminator: boolean): AnyOfInlineAndRefsAnyOf {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'd': json['d'],
+    };
+}
+
+export function AnyOfInlineAndRefsAnyOfToJSON(value?: AnyOfInlineAndRefsAnyOf | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'd': value.d,
+    };
+}
+
+",
+  "src/models/AnyOfInlineAndRefsAnyOf1.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * composite models
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * 
+ * @export
+ * @interface AnyOfInlineAndRefsAnyOf1
+ */
+export interface AnyOfInlineAndRefsAnyOf1 {
+    /**
+     * 
+     * @type {string}
+     * @memberof AnyOfInlineAndRefsAnyOf1
+     */
+    e?: string;
+}
+
+
+/**
+ * Check if a given object implements the AnyOfInlineAndRefsAnyOf1 interface.
+ */
+export function instanceOfAnyOfInlineAndRefsAnyOf1(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function AnyOfInlineAndRefsAnyOf1FromJSON(json: any): AnyOfInlineAndRefsAnyOf1 {
+    return AnyOfInlineAndRefsAnyOf1FromJSONTyped(json, false);
+}
+
+export function AnyOfInlineAndRefsAnyOf1FromJSONTyped(json: any, ignoreDiscriminator: boolean): AnyOfInlineAndRefsAnyOf1 {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'e': !exists(json, 'e') ? undefined : json['e'],
+    };
+}
+
+export function AnyOfInlineAndRefsAnyOf1ToJSON(value?: AnyOfInlineAndRefsAnyOf1 | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'e': value.e,
+    };
+}
+
+",
+  "src/models/AnyOfPrimitives.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * composite models
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * @type AnyOfPrimitives
+ * 
+ * @export
+ */
+export type AnyOfPrimitives = string | number;
+
+
+/**
+ * Check if a given object implements the AnyOfPrimitives interface.
+ */
+export function instanceOfAnyOfPrimitives(value: object): boolean {
+    return typeof value === "string" || typeof value === "number"
+}
+
+export function AnyOfPrimitivesFromJSON(json: any): AnyOfPrimitives {
+    return AnyOfPrimitivesFromJSONTyped(json, false);
+}
+
+export function AnyOfPrimitivesFromJSONTyped(json: any, ignoreDiscriminator: boolean): AnyOfPrimitives {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    if (typeof json === "string") {
+        return json;
+    }
+    if (typeof json === "number") {
+        return json;
+    }
+    return json;
+}
+
+export function AnyOfPrimitivesToJSON(value?: AnyOfPrimitives | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    if (typeof value === "string") {
+        return value;
+    }
+    if (typeof value === "number") {
+        return value;
+    }
+    return value;
+}
+
+",
+  "src/models/AnyOfPrimitivesAndRefs.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * composite models
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+import type { A } from './A';
+import {
+    AFromJSON,
+    AFromJSONTyped,
+    AToJSON,
+    instanceOfA,
+} from './A';
+
+/**
+ * @type AnyOfPrimitivesAndRefs
+ * 
+ * @export
+ */
+export type AnyOfPrimitivesAndRefs = string | A;
+
+
+/**
+ * Check if a given object implements the AnyOfPrimitivesAndRefs interface.
+ */
+export function instanceOfAnyOfPrimitivesAndRefs(value: object): boolean {
+    return typeof value === "string" || instanceOfA(value)
+}
+
+export function AnyOfPrimitivesAndRefsFromJSON(json: any): AnyOfPrimitivesAndRefs {
+    return AnyOfPrimitivesAndRefsFromJSONTyped(json, false);
+}
+
+export function AnyOfPrimitivesAndRefsFromJSONTyped(json: any, ignoreDiscriminator: boolean): AnyOfPrimitivesAndRefs {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    if (typeof json === "string") {
+        return json;
+    }
+    return {
+        ...AFromJSONTyped(json, true),
+    };
+}
+
+export function AnyOfPrimitivesAndRefsToJSON(value?: AnyOfPrimitivesAndRefs | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    if (typeof value === "string") {
+        return value;
+    }
+    return {
+        ...AToJSON(value as any),
+    };
+}
+
+",
+  "src/models/AnyOfRefs.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * composite models
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+import type { A } from './A';
+import {
+    AFromJSON,
+    AFromJSONTyped,
+    AToJSON,
+    instanceOfA,
+} from './A';
+import type { B } from './B';
+import {
+    BFromJSON,
+    BFromJSONTyped,
+    BToJSON,
+    instanceOfB,
+} from './B';
+import type { C } from './C';
+import {
+    CFromJSON,
+    CFromJSONTyped,
+    CToJSON,
+    instanceOfC,
+} from './C';
+
+/**
+ * @type AnyOfRefs
+ * 
+ * @export
+ */
+export type AnyOfRefs = A | B | C;
+
+
+/**
+ * Check if a given object implements the AnyOfRefs interface.
+ */
+export function instanceOfAnyOfRefs(value: object): boolean {
+    return instanceOfA(value) || instanceOfB(value) || instanceOfC(value)
+}
+
+export function AnyOfRefsFromJSON(json: any): AnyOfRefs {
+    return AnyOfRefsFromJSONTyped(json, false);
+}
+
+export function AnyOfRefsFromJSONTyped(json: any, ignoreDiscriminator: boolean): AnyOfRefs {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+        ...AFromJSONTyped(json, true),
+        ...BFromJSONTyped(json, true),
+        ...CFromJSONTyped(json, true),
+    };
+}
+
+export function AnyOfRefsToJSON(value?: AnyOfRefs | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+        ...AToJSON(value as any),
+        ...BToJSON(value as any),
+        ...CToJSON(value as any),
+    };
+}
+
+",
+  "src/models/B.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * composite models
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * 
+ * @export
+ * @interface B
+ */
+export interface B {
+    /**
+     * 
+     * @type {string}
+     * @memberof B
+     */
+    b: string;
+}
+
+
+/**
+ * Check if a given object implements the B interface.
+ */
+export function instanceOfB(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "b" in value;
+    return isInstance;
+}
+
+export function BFromJSON(json: any): B {
+    return BFromJSONTyped(json, false);
+}
+
+export function BFromJSONTyped(json: any, ignoreDiscriminator: boolean): B {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'b': json['b'],
+    };
+}
+
+export function BToJSON(value?: B | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'b': value.b,
+    };
+}
+
+",
+  "src/models/C.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * composite models
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * 
+ * @export
+ * @interface C
+ */
+export interface C {
+    /**
+     * 
+     * @type {string}
+     * @memberof C
+     */
+    c: string;
+}
+
+
+/**
+ * Check if a given object implements the C interface.
+ */
+export function instanceOfC(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "c" in value;
+    return isInstance;
+}
+
+export function CFromJSON(json: any): C {
+    return CFromJSONTyped(json, false);
+}
+
+export function CFromJSONTyped(json: any, ignoreDiscriminator: boolean): C {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'c': json['c'],
+    };
+}
+
+export function CToJSON(value?: C | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'c': value.c,
+    };
+}
+
+",
+  "src/models/OneOfInlineAndRefs.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * composite models
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+import type { A } from './A';
+import {
+    AFromJSON,
+    AFromJSONTyped,
+    AToJSON,
+    instanceOfA,
+} from './A';
+import type { B } from './B';
+import {
+    BFromJSON,
+    BFromJSONTyped,
+    BToJSON,
+    instanceOfB,
+} from './B';
+import type { C } from './C';
+import {
+    CFromJSON,
+    CFromJSONTyped,
+    CToJSON,
+    instanceOfC,
+} from './C';
+import type { OneOfInlineAndRefsOneOf } from './OneOfInlineAndRefsOneOf';
+import {
+    OneOfInlineAndRefsOneOfFromJSON,
+    OneOfInlineAndRefsOneOfFromJSONTyped,
+    OneOfInlineAndRefsOneOfToJSON,
+    instanceOfOneOfInlineAndRefsOneOf,
+} from './OneOfInlineAndRefsOneOf';
+import type { OneOfInlineAndRefsOneOf1 } from './OneOfInlineAndRefsOneOf1';
+import {
+    OneOfInlineAndRefsOneOf1FromJSON,
+    OneOfInlineAndRefsOneOf1FromJSONTyped,
+    OneOfInlineAndRefsOneOf1ToJSON,
+    instanceOfOneOfInlineAndRefsOneOf1,
+} from './OneOfInlineAndRefsOneOf1';
+
+/**
+ * @type OneOfInlineAndRefs
+ * 
+ * @export
+ */
+export type OneOfInlineAndRefs = OneOfInlineAndRefsOneOf | A | B | C | OneOfInlineAndRefsOneOf1;
+
+
+/**
+ * Check if a given object implements the OneOfInlineAndRefs interface.
+ */
+export function instanceOfOneOfInlineAndRefs(value: object): boolean {
+    return instanceOfOneOfInlineAndRefsOneOf(value) || instanceOfA(value) || instanceOfB(value) || instanceOfC(value) || instanceOfOneOfInlineAndRefsOneOf1(value)
+}
+
+export function OneOfInlineAndRefsFromJSON(json: any): OneOfInlineAndRefs {
+    return OneOfInlineAndRefsFromJSONTyped(json, false);
+}
+
+export function OneOfInlineAndRefsFromJSONTyped(json: any, ignoreDiscriminator: boolean): OneOfInlineAndRefs {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+        ...OneOfInlineAndRefsOneOfFromJSONTyped(json, true),
+        ...AFromJSONTyped(json, true),
+        ...BFromJSONTyped(json, true),
+        ...CFromJSONTyped(json, true),
+        ...OneOfInlineAndRefsOneOf1FromJSONTyped(json, true),
+    };
+}
+
+export function OneOfInlineAndRefsToJSON(value?: OneOfInlineAndRefs | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+        ...OneOfInlineAndRefsOneOfToJSON(value as any),
+        ...AToJSON(value as any),
+        ...BToJSON(value as any),
+        ...CToJSON(value as any),
+        ...OneOfInlineAndRefsOneOf1ToJSON(value as any),
+    };
+}
+
+",
+  "src/models/OneOfInlineAndRefsOneOf.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * composite models
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * 
+ * @export
+ * @interface OneOfInlineAndRefsOneOf
+ */
+export interface OneOfInlineAndRefsOneOf {
+    /**
+     * 
+     * @type {string}
+     * @memberof OneOfInlineAndRefsOneOf
+     */
+    d: string;
+}
+
+
+/**
+ * Check if a given object implements the OneOfInlineAndRefsOneOf interface.
+ */
+export function instanceOfOneOfInlineAndRefsOneOf(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "d" in value;
+    return isInstance;
+}
+
+export function OneOfInlineAndRefsOneOfFromJSON(json: any): OneOfInlineAndRefsOneOf {
+    return OneOfInlineAndRefsOneOfFromJSONTyped(json, false);
+}
+
+export function OneOfInlineAndRefsOneOfFromJSONTyped(json: any, ignoreDiscriminator: boolean): OneOfInlineAndRefsOneOf {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'd': json['d'],
+    };
+}
+
+export function OneOfInlineAndRefsOneOfToJSON(value?: OneOfInlineAndRefsOneOf | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'd': value.d,
+    };
+}
+
+",
+  "src/models/OneOfInlineAndRefsOneOf1.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * composite models
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * 
+ * @export
+ * @interface OneOfInlineAndRefsOneOf1
+ */
+export interface OneOfInlineAndRefsOneOf1 {
+    /**
+     * 
+     * @type {string}
+     * @memberof OneOfInlineAndRefsOneOf1
+     */
+    e?: string;
+}
+
+
+/**
+ * Check if a given object implements the OneOfInlineAndRefsOneOf1 interface.
+ */
+export function instanceOfOneOfInlineAndRefsOneOf1(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function OneOfInlineAndRefsOneOf1FromJSON(json: any): OneOfInlineAndRefsOneOf1 {
+    return OneOfInlineAndRefsOneOf1FromJSONTyped(json, false);
+}
+
+export function OneOfInlineAndRefsOneOf1FromJSONTyped(json: any, ignoreDiscriminator: boolean): OneOfInlineAndRefsOneOf1 {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'e': !exists(json, 'e') ? undefined : json['e'],
+    };
+}
+
+export function OneOfInlineAndRefsOneOf1ToJSON(value?: OneOfInlineAndRefsOneOf1 | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'e': value.e,
+    };
+}
+
+",
+  "src/models/OneOfPrimitives.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * composite models
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * @type OneOfPrimitives
+ * 
+ * @export
+ */
+export type OneOfPrimitives = string | number;
+
+
+/**
+ * Check if a given object implements the OneOfPrimitives interface.
+ */
+export function instanceOfOneOfPrimitives(value: object): boolean {
+    return typeof value === "string" || typeof value === "number"
+}
+
+export function OneOfPrimitivesFromJSON(json: any): OneOfPrimitives {
+    return OneOfPrimitivesFromJSONTyped(json, false);
+}
+
+export function OneOfPrimitivesFromJSONTyped(json: any, ignoreDiscriminator: boolean): OneOfPrimitives {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    if (typeof json === "string") {
+        return json;
+    }
+    if (typeof json === "number") {
+        return json;
+    }
+    return json;
+}
+
+export function OneOfPrimitivesToJSON(value?: OneOfPrimitives | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    if (typeof value === "string") {
+        return value;
+    }
+    if (typeof value === "number") {
+        return value;
+    }
+    return value;
+}
+
+",
+  "src/models/OneOfPrimitivesAndRefs.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * composite models
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+import type { A } from './A';
+import {
+    AFromJSON,
+    AFromJSONTyped,
+    AToJSON,
+    instanceOfA,
+} from './A';
+
+/**
+ * @type OneOfPrimitivesAndRefs
+ * 
+ * @export
+ */
+export type OneOfPrimitivesAndRefs = string | A;
+
+
+/**
+ * Check if a given object implements the OneOfPrimitivesAndRefs interface.
+ */
+export function instanceOfOneOfPrimitivesAndRefs(value: object): boolean {
+    return typeof value === "string" || instanceOfA(value)
+}
+
+export function OneOfPrimitivesAndRefsFromJSON(json: any): OneOfPrimitivesAndRefs {
+    return OneOfPrimitivesAndRefsFromJSONTyped(json, false);
+}
+
+export function OneOfPrimitivesAndRefsFromJSONTyped(json: any, ignoreDiscriminator: boolean): OneOfPrimitivesAndRefs {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    if (typeof json === "string") {
+        return json;
+    }
+    return {
+        ...AFromJSONTyped(json, true),
+    };
+}
+
+export function OneOfPrimitivesAndRefsToJSON(value?: OneOfPrimitivesAndRefs | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    if (typeof value === "string") {
+        return value;
+    }
+    return {
+        ...AToJSON(value as any),
+    };
+}
+
+",
+  "src/models/OneOfRefs.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * composite models
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+import type { A } from './A';
+import {
+    AFromJSON,
+    AFromJSONTyped,
+    AToJSON,
+    instanceOfA,
+} from './A';
+import type { B } from './B';
+import {
+    BFromJSON,
+    BFromJSONTyped,
+    BToJSON,
+    instanceOfB,
+} from './B';
+import type { C } from './C';
+import {
+    CFromJSON,
+    CFromJSONTyped,
+    CToJSON,
+    instanceOfC,
+} from './C';
+
+/**
+ * @type OneOfRefs
+ * 
+ * @export
+ */
+export type OneOfRefs = A | B | C;
+
+
+/**
+ * Check if a given object implements the OneOfRefs interface.
+ */
+export function instanceOfOneOfRefs(value: object): boolean {
+    return instanceOfA(value) || instanceOfB(value) || instanceOfC(value)
+}
+
+export function OneOfRefsFromJSON(json: any): OneOfRefs {
+    return OneOfRefsFromJSONTyped(json, false);
+}
+
+export function OneOfRefsFromJSONTyped(json: any, ignoreDiscriminator: boolean): OneOfRefs {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+        ...AFromJSONTyped(json, true),
+        ...BFromJSONTyped(json, true),
+        ...CFromJSONTyped(json, true),
+    };
+}
+
+export function OneOfRefsToJSON(value?: OneOfRefs | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+        ...AToJSON(value as any),
+        ...BToJSON(value as any),
+        ...CToJSON(value as any),
+    };
+}
+
+",
+  "src/models/Wrapper.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * composite models
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+import type { WrapperAllOf } from './WrapperAllOf';
+import {
+    WrapperAllOfFromJSON,
+    WrapperAllOfFromJSONTyped,
+    WrapperAllOfToJSON,
+    instanceOfWrapperAllOf,
+} from './WrapperAllOf';
+import type { WrapperAnyOf } from './WrapperAnyOf';
+import {
+    WrapperAnyOfFromJSON,
+    WrapperAnyOfFromJSONTyped,
+    WrapperAnyOfToJSON,
+    instanceOfWrapperAnyOf,
+} from './WrapperAnyOf';
+import type { WrapperOneOf } from './WrapperOneOf';
+import {
+    WrapperOneOfFromJSON,
+    WrapperOneOfFromJSONTyped,
+    WrapperOneOfToJSON,
+    instanceOfWrapperOneOf,
+} from './WrapperOneOf';
+
+/**
+ * 
+ * @export
+ * @interface Wrapper
+ */
+export interface Wrapper {
+    /**
+     * 
+     * @type {WrapperAllOf}
+     * @memberof Wrapper
+     */
+    allOf?: WrapperAllOf;
+    /**
+     * 
+     * @type {WrapperAnyOf}
+     * @memberof Wrapper
+     */
+    anyOf?: WrapperAnyOf;
+    /**
+     * 
+     * @type {WrapperOneOf}
+     * @memberof Wrapper
+     */
+    oneOf?: WrapperOneOf;
+}
+
+
+/**
+ * Check if a given object implements the Wrapper interface.
+ */
+export function instanceOfWrapper(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function WrapperFromJSON(json: any): Wrapper {
+    return WrapperFromJSONTyped(json, false);
+}
+
+export function WrapperFromJSONTyped(json: any, ignoreDiscriminator: boolean): Wrapper {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'allOf': !exists(json, 'allOf') ? undefined : WrapperAllOfFromJSON(json['allOf']),
+        'anyOf': !exists(json, 'anyOf') ? undefined : WrapperAnyOfFromJSON(json['anyOf']),
+        'oneOf': !exists(json, 'oneOf') ? undefined : WrapperOneOfFromJSON(json['oneOf']),
+    };
+}
+
+export function WrapperToJSON(value?: Wrapper | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'allOf': WrapperAllOfToJSON(value.allOf),
+        'anyOf': WrapperAnyOfToJSON(value.anyOf),
+        'oneOf': WrapperOneOfToJSON(value.oneOf),
+    };
+}
+
+",
+  "src/models/WrapperAllOf.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * composite models
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+import type { AllOfInlineAndRefs } from './AllOfInlineAndRefs';
+import {
+    AllOfInlineAndRefsFromJSON,
+    AllOfInlineAndRefsFromJSONTyped,
+    AllOfInlineAndRefsToJSON,
+    instanceOfAllOfInlineAndRefs,
+} from './AllOfInlineAndRefs';
+import type { AllOfRefs } from './AllOfRefs';
+import {
+    AllOfRefsFromJSON,
+    AllOfRefsFromJSONTyped,
+    AllOfRefsToJSON,
+    instanceOfAllOfRefs,
+} from './AllOfRefs';
+
+/**
+ * 
+ * @export
+ * @interface WrapperAllOf
+ */
+export interface WrapperAllOf {
+    /**
+     * 
+     * @type {AllOfRefs}
+     * @memberof WrapperAllOf
+     */
+    refs?: AllOfRefs;
+    /**
+     * 
+     * @type {AllOfInlineAndRefs}
+     * @memberof WrapperAllOf
+     */
+    inlineAndRefs?: AllOfInlineAndRefs;
+}
+
+
+/**
+ * Check if a given object implements the WrapperAllOf interface.
+ */
+export function instanceOfWrapperAllOf(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function WrapperAllOfFromJSON(json: any): WrapperAllOf {
+    return WrapperAllOfFromJSONTyped(json, false);
+}
+
+export function WrapperAllOfFromJSONTyped(json: any, ignoreDiscriminator: boolean): WrapperAllOf {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'refs': !exists(json, 'refs') ? undefined : AllOfRefsFromJSON(json['refs']),
+        'inlineAndRefs': !exists(json, 'inlineAndRefs') ? undefined : AllOfInlineAndRefsFromJSON(json['inlineAndRefs']),
+    };
+}
+
+export function WrapperAllOfToJSON(value?: WrapperAllOf | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'refs': AllOfRefsToJSON(value.refs),
+        'inlineAndRefs': AllOfInlineAndRefsToJSON(value.inlineAndRefs),
+    };
+}
+
+",
+  "src/models/WrapperAnyOf.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * composite models
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+import type { AnyOfInlineAndRefs } from './AnyOfInlineAndRefs';
+import {
+    AnyOfInlineAndRefsFromJSON,
+    AnyOfInlineAndRefsFromJSONTyped,
+    AnyOfInlineAndRefsToJSON,
+    instanceOfAnyOfInlineAndRefs,
+} from './AnyOfInlineAndRefs';
+import type { AnyOfPrimitives } from './AnyOfPrimitives';
+import {
+    AnyOfPrimitivesFromJSON,
+    AnyOfPrimitivesFromJSONTyped,
+    AnyOfPrimitivesToJSON,
+    instanceOfAnyOfPrimitives,
+} from './AnyOfPrimitives';
+import type { AnyOfPrimitivesAndRefs } from './AnyOfPrimitivesAndRefs';
+import {
+    AnyOfPrimitivesAndRefsFromJSON,
+    AnyOfPrimitivesAndRefsFromJSONTyped,
+    AnyOfPrimitivesAndRefsToJSON,
+    instanceOfAnyOfPrimitivesAndRefs,
+} from './AnyOfPrimitivesAndRefs';
+import type { AnyOfRefs } from './AnyOfRefs';
+import {
+    AnyOfRefsFromJSON,
+    AnyOfRefsFromJSONTyped,
+    AnyOfRefsToJSON,
+    instanceOfAnyOfRefs,
+} from './AnyOfRefs';
+
+/**
+ * 
+ * @export
+ * @interface WrapperAnyOf
+ */
+export interface WrapperAnyOf {
+    /**
+     * 
+     * @type {AnyOfRefs}
+     * @memberof WrapperAnyOf
+     */
+    refs?: AnyOfRefs;
+    /**
+     * 
+     * @type {AnyOfInlineAndRefs}
+     * @memberof WrapperAnyOf
+     */
+    inlineAndRefs?: AnyOfInlineAndRefs;
+    /**
+     * 
+     * @type {AnyOfPrimitives}
+     * @memberof WrapperAnyOf
+     */
+    primitives?: AnyOfPrimitives;
+    /**
+     * 
+     * @type {AnyOfPrimitivesAndRefs}
+     * @memberof WrapperAnyOf
+     */
+    primitivesAndRefs?: AnyOfPrimitivesAndRefs;
+}
+
+
+/**
+ * Check if a given object implements the WrapperAnyOf interface.
+ */
+export function instanceOfWrapperAnyOf(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function WrapperAnyOfFromJSON(json: any): WrapperAnyOf {
+    return WrapperAnyOfFromJSONTyped(json, false);
+}
+
+export function WrapperAnyOfFromJSONTyped(json: any, ignoreDiscriminator: boolean): WrapperAnyOf {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'refs': !exists(json, 'refs') ? undefined : AnyOfRefsFromJSON(json['refs']),
+        'inlineAndRefs': !exists(json, 'inlineAndRefs') ? undefined : AnyOfInlineAndRefsFromJSON(json['inlineAndRefs']),
+        'primitives': !exists(json, 'primitives') ? undefined : AnyOfPrimitivesFromJSON(json['primitives']),
+        'primitivesAndRefs': !exists(json, 'primitivesAndRefs') ? undefined : AnyOfPrimitivesAndRefsFromJSON(json['primitivesAndRefs']),
+    };
+}
+
+export function WrapperAnyOfToJSON(value?: WrapperAnyOf | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'refs': AnyOfRefsToJSON(value.refs),
+        'inlineAndRefs': AnyOfInlineAndRefsToJSON(value.inlineAndRefs),
+        'primitives': AnyOfPrimitivesToJSON(value.primitives),
+        'primitivesAndRefs': AnyOfPrimitivesAndRefsToJSON(value.primitivesAndRefs),
+    };
+}
+
+",
+  "src/models/WrapperOneOf.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * composite models
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+import type { OneOfInlineAndRefs } from './OneOfInlineAndRefs';
+import {
+    OneOfInlineAndRefsFromJSON,
+    OneOfInlineAndRefsFromJSONTyped,
+    OneOfInlineAndRefsToJSON,
+    instanceOfOneOfInlineAndRefs,
+} from './OneOfInlineAndRefs';
+import type { OneOfPrimitives } from './OneOfPrimitives';
+import {
+    OneOfPrimitivesFromJSON,
+    OneOfPrimitivesFromJSONTyped,
+    OneOfPrimitivesToJSON,
+    instanceOfOneOfPrimitives,
+} from './OneOfPrimitives';
+import type { OneOfPrimitivesAndRefs } from './OneOfPrimitivesAndRefs';
+import {
+    OneOfPrimitivesAndRefsFromJSON,
+    OneOfPrimitivesAndRefsFromJSONTyped,
+    OneOfPrimitivesAndRefsToJSON,
+    instanceOfOneOfPrimitivesAndRefs,
+} from './OneOfPrimitivesAndRefs';
+import type { OneOfRefs } from './OneOfRefs';
+import {
+    OneOfRefsFromJSON,
+    OneOfRefsFromJSONTyped,
+    OneOfRefsToJSON,
+    instanceOfOneOfRefs,
+} from './OneOfRefs';
+
+/**
+ * 
+ * @export
+ * @interface WrapperOneOf
+ */
+export interface WrapperOneOf {
+    /**
+     * 
+     * @type {OneOfRefs}
+     * @memberof WrapperOneOf
+     */
+    refs?: OneOfRefs;
+    /**
+     * 
+     * @type {OneOfInlineAndRefs}
+     * @memberof WrapperOneOf
+     */
+    inlineAndRefs?: OneOfInlineAndRefs;
+    /**
+     * 
+     * @type {OneOfPrimitives}
+     * @memberof WrapperOneOf
+     */
+    primitives?: OneOfPrimitives;
+    /**
+     * 
+     * @type {OneOfPrimitivesAndRefs}
+     * @memberof WrapperOneOf
+     */
+    primitivesAndRefs?: OneOfPrimitivesAndRefs;
+}
+
+
+/**
+ * Check if a given object implements the WrapperOneOf interface.
+ */
+export function instanceOfWrapperOneOf(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function WrapperOneOfFromJSON(json: any): WrapperOneOf {
+    return WrapperOneOfFromJSONTyped(json, false);
+}
+
+export function WrapperOneOfFromJSONTyped(json: any, ignoreDiscriminator: boolean): WrapperOneOf {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'refs': !exists(json, 'refs') ? undefined : OneOfRefsFromJSON(json['refs']),
+        'inlineAndRefs': !exists(json, 'inlineAndRefs') ? undefined : OneOfInlineAndRefsFromJSON(json['inlineAndRefs']),
+        'primitives': !exists(json, 'primitives') ? undefined : OneOfPrimitivesFromJSON(json['primitives']),
+        'primitivesAndRefs': !exists(json, 'primitivesAndRefs') ? undefined : OneOfPrimitivesAndRefsFromJSON(json['primitivesAndRefs']),
+    };
+}
+
+export function WrapperOneOfToJSON(value?: WrapperOneOf | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'refs': OneOfRefsToJSON(value.refs),
+        'inlineAndRefs': OneOfInlineAndRefsToJSON(value.inlineAndRefs),
+        'primitives': OneOfPrimitivesToJSON(value.primitives),
+        'primitivesAndRefs': OneOfPrimitivesAndRefsToJSON(value.primitivesAndRefs),
+    };
+}
+
+",
+  "src/models/index.ts": "/* tslint:disable */
+/* eslint-disable */
+export * from './A';
+export * from './AllOfInlineAndRefs';
+export * from './AllOfInlineAndRefsAllOf';
+export * from './AllOfInlineAndRefsAllOf1';
+export * from './AllOfRefs';
+export * from './AnyOfInlineAndRefs';
+export * from './AnyOfInlineAndRefsAnyOf';
+export * from './AnyOfInlineAndRefsAnyOf1';
+export * from './AnyOfPrimitives';
+export * from './AnyOfPrimitivesAndRefs';
+export * from './AnyOfRefs';
+export * from './B';
+export * from './C';
+export * from './OneOfInlineAndRefs';
+export * from './OneOfInlineAndRefsOneOf';
+export * from './OneOfInlineAndRefsOneOf1';
+export * from './OneOfPrimitives';
+export * from './OneOfPrimitivesAndRefs';
+export * from './OneOfRefs';
+export * from './Wrapper';
+export * from './WrapperAllOf';
+export * from './WrapperAnyOf';
+export * from './WrapperOneOf';
+",
+  "src/models/model-utils.ts": "/* tslint:disable */
+/* eslint-disable */
+
+export function mapValues(data: any, fn: (item: any) => any) {
+  return Object.keys(data).reduce(
+    (acc, key) => ({ ...acc, [key]: fn(data[key]) }),
+    {}
+  );
+}
+
+export function exists(json: any, key: string) {
+  const value = json[key];
+  return value !== null && value !== undefined;
+}
+",
+  "src/response/response.ts": "import { OperationResponse } from '..';
+
+
+/**
+ * Helpers for constructing api responses
+ */
+export class Response {
+  /**
+   * A successful response
+   */
+  public static success = <T>(
+    body: T
+  ): OperationResponse<200, T> => ({
+    statusCode: 200,
+    body,
+  });
+
+  /**
+   * A response which indicates a client error
+   */
+  public static badRequest = <T>(
+    body: T
+  ): OperationResponse<400, T> => ({
+    statusCode: 400,
+    body,
+  });
+
+  /**
+   * A response which indicates the requested resource was not found
+   */
+  public static notFound = <T>(
+    body: T
+  ): OperationResponse<404, T> => ({
+    statusCode: 404,
+    body,
+  });
+
+  /**
+   * A response which indicates the caller is not authorised to perform the operation or access the resource
+   */
+  public static notAuthorized = <T>(
+    body: T
+  ): OperationResponse<403, T> => ({
+    statusCode: 403,
+    body,
+  });
+
+  /**
+   * A response to indicate a server error
+   */
+  public static internalFailure = <T>(
+    body: T
+  ): OperationResponse<500, T> => ({
+    statusCode: 500,
+    body,
+  });
+}
+",
+  "src/runtime.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * composite models
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+export const BASE_PATH = "http://localhost".replace(/\\/+$/, "");
+
+export interface ConfigurationParameters {
+    basePath?: string; // override base path
+    fetchApi?: FetchAPI; // override for fetch implementation
+    middleware?: Middleware[]; // middleware to apply before/after fetch requests
+    queryParamsStringify?: (params: HTTPQuery) => string; // stringify function for query strings
+    username?: string; // parameter for basic security
+    password?: string; // parameter for basic security
+    apiKey?: string | ((name: string) => string); // parameter for apiKey security
+    accessToken?: string | Promise<string> | ((name?: string, scopes?: string[]) => string | Promise<string>); // parameter for oauth2 security
+    headers?: HTTPHeaders; //header params we want to use on every request
+    credentials?: RequestCredentials; //value for the credentials param we want to use on each request
+}
+
+export class Configuration {
+    constructor(private configuration: ConfigurationParameters = {}) {}
+
+    set config(configuration: Configuration) {
+        this.configuration = configuration;
+    }
+
+    get basePath(): string {
+        return this.configuration.basePath != null ? this.configuration.basePath : BASE_PATH;
+    }
+
+    get fetchApi(): FetchAPI | undefined {
+        return this.configuration.fetchApi;
+    }
+
+    get middleware(): Middleware[] {
+        return this.configuration.middleware || [];
+    }
+
+    get queryParamsStringify(): (params: HTTPQuery) => string {
+        return this.configuration.queryParamsStringify || querystring;
+    }
+
+    get username(): string | undefined {
+        return this.configuration.username;
+    }
+
+    get password(): string | undefined {
+        return this.configuration.password;
+    }
+
+    get apiKey(): ((name: string) => string) | undefined {
+        const apiKey = this.configuration.apiKey;
+        if (apiKey) {
+            return typeof apiKey === 'function' ? apiKey : () => apiKey;
+        }
+        return undefined;
+    }
+
+    get accessToken(): ((name?: string, scopes?: string[]) => string | Promise<string>) | undefined {
+        const accessToken = this.configuration.accessToken;
+        if (accessToken) {
+            return typeof accessToken === 'function' ? accessToken : async () => accessToken;
+        }
+        return undefined;
+    }
+
+    get headers(): HTTPHeaders | undefined {
+        return this.configuration.headers;
+    }
+
+    get credentials(): RequestCredentials | undefined {
+        return this.configuration.credentials;
+    }
+}
+
+export const DefaultConfig = new Configuration();
+
+/**
+ * This is the base class for all generated API classes.
+ */
+export class BaseAPI {
+
+    private middleware: Middleware[];
+
+    constructor(protected configuration = DefaultConfig) {
+        this.middleware = configuration.middleware;
+    }
+
+    withMiddleware<T extends BaseAPI>(this: T, ...middlewares: Middleware[]) {
+        const next = this.clone<T>();
+        next.middleware = next.middleware.concat(...middlewares);
+        return next;
+    }
+
+    withPreMiddleware<T extends BaseAPI>(this: T, ...preMiddlewares: Array<Middleware['pre']>) {
+        const middlewares = preMiddlewares.map((pre) => ({ pre }));
+        return this.withMiddleware<T>(...middlewares);
+    }
+
+    withPostMiddleware<T extends BaseAPI>(this: T, ...postMiddlewares: Array<Middleware['post']>) {
+        const middlewares = postMiddlewares.map((post) => ({ post }));
+        return this.withMiddleware<T>(...middlewares);
+    }
+
+    protected async request(context: RequestOpts, initOverrides?: RequestInit | InitOverrideFunction): Promise<Response> {
+        const { url, init } = await this.createFetchParams(context, initOverrides);
+        const response = await this.fetchApi(url, init);
+        if (response && (response.status >= 200 && response.status < 300)) {
+            return response;
+        }
+        throw new ResponseError(response, 'Response returned an error code');
+    }
+
+    private async createFetchParams(context: RequestOpts, initOverrides?: RequestInit | InitOverrideFunction) {
+        let url = this.configuration.basePath + context.path;
+        if (context.query !== undefined && Object.keys(context.query).length !== 0) {
+            // only add the querystring to the URL if there are query parameters.
+            // this is done to avoid urls ending with a "?" character which buggy webservers
+            // do not handle correctly sometimes.
+            url += '?' + this.configuration.queryParamsStringify(context.query);
+        }
+
+        const headers = Object.assign({}, this.configuration.headers, context.headers);
+        Object.keys(headers).forEach(key => headers[key] === undefined ? delete headers[key] : {});
+
+        const initOverrideFn =
+            typeof initOverrides === "function"
+                ? initOverrides
+                : async () => initOverrides;
+
+        const initParams = {
+            method: context.method,
+            headers,
+            body: context.body,
+            credentials: this.configuration.credentials,
+        };
+
+        const overriddenInit: RequestInit = {
+            ...initParams,
+            ...(await initOverrideFn({
+                init: initParams,
+                context,
+            }))
+        };
+
+        const init: RequestInit = {
+            ...overriddenInit,
+            body:
+                isFormData(overriddenInit.body) ||
+                overriddenInit.body instanceof URLSearchParams ||
+                isBlob(overriddenInit.body)
+                    ? overriddenInit.body
+                    : JSON.stringify(overriddenInit.body),
+        };
+
+        return { url, init };
+    }
+
+    private fetchApi = async (url: string, init: RequestInit) => {
+        let fetchParams = { url, init };
+        for (const middleware of this.middleware) {
+            if (middleware.pre) {
+                fetchParams = await middleware.pre({
+                    fetch: this.fetchApi,
+                    ...fetchParams,
+                }) || fetchParams;
+            }
+        }
+        let response: Response | undefined = undefined;
+        try {
+            response = await (this.configuration.fetchApi || fetch)(fetchParams.url, fetchParams.init);
+        } catch (e) {
+            for (const middleware of this.middleware) {
+                if (middleware.onError) {
+                    response = await middleware.onError({
+                        fetch: this.fetchApi,
+                        url: fetchParams.url,
+                        init: fetchParams.init,
+                        error: e,
+                        response: response ? response.clone() : undefined,
+                    }) || response;
+                }
+            }
+            if (response === undefined) {
+              if (e instanceof Error) {
+                throw new FetchError(e, 'The request failed and the interceptors did not return an alternative response');
+              } else {
+                throw e;
+              }
+            }
+        }
+        for (const middleware of this.middleware) {
+            if (middleware.post) {
+                response = await middleware.post({
+                    fetch: this.fetchApi,
+                    url: fetchParams.url,
+                    init: fetchParams.init,
+                    response: response.clone(),
+                }) || response;
+            }
+        }
+        return response;
+    }
+
+    /**
+     * Create a shallow clone of \`this\` by constructing a new instance
+     * and then shallow cloning data members.
+     */
+    private clone<T extends BaseAPI>(this: T): T {
+        const constructor = this.constructor as any;
+        const next = new constructor(this.configuration);
+        next.middleware = this.middleware.slice();
+        return next;
+    }
+};
+
+function isBlob(value: any): value is Blob {
+    return typeof Blob !== 'undefined' && value instanceof Blob;
+}
+
+function isFormData(value: any): value is FormData {
+    return typeof FormData !== "undefined" && value instanceof FormData;
+}
+
+export class ResponseError extends Error {
+    override name: "ResponseError" = "ResponseError";
+    constructor(public response: Response, msg?: string) {
+        super(msg);
+    }
+}
+
+export class FetchError extends Error {
+    override name: "FetchError" = "FetchError";
+    constructor(public cause: Error, msg?: string) {
+        super(msg);
+    }
+}
+
+export class RequiredError extends Error {
+    override name: "RequiredError" = "RequiredError";
+    constructor(public field: string, msg?: string) {
+        super(msg);
+    }
+}
+
+export const COLLECTION_FORMATS = {
+    csv: ",",
+    ssv: " ",
+    tsv: "\\t",
+    pipes: "|",
+};
+
+export type FetchAPI = WindowOrWorkerGlobalScope['fetch'];
+
+export type Json = any;
+export type HTTPMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS' | 'HEAD';
+export type HTTPHeaders = { [key: string]: string };
+export type HTTPQuery = { [key: string]: string | number | null | boolean | Array<string | number | null | boolean> | Set<string | number | null | boolean> | HTTPQuery };
+export type HTTPBody = Json | FormData | URLSearchParams;
+export type HTTPRequestInit = { headers?: HTTPHeaders; method: HTTPMethod; credentials?: RequestCredentials; body?: HTTPBody };
+export type ModelPropertyNaming = 'camelCase' | 'snake_case' | 'PascalCase' | 'original';
+
+export type InitOverrideFunction = (requestContext: { init: HTTPRequestInit, context: RequestOpts }) => Promise<RequestInit>
+
+export interface FetchParams {
+    url: string;
+    init: RequestInit;
+}
+
+export interface RequestOpts {
+    path: string;
+    method: HTTPMethod;
+    headers: HTTPHeaders;
+    query?: HTTPQuery;
+    body?: HTTPBody;
+}
+
+export function exists(json: any, key: string) {
+    const value = json[key];
+    return value !== null && value !== undefined;
+}
+
+export function querystring(params: HTTPQuery, prefix: string = ''): string {
+    return Object.keys(params)
+        .map(key => querystringSingleKey(key, params[key], prefix))
+        .filter(part => part.length > 0)
+        .join('&');
+}
+
+function querystringSingleKey(key: string, value: string | number | null | undefined | boolean | Array<string | number | null | boolean> | Set<string | number | null | boolean> | HTTPQuery, keyPrefix: string = ''): string {
+    const fullKey = keyPrefix + (keyPrefix.length ? \`[\${key}]\` : key);
+    if (value instanceof Array) {
+        const multiValue = value.map(singleValue => encodeURIComponent(String(singleValue)))
+            .join(\`&\${encodeURIComponent(fullKey)}=\`);
+        return \`\${encodeURIComponent(fullKey)}=\${multiValue}\`;
+    }
+    if (value instanceof Set) {
+        const valueAsArray = Array.from(value);
+        return querystringSingleKey(key, valueAsArray, keyPrefix);
+    }
+    if (value instanceof Date) {
+        return \`\${encodeURIComponent(fullKey)}=\${encodeURIComponent(value.toISOString())}\`;
+    }
+    if (value instanceof Object) {
+        return querystring(value as HTTPQuery, fullKey);
+    }
+    return \`\${encodeURIComponent(fullKey)}=\${encodeURIComponent(String(value))}\`;
+}
+
+export function mapValues(data: any, fn: (item: any) => any) {
+  return Object.keys(data).reduce(
+    (acc, key) => ({ ...acc, [key]: fn(data[key]) }),
+    {}
+  );
+}
+
+export function canConsumeForm(consumes: Consume[]): boolean {
+    for (const consume of consumes) {
+        if ('multipart/form-data' === consume.contentType) {
+            return true;
+        }
+    }
+    return false;
+}
+
+export interface Consume {
+    contentType: string;
+}
+
+export interface RequestContext {
+    fetch: FetchAPI;
+    url: string;
+    init: RequestInit;
+}
+
+export interface ResponseContext {
+    fetch: FetchAPI;
+    url: string;
+    init: RequestInit;
+    response: Response;
+}
+
+export interface ErrorContext {
+    fetch: FetchAPI;
+    url: string;
+    init: RequestInit;
+    error: unknown;
+    response?: Response;
+}
+
+export interface Middleware {
+    pre?(context: RequestContext): Promise<FetchParams | void>;
+    post?(context: ResponseContext): Promise<Response | void>;
+    onError?(context: ErrorContext): Promise<Response | void>;
+}
+
+export interface ApiResponse<T> {
+    raw: Response;
+    value(): Promise<T>;
+}
+
+export interface ResponseTransformer<T> {
+    (json: any): T;
+}
+
+export class JSONApiResponse<T> {
+    constructor(public raw: Response, private transformer: ResponseTransformer<T> = (jsonValue: any) => jsonValue) {}
+
+    async value(): Promise<T> {
+        return this.transformer(await this.raw.json());
+    }
+}
+
+export class VoidApiResponse {
+    constructor(public raw: Response) {}
+
+    async value(): Promise<void> {
+        return undefined;
+    }
+}
+
+export class BlobApiResponse {
+    constructor(public raw: Response) {}
+
+    async value(): Promise<Blob> {
+        return await this.raw.blob();
+    };
+}
+
+export class TextApiResponse {
+    constructor(public raw: Response) {}
+
+    async value(): Promise<string> {
+        return await this.raw.text();
+    };
+}
+",
+}
+`;
+
 exports[`Typescript Client Code Generation Script Unit Tests Generates With data-types.yaml 1`] = `
 {
   ".tsapi-manifest": "src/index.ts
@@ -1556,7 +4701,16 @@ src/apis/DefaultApi.ts
 src/apis/index.ts
 src/models/index.ts
 src/models/model-utils.ts
-src/models/DataTypes200Response.ts",
+src/models/DataTypes200Response.ts
+src/models/DataTypes200ResponseMyAllOf.ts
+src/models/DataTypes200ResponseMyAllOfAllOf.ts
+src/models/DataTypes200ResponseMyAllOfAllOf1.ts
+src/models/DataTypes200ResponseMyAnyOf.ts
+src/models/DataTypes200ResponseMyNotNot.ts
+src/models/DataTypes200ResponseMyObject.ts
+src/models/DataTypes200ResponseMyObjectOne.ts
+src/models/DataTypes200ResponseMyObjectOneTwo.ts
+src/models/DataTypes200ResponseMyOneOf.ts",
   "src/apis/DefaultApi.ts": "/* tslint:disable */
 /* eslint-disable */
 /**
@@ -1621,6 +4775,33 @@ import {
     DataTypes200Response,
     DataTypes200ResponseFromJSON,
     DataTypes200ResponseToJSON,
+    DataTypes200ResponseMyAllOf,
+    DataTypes200ResponseMyAllOfFromJSON,
+    DataTypes200ResponseMyAllOfToJSON,
+    DataTypes200ResponseMyAllOfAllOf,
+    DataTypes200ResponseMyAllOfAllOfFromJSON,
+    DataTypes200ResponseMyAllOfAllOfToJSON,
+    DataTypes200ResponseMyAllOfAllOf1,
+    DataTypes200ResponseMyAllOfAllOf1FromJSON,
+    DataTypes200ResponseMyAllOfAllOf1ToJSON,
+    DataTypes200ResponseMyAnyOf,
+    DataTypes200ResponseMyAnyOfFromJSON,
+    DataTypes200ResponseMyAnyOfToJSON,
+    DataTypes200ResponseMyNotNot,
+    DataTypes200ResponseMyNotNotFromJSON,
+    DataTypes200ResponseMyNotNotToJSON,
+    DataTypes200ResponseMyObject,
+    DataTypes200ResponseMyObjectFromJSON,
+    DataTypes200ResponseMyObjectToJSON,
+    DataTypes200ResponseMyObjectOne,
+    DataTypes200ResponseMyObjectOneFromJSON,
+    DataTypes200ResponseMyObjectOneToJSON,
+    DataTypes200ResponseMyObjectOneTwo,
+    DataTypes200ResponseMyObjectOneTwoFromJSON,
+    DataTypes200ResponseMyObjectOneTwoToJSON,
+    DataTypes200ResponseMyOneOf,
+    DataTypes200ResponseMyOneOfFromJSON,
+    DataTypes200ResponseMyOneOfToJSON,
 } from '../../models';
 // Import request parameter interfaces
 import {
@@ -2307,6 +5488,34 @@ export const tryCatchInterceptor = buildTryCatchInterceptor(500, { message: 'Int
  * Do not edit the class manually.
  */
 import { exists, mapValues } from './model-utils';
+import type { DataTypes200ResponseMyAllOf } from './DataTypes200ResponseMyAllOf';
+import {
+    DataTypes200ResponseMyAllOfFromJSON,
+    DataTypes200ResponseMyAllOfFromJSONTyped,
+    DataTypes200ResponseMyAllOfToJSON,
+    instanceOfDataTypes200ResponseMyAllOf,
+} from './DataTypes200ResponseMyAllOf';
+import type { DataTypes200ResponseMyAnyOf } from './DataTypes200ResponseMyAnyOf';
+import {
+    DataTypes200ResponseMyAnyOfFromJSON,
+    DataTypes200ResponseMyAnyOfFromJSONTyped,
+    DataTypes200ResponseMyAnyOfToJSON,
+    instanceOfDataTypes200ResponseMyAnyOf,
+} from './DataTypes200ResponseMyAnyOf';
+import type { DataTypes200ResponseMyObject } from './DataTypes200ResponseMyObject';
+import {
+    DataTypes200ResponseMyObjectFromJSON,
+    DataTypes200ResponseMyObjectFromJSONTyped,
+    DataTypes200ResponseMyObjectToJSON,
+    instanceOfDataTypes200ResponseMyObject,
+} from './DataTypes200ResponseMyObject';
+import type { DataTypes200ResponseMyOneOf } from './DataTypes200ResponseMyOneOf';
+import {
+    DataTypes200ResponseMyOneOfFromJSON,
+    DataTypes200ResponseMyOneOfFromJSONTyped,
+    DataTypes200ResponseMyOneOfToJSON,
+    instanceOfDataTypes200ResponseMyOneOf,
+} from './DataTypes200ResponseMyOneOf';
 
 /**
  * 
@@ -2412,22 +5621,22 @@ export interface DataTypes200Response {
     myRegexPattern?: string;
     /**
      * 
-     * @type {any}
+     * @type {DataTypes200ResponseMyOneOf}
      * @memberof DataTypes200Response
      */
-    myOneOf?: any | null;
+    myOneOf?: DataTypes200ResponseMyOneOf;
     /**
      * 
-     * @type {any}
+     * @type {DataTypes200ResponseMyAnyOf}
      * @memberof DataTypes200Response
      */
-    myAnyOf?: any | null;
+    myAnyOf?: DataTypes200ResponseMyAnyOf;
     /**
      * 
-     * @type {any}
+     * @type {DataTypes200ResponseMyAllOf}
      * @memberof DataTypes200Response
      */
-    myAllOf?: any | null;
+    myAllOf?: DataTypes200ResponseMyAllOf;
     /**
      * 
      * @type {any}
@@ -2446,6 +5655,12 @@ export interface DataTypes200Response {
      * @memberof DataTypes200Response
      */
     myAdditionalProperties?: { [key: string]: Array<number>; };
+    /**
+     * 
+     * @type {DataTypes200ResponseMyObject}
+     * @memberof DataTypes200Response
+     */
+    myObject?: DataTypes200ResponseMyObject;
 }
 
 
@@ -2454,7 +5669,6 @@ export interface DataTypes200Response {
  */
 export function instanceOfDataTypes200Response(value: object): boolean {
     let isInstance = true;
-
     return isInstance;
 }
 
@@ -2484,12 +5698,13 @@ export function DataTypes200ResponseFromJSONTyped(json: any, ignoreDiscriminator
         'myByte': !exists(json, 'myByte') ? undefined : json['myByte'],
         'myDateTime': !exists(json, 'myDateTime') ? undefined : (new Date(json['myDateTime'])),
         'myRegexPattern': !exists(json, 'myRegexPattern') ? undefined : json['myRegexPattern'],
-        'myOneOf': !exists(json, 'myOneOf') ? undefined : json['myOneOf'],
-        'myAnyOf': !exists(json, 'myAnyOf') ? undefined : json['myAnyOf'],
-        'myAllOf': !exists(json, 'myAllOf') ? undefined : json['myAllOf'],
+        'myOneOf': !exists(json, 'myOneOf') ? undefined : DataTypes200ResponseMyOneOfFromJSON(json['myOneOf']),
+        'myAnyOf': !exists(json, 'myAnyOf') ? undefined : DataTypes200ResponseMyAnyOfFromJSON(json['myAnyOf']),
+        'myAllOf': !exists(json, 'myAllOf') ? undefined : DataTypes200ResponseMyAllOfFromJSON(json['myAllOf']),
         'myNot': !exists(json, 'myNot') ? undefined : json['myNot'],
         'myNotString': !exists(json, 'myNotString') ? undefined : json['myNotString'],
         'myAdditionalProperties': !exists(json, 'myAdditionalProperties') ? undefined : json['myAdditionalProperties'],
+        'myObject': !exists(json, 'myObject') ? undefined : DataTypes200ResponseMyObjectFromJSON(json['myObject']),
     };
 }
 
@@ -2518,19 +5733,646 @@ export function DataTypes200ResponseToJSON(value?: DataTypes200Response | null):
         'myByte': value.myByte,
         'myDateTime': value.myDateTime === undefined ? undefined : (value.myDateTime.toISOString()),
         'myRegexPattern': value.myRegexPattern,
-        'myOneOf': value.myOneOf,
-        'myAnyOf': value.myAnyOf,
-        'myAllOf': value.myAllOf,
+        'myOneOf': DataTypes200ResponseMyOneOfToJSON(value.myOneOf),
+        'myAnyOf': DataTypes200ResponseMyAnyOfToJSON(value.myAnyOf),
+        'myAllOf': DataTypes200ResponseMyAllOfToJSON(value.myAllOf),
         'myNot': value.myNot,
         'myNotString': value.myNotString,
         'myAdditionalProperties': value.myAdditionalProperties,
+        'myObject': DataTypes200ResponseMyObjectToJSON(value.myObject),
     };
+}
+
+",
+  "src/models/DataTypes200ResponseMyAllOf.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Data Types
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+import type { DataTypes200ResponseMyAllOfAllOf } from './DataTypes200ResponseMyAllOfAllOf';
+import {
+    DataTypes200ResponseMyAllOfAllOfFromJSON,
+    DataTypes200ResponseMyAllOfAllOfFromJSONTyped,
+    DataTypes200ResponseMyAllOfAllOfToJSON,
+    instanceOfDataTypes200ResponseMyAllOfAllOf,
+} from './DataTypes200ResponseMyAllOfAllOf';
+import type { DataTypes200ResponseMyAllOfAllOf1 } from './DataTypes200ResponseMyAllOfAllOf1';
+import {
+    DataTypes200ResponseMyAllOfAllOf1FromJSON,
+    DataTypes200ResponseMyAllOfAllOf1FromJSONTyped,
+    DataTypes200ResponseMyAllOfAllOf1ToJSON,
+    instanceOfDataTypes200ResponseMyAllOfAllOf1,
+} from './DataTypes200ResponseMyAllOfAllOf1';
+
+/**
+ * @type DataTypes200ResponseMyAllOf
+ * 
+ * @export
+ */
+export type DataTypes200ResponseMyAllOf = DataTypes200ResponseMyAllOfAllOf & DataTypes200ResponseMyAllOfAllOf1;
+
+
+/**
+ * Check if a given object implements the DataTypes200ResponseMyAllOf interface.
+ */
+export function instanceOfDataTypes200ResponseMyAllOf(value: object): boolean {
+    return instanceOfDataTypes200ResponseMyAllOfAllOf(value) && instanceOfDataTypes200ResponseMyAllOfAllOf1(value)
+}
+
+export function DataTypes200ResponseMyAllOfFromJSON(json: any): DataTypes200ResponseMyAllOf {
+    return DataTypes200ResponseMyAllOfFromJSONTyped(json, false);
+}
+
+export function DataTypes200ResponseMyAllOfFromJSONTyped(json: any, ignoreDiscriminator: boolean): DataTypes200ResponseMyAllOf {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+        ...DataTypes200ResponseMyAllOfAllOfFromJSONTyped(json, true),
+        ...DataTypes200ResponseMyAllOfAllOf1FromJSONTyped(json, true),
+    };
+}
+
+export function DataTypes200ResponseMyAllOfToJSON(value?: DataTypes200ResponseMyAllOf | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+        ...DataTypes200ResponseMyAllOfAllOfToJSON(value as any),
+        ...DataTypes200ResponseMyAllOfAllOf1ToJSON(value as any),
+    };
+}
+
+",
+  "src/models/DataTypes200ResponseMyAllOfAllOf.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Data Types
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * 
+ * @export
+ * @interface DataTypes200ResponseMyAllOfAllOf
+ */
+export interface DataTypes200ResponseMyAllOfAllOf {
+    /**
+     * 
+     * @type {string}
+     * @memberof DataTypes200ResponseMyAllOfAllOf
+     */
+    first?: string;
+}
+
+
+/**
+ * Check if a given object implements the DataTypes200ResponseMyAllOfAllOf interface.
+ */
+export function instanceOfDataTypes200ResponseMyAllOfAllOf(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function DataTypes200ResponseMyAllOfAllOfFromJSON(json: any): DataTypes200ResponseMyAllOfAllOf {
+    return DataTypes200ResponseMyAllOfAllOfFromJSONTyped(json, false);
+}
+
+export function DataTypes200ResponseMyAllOfAllOfFromJSONTyped(json: any, ignoreDiscriminator: boolean): DataTypes200ResponseMyAllOfAllOf {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'first': !exists(json, 'first') ? undefined : json['first'],
+    };
+}
+
+export function DataTypes200ResponseMyAllOfAllOfToJSON(value?: DataTypes200ResponseMyAllOfAllOf | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'first': value.first,
+    };
+}
+
+",
+  "src/models/DataTypes200ResponseMyAllOfAllOf1.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Data Types
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * 
+ * @export
+ * @interface DataTypes200ResponseMyAllOfAllOf1
+ */
+export interface DataTypes200ResponseMyAllOfAllOf1 {
+    /**
+     * 
+     * @type {string}
+     * @memberof DataTypes200ResponseMyAllOfAllOf1
+     */
+    second?: string;
+}
+
+
+/**
+ * Check if a given object implements the DataTypes200ResponseMyAllOfAllOf1 interface.
+ */
+export function instanceOfDataTypes200ResponseMyAllOfAllOf1(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function DataTypes200ResponseMyAllOfAllOf1FromJSON(json: any): DataTypes200ResponseMyAllOfAllOf1 {
+    return DataTypes200ResponseMyAllOfAllOf1FromJSONTyped(json, false);
+}
+
+export function DataTypes200ResponseMyAllOfAllOf1FromJSONTyped(json: any, ignoreDiscriminator: boolean): DataTypes200ResponseMyAllOfAllOf1 {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'second': !exists(json, 'second') ? undefined : json['second'],
+    };
+}
+
+export function DataTypes200ResponseMyAllOfAllOf1ToJSON(value?: DataTypes200ResponseMyAllOfAllOf1 | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'second': value.second,
+    };
+}
+
+",
+  "src/models/DataTypes200ResponseMyAnyOf.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Data Types
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * @type DataTypes200ResponseMyAnyOf
+ * 
+ * @export
+ */
+export type DataTypes200ResponseMyAnyOf = string | number;
+
+
+/**
+ * Check if a given object implements the DataTypes200ResponseMyAnyOf interface.
+ */
+export function instanceOfDataTypes200ResponseMyAnyOf(value: object): boolean {
+    return typeof value === "string" || typeof value === "number"
+}
+
+export function DataTypes200ResponseMyAnyOfFromJSON(json: any): DataTypes200ResponseMyAnyOf {
+    return DataTypes200ResponseMyAnyOfFromJSONTyped(json, false);
+}
+
+export function DataTypes200ResponseMyAnyOfFromJSONTyped(json: any, ignoreDiscriminator: boolean): DataTypes200ResponseMyAnyOf {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    if (typeof json === "string") {
+        return json;
+    }
+    if (typeof json === "number") {
+        return json;
+    }
+    return json;
+}
+
+export function DataTypes200ResponseMyAnyOfToJSON(value?: DataTypes200ResponseMyAnyOf | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    if (typeof value === "string") {
+        return value;
+    }
+    if (typeof value === "number") {
+        return value;
+    }
+    return value;
+}
+
+",
+  "src/models/DataTypes200ResponseMyNotNot.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Data Types
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * 
+ * @export
+ * @interface DataTypes200ResponseMyNotNot
+ */
+export interface DataTypes200ResponseMyNotNot {
+    /**
+     * 
+     * @type {string}
+     * @memberof DataTypes200ResponseMyNotNot
+     */
+    foo?: string;
+}
+
+
+/**
+ * Check if a given object implements the DataTypes200ResponseMyNotNot interface.
+ */
+export function instanceOfDataTypes200ResponseMyNotNot(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function DataTypes200ResponseMyNotNotFromJSON(json: any): DataTypes200ResponseMyNotNot {
+    return DataTypes200ResponseMyNotNotFromJSONTyped(json, false);
+}
+
+export function DataTypes200ResponseMyNotNotFromJSONTyped(json: any, ignoreDiscriminator: boolean): DataTypes200ResponseMyNotNot {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'foo': !exists(json, 'foo') ? undefined : json['foo'],
+    };
+}
+
+export function DataTypes200ResponseMyNotNotToJSON(value?: DataTypes200ResponseMyNotNot | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'foo': value.foo,
+    };
+}
+
+",
+  "src/models/DataTypes200ResponseMyObject.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Data Types
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+import type { DataTypes200ResponseMyObjectOne } from './DataTypes200ResponseMyObjectOne';
+import {
+    DataTypes200ResponseMyObjectOneFromJSON,
+    DataTypes200ResponseMyObjectOneFromJSONTyped,
+    DataTypes200ResponseMyObjectOneToJSON,
+    instanceOfDataTypes200ResponseMyObjectOne,
+} from './DataTypes200ResponseMyObjectOne';
+
+/**
+ * 
+ * @export
+ * @interface DataTypes200ResponseMyObject
+ */
+export interface DataTypes200ResponseMyObject {
+    /**
+     * 
+     * @type {DataTypes200ResponseMyObjectOne}
+     * @memberof DataTypes200ResponseMyObject
+     */
+    one?: DataTypes200ResponseMyObjectOne;
+    /**
+     * 
+     * @type {string}
+     * @memberof DataTypes200ResponseMyObject
+     */
+    oneString?: string;
+}
+
+
+/**
+ * Check if a given object implements the DataTypes200ResponseMyObject interface.
+ */
+export function instanceOfDataTypes200ResponseMyObject(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function DataTypes200ResponseMyObjectFromJSON(json: any): DataTypes200ResponseMyObject {
+    return DataTypes200ResponseMyObjectFromJSONTyped(json, false);
+}
+
+export function DataTypes200ResponseMyObjectFromJSONTyped(json: any, ignoreDiscriminator: boolean): DataTypes200ResponseMyObject {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'one': !exists(json, 'one') ? undefined : DataTypes200ResponseMyObjectOneFromJSON(json['one']),
+        'oneString': !exists(json, 'oneString') ? undefined : json['oneString'],
+    };
+}
+
+export function DataTypes200ResponseMyObjectToJSON(value?: DataTypes200ResponseMyObject | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'one': DataTypes200ResponseMyObjectOneToJSON(value.one),
+        'oneString': value.oneString,
+    };
+}
+
+",
+  "src/models/DataTypes200ResponseMyObjectOne.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Data Types
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+import type { DataTypes200ResponseMyObjectOneTwo } from './DataTypes200ResponseMyObjectOneTwo';
+import {
+    DataTypes200ResponseMyObjectOneTwoFromJSON,
+    DataTypes200ResponseMyObjectOneTwoFromJSONTyped,
+    DataTypes200ResponseMyObjectOneTwoToJSON,
+    instanceOfDataTypes200ResponseMyObjectOneTwo,
+} from './DataTypes200ResponseMyObjectOneTwo';
+
+/**
+ * 
+ * @export
+ * @interface DataTypes200ResponseMyObjectOne
+ */
+export interface DataTypes200ResponseMyObjectOne {
+    /**
+     * 
+     * @type {string}
+     * @memberof DataTypes200ResponseMyObjectOne
+     */
+    twoString?: string;
+    /**
+     * 
+     * @type {DataTypes200ResponseMyObjectOneTwo}
+     * @memberof DataTypes200ResponseMyObjectOne
+     */
+    two?: DataTypes200ResponseMyObjectOneTwo;
+}
+
+
+/**
+ * Check if a given object implements the DataTypes200ResponseMyObjectOne interface.
+ */
+export function instanceOfDataTypes200ResponseMyObjectOne(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function DataTypes200ResponseMyObjectOneFromJSON(json: any): DataTypes200ResponseMyObjectOne {
+    return DataTypes200ResponseMyObjectOneFromJSONTyped(json, false);
+}
+
+export function DataTypes200ResponseMyObjectOneFromJSONTyped(json: any, ignoreDiscriminator: boolean): DataTypes200ResponseMyObjectOne {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'twoString': !exists(json, 'twoString') ? undefined : json['twoString'],
+        'two': !exists(json, 'two') ? undefined : DataTypes200ResponseMyObjectOneTwoFromJSON(json['two']),
+    };
+}
+
+export function DataTypes200ResponseMyObjectOneToJSON(value?: DataTypes200ResponseMyObjectOne | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'twoString': value.twoString,
+        'two': DataTypes200ResponseMyObjectOneTwoToJSON(value.two),
+    };
+}
+
+",
+  "src/models/DataTypes200ResponseMyObjectOneTwo.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Data Types
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * 
+ * @export
+ * @interface DataTypes200ResponseMyObjectOneTwo
+ */
+export interface DataTypes200ResponseMyObjectOneTwo {
+    /**
+     * 
+     * @type {string}
+     * @memberof DataTypes200ResponseMyObjectOneTwo
+     */
+    threeString?: string;
+}
+
+
+/**
+ * Check if a given object implements the DataTypes200ResponseMyObjectOneTwo interface.
+ */
+export function instanceOfDataTypes200ResponseMyObjectOneTwo(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function DataTypes200ResponseMyObjectOneTwoFromJSON(json: any): DataTypes200ResponseMyObjectOneTwo {
+    return DataTypes200ResponseMyObjectOneTwoFromJSONTyped(json, false);
+}
+
+export function DataTypes200ResponseMyObjectOneTwoFromJSONTyped(json: any, ignoreDiscriminator: boolean): DataTypes200ResponseMyObjectOneTwo {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'threeString': !exists(json, 'threeString') ? undefined : json['threeString'],
+    };
+}
+
+export function DataTypes200ResponseMyObjectOneTwoToJSON(value?: DataTypes200ResponseMyObjectOneTwo | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'threeString': value.threeString,
+    };
+}
+
+",
+  "src/models/DataTypes200ResponseMyOneOf.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Data Types
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * @type DataTypes200ResponseMyOneOf
+ * 
+ * @export
+ */
+export type DataTypes200ResponseMyOneOf = string | number;
+
+
+/**
+ * Check if a given object implements the DataTypes200ResponseMyOneOf interface.
+ */
+export function instanceOfDataTypes200ResponseMyOneOf(value: object): boolean {
+    return typeof value === "string" || typeof value === "number"
+}
+
+export function DataTypes200ResponseMyOneOfFromJSON(json: any): DataTypes200ResponseMyOneOf {
+    return DataTypes200ResponseMyOneOfFromJSONTyped(json, false);
+}
+
+export function DataTypes200ResponseMyOneOfFromJSONTyped(json: any, ignoreDiscriminator: boolean): DataTypes200ResponseMyOneOf {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    if (typeof json === "string") {
+        return json;
+    }
+    if (typeof json === "number") {
+        return json;
+    }
+    return json;
+}
+
+export function DataTypes200ResponseMyOneOfToJSON(value?: DataTypes200ResponseMyOneOf | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    if (typeof value === "string") {
+        return value;
+    }
+    if (typeof value === "number") {
+        return value;
+    }
+    return value;
 }
 
 ",
   "src/models/index.ts": "/* tslint:disable */
 /* eslint-disable */
 export * from './DataTypes200Response';
+export * from './DataTypes200ResponseMyAllOf';
+export * from './DataTypes200ResponseMyAllOfAllOf';
+export * from './DataTypes200ResponseMyAllOfAllOf1';
+export * from './DataTypes200ResponseMyAnyOf';
+export * from './DataTypes200ResponseMyNotNot';
+export * from './DataTypes200ResponseMyObject';
+export * from './DataTypes200ResponseMyObjectOne';
+export * from './DataTypes200ResponseMyObjectOneTwo';
+export * from './DataTypes200ResponseMyOneOf';
 ",
   "src/models/model-utils.ts": "/* tslint:disable */
 /* eslint-disable */
@@ -3831,7 +7673,6 @@ export interface HelloId {
  */
 export function instanceOfHelloId(value: object): boolean {
     let isInstance = true;
-
     return isInstance;
 }
 
@@ -3866,6 +7707,7 @@ import {
     HelloIdFromJSON,
     HelloIdFromJSONTyped,
     HelloIdToJSON,
+    instanceOfHelloId,
 } from './HelloId';
 
 /**
@@ -3895,7 +7737,6 @@ export interface SayHelloResponseContent {
 export function instanceOfSayHelloResponseContent(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "message" in value;
-
     return isInstance;
 }
 
@@ -3964,7 +7805,6 @@ export interface ServiceUnavailableErrorResponseContent {
 export function instanceOfServiceUnavailableErrorResponseContent(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "message" in value;
-
     return isInstance;
 }
 
@@ -5486,6 +9326,8 @@ export type MyEnum =
   'one' | 
   'two' | 
   'three'
+
+
 
 
 export function MyEnumFromJSON(json: any): MyEnum {
@@ -8488,7 +12330,6 @@ export interface HelloId {
  */
 export function instanceOfHelloId(value: object): boolean {
     let isInstance = true;
-
     return isInstance;
 }
 
@@ -8523,12 +12364,14 @@ import {
     HelloIdFromJSON,
     HelloIdFromJSONTyped,
     HelloIdToJSON,
+    instanceOfHelloId,
 } from './HelloId';
 import type { HelloResponse } from './HelloResponse';
 import {
     HelloResponseFromJSON,
     HelloResponseFromJSONTyped,
     HelloResponseToJSON,
+    instanceOfHelloResponse,
 } from './HelloResponse';
 
 /**
@@ -8558,7 +12401,6 @@ export interface HelloResponse {
 export function instanceOfHelloResponse(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "id" in value;
-
     return isInstance;
 }
 
@@ -10877,7 +14719,6 @@ export interface ApiError {
 export function instanceOfApiError(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "errorMessage" in value;
-
     return isInstance;
 }
 
@@ -10927,6 +14768,7 @@ import {
     MapResponseMapPropertyValueFromJSON,
     MapResponseMapPropertyValueFromJSONTyped,
     MapResponseMapPropertyValueToJSON,
+    instanceOfMapResponseMapPropertyValue,
 } from './MapResponseMapPropertyValue';
 
 /**
@@ -10950,7 +14792,6 @@ export interface MapResponse {
 export function instanceOfMapResponse(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "mapProperty" in value;
-
     return isInstance;
 }
 
@@ -11023,7 +14864,6 @@ export interface MapResponseMapPropertyValue {
 export function instanceOfMapResponseMapPropertyValue(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "a" in value;
-
     return isInstance;
 }
 
@@ -11091,7 +14931,6 @@ export interface TestRequest {
  */
 export function instanceOfTestRequest(value: object): boolean {
     let isInstance = true;
-
     return isInstance;
 }
 
@@ -11141,6 +14980,7 @@ import {
     TestResponseMessagesInnerFromJSON,
     TestResponseMessagesInnerFromJSONTyped,
     TestResponseMessagesInnerToJSON,
+    instanceOfTestResponseMessagesInner,
 } from './TestResponseMessagesInner';
 
 /**
@@ -11164,7 +15004,6 @@ export interface TestResponse {
 export function instanceOfTestResponse(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "messages" in value;
-
     return isInstance;
 }
 
@@ -11237,7 +15076,6 @@ export interface TestResponseMessagesInner {
 export function instanceOfTestResponseMessagesInner(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "id" in value;
-
     return isInstance;
 }
 
