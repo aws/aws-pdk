@@ -12,8 +12,9 @@ import {
 import uniqBy = require("lodash.uniqby"); // eslint-disable-line @typescript-eslint/no-require-imports
 import * as Dot from "ts-graphviz";
 import * as Diagram from "./entities";
-import { ChildLink, ImageNode, NodePosition } from "./entities";
+import { ChildLink, ImageNode } from "./entities";
 import { GraphTheme, GraphThemeConfigProp } from "./theme";
+import { INodePosition } from "../../config";
 import { IS_DEBUG } from "../debug";
 
 /**
@@ -27,7 +28,7 @@ export interface DiagramOptions {
   readonly title: string;
   readonly preset?: FilterPreset;
   readonly theme?: GraphThemeConfigProp;
-  readonly nodePositions?: { [cdkConstructId: string]: NodePosition };
+  readonly nodePositions?: { [cdkConstructId: string]: INodePosition };
 }
 
 /**

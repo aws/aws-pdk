@@ -2,7 +2,6 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { FilterPreset, IGraphFilterPlan } from "@aws/cdk-graph";
 import { GraphThemeConfigProp } from "./internal/graphviz";
-import { NodePosition } from "./internal/graphviz/entities";
 
 /**
  * Supported diagram formats that can be generated.
@@ -37,6 +36,14 @@ export enum DiagramFormat {
 }
 
 /**
+ * Positional coordinates for a node in inches
+ */
+export interface INodePosition {
+  readonly x: number;
+  readonly y: number;
+}
+
+/**
  * Base config to specific a unique diagram to be generated.
  * @struct
  */
@@ -54,7 +61,7 @@ export interface IDiagramConfigBase {
   readonly theme?: GraphThemeConfigProp;
 
   /** Config for predetermined node positions given their CDK construct id. */
-  readonly nodePositions?: { [cdkConstructId: string]: NodePosition };
+  readonly nodePositions?: { [cdkConstructId: string]: INodePosition };
 }
 
 /** Diagram configuration definition
