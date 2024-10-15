@@ -112,6 +112,17 @@ const resolveIfRef = <T>(spec: OpenAPIV3.Document, possibleRef: T | OpenAPIV3.Re
 };
 
 /**
+ * Copy vendor extensions from the first parameter to the second
+ */
+const copyVendorExtensions = (object: object, vendorExtensions: { [key: string]: any }) => {
+  Object.entries(object ?? {}).forEach(([key, value]) => {
+    if (key.startsWith('x-')) {
+      vendorExtensions[key] = value;
+    }
+  });
+};
+
+/**
  * Clean up any generated code that already exists
  */
 const cleanGeneratedCode = (outputPath: string) => {
@@ -377,6 +388,15 @@ const mutateWithOpenapiSchemaProperties = (spec: OpenAPIV3.Document, model: pars
   (model as any).openapiType = schema.type;
   (model as any).isNotSchema = !!schema.not;
 
+  // Copy any schema vendor extensions
+  (model as any).vendorExtensions = {};
+  copyVendorExtensions(schema, (model as any).vendorExtensions);
+
+  // Use our added vendor extension
+  (model as any).isHoisted = !!(model as any).vendorExtensions?.['x-tsapi-hoisted'];
+
+  mutateModelWithAdditionalTypes(model);
+
   visited.add(model);
 
   // Also apply to array items recursively
@@ -397,6 +417,15 @@ const mutateWithOpenapiSchemaProperties = (spec: OpenAPIV3.Document, model: pars
     const subSchema = resolveIfRef(spec, schema.properties![property.name]);
     mutateWithOpenapiSchemaProperties(spec, property, subSchema, visited);
   });
+
+  if (COMPOSED_SCHEMA_TYPES.has(model.export)) {
+    model.properties.forEach((property, i) => {
+      const subSchema = resolveIfRef(spec, schema[_camelCase(model.export)]?.[i]);
+      if (subSchema) {
+        mutateWithOpenapiSchemaProperties(spec, property, subSchema, visited);
+      }
+    });
+  }
 };
 
 interface SubSchema {
@@ -451,7 +480,10 @@ const hoistInlineObjectSubSchemas = (nameParts: string[], schema: OpenAPIV3.Sche
     const ref = {
       $ref,
       name,
-      schema: structuredClone(s.schema),
+      schema: structuredClone({
+        ...s.schema,
+        "x-tsapi-hoisted": true,
+      }),
     };
 
     // Replace each subschema with a ref in the spec
@@ -469,7 +501,7 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
   // In order for the new generator not to be breaking, we apply the same logic here, however this can be removed
   // in future since we have control to avoid the duplicate handlers while allowing an operation to be part of
   // multiple "services".
-  const spec = JSON.parse(JSON.stringify(inSpec, (key, value) => {
+  let spec = JSON.parse(JSON.stringify(inSpec, (key, value) => {
     // Keep only the first tag where we find a tag
     if (key === "tags" && value && value.length > 0 && typeof value[0] === "string") {
       return [value[0]];
@@ -516,6 +548,27 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
     }
   });
 
+  // "Inline" any refs to non objects/enums
+  const inlinedRefs: Set<string> = new Set();
+  spec = JSON.parse(JSON.stringify(spec, (k, v) => {
+    if (v && typeof v === "object" && v.$ref) {
+      const resolved = resolveRef(spec, v.$ref);
+      if (resolved && resolved.type && resolved.type !== "object" && !(resolved.type === "string" && resolved.enum)) {
+        inlinedRefs.add(v.$ref);
+        return resolved;
+      }
+    }
+    return v;
+  }));
+
+  // Delete the non object schemas that were inlined
+  [...inlinedRefs].forEach(ref => {
+    const parts = splitRef(ref);
+    if (parts.length === 3 && parts[0] === "components" && parts[1] === "schemas") {
+      delete spec.components!.schemas![parts[2]];
+    }
+  });
+
   // Start with the data from https://github.com/webpro/parse-openapi which extracts most of what we need
   const data = { ...parseOpenapi.parse(spec), metadata };
 
@@ -534,12 +587,8 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
       const specOp = (spec as any)?.paths?.[op.path]?.[op.method.toLowerCase()] as OpenAPIV3.OperationObject | undefined;
 
       // Add vendor extensions
-      Object.entries(specOp ?? {}).forEach(([key, value]) => {
-        if (key.startsWith('x-')) {
-          (op as any).vendorExtensions = (op as any).vendorExtensions ?? {};
-          (op as any).vendorExtensions[key] = value;
-        }
-      });
+      (op as any).vendorExtensions = (op as any).vendorExtensions ?? {};
+      copyVendorExtensions(specOp ?? {}, (op as any).vendorExtensions);
 
       if (specOp) {
         // parseOpenapi has a method to retrieve the operation responses, but later filters to only
@@ -670,7 +719,9 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
     const matchingSpecModel = spec?.components?.schemas?.[model.name]
 
     if (matchingSpecModel) {
-      const specModel = isRef(matchingSpecModel) ? resolveRef(spec, matchingSpecModel.$ref) as OpenAPIV3.SchemaObject : matchingSpecModel;
+      const specModel = resolveIfRef(spec, matchingSpecModel);
+
+      mutateWithOpenapiSchemaProperties(spec, model, specModel);
 
       // Add unique imports
       (model as any).uniqueImports = _orderBy(_uniq([
@@ -713,11 +764,7 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
 
   // Add top level vendor extensions
   const vendorExtensions: { [key: string]: any } = {};
-  Object.entries(spec ?? {}).forEach(([key, value]) => {
-    if (key.startsWith('x-')) {
-      vendorExtensions[key] = value;
-    }
-  });
+  copyVendorExtensions(spec ?? {}, vendorExtensions);
 
   return {
     ...data,
