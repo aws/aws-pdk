@@ -3,10 +3,6 @@ SPDX-License-Identifier: Apache-2.0 */
 import { Project, ProjectOptions, Task } from "projen";
 import { GeneratedAsyncApiMarkdownDocumentationOptions } from "../../types";
 import { TypeSafeApiCommandEnvironment } from "../components/type-safe-api-command-environment";
-import {
-  buildTypeSafeApiExecCommand,
-  TypeSafeApiScript,
-} from "../components/utils";
 
 export interface GeneratedAsyncApiMarkdownDocumentationProjectOptions
   extends ProjectOptions,
@@ -26,10 +22,7 @@ export class GeneratedAsyncApiMarkdownDocumentationProject extends Project {
 
     this.generateTask = this.addTask("generate");
     this.generateTask.exec(
-      buildTypeSafeApiExecCommand(
-        TypeSafeApiScript.GENERATE_ASYNCAPI_MARKDOWN_DOCS,
-        `--spec-path ${options.specPath} --output-path .`
-      )
+      `npx --yes @asyncapi/cli@1.7.3 generate fromTemplate "${options.specPath}" @asyncapi/markdown-template@1.5.0 --param outFilename=index.md --force-write`
     );
     this.compileTask.spawn(this.generateTask);
 

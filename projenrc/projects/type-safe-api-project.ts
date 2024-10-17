@@ -68,8 +68,6 @@ export class TypeSafeApiProject extends PDKProject {
       publishConfig: {
         executableFiles: [
           "scripts/type-safe-api/common/common.sh",
-          "scripts/type-safe-api/custom/docs/asyncapi-html",
-          "scripts/type-safe-api/custom/docs/asyncapi-markdown",
           "scripts/type-safe-api/generators/generate",
           "scripts/type-safe-api/run.js",
           "scripts/type-safe-api/custom/clean-openapi-generated-code/clean-openapi-generated-code",
@@ -77,24 +75,17 @@ export class TypeSafeApiProject extends PDKProject {
           "scripts/type-safe-api/custom/gradle-wrapper/gradlew",
           "scripts/type-safe-api/custom/gradle-wrapper/gradlew.bat",
           "scripts/type-safe-api/custom/smithy-async-transformer/copy-transformer",
-          "scripts/type-safe-api/custom/generate-asyncapi-spec/generate-asyncapi-spec",
         ],
       },
       bin: {
         "type-safe-api": "scripts/type-safe-api/run.js",
         "type-safe-api.generate": "scripts/type-safe-api/generators/generate",
-        "type-safe-api.generate-asyncapi-html-docs":
-          "scripts/type-safe-api/custom/docs/asyncapi-html",
-        "type-safe-api.generate-asyncapi-markdown-docs":
-          "scripts/type-safe-api/custom/docs/asyncapi-markdown",
         "type-safe-api.clean-openapi-generated-code":
           "scripts/type-safe-api/custom/clean-openapi-generated-code/clean-openapi-generated-code",
         "type-safe-api.copy-gradle-wrapper":
           "scripts/type-safe-api/custom/gradle-wrapper/copy-gradle-wrapper",
         "type-safe-api.copy-async-smithy-transformer":
           "scripts/type-safe-api/custom/smithy-async-transformer/copy-transformer",
-        "type-safe-api.generate-asyncapi-spec":
-          "scripts/type-safe-api/custom/generate-asyncapi-spec/generate-asyncapi-spec",
       },
     });
 
