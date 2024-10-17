@@ -16,7 +16,7 @@ describe("Generate AsyncAPI Spec Unit Tests", () => {
             path.relative(path.resolve(__dirname), tmpDir),
             ".asyncapi.json"
           );
-          const command = `../../../../scripts/type-safe-api/custom/generate-asyncapi-spec/generate-asyncapi-spec --spec-path ${specPath} --output-path ${outputPath}`;
+          const command = `../../../../scripts/type-safe-api/run.js generate-asyncapi-spec --specPath ${specPath} --outputPath ${outputPath}`;
           exec(command, {
             cwd: path.resolve(__dirname),
           });

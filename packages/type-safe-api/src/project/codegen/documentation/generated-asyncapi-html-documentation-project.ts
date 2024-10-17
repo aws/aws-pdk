@@ -3,10 +3,6 @@ SPDX-License-Identifier: Apache-2.0 */
 import { Project, ProjectOptions, Task } from "projen";
 import { GeneratedAsyncApiHtmlDocumentationOptions } from "../../types";
 import { TypeSafeApiCommandEnvironment } from "../components/type-safe-api-command-environment";
-import {
-  buildTypeSafeApiExecCommand,
-  TypeSafeApiScript,
-} from "../components/utils";
 
 export interface GeneratedAsyncApiHtmlDocumentationProjectOptions
   extends ProjectOptions,
@@ -26,11 +22,9 @@ export class GeneratedAsyncApiHtmlDocumentationProject extends Project {
 
     this.generateTask = this.addTask("generate");
     this.generateTask.exec(
-      buildTypeSafeApiExecCommand(
-        TypeSafeApiScript.GENERATE_ASYNCAPI_HTML_DOCS,
-        `--spec-path ${options.specPath} --output-path .`
-      )
+      `npx --yes @asyncapi/cli@1.7.3 generate fromTemplate "${options.specPath}" @asyncapi/html-template@2.3.2 --param singleFile=true --param outFilename=index.html --force-write`
     );
+
     this.compileTask.spawn(this.generateTask);
 
     if (!options.commitGeneratedCode) {

@@ -125,11 +125,11 @@ const generateAsyncApiSpec = (openApiSpec: any): any => {
   };
 };
 
-void (async () => {
+export default async (argv: string[]) => {
   const args = parse<Arguments>({
     specPath: { type: String, alias: "s" },
     outputPath: { type: String, alias: "o" },
-  });
+  }, { argv });
 
   const openApiSpec = (await SwaggerParser.bundle(args.specPath)) as any;
 
@@ -138,4 +138,4 @@ void (async () => {
   writeFile(args.outputPath, JSON.stringify(asyncApiSpec, null, 2), {
     readonly: true,
   });
-})();
+};

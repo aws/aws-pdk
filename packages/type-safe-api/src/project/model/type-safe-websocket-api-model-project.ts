@@ -59,7 +59,7 @@ export class TypeSafeWebSocketApiModelProject extends TypeSafeApiModelProjectBas
     this.generateTask.exec(
       buildTypeSafeApiExecCommand(
         TypeSafeApiScript.GENERATE_ASYNCAPI_SPEC,
-        `--spec-path ${this.parsedSpecFile} --output-path ${this.asyncApiSpecFile}`
+        `--specPath ${this.parsedSpecFile} --outputPath ${this.asyncApiSpecFile}`
       )
     );
 
