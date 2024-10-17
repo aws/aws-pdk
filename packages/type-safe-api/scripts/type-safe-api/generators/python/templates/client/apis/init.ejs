@@ -1,0 +1,14 @@
+###TSAPI_WRITE_FILE###
+{
+  "id": "apis-init",
+  "dir": "<%= metadata.srcDir || 'src' %>/api",
+  "name": "__init__",
+  "ext": ".py",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE#### flake8: noqa
+
+# import apis into api package
+<%_ services.forEach((service) => { _%>
+from <%- metadata.moduleName %>.api.<%- service.classNameSnakeCase %> import <%- service.className %>
+<%_ }); _%>

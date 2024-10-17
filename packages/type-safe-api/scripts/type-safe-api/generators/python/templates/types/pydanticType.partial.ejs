@@ -1,0 +1,78 @@
+<%_
+const getPythonPydanticConstraints = (property) => {
+  const constraints = {};
+
+  if (property.minLength !== undefined || property.minItems !== undefined) {
+    constraints.min_length = property.minLength ?? property.minItems;
+  }
+  if (property.maxLength !== undefined || property.maxItems !== undefined) {
+    constraints.max_length = property.maxLength ?? property.maxItems;
+  }
+  if (property.minimum !== undefined) {
+    constraints[property.exclusiveMinimum ? 'lt' : 'le'] = property.minimum;
+  }
+  if (property.maximum !== undefined) {
+    constraints[property.exclusiveMaximum ? 'gt' : 'ge'] = property.maximum;
+  }
+
+  if (Object.keys(constraints).length > 0) {
+    return constraints;
+  }
+  return undefined;
+}
+
+const renderPydanticConstraintsType = (type, constraints) => {
+  return `Annotated[${type}, Field(${Object.entries({ strict: 'True', ...constraints }).map(([k, v]) => `${k}=${v}`).join(', ')})]`;
+};
+
+const toPythonPydanticPrimitive = (property) => {
+  const constraints = getPythonPydanticConstraints(property);
+
+  if (property.type === "any") {
+    return "Any";
+  } else if (property.type === "binary" || (property.type === "string" && property.format === "byte")) {
+    return constraints ? `Union[${renderPydanticConstraintsType('bytes', constraints)}, ${renderPydanticConstraintsType('str', constraints)}]` : "Union[StrictBytes, StrictStr]";
+  } else if (property.type === "number") {
+    let pyType = "Union[float, int]";
+
+    if (property.openapiType === "integer" || ["int32", "int64"].includes(property.format)) {
+      pyType = "int";
+    }
+
+    if (constraints && pyType) {
+      return renderPydanticConstraintsType(pyType, constraints);
+    }
+    return pyType === "int" ? "StrictInt" : "Union[StrictFloat, StrictInt]";
+  } else if (property.type === "boolean") {
+    return "StrictBool";
+  } else if (property.type === "string" && !["date", "date-time"].includes(property.format)) {
+    return constraints ? renderPydanticConstraintsType("str", constraints) : (property.format === "password" ? "SecretStr" : "StrictStr");
+  }
+  return property.pythonType;
+};
+
+const toPythonPydanticType = (property) => {
+  if (property.isNotSchema) {
+    return "Any";
+  }
+  switch (property.export) {
+    case "generic":
+    case "reference":
+      return toPythonPydanticPrimitive(property);
+    case "array": {
+      const type = `List[${property.link ? toPythonPydanticType(property.link) : property.type}]`;
+      const constraints = getPythonPydanticConstraints(property);
+      return constraints ? renderPydanticConstraintsType(type, constraints) : type;
+    }
+    case "dictionary":
+      return `Dict[str, ${property.link ? toPythonPydanticType(property.link) : property.type}]`;
+    default:
+      // "any" has export = interface
+      if (property.isPrimitive) {
+        return toPythonPydanticPrimitive(property);
+      }
+      return property.type;
+  }
+};
+_%>
+<% if (!property.isRequired || property.isNullable) { %>Optional[<% } %><%- toPythonPydanticType(property) %><% if (!property.isRequired || property.isNullable) { %>]<% } -%>

@@ -1,4 +1,11 @@
-from __future__ import annotations
+###TSAPI_WRITE_FILE###
+{
+  "dir": "<%= metadata.srcDir || 'src' %>/api",
+  "name": "operation_config",
+  "ext": ".py",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###from __future__ import annotations
 import urllib.parse
 import json
 from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal, Annotated
@@ -8,39 +15,27 @@ from datetime import datetime
 import dateutil.parser
 from pydantic import BaseModel, Field, StrictStr, conlist, StrictBool, StrictInt, StrictFloat
 
-from {{packageName}}.models import *
+from <%- metadata.moduleName %>.models import *
 
 T = TypeVar('T')
 
 # Generic type for object keyed by operation names
 @dataclass
 class OperationConfig(Generic[T]):
-{{#apiInfo}}
-{{#apis}}
-{{#operations}}
-{{#operation}}
-    {{operationId}}: T
-{{/operation}}
-{{/operations}}
-{{/apis}}
-{{/apiInfo}}
+<%_ allOperations.forEach((operation) => { _%>
+    <%- operation.operationIdSnakeCase %>: T
+<%_ }); _%>
     ...
 
 # Look up path and http method for a given operation name
 OperationLookup = {
-{{#apiInfo}}
-{{#apis}}
-{{#operations}}
-{{#operation}}
-    "{{operationId}}": {
-        "path": "{{path}}",
-        "method": "{{httpMethod}}",
-        "contentTypes": [{{^hasConsumes}}"application/json"{{/hasConsumes}}{{#consumes}}{{#mediaType}}"{{{.}}}",{{/mediaType}}{{/consumes}}]
+<%_ allOperations.forEach((operation) => { _%>
+    "<%- operation.operationIdSnakeCase %>": {
+        "path": "<%- operation.path %>",
+        "method": "<%- operation.method %>",
+        "contentTypes": [<%- operation.parametersBody ? operation.parametersBody.mediaTypes.map(m => `"${m}"`).join(',') : '"application/json"' %>]
     },
-{{/operation}}
-{{/operations}}
-{{/apis}}
-{{/apiInfo}}
+<%_ }); _%>
 }
 
 class Operations:
@@ -205,20 +200,15 @@ def _build_handler_chain(_interceptors, handler) -> HandlerChain:
                 ))
         return RemainingHandlerChain()
 
-{{#apiInfo}}
-{{#apis}}
-{{#operations}}
-{{#operation}}
+<%_ allOperations.forEach((operation) => { _%>
 
-class {{operationIdCamelCase}}RequestParameters(BaseModel):
+class <%- operation.operationIdPascalCase %>RequestParameters(BaseModel):
     """
-    Query, path and header parameters for the {{operationIdCamelCase}} operation
+    Query, path and header parameters for the <%- operation.operationIdPascalCase %> operation
     """
-    {{#allParams}}
-    {{^isBodyParam}}
-    {{paramName}}: {{{vendorExtensions.x-py-typing}}}
-    {{/isBodyParam}}
-    {{/allParams}}
+    <%_ operation.parameters.filter(p => p.in !== "body").forEach((parameter) => { _%>
+    <%- parameter.pythonName %>: <%- include('../types/pydanticType.partial.ejs', { property: parameter }) %>
+    <%_ }); _%>
 
     class Config:
         """Pydantic configuration"""
@@ -229,42 +219,42 @@ class {{operationIdCamelCase}}RequestParameters(BaseModel):
         return json.dumps(self.to_dict())
 
     @classmethod
-    def from_json(cls, json_str: str) -> {{operationIdCamelCase}}RequestParameters:
+    def from_json(cls, json_str: str) -> <%- operation.operationIdPascalCase %>RequestParameters:
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self):
         return self.model_dump(exclude={}, exclude_none=True)
 
     @classmethod
-    def from_dict(cls, obj: dict) -> {{operationIdCamelCase}}RequestParameters:
+    def from_dict(cls, obj: dict) -> <%- operation.operationIdPascalCase %>RequestParameters:
         if obj is None:
             return None
-        return {{operationIdCamelCase}}RequestParameters.model_validate(obj)
+        return <%- operation.operationIdPascalCase %>RequestParameters.model_validate(obj)
 
 
 # Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
-{{operationIdCamelCase}}RequestBody = {{^bodyParams.isEmpty}}{{#bodyParams.0}}{{^isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{#isPrimitiveType}}str{{/isPrimitiveType}}{{/bodyParams.0}}{{/bodyParams.isEmpty}}{{#bodyParams.isEmpty}}Any{{/bodyParams.isEmpty}}
+<%- operation.operationIdPascalCase %>RequestBody = <% if (operation.parametersBody) { %><%- operation.parametersBody.isPrimitive ? 'str' : operation.parametersBody.pythonType %><% } else { %>Any<% } %>
 
-{{#responses}}
-{{operationIdCamelCase}}{{code}}OperationResponse = ApiResponse[Literal[{{code}}], {{^simpleType}}{{^isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{#isPrimitiveType}}str{{/isPrimitiveType}}{{/simpleType}}{{#simpleType}}None{{/simpleType}}]
-{{/responses}}
-{{operationIdCamelCase}}OperationResponses = Union[{{#responses}}{{operationIdCamelCase}}{{code}}OperationResponse, {{/responses}}]
+<%_ operation.responses.forEach((response) => { _%>
+<%- operation.operationIdPascalCase %><%- response.code %>OperationResponse = ApiResponse[Literal[<%- response.code %>], <% if (response.type && response.type !== 'void') { %><%- response.isPrimitive ? 'str' : response.pythonType %><% } else { %>None<% } %>]
+<%_ }); %>
+<%- operation.operationIdPascalCase %>OperationResponses = Union[<% operation.responses.forEach((response) => { %><%- operation.operationIdPascalCase %><%- response.code %>OperationResponse, <% }); %>]
 
-# Request type for {{operationId}}
-{{operationIdCamelCase}}Request = ApiRequest[{{operationIdCamelCase}}RequestParameters, {{operationIdCamelCase}}RequestBody]
-{{operationIdCamelCase}}ChainedRequest = ChainedApiRequest[{{operationIdCamelCase}}RequestParameters, {{operationIdCamelCase}}RequestBody]
+# Request type for <%- operation.operationIdSnakeCase %>
+<%- operation.operationIdPascalCase %>Request = ApiRequest[<%- operation.operationIdPascalCase %>RequestParameters, <%- operation.operationIdPascalCase %>RequestBody]
+<%- operation.operationIdPascalCase %>ChainedRequest = ChainedApiRequest[<%- operation.operationIdPascalCase %>RequestParameters, <%- operation.operationIdPascalCase %>RequestBody]
 
-class {{operationIdCamelCase}}HandlerFunction(Protocol):
-    def __call__(self, input: {{operationIdCamelCase}}Request, **kwargs) -> {{operationIdCamelCase}}OperationResponses:
+class <%- operation.operationIdPascalCase %>HandlerFunction(Protocol):
+    def __call__(self, input: <%- operation.operationIdPascalCase %>Request, **kwargs) -> <%- operation.operationIdPascalCase %>OperationResponses:
         ...
 
-{{operationIdCamelCase}}Interceptor = Callable[[{{operationIdCamelCase}}ChainedRequest], {{operationIdCamelCase}}OperationResponses]
+<%- operation.operationIdPascalCase %>Interceptor = Callable[[<%- operation.operationIdPascalCase %>ChainedRequest], <%- operation.operationIdPascalCase %>OperationResponses]
 
-def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = None, interceptors: List[{{operationIdCamelCase}}Interceptor] = []):
+def <%- operation.operationIdSnakeCase %>_handler(_handler: <%- operation.operationIdPascalCase %>HandlerFunction = None, interceptors: List[<%- operation.operationIdPascalCase %>Interceptor] = []):
     """
-    Decorator for an api handler for the {{operationId}} operation, providing a typed interface for inputs and outputs
+    Decorator for an api handler for the <%- operation.operationIdSnakeCase %> operation, providing a typed interface for inputs and outputs
     """
-    def _handler_wrapper(handler: {{operationIdCamelCase}}HandlerFunction):
+    def _handler_wrapper(handler: <%- operation.operationIdPascalCase %>HandlerFunction):
         @wraps(handler)
         def wrapper(event, context, additional_interceptors = [], **kwargs):
             all_interceptors = additional_interceptors + interceptors
@@ -281,22 +271,18 @@ def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = 
 
             def response_headers_for_status_code(status_code):
                 headers_for_status = {}
-                {{#responses}}
-                {{^is2xx}}
-                if status_code == {{code}} and "{{dataType}}".endswith("ResponseContent"):
-                    headers_for_status["x-amzn-errortype"] = "{{dataType}}"[:-len("ResponseContent")]
-                {{/is2xx}}
-                {{/responses}}
+                <%_ operation.responses.filter(r => r.code < 200 || r.code >= 300).forEach((response) => { _%>
+                if status_code == <%- response.code %> and "<%- response.pythonType %>".endswith("ResponseContent"):
+                    headers_for_status["x-amzn-errortype"] = "<%- response.pythonType %>"[:-len("ResponseContent")]
+                <%_ }); _%>
                 return headers_for_status
 
             request_parameters = None
             try:
-                request_parameters = {{operationIdCamelCase}}RequestParameters.from_dict({
-                    {{#allParams}}
-                    {{^isBodyParam}}
-                    "{{paramName}}": coerce_parameter("{{baseName}}", "{{{dataType}}}", raw_string_parameters, raw_string_array_parameters, {{#required}}True{{/required}}{{^required}}False{{/required}}),
-                    {{/isBodyParam}}
-                    {{/allParams}}
+                request_parameters = <%- operation.operationIdPascalCase %>RequestParameters.from_dict({
+                    <%_ operation.parameters.filter(p => p.in !== "body").forEach((parameter) => { _%>
+                    "<%- parameter.pythonName %>": coerce_parameter("<%- parameter.prop %>", "<%- parameter.pythonType %>", raw_string_parameters, raw_string_array_parameters, <%- parameter.isRequired ? 'True' : 'False' %>),
+                    <%_ }); _%>
                 })
             except Exception as e:
                 return {
@@ -305,23 +291,19 @@ def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = 
                     'body': '{"message": "' + str(e) + '"}',
                 }
 
-            {{^bodyParams.isEmpty}}
-            {{#bodyParams.0}}
-            {{^isPrimitiveType}}
+            <%_ if (operation.parametersBody) { _%>
+            <%_ if (!operation.parametersBody.isPrimitive) { _%>
             # Non-primitive type so parse the body into the appropriate model
-            body = parse_body(event['body'], [{{^consumes}}'application/json'{{/consumes}}{{#consumes}}{{#mediaType}}'{{{.}}}',{{/mediaType}}{{/consumes}}], {{operationIdCamelCase}}RequestBody)
-            {{/isPrimitiveType}}
-            {{#isPrimitiveType}}
+            body = parse_body(event['body'], [<%- operation.parametersBody ? operation.parametersBody.mediaTypes.map(m => `'${m}'`).join(',') : "'application/json'" %>], <%- operation.operationIdPascalCase %>RequestBody)
+            <%_ } else { _%>
             # Primitive type so body is passed as the original string
             body = event['body']
-            {{/isPrimitiveType}}
-            {{/bodyParams.0}}
-            {{/bodyParams.isEmpty}}
-            {{#bodyParams.isEmpty}}
+            <%_ } _%>
+            <%_ } else { _%>
             body = {}
-            {{/bodyParams.isEmpty}}
+            <%_ } _%>
             interceptor_context = {
-                "operationId": "{{operationId}}",
+                "operationId": "<%- operation.operationIdSnakeCase %>",
             }
 
             chain = _build_handler_chain(all_interceptors, handler)
@@ -337,15 +319,14 @@ def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = 
             response_body = ''
             if response.body is None:
                 pass
-            {{#responses}}
-            elif response.status_code == {{code}}:
-                {{^isPrimitiveType}}
+            <%_ operation.responses.forEach((response) => { _%>
+            elif response.status_code == <%- response.code %>:
+                <%_ if (!response.isPrimitive) { _%>
                 response_body = response.body.to_json()
-                {{/isPrimitiveType}}
-                {{#isPrimitiveType}}
+                <%_ } else { _%>
                 response_body = response.body
-                {{/isPrimitiveType}}
-            {{/responses}}
+                <%_ } _%>
+            <%_ }); _%>
 
             return {
                 'statusCode': response.status_code,
@@ -361,11 +342,8 @@ def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = 
     elif _handler is None:
         return _handler_wrapper
     else:
-        raise Exception("Positional arguments are not supported by {{operationId}}_handler.")
-{{/operation}}
-{{/operations}}
-{{/apis}}
-{{/apiInfo}}
+        raise Exception("Positional arguments are not supported by <%- operation.operationIdSnakeCase %>_handler.")
+<%_ }); _%>
 
 Interceptor = Callable[[ChainedApiRequest[RequestParameters, RequestBody]], ApiResponse[StatusCode, ResponseBody]]
 
@@ -376,15 +354,9 @@ OperationIdByMethodAndPath = { concat_method_and_path(method_and_path["method"],
 
 @dataclass
 class HandlerRouterHandlers:
-{{#apiInfo}}
-{{#apis}}
-{{#operations}}
-{{#operation}}
-  {{operationId}}: Callable[[Dict, Any], Dict]
-{{/operation}}
-{{/operations}}
-{{/apis}}
-{{/apiInfo}}
+<%_ allOperations.forEach((operation) => { _%>
+  <%- operation.operationIdSnakeCase %>: Callable[[Dict, Any], Dict]
+<%_ }); _%>
 
 def handler_router(handlers: HandlerRouterHandlers, interceptors: List[Interceptor] = []):
     """

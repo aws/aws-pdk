@@ -5,7 +5,7 @@ import {
   GeneratedPythonRuntimeBaseProjectOptions,
 } from "./generated-python-runtime-base-project";
 import { Language } from "../../languages";
-import { GenerationOptions } from "../components/utils";
+import { CodegenOptions } from "../components/utils";
 
 /**
  * Configuration for the generated python types project
@@ -21,19 +21,14 @@ export class GeneratedPythonRuntimeProject extends GeneratedPythonRuntimeBasePro
     super(options);
   }
 
-  protected buildOpenApiGeneratorOptions(): GenerationOptions {
+  protected buildCodegenOptions(): CodegenOptions {
     return {
-      generator: "python",
       specPath: this.options.specPath,
-      generatorDirectory: Language.PYTHON,
-      additionalProperties: {
-        packageName: this.moduleName,
+      templateDirs: [Language.PYTHON],
+      metadata: {
+        srcDir: this.moduleName,
+        moduleName: this.moduleName,
         projectName: this.name,
-      },
-      // Tell the generator where python source files live
-      srcDir: this.moduleName,
-      normalizers: {
-        KEEP_ONLY_FIRST_TAG_IN_OPERATION: true,
       },
     };
   }

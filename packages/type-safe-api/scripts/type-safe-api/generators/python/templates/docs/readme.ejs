@@ -1,0 +1,41 @@
+###TSAPI_WRITE_FILE###
+{
+  "dir": ".",
+  "name": "README",
+  "ext": ".md",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE#### <%- info.title %>
+<%- info.description || '' %>
+
+This Python package is automatically generated.
+
+- API version: <%- info.version %>
+
+## Requirements.
+
+Python 3.7+
+
+## Getting Started
+
+See the following example for usage:
+
+<%_ const servicesByName = Object.fromEntries(services.map(s => [s.name, s])); _%>
+<%_ if (allOperations.length > 0) { _%>
+<%- include('operationExample.partial.ejs', { metadata, service: servicesByName[allOperations[0].service], operation: allOperations[0] }) %>
+<%_ } _%>
+
+## Documentation for API Endpoints
+
+Class | Method | HTTP request | Description
+------------ | ------------- | ------------- | -------------
+<%_ allOperations.forEach((operation) => { _%>
+<%_ const serviceClassName = servicesByName[operation.service].className; _%>
+*<%- serviceClassName %>* | [**<%- operation.operationIdSnakeCase %>**](docs/<%- serviceClassName %>.md#<%- operation.operationIdSnakeCase %>) | **<%- operation.method %>** <%- operation.path %> | <%- operation.summary || '' %>
+<%_ }); _%>
+
+## Documentation For Models
+
+<%_ models.forEach((model) => { _%>
+ - [<%- model.name %>](docs/<%- model.name %>.md)
+<%_ }); _%>

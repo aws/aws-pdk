@@ -1,0 +1,232 @@
+<%_ const modelsByName = Object.fromEntries(models.map(m => [m.name, m])); _%>
+<%_ services.forEach((service) => { _%>
+###TSAPI_WRITE_FILE###
+{
+  "id": "<%- service.name %>",
+  "dir": "<%= metadata.srcDir || 'src' %>/api",
+  "name": "<%- service.classNameSnakeCase %>",
+  "ext": ".py",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE#### coding: utf-8
+
+"""
+    <%- info.title %>
+
+    <%- info.description || 'No description provided' %>
+
+    The version of the OpenAPI document: <%- info.version %>
+
+    NOTE: This class is auto generated.
+    Do not edit the class manually.
+"""  # noqa: E501
+
+import io
+import warnings
+
+from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
+from typing import Dict, List, Optional, Tuple, Union, Any
+
+try:
+    from typing import Annotated
+except ImportError:
+    from typing_extensions import Annotated
+
+<%_ service.modelImports.forEach((modelImport) => { _%>
+from <%- metadata.moduleName %>.models.<%- modelsByName[modelImport].nameSnakeCase %> import <%- modelImport %>
+<%_ }); _%>
+
+from <%- metadata.moduleName %>.api_client import ApiClient
+from <%- metadata.moduleName %>.api_response import ApiResponse
+from <%- metadata.moduleName %>.rest import RESTResponseType
+
+
+<%_ if (service.operations.length > 0) { _%>
+class <%- service.className %>:
+    """NOTE: This class is auto generated
+
+    Do not edit the class manually.
+    """
+
+    def __init__(self, api_client=None) -> None:
+        if api_client is None:
+            api_client = ApiClient.get_default()
+        self.api_client = api_client
+<%_ service.operations.forEach((operation) => { _%>
+<%_ const result = operation.results[0]; _%>
+<%_ const resultType = (result && result.type !== 'void') ? result.pythonType : 'None'; _%>
+
+    @validate_call
+    def <%- operation.operationIdSnakeCase %><%- include('apiArgs.partial.ejs', { operation }) %> -> <%- resultType %>:
+<%- include('apiMethodStart.partial.ejs', { operation }) %>
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def <%- operation.operationIdSnakeCase %>_with_http_info<%- include('apiArgs.partial.ejs', { operation }) %> -> ApiResponse[<%- resultType %>]:
+<%- include('apiMethodStart.partial.ejs', { operation }) %>
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def <%- operation.operationIdSnakeCase %>_without_preload_content<%- include('apiArgs.partial.ejs', { operation }) %> -> RESTResponseType:
+<%- include('apiMethodStart.partial.ejs', { operation }) %>
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _<%- operation.operationIdSnakeCase %>_serialize(
+        self,
+        <%_ operation.parameters.forEach((parameter) => { _%>
+        <%- parameter.pythonName %>,
+        <%_ }); _%>
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> Tuple:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+            <%_ operation.parameters.filter(p => p.export === 'array').forEach((parameter) => { _%>
+            '<%- parameter.prop %>': '<%- parameter.collectionFormat %>',
+            <%_ }); _%>
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[str, str] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+<%_ operation.parameters.filter(p => p.in === 'path').forEach((parameter) => { _%>
+        if <%- parameter.pythonName %> is not None:
+            _path_params['<%- parameter.prop %>'] = <%- parameter.pythonName %>
+<%_ }); _%>
+        # process the query parameters
+<%_ operation.parameters.filter(p => p.in === 'query').forEach((parameter) => { _%>
+        if <%- parameter.pythonName %> is not None:
+            <%_ if (parameter.isPrimitive && parameter.format === "date") { _%>
+            if isinstance(<%- parameter.pythonName %>, datetime):
+                _query_params.append(
+                    (
+                        '<%- parameter.prop %>',
+                        <%- parameter.pythonName %>.strftime(
+                            self.api_client.configuration.datetime_format
+                        )
+                    )
+                )
+            else:
+                _query_params.append(('<%- parameter.prop %>', <%- parameter.pythonName %>))
+            <%_ } else if (parameter.isPrimitive && parameter.format === "date-time") { _%>
+            if isinstance(<%- parameter.pythonName %>, date):
+                _query_params.append(
+                    (
+                        '<%- parameter.prop %>',
+                        <%- parameter.pythonName %>.strftime(
+                            self.api_client.configuration.date_format
+                        )
+                    )
+                )
+            else:
+                _query_params.append(('<%- parameter.prop %>', <%- parameter.pythonName %>))
+            <%_ } else { _%>
+            _query_params.append(('<%- parameter.prop %>', <%- parameter.pythonName %>))
+            <%_ } _%>
+<%_ }); _%>
+        # process the header parameters
+<%_ operation.parameters.filter(p => p.in === 'header').forEach((parameter) => { _%>
+        if <%- parameter.pythonName %> is not None:
+            _header_params['<%- parameter.prop %>'] = <%- parameter.pythonName %>
+<%_ }); _%>
+        # process the form parameters
+        # process the body parameter
+<%_ if (operation.parametersBody) { _%>
+        if <%- operation.parametersBody.pythonName %> is not None:
+            <%_ if (operation.parametersBody.type === "binary") { _%>
+            # convert to byte array if the input is a file name (str)
+            if isinstance(<%- operation.parametersBody.pythonName %>, str):
+                with io.open(<%- operation.parametersBody.pythonName %>, "rb") as _fp:
+                    _body_params = _fp.read()
+            else:
+                _body_params = <%- operation.parametersBody.pythonName %>
+            <%_ } else { _%>
+            _body_params = <%- operation.parametersBody.pythonName %>
+            <%_ } _%>
+<%_ } _%>
+
+
+        <%_ if (result && result.mediaTypes && result.mediaTypes.length > 0) { _%>
+        # set the HTTP header `Accept`
+        _header_params['Accept'] = self.api_client.select_header_accept(
+            [
+            <%_ result.mediaTypes.forEach((mediaType, i) => { _%>
+                '<%- mediaType %>'<%- i < result.mediaTypes.length - 1 ? ',' : '' %>
+            <%_ }); _%>
+            ]
+        )
+        <%_ } _%>
+
+        <%_ if (operation.parametersBody && operation.parametersBody.mediaTypes && operation.parametersBody.mediaTypes.length > 0) { _%>
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                    <%_ operation.parametersBody.mediaTypes.forEach((mediaType, i) => { _%>
+                        '<%- mediaType %>'<%- i < operation.parametersBody.mediaTypes.length - 1 ? ',' : '' %>
+                    <%_ }); _%>
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+        <%_ } _%>
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='<%- operation.method %>',
+            resource_path='<%- operation.path %>',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+<%_ }); _%>
+<%_ } _%>
+<%_ }); _%>

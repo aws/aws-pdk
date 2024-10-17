@@ -1,0 +1,70 @@
+<%_ const modelsByName = Object.fromEntries(models.map(m => [m.name, m])); _%>
+<%_ const modelNameToParentModel = Object.fromEntries(models
+        .filter(m => m.composedModels && m.composedModels.length > 0)
+        .flatMap(parent => parent.composedModels.map(child => [child.name, parent]))); _%>
+<%_ /* Filter out models which are hoisted children of all-ofs, since for python we mix in child properties */ _%>
+<%_ models.filter(m => !(m.isHoisted && modelNameToParentModel[m.name] && modelNameToParentModel[m.name].export === "all-of")).forEach((model) => { _%>
+<%_ const getRecursiveAllOfChildren = (m) => m.export === "all-of" ? [...m.composedModels, ...m.composedModels.flatMap(c => getRecursiveAllOfChildren(c))] : []; _%>
+<%_ const recursiveAllOfChildren = getRecursiveAllOfChildren(model); _%>
+<%_ const properties = [
+    // For all-of models, filter out the properties which are composed models, since we're mixing in child properties instead
+    ...model.properties.filter(p => model.export !== "all-of" || p.name),
+    ...recursiveAllOfChildren.flatMap(m => m.properties.filter(p => model.export !== "all-of" || p.name)),
+]; _%>
+###TSAPI_WRITE_FILE###
+{
+  "dir": "docs",
+  "name": "<%- model.name %>",
+  "ext": ".md",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE#### <%- model.name %>
+
+<%_ if (model.description) { _%>
+<%- model.description %>
+<%_ } _%>
+<%_ if (model.export === "one-of" || model.export === "any-of") { _%>
+## Composed Of
+
+<%_ if (model.export === "one-of") { _%>
+This model can be set to one of the following types:
+<%_ } else { _%>
+This model can be set to any of the following types:
+<%_ } _%>
+
+Type | Description | Notes
+------------- | ------------- | -------------
+<%_ properties.forEach((property) => { _%>
+<% if (property.isPrimitive || property.export === "array" || property.export === "dictionary") { %>**<%- property.pythonType %>**<% } else { %>[**<%- property.pythonType %>**](<%- property.pythonType %>.md)<% } %> | <%- property.description || '' %>
+<%_ }); _%>
+<%_ } else { _%>
+## Properties
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+<%_ properties.forEach((property) => { _%>
+**<%- property.pythonName %>** | <% if (property.isPrimitive || property.export === "array" || property.export === "dictionary") { %>**<%- property.pythonType %>**<% } else { %>[**<%- property.pythonType %>**](<%- property.pythonType %>.md)<% } %> | <%- property.description || '' %> | <% if (!property.isRequired) { %>[optional] <% } %><% if (property.isReadOnly) { %>[readonly] <% } %>
+<%_ }); _%>
+<%_ } _%>
+
+<%_ if (model.export !== "enum") { _%>
+## Example
+
+```python
+from <%- metadata.moduleName %>.models.<%- model.nameSnakeCase %> import <%- model.name %>
+
+# TODO update the JSON string below
+json = "{}"
+# create an instance of <%- model.name %> from a JSON string
+<%- model.nameSnakeCase %>_instance = <%- model.name %>.from_json(json)
+# print the JSON string representation of the object
+print(<%- model.name %>.to_json())
+
+# convert the object into a dict
+<%- model.nameSnakeCase %>_dict = <%- model.nameSnakeCase %>_instance.to_dict()
+# create an instance of <%- model.name %> from a dict
+<%- model.nameSnakeCase %>_form_dict = <%- model.nameSnakeCase %>.from_dict(<%- model.nameSnakeCase %>_dict)
+```
+<%_ } _%>
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+<%_ }); _%>

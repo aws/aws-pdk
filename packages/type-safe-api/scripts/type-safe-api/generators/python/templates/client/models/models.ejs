@@ -1,0 +1,557 @@
+<%_ const modelsByName = Object.fromEntries(models.map(m => [m.name, m])); _%>
+<%_ const modelNameToParentModel = Object.fromEntries(models
+        .filter(m => m.composedModels && m.composedModels.length > 0)
+        .flatMap(parent => parent.composedModels.map(child => [child.name, parent]))); _%>
+<%_ /* Filter out models which are hoisted children of all-ofs, since for python we mix in child properties */ _%>
+<%_ models.filter(m => !(m.isHoisted && modelNameToParentModel[m.name] && modelNameToParentModel[m.name].export === "all-of")).forEach((model) => { _%>
+<%_ const getRecursiveAllOfChildren = (m) => m.export === "all-of" ? [...m.composedModels, ...m.composedModels.flatMap(c => getRecursiveAllOfChildren(c))] : []; _%>
+<%_ const recursiveAllOfChildren = getRecursiveAllOfChildren(model); _%>
+<%_ const properties = [
+    // For all-of models, filter out the properties which are composed models, since we're mixing in child properties instead
+    ...model.properties.filter(p => model.export !== "all-of" || p.name),
+    ...recursiveAllOfChildren.flatMap(m => m.properties.filter(p => model.export !== "all-of" || p.name)),
+]; _%>
+<%_ const propertyTypes = new Set(properties.map(p => p.type)); _%>
+<%_ const unique = (items) => {
+    const seen = new Set();
+    const res = [];
+    items.forEach(item => {
+        if (!seen.has(item)) {
+            res.push(item);
+            seen.add(item);
+        }
+    });
+    return res;
+}; _%>
+<%_ const uniqueImports = unique([
+    ...model.uniqueImports,
+    ...recursiveAllOfChildren.flatMap(m => m.uniqueImports),
+    // Filter out imports that aren't referenced (for all-of where we want to import the child model's properties rather than the child models)
+]).filter(uniqueImport => propertyTypes.has(uniqueImport)); _%>
+###TSAPI_WRITE_FILE###
+{
+  "id": "<%= model.name %>",
+  "dir": "<%= metadata.srcDir || 'src' %>/models",
+  "name": "<%= model.nameSnakeCase %>",
+  "ext": ".py",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE#### coding: utf-8
+
+"""
+    <%- info.title %>
+
+    <%- info.description || 'No description provided' %>
+
+    The version of the OpenAPI document: <%- info.version %>
+
+    NOTE: This class is auto generated.
+    Do not edit the class manually.
+"""  # noqa: E501
+
+from __future__ import annotations
+import pprint
+import re  # noqa: F401
+import json
+from enum import Enum
+from datetime import date, datetime
+from typing import Any, List, Union, ClassVar, Dict, Optional, TYPE_CHECKING
+from pydantic import Field, StrictStr, ValidationError, field_validator, BaseModel, SecretStr, StrictFloat, StrictInt, StrictBytes, StrictBool
+from decimal import Decimal
+from typing_extensions import Annotated, Literal
+<%_ uniqueImports.forEach((importName) => { _%>
+from <%- metadata.moduleName %>.models.<%- modelsByName[importName].nameSnakeCase %> import <%- importName %>
+<%_ }); _%>
+try:
+    from typing import Self
+except ImportError:
+    from typing_extensions import Self
+
+<%_ if (model.export === "enum") { _%>
+class <%- model.name %>(str, Enum):
+    """
+    <%- model.description || model.name %>
+    """
+
+    """
+    allowed enum values
+    """
+    <%_ model.enum.forEach((enumMember) => { _%>
+    <%- enumMember.name %> = <%- enumMember.value %>
+    <%_ }); _%>
+
+    @classmethod
+    def from_json(cls, json_str: str) -> Self:
+        """Create an instance of <%- model.name %> from a JSON string"""
+        return cls(json.loads(json_str))
+
+
+<%_ } else { _%>
+<%_ if (model.export === "any-of" || model.export === "one-of") { _%>
+<%- model.name.toUpperCase() %>_<%- model.export === "any-of" ? "ANY_OF" : "ONE_OF" %>_SCHEMAS = [<% properties.forEach((composedType, i) => { %>"<%- composedType.pythonType %>"<%- i < properties.length - 1 ? ', ' : '' %><% }); %>]
+
+<%_ } _%>
+class <%- model.name %>(BaseModel):
+    """
+    <%- model.description || model.name %>
+    """ # noqa: E501
+<%_ if (model.export === "any-of" || model.export === "one-of") { _%>
+    <%_ properties.forEach((property, i) => { _%>
+    # data type: <%- property.pythonType %>
+    <%- model.export.replace(/-/g, '') %>_schema_<%- i + 1 %>_validator: <%- include('../../types/pydanticType.partial.ejs', { property }) %> = None
+    <%_ }); _%>
+    <%_ if (model.export === "any-of") { _%>
+    if TYPE_CHECKING:
+        actual_instance: Optional[Union[<% properties.forEach((composedType, i) => { %><%- composedType.pythonType %><%- i < properties.length - 1 ? ', ' : '' %><% }); %>]] = None
+    else:
+        actual_instance: Any = None
+    any_of_schemas: List[str] = Literal[<%- model.name.toUpperCase() %>_ANY_OF_SCHEMAS]
+    <%_ } else { // one-of _%>
+    actual_instance: Optional[Union[<% properties.forEach((composedType, i) => { %><%- composedType.pythonType %><%- i < properties.length - 1 ? ', ' : '' %><% }); %>]] = None
+    one_of_schemas: List[str] = Literal[<% properties.forEach((composedType, i) => { %>"<%- composedType.pythonType %>"<%- i < properties.length - 1 ? ', ' : '' %><% }); %>]
+    <%_ } _%>
+
+    model_config = {
+        "validate_assignment": True
+    }
+
+    def __init__(self, *args, **kwargs) -> None:
+        if args:
+            if len(args) > 1:
+                raise ValueError("If a position argument is used, only 1 is allowed to set `actual_instance`")
+            if kwargs:
+                raise ValueError("If a position argument is used, keyword arguments cannot be used.")
+            super().__init__(actual_instance=args[0])
+        else:
+            super().__init__(**kwargs)
+
+    <%_ if (model.export === "any-of") { _%>
+    @field_validator('actual_instance')
+    def actual_instance_must_validate_anyof(cls, v):
+        <%_ if(model.isNullable) { _%>
+        if v is None:
+            return v
+
+        <%_ } _%>
+        instance = <%- model.name %>.model_construct()
+        error_messages = []
+        <%_ properties.forEach((property, i) => { _%>
+        # validate data type: <%- property.pythonType %>
+        <%_ if (property.export === "array" || property.export === "dictionary") { _%>
+        try:
+            instance.<%- model.export.replace(/-/g, '') %>_schema_<%- i + 1 %>_validator = v
+            return v
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        <%_ } else { _%>
+        <%_ if (property.isPrimitive) { _%>
+        try:
+            instance.<%- model.export.replace(/-/g, '') %>_schema_<%- i + 1 %>_validator = v
+            return v
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        <%_ } else { _%>
+        if not isinstance(v, <%- property.pythonType %>):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `<%- property.pythonType %>`")
+        else:
+            return v
+
+        <%_ } _%>
+        <%_ } _%>
+        <%_ }); _%>
+        if error_messages:
+            # no match
+            raise ValueError("No match found when setting the actual_instance in <%- model.name %> with anyOf schemas: <% properties.forEach((composedType, i) => { %><%- composedType.pythonType %><%- i < properties.length - 1 ? ', ' : '' %><% }); %>. Details: " + ", ".join(error_messages))
+        else:
+            return v
+    <%_ } else { // one-of _%>
+    @field_validator('actual_instance')
+    def actual_instance_must_validate_oneof(cls, v):
+        <%_ if(model.isNullable) { _%>
+        if v is None:
+            return v
+
+        <%_ } _%>
+        instance = <%- model.name %>.model_construct()
+        error_messages = []
+        match = 0
+        <%_ properties.forEach((property, i) => { _%>
+        # validate data type: <%- property.pythonType %>
+        <%_ if (property.export === "array" || property.export === "dictionary") { _%>
+        try:
+            instance.<%- model.export.replace(/-/g, '') %>_schema_<%- i + 1 %>_validator = v
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        <%_ } else { _%>
+        <%_ if (property.isPrimitive) { _%>
+        try:
+            instance.<%- model.export.replace(/-/g, '') %>_schema_<%- i + 1 %>_validator = v
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        <%_ } else { _%>
+        if not isinstance(v, <%- property.pythonType %>):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `<%- property.pythonType %>`")
+        else:
+            match += 1
+        <%_ } _%>
+        <%_ } _%>
+        <%_ }); _%>
+        if match > 1:
+            # more than 1 match
+            raise ValueError("Multiple matches found when setting `actual_instance` in <%- model.name %> with oneOf schemas: <% properties.forEach((composedType, i) => { %><%- composedType.pythonType %><%- i < properties.length - 1 ? ', ' : '' %><% }); %>. Details: " + ", ".join(error_messages))
+        elif match == 0:
+            # no match
+            raise ValueError("No match found when setting `actual_instance` in <%- model.name %> with oneOf schemas: <% properties.forEach((composedType, i) => { %><%- composedType.pythonType %><%- i < properties.length - 1 ? ', ' : '' %><% }); %>. Details: " + ", ".join(error_messages))
+        else:
+            return v
+    <%_ } _%>
+
+    @classmethod
+    def from_dict(cls, obj: dict) -> Self:
+        return cls.from_json(json.dumps(obj))
+
+    <%_ if (model.export === "any-of") { _%>
+    @classmethod
+    def from_json(cls, json_str: str) -> Self:
+        """Returns the object represented by the json string"""
+        instance = cls.model_construct()
+        <%_ if (model.isNullable) { _%>
+        if json_str is None:
+            return instance
+
+        <%_ } _%>
+        error_messages = []
+        <%_ properties.forEach((property, i) => { _%>
+        <%_ if (property.export === "array" || property.export === "dictionary") { _%>
+        # deserialize data into <%- property.pythonType %>
+        try:
+            # validation
+            instance.<%- model.export.replace(/-/g, '') %>_schema_<%- i + 1 %>_validator = json.loads(json_str)
+            # assign value to actual_instance
+            instance.actual_instance = instance.<%- model.export.replace(/-/g, '') %>_schema_<%- i + 1 %>_validator
+            return instance
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        <%_ } else { _%>
+        <%_ if (property.isPrimitive) { _%>
+        # deserialize data into <%- property.pythonType %>
+        try:
+            # validation
+            instance.<%- model.export.replace(/-/g, '') %>_schema_<%- i + 1 %>_validator = json.loads(json_str)
+            # assign value to actual_instance
+            instance.actual_instance = instance.<%- model.export.replace(/-/g, '') %>_schema_<%- i + 1 %>_validator
+            return instance
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        <%_ } else { _%>
+        # <%- model.export.replace(/-/g, '') %>_schema_<%- i + 1 %>_validator: <%- include('../../types/pydanticType.partial.ejs', { property }) %> = None
+        try:
+            instance.actual_instance = <%- property.pythonType %>.from_json(json_str)
+            return instance
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        <%_ } _%>
+        <%_ } _%>
+        <%_ }); _%>
+
+        if error_messages:
+            # no match
+            raise ValueError("No match found when deserializing the JSON string into <%- model.name %> with anyOf schemas: <% properties.forEach((composedType, i) => { %><%- composedType.pythonType %><%- i < properties.length - 1 ? ', ' : '' %><% }); %>. Details: " + ", ".join(error_messages))
+        else:
+            return instance
+    <%_ } else { // one-of _%>
+    @classmethod
+    def from_json(cls, json_str: str) -> Self:
+        """Returns the object represented by the json string"""
+        instance = cls.model_construct()
+        <%_ if (model.isNullable) { _%>
+        if json_str is None:
+            return instance
+
+        <%_ } _%>
+        error_messages = []
+        match = 0
+
+        <%_ properties.forEach((property, i) => { _%>
+        <%_ if (property.export === "array" || property.export === "dictionary") { _%>
+        # deserialize data into <%- property.pythonType %>
+        try:
+            # validation
+            instance.<%- model.export.replace(/-/g, '') %>_schema_<%- i + 1 %>_validator = json.loads(json_str)
+            # assign value to actual_instance
+            instance.actual_instance = instance.<%- model.export.replace(/-/g, '') %>_schema_<%- i + 1 %>_validator
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        <%_ } else { _%>
+        <%_ if (property.isPrimitive) { _%>
+        # deserialize data into <%- property.pythonType %>
+        try:
+            # validation
+            instance.<%- model.export.replace(/-/g, '') %>_schema_<%- i + 1 %>_validator = json.loads(json_str)
+            # assign value to actual_instance
+            instance.actual_instance = instance.<%- model.export.replace(/-/g, '') %>_schema_<%- i + 1 %>_validator
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        <%_ } else { _%>
+        # deserialize data into <%- property.pythonType %>
+        try:
+            instance.actual_instance = <%- property.pythonType %>.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        <%_ } _%>
+        <%_ } _%>
+        <%_ }); _%>
+
+        if match > 1:
+            # more than 1 match
+            raise ValueError("Multiple matches found when deserializing the JSON string into <%- model.name %> with oneOf schemas: <% properties.forEach((composedType, i) => { %><%- composedType.pythonType %><%- i < properties.length - 1 ? ', ' : '' %><% }); %>. Details: " + ", ".join(error_messages))
+        elif match == 0:
+            # no match
+            raise ValueError("No match found when deserializing the JSON string into <%- model.name %> with oneOf schemas: <% properties.forEach((composedType, i) => { %><%- composedType.pythonType %><%- i < properties.length - 1 ? ', ' : '' %><% }); %>. Details: " + ", ".join(error_messages))
+        else:
+            return instance
+    <%_ } _%>
+
+    def to_json(self) -> str:
+        """Returns the JSON representation of the actual instance"""
+        if self.actual_instance is None:
+            return "null"
+
+        to_json = getattr(self.actual_instance, "to_json", None)
+        if callable(to_json):
+            return self.actual_instance.to_json()
+        else:
+            return json.dumps(self.actual_instance)
+
+    def to_dict(self) -> Dict:
+        """Returns the dict representation of the actual instance"""
+        if self.actual_instance is None:
+            return None
+
+        to_dict = getattr(self.actual_instance, "to_dict", None)
+        if callable(to_dict):
+            return self.actual_instance.to_dict()
+        else:
+            # primitive type
+            return self.actual_instance
+
+    def to_str(self) -> str:
+        """Returns the string representation of the actual instance"""
+        return pprint.pformat(self.model_dump())
+<%_ } else { // model is not an any-of or one-of _%>
+    <%_ properties.forEach((property) => { _%>
+    <%_
+        const defaultValue = !property.isRequired ? 'None' : undefined;
+        const alias = property.name !== property.pythonName ? `"${property.name}"` : undefined;
+        const description = property.description ? `"${property.description}"` : undefined;
+
+        let pydanticTypeValue = '';
+        if (alias || description) {
+            pydanticTypeValue = ` = Field(${[['default', defaultValue], ['alias', alias], ['description', description]].filter(([, v]) => v).map(([k, v]) => `${k}=${v}`).join(', ')})`;
+        } else if (defaultValue) {
+            pydanticTypeValue = ' = None';
+        }
+    _%>
+    <%- property.pythonName %>: <%- include('../../types/pydanticType.partial.ejs', { property }) %><%- pydanticTypeValue %>
+    <%_ }); _%>
+    <%_ if (model.export === "dictionary") { _%>
+    additional_properties: Dict[str, Any] = {}
+    <%_ } _%>
+    __properties: ClassVar[List[str]] = [<% properties.forEach((property, i) => { %>"<%- property.name %>"<% if (i < properties.length - 1) { %>, <% } %><% }); %>]
+
+    <%_ properties.filter(p => p.pattern).forEach((property) => { _%>
+    @field_validator('<%- property.pythonName %>')
+    def <%- property.pythonName %>_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        <%_ if (!property.isRequired || (property.isRequired && property.isNullable)) { _%>
+        if value is None:
+            return value
+
+        <%_ } _%>
+        if not re.match(r"<%- property.pattern.replace(/\\\\/g, '\\') %>", value):
+            raise ValueError(r"must validate the regular expression /<%- property.pattern.replace(/\\\\/g, '\\') %>/")
+        return value
+    <%_ }); _%>
+
+    model_config = {
+        "populate_by_name": True,
+        "validate_assignment": True
+    }
+
+    def to_str(self) -> str:
+        """Returns the string representation of the model using alias"""
+        return pprint.pformat(self.model_dump(by_alias=True))
+
+    def to_json(self) -> str:
+        """Returns the JSON representation of the model using alias"""
+        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
+        return json.dumps(self.to_dict())
+
+    @classmethod
+    def from_json(cls, json_str: str) -> Self:
+        """Create an instance of <%- model.name %> from a JSON string"""
+        return cls.from_dict(json.loads(json_str))
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Return the dictionary representation of the model using alias.
+
+        This has the following differences from calling pydantic's
+        `self.model_dump(by_alias=True)`:
+
+        * `None` is only added to the output dict for nullable fields that
+          were set at model initialization. Other fields with value `None`
+          are ignored.
+        <%_ if (properties.some(p => p.isReadOnly)) { _%>
+        * OpenAPI `readOnly` fields are excluded.
+        <%_ } _%>
+        <%_ if (model.export === 'dictionary') { _%>
+        * Fields in `self.additional_properties` are added to the output dict.
+        <%_ } _%>
+        """
+        _dict = self.model_dump(
+            by_alias=True,
+            exclude={
+                <%_ properties.filter(p => p.isReadOnly).forEach((property) => { _%>
+                "<%- property.name %>",
+                <%_ }); _%>
+                <%_ if (model.export === 'dictionary') { _%>
+                "additional_properties",
+                <%_ } _%>
+            },
+            exclude_none=True,
+        )
+        <%_ properties.forEach((property) => { _%>
+        <%_ if (property.export === 'array' && property.link && property.link.export === 'array' && property.link.link && !property.link.link.isPrimitive) { _%>
+        # override the default output from pydantic by calling `to_dict()` of each item in <%- property.pythonName %> (list of list)
+        _items = []
+        if self.<%- property.pythonName %>:
+            for _item in self.<%- property.pythonName %>:
+                if _item:
+                    _items.append(
+                         [_inner_item.to_dict() for _inner_item in _item if _inner_item is not None]
+                    )
+            _dict['<%- property.name %>'] = _items
+        <%_ } else if (property.export === 'array' && property.link && !property.link.isPrimitive) { _%>
+        # override the default output from pydantic by calling `to_dict()` of each item in <%- property.pythonName %> (list)
+        _items = []
+        if self.<%- property.pythonName %>:
+            for _item in self.<%- property.pythonName %>:
+                if _item:
+                    _items.append(_item.to_dict())
+            _dict['<%- property.name %>'] = _items
+        <%_ } else if (property.export === 'dictionary' && property.link && property.link.export === "array" && property.link.link && !property.link.link.isPrimitive) { _%>
+        # override the default output from pydantic by calling `to_dict()` of each value in <%- property.pythonName %> (dict of array)
+        _field_dict_of_array = {}
+        if self.<%- property.pythonName %>:
+            for _key in self.<%- property.pythonName %>:
+                if self.<%- property.pythonName %>[_key] is not None:
+                    _field_dict_of_array[_key] = [
+                        _item.to_dict() for _item in self.<%- property.pythonName %>[_key]
+                    ]
+            _dict['<%- property.name %>'] = _field_dict_of_array
+        <%_ } else if (property.export === 'dictionary' && property.link && !property.link.isPrimitive) { _%>
+        # override the default output from pydantic by calling `to_dict()` of each value in <%- property.pythonName %> (dict)
+        _field_dict = {}
+        if self.<%- property.pythonName %>:
+            for _key in self.<%- property.pythonName %>:
+                if self.<%- property.pythonName %>[_key]:
+                    _field_dict[_key] = self.<%- property.pythonName %>[_key].to_dict()
+            _dict['<%- property.name %>'] = _field_dict
+        <%_ } else if (!property.isPrimitive) { _%>
+        # override the default output from pydantic by calling `to_dict()` of <%- property.pythonName %>
+        if self.<%- property.pythonName %>:
+            _dict['<%- property.name %>'] = self.<%- property.pythonName %>.to_dict()
+        <%_ } _%>
+        <%_ }); _%>
+        <%_ if (model.export === 'dictionary') { _%>
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
+        <%_ } _%>
+        <%_ properties.filter(p => p.isNullable || p.type === 'any').forEach((property) => { _%>
+        # set to None if <%- property.pythonName %> (nullable) is None
+        # and model_fields_set contains the field
+        if self.<%- property.pythonName %> is None and "<%- property.pythonName %>" in self.model_fields_set:
+            _dict['<%- property.name %>'] = None
+
+        <%_ }); _%>
+        return _dict
+
+    @classmethod
+    def from_dict(cls, obj: Dict) -> Self:
+        """Create an instance of <%- model.name %> from a dict"""
+
+        if obj is None:
+            return None
+
+        if not isinstance(obj, dict):
+            return cls.model_validate(obj)
+
+        _obj = cls.model_validate({
+            <%_ properties.forEach((property, i) => { _%>
+            <%_ if (property.export === 'array' && property.link && property.link.export === 'array' && property.link.link) { _%>
+                <%_ if (property.link.link.isPrimitive) { _%>
+            "<%- property.name %>": obj.get("<%- property.name %>")<%- i !== properties.length - 1 ? ',' : '' %>
+                <%_ } else { _%>
+            "<%- property.name %>": [
+                    [<%- property.link.link.pythonType %>.from_dict(_inner_item) for _inner_item in _item]
+                    for _item in obj.get("<%- property.name %>")
+                ] if obj.get("<%- property.name %>") is not None else None<%- i !== properties.length - 1 ? ',' : '' %>
+                <%_ } _%>
+            <%_ } else if (property.export === 'array' && property.link && !property.link.isPrimitive) { _%>
+            "<%- property.name %>": [<%- property.link.pythonType %>.from_dict(_item) for _item in obj.get("<%- property.name %>")] if obj.get("<%- property.name %>") is not None else None<%- i !== properties.length - 1 ? ',' : '' %>
+            <%_ } else if (property.export === 'dictionary' && property.link && property.link.export === "dictionary" && property.link.link && !property.link.link.isPrimitive) { _%>
+            "<%- property.name %>": dict(
+                (_k, dict(
+                    (_ik, <%- property.link.link.pythonType %>.from_dict(_iv))
+                        for _ik, _iv in _v.items()
+                    )
+                    if _v is not None
+                    else None
+                )
+                for _k, _v in obj.get("<%- property.name %>").items()
+            )
+            if obj.get("<%- property.name %>") is not None
+            else None<%- i !== properties.length - 1 ? ',' : '' %>
+            <%_ } else if (property.export === 'dictionary' && property.link && property.link.export === "array" && property.link.link && !property.link.link.isPrimitive) { _%>
+            "<%- property.name %>": dict(
+                (_k,
+                        [<%- property.link.link.pythonType %>.from_dict(_item) for _item in _v]
+                        if _v is not None
+                        else None
+                )
+                for _k, _v in obj.get("<%- property.name %>").items()
+            )<%- i !== properties.length - 1 ? ',' : '' %>
+            <%_ } else if (property.export === 'dictionary' && property.link && !property.link.isPrimitive) { _%>
+            "<%- property.name %>": dict(
+                (_k, <%- property.link.pythonType %>.from_dict(_v))
+                for _k, _v in obj.get("<%- property.name %>").items()
+            )
+            if obj.get("<%- property.name %>") is not None
+            else None<%- i !== properties.length - 1 ? ',' : '' %>
+            <%_ } else if (!property.isPrimitive) { _%>
+            "<%- property.name %>": <%- property.pythonType %>.from_dict(obj.get("<%- property.name %>")) if obj.get("<%- property.name %>") is not None else None<%- i !== properties.length - 1 ? ',' : '' %>
+            <%_ } else { _%>
+            "<%- property.name %>": obj.get("<%- property.name %>")<%- i !== properties.length - 1 ? ',' : '' %>
+            <%_ } _%>
+            <%_ }); _%>
+        })
+        <%_ if (model.export === 'dictionary') { _%>
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
+        <%_ } _%>
+        return _obj
+<%_ } _%>
+<%_ } _%>
+
+<%_ }); _%>

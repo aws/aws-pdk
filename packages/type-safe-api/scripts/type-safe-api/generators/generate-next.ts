@@ -20,6 +20,8 @@ import { OpenAPIV3 } from "openapi-types";
 import * as parseOpenapi from "parse-openapi";
 import { getOperationResponses } from "parse-openapi/dist/parser/getOperationResponses";
 import { getOperationResponse } from "parse-openapi/dist/parser/getOperationResponse";
+import { generateMockDataForSchema } from "../custom/mock-data/generate-mock-data";
+import { allFakers, Faker } from "@faker-js/faker";
 
 const TSAPI_WRITE_FILE_START = "###TSAPI_WRITE_FILE###";
 const TSAPI_WRITE_FILE_END = "###/TSAPI_WRITE_FILE###";
@@ -120,6 +122,60 @@ const copyVendorExtensions = (object: object, vendorExtensions: { [key: string]:
       vendorExtensions[key] = value;
     }
   });
+};
+
+/**
+ * Converts a string to snake_case. Matches OpenAPI generator's behaviour, which is slightly different to lodash
+ * in how it handles numbers (ie no underscore before a number, but an underscore after a number so long as the next letter is capitalized)
+ * @see https://github.com/OpenAPITools/openapi-generator/blob/38dac13c261d26a72be78bba89ee4a681843e7b0/modules/openapi-generator/src/main/java/org/openapitools/codegen/utils/StringUtils.java#L77
+ */
+const snakeCase = (str: string): string => {
+  return str
+    .replace(/\./g, '/')
+    .replace(/\$/g, '__')
+    .replace(/([A-Z]+)([A-Z][a-z][a-z]+)/g, (_match, g1, g2) => `${g1}_${g2}`)
+    .replace(/([a-z\d])([A-Z])/g, (_match, g1, g2) => `${g1}_${g2}`)
+    .replace(/[-\s]/g, '_')
+    .toLowerCase();
+};
+
+// @see https://github.com/OpenAPITools/openapi-generator/blob/e2a62ace74de361bef6338b7fa37da8577242aef/modules/openapi-generator/src/main/java/org/openapitools/codegen/languages/AbstractPythonCodegen.java#L106
+const PYTHON_KEYWORDS = new Set([
+  // local variable name used in API methods (endpoints)
+  "all_params", "resource_path", "path_params", "query_params",
+  "header_params", "form_params", "local_var_files", "body_params", "auth_settings",
+  // @property
+  "property",
+  // typing keywords
+  "schema", "base64", "json",
+  "date", "float",
+  // python reserved words
+  "and", "del", "from", "not", "while", "as", "elif", "global", "or", "with",
+  "assert", "else", "if", "pass", "yield", "break", "except", "import",
+  "print", "class", "exec", "in", "raise", "continue", "finally", "is",
+  "return", "def", "for", "lambda", "try", "self", "nonlocal", "None", "True",
+  "False", "async", "await",
+]);
+
+const toPythonName = (namedEntity: 'model' | 'property' | 'operation', name: string) => {
+  const nameSnakeCase = snakeCase(name);
+
+  // Check if the name is a reserved word. Reserved words that overlap with TypeScript will already be escaped
+  // with a leading _ by parseOpenapi, so we remove this to test
+  if (PYTHON_KEYWORDS.has(name.startsWith('_') ? name.slice(1) : name)) {
+    const nameSuffix = name.startsWith('_') ? nameSnakeCase : `_${nameSnakeCase}`;
+    switch(namedEntity) {
+      case "model":
+        return `model${nameSuffix}`;
+      case "operation":
+        return `call${nameSuffix}`;
+      case "property":
+        return `var${nameSnakeCase}`;
+      default:
+        break;
+    }
+  }
+  return nameSnakeCase;
 };
 
 /**
@@ -359,6 +415,10 @@ const toPythonType = (property: parseOpenapi.Model): string => {
     case "dictionary":
       return `Dict[str, ${property.link ? toPythonType(property.link) : property.type}]`;
     default:
+      // "any" has export = interface
+      if (PRIMITIVE_TYPES.has(property.type)) {
+        return toPythonPrimitive(property);
+      }
       return property.type;
   }
 };
@@ -374,12 +434,17 @@ const mutateModelWithAdditionalTypes = (model: parseOpenapi.Model) => {
   (model as any).typescriptType = toTypeScriptType(model);
   (model as any).javaName = model.name;
   (model as any).javaType = toJavaType(model);
-  (model as any).pythonName = _snakeCase(model.name);
+  (model as any).pythonName = toPythonName('property', model.name);
   (model as any).pythonType = toPythonType(model);
   (model as any).isPrimitive = PRIMITIVE_TYPES.has(model.type);
 };
 
-const mutateWithOpenapiSchemaProperties = (spec: OpenAPIV3.Document, model: parseOpenapi.Model, schema: OpenAPIV3.SchemaObject, visited: Set<parseOpenapi.Model> = new Set()) => {
+interface MockDataContext {
+  readonly dereferencedSpec: OpenAPIV3.Document;
+  readonly faker: Faker;
+}
+
+const mutateWithOpenapiSchemaProperties = (spec: OpenAPIV3.Document, model: parseOpenapi.Model, schema: OpenAPIV3.SchemaObject, mockDataContext: MockDataContext, visited: Set<parseOpenapi.Model> = new Set()) => {
   (model as any).format = schema.format;
   (model as any).isInteger = schema.type === "integer";
   (model as any).isShort = schema.format === "int32";
@@ -397,12 +462,19 @@ const mutateWithOpenapiSchemaProperties = (spec: OpenAPIV3.Document, model: pars
 
   mutateModelWithAdditionalTypes(model);
 
+  // Add mock data
+  (model as any).mockData = generateMockDataForSchema(mockDataContext.dereferencedSpec, {
+    faker: mockDataContext.faker,
+    maxArrayLength: 3,
+    maxCircularReferenceDepth: 2,
+  }, schema);
+
   visited.add(model);
 
   // Also apply to array items recursively
   if (model.export === "array" && model.link && 'items' in schema && schema.items && !visited.has(model.link)) {
     const subSchema = resolveIfRef(spec, schema.items);
-    mutateWithOpenapiSchemaProperties(spec, model.link, subSchema, visited);
+    mutateWithOpenapiSchemaProperties(spec, model.link, subSchema, mockDataContext, visited);
   }
 
   // Also apply to object properties recursively
@@ -410,19 +482,75 @@ const mutateWithOpenapiSchemaProperties = (spec: OpenAPIV3.Document, model: pars
     const subSchema = resolveIfRef(spec, schema.additionalProperties);
     // Additional properties can be "true" rather than a type
     if (subSchema !== true) {
-      mutateWithOpenapiSchemaProperties(spec, model.link, subSchema, visited);
+      mutateWithOpenapiSchemaProperties(spec, model.link, subSchema, mockDataContext, visited);
     }
   }
-  model.properties.filter(p => !visited.has(p) && schema.properties?.[p.name]).forEach(property => {
-    const subSchema = resolveIfRef(spec, schema.properties![property.name]);
-    mutateWithOpenapiSchemaProperties(spec, property, subSchema, visited);
+  model.properties.filter(p => !visited.has(p) && schema.properties?.[_trim(p.name, `"'`)]).forEach(property => {
+    const subSchema = resolveIfRef(spec, schema.properties![_trim(property.name, `"'`)]);
+    mutateWithOpenapiSchemaProperties(spec, property, subSchema, mockDataContext, visited);
   });
 
   if (COMPOSED_SCHEMA_TYPES.has(model.export)) {
     model.properties.forEach((property, i) => {
-      const subSchema = resolveIfRef(spec, schema[_camelCase(model.export)]?.[i]);
+      const subSchema = resolveIfRef(spec, (schema as any)[_camelCase(model.export)]?.[i]);
       if (subSchema) {
-        mutateWithOpenapiSchemaProperties(spec, property, subSchema, visited);
+        mutateWithOpenapiSchemaProperties(spec, property, subSchema, mockDataContext, visited);
+      }
+    });
+  }
+};
+
+/**
+ * Ensure that the "link" property of all dictionary/array models and properties are set recursively
+ */
+const ensureModelLinks = (spec: OpenAPIV3.Document, data: parseOpenapi.ParsedSpecification) => {
+  const modelsByName = Object.fromEntries(data.models.map((m) => [m.name, m]));
+  const visited = new Set<parseOpenapi.Model>();
+  data.models.forEach((model) => {
+    const schema = resolveIfRef(spec, spec?.components?.schemas?.[model.name]);
+    if (schema) {
+      // Object schemas should be typed as the model we will create
+      if (schema.type === "object" && schema.properties) {
+        model.type = model.name;
+      }
+      _ensureModelLinks(spec, modelsByName, model, schema, visited)
+    }
+  });
+};
+
+const _ensureModelLinks = (spec: OpenAPIV3.Document, modelsByName: {[name: string]: parseOpenapi.Model}, model: parseOpenapi.Model, schema: OpenAPIV3.SchemaObject, visited: Set<parseOpenapi.Model>) => {
+  if (visited.has(model)) {
+    return;
+  }
+
+  visited.add(model);
+
+  if (model.export === "dictionary" && 'additionalProperties' in schema && schema.additionalProperties) {
+    if (isRef(schema.additionalProperties)) {
+      const name = splitRef(schema.additionalProperties.$ref)[2];
+      if (modelsByName[name] && !model.link) {
+        model.link = modelsByName[name];
+      }
+    }
+  } else if (model.export === "array" && 'items' in schema && schema.items) {
+    if (isRef(schema.items)) {
+      const name = splitRef(schema.items.$ref)[2];
+      if (modelsByName[name] && !model.link) {
+        model.link = modelsByName[name];
+      }
+    }
+  }
+
+  model.properties.filter(p => !visited.has(p) && schema.properties?.[_trim(p.name, `"'`)]).forEach(property => {
+    const subSchema = resolveIfRef(spec, schema.properties![_trim(property.name, `"'`)]);
+    _ensureModelLinks(spec, modelsByName, property, subSchema, visited);
+  });
+
+  if (COMPOSED_SCHEMA_TYPES.has(model.export)) {
+    model.properties.forEach((property, i) => {
+      const subSchema = resolveIfRef(spec, (schema as any)[_camelCase(model.export)]?.[i]);
+      if (subSchema) {
+        _ensureModelLinks(spec, modelsByName, property, subSchema, visited);
       }
     });
   }
@@ -495,7 +623,7 @@ const hoistInlineObjectSubSchemas = (nameParts: string[], schema: OpenAPIV3.Sche
   return [...refs, ...recursiveRefs];
 };
 
-const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
+const buildData = async (inSpec: OpenAPIV3.Document, metadata: any) => {
   // Using openapi generator, we passed "KEEP_ONLY_FIRST_TAG_IN_OPERATION" to ensure we don't generate duplicate
   // handler wrappers where multiple tags are used.
   // In order for the new generator not to be breaking, we apply the same logic here, however this can be removed
@@ -575,6 +703,17 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
   // Mutate the models with enough data to render composite models in the templates
   ensureCompositeModels(data);
 
+  // Ensure the models have their links set when they are arrays/dictionaries
+  ensureModelLinks(spec, data);
+
+  const faker = allFakers['en'];
+  faker.seed(1337);
+  faker.setDefaultRefDate(new Date("2021-06-10"));
+  const mockDataContext: MockDataContext = {
+    faker,
+    dereferencedSpec: await SwaggerParser.dereference(structuredClone(spec), { dereference: { circular: 'ignore' }}) as OpenAPIV3.Document,
+  };
+
   // Augment operations with additional data
   data.services.forEach((service) => {
 
@@ -628,6 +767,11 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
             } else {
               // Add the response media types
               (response as any).mediaTypes = Object.keys(specResponse.content);
+
+              const responseSchema = specResponse.content?.['application/json'] ?? Object.values(specResponse.content)[0];
+              if (responseSchema) {
+                mutateWithOpenapiSchemaProperties(spec, response, responseSchema, mockDataContext);
+              }
             }
           }
         });
@@ -655,7 +799,7 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
         const specParameterSchema = resolveIfRef(spec, specParameter?.schema);
 
         if (specParameterSchema) {
-          mutateWithOpenapiSchemaProperties(spec, parameter, specParameterSchema);
+          mutateWithOpenapiSchemaProperties(spec, parameter, specParameterSchema, mockDataContext);
         }
 
         if (parameter.in === "body") {
@@ -670,7 +814,7 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
             if (parameter.mediaType) {
               const bodySchema = resolveIfRef(spec, specBody.content?.[parameter.mediaType]?.schema);
               if (bodySchema) {
-                mutateWithOpenapiSchemaProperties(spec, parameter, bodySchema);
+                mutateWithOpenapiSchemaProperties(spec, parameter, bodySchema, mockDataContext);
               }
             }
             // Track all the media types that can be accepted in the request body
@@ -698,7 +842,7 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
       // Add variants of operation name
       (op as any).operationIdPascalCase = _upperFirst(op.name);
       (op as any).operationIdKebabCase = _kebabCase(op.name);
-      (op as any).operationIdSnakeCase = _snakeCase(op.name);
+      (op as any).operationIdSnakeCase = toPythonName('operation', op.name);
     });
 
     // Lexicographical ordering of operations to match openapi generator
@@ -709,19 +853,21 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
 
     // Add the service class name
     (service as any).className = `${service.name}Api`;
+    (service as any).classNameSnakeCase = snakeCase((service as any).className);
+    (service as any).nameSnakeCase = snakeCase(service.name);
   });
 
   // Augment models with additional data
   data.models.forEach((model) => {
     // Add a snake_case name
-    (model as any).nameSnakeCase = _snakeCase(model.name);
+    (model as any).nameSnakeCase = toPythonName('model', model.name);
 
-    const matchingSpecModel = spec?.components?.schemas?.[model.name]
+    const matchingSpecModel = spec?.components?.schemas?.[model.name];
 
     if (matchingSpecModel) {
       const specModel = resolveIfRef(spec, matchingSpecModel);
 
-      mutateWithOpenapiSchemaProperties(spec, model, specModel);
+      mutateWithOpenapiSchemaProperties(spec, model, specModel, mockDataContext);
 
       // Add unique imports
       (model as any).uniqueImports = _orderBy(_uniq([
@@ -744,7 +890,7 @@ const buildData = (inSpec: OpenAPIV3.Document, metadata: any) => {
 
         if (matchingSpecProperty) {
           const specProperty = resolveIfRef(spec, matchingSpecProperty);
-          mutateWithOpenapiSchemaProperties(spec, property, specProperty);
+          mutateWithOpenapiSchemaProperties(spec, property, specProperty, mockDataContext);
         }
 
         // Add language-specific names/types
@@ -801,7 +947,7 @@ export default async (argv: string[], rootScriptDir: string) => {
   const spec = (await SwaggerParser.bundle(args.specPath)) as any;
 
   // Build data
-  const data = buildData(spec, JSON.parse(args.metadata ?? '{}'));
+  const data = await buildData(spec, JSON.parse(args.metadata ?? '{}'));
 
   if (args.printData) {
     console.log(JSON.stringify(data, null, 2));
@@ -811,13 +957,12 @@ export default async (argv: string[], rootScriptDir: string) => {
   const templates = args.templateDirs.flatMap(t => fs.readdirSync(resolveTemplateDir(rootScriptDir, t), {
     recursive: true,
     withFileTypes: true
-  }).filter(f => f.isFile() && f.name.endsWith('.ejs')).map(f => path.join(f.parentPath ?? f.path, f.name)));
+  }).filter(f => f.isFile() && f.name.endsWith('.ejs') && !f.name.endsWith('.partial.ejs')).map(f => path.join(f.parentPath ?? f.path, f.name)));
 
   // Render the templates with the data from the spec
-  const renderedFiles = templates.map((template) => {
-    const templateContents = fs.readFileSync(template, 'utf-8');
-    return ejs.render(templateContents, data);
-  });
+  const renderedFiles = await Promise.all(templates.map(async (template) => {
+    return await ejs.renderFile(template, data);
+  }));
 
   // Prior to writing the new files, clean up
   cleanGeneratedCode(args.outputPath);

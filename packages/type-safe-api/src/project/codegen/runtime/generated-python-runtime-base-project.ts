@@ -5,14 +5,11 @@ import {
   CodeGenerationSourceOptions,
   GeneratedPythonRuntimeOptions,
 } from "../../types";
-import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
-import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
 import { TypeSafeApiCommandEnvironment } from "../components/type-safe-api-command-environment";
 import {
-  buildCleanOpenApiGeneratedCodeCommand,
-  buildInvokeOpenApiGeneratorCommandArgs,
+  buildCodegenCommandArgs,
   buildTypeSafeApiExecCommand,
-  GenerationOptions,
+  CodegenOptions,
   TypeSafeApiScript,
 } from "../components/utils";
 
@@ -28,32 +25,9 @@ export interface GeneratedPythonRuntimeBaseProjectOptions
  */
 export abstract class GeneratedPythonRuntimeBaseProject extends PythonProject {
   /**
-   * Patterns that are excluded from code generation
-   */
-  public static openApiIgnorePatterns: string[] = [
-    "test",
-    "test/*",
-    "test/**/*",
-    ".github",
-    ".github/*",
-    ".github/**/*",
-    ".gitlab-ci.yml",
-    ".travis.yml",
-    "git_push.sh",
-    "tox.ini",
-    "requirements.txt",
-    "test-requirements.txt",
-    "setup.py",
-    "setup.cfg",
-    "pyproject.toml",
-  ];
-
-  /**
    * Options configured for the project
    */
   protected readonly options: GeneratedPythonRuntimeBaseProjectOptions;
-
-  protected readonly openapiGeneratorIgnore: OpenApiGeneratorIgnoreFile;
 
   constructor(options: GeneratedPythonRuntimeBaseProjectOptions) {
     super({
@@ -80,22 +54,10 @@ export abstract class GeneratedPythonRuntimeBaseProject extends PythonProject {
       "python@^3.9",
     ].forEach((dep) => this.addDependency(dep));
 
-    this.openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);
-    this.openapiGeneratorIgnore.addPatterns(
-      ...GeneratedPythonRuntimeBaseProject.openApiIgnorePatterns
-    );
-
-    // Add OpenAPI Generator cli configuration
-    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig({
-      version: "7.1.0",
-      ...options.openApiGeneratorCliConfig,
-    });
-
     const generateTask = this.addTask("generate");
-    generateTask.exec(buildCleanOpenApiGeneratedCodeCommand());
     generateTask.exec(
       buildTypeSafeApiExecCommand(
-        TypeSafeApiScript.GENERATE,
+        TypeSafeApiScript.GENERATE_NEXT,
         this.buildGenerateCommandArgs()
       )
     );
@@ -104,15 +66,9 @@ export abstract class GeneratedPythonRuntimeBaseProject extends PythonProject {
 
     if (!this.options.commitGeneratedCode) {
       // Ignore all the generated code
-      this.gitignore.addPatterns(
-        this.moduleName,
-        "docs",
-        "README.md",
-        ".openapi-generator"
-      );
-    } else {
-      this.gitignore.addPatterns(".openapi-generator");
+      this.gitignore.addPatterns(this.moduleName, "docs", "README.md");
     }
+    this.gitignore.addPatterns(".openapi-generator", ".tsapi-manifest");
 
     // The poetry install that runs as part of post synthesis expects there to be some code present, but code isn't
     // generated until build time. This means that the first install will fail when either generating the project for
@@ -129,10 +85,8 @@ export abstract class GeneratedPythonRuntimeBaseProject extends PythonProject {
   }
 
   public buildGenerateCommandArgs = () => {
-    return buildInvokeOpenApiGeneratorCommandArgs(
-      this.buildOpenApiGeneratorOptions()
-    );
+    return buildCodegenCommandArgs(this.buildCodegenOptions());
   };
 
-  protected abstract buildOpenApiGeneratorOptions(): GenerationOptions;
+  protected abstract buildCodegenOptions(): CodegenOptions;
 }
