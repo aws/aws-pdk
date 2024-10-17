@@ -1,0 +1,44 @@
+<%_
+  const getExample = (parameter) => {
+    if (parameter.isPrimitive || parameter.export === "array" || parameter.export === "dictionary") {
+      if (parameter.type === "any" || parameter.pythonType === "bytearray") {
+        return "None";
+      }
+      return parameter.mockData ? JSON.stringify(parameter.mockData) : "<example>";
+    }
+    return `${metadata.moduleName}.${parameter.pythonType}()`;
+  };
+_%>
+```python
+import time
+import <%- metadata.moduleName %>
+from <%- metadata.moduleName %>.rest import ApiException
+from pprint import pprint
+<%_ const result = operation.results[0]; _%>
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = <%- metadata.moduleName %>.Configuration(
+    host = "http://localhost"
+)
+
+# Enter a context with an instance of the API client
+with <%- metadata.moduleName %>.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = <%- metadata.moduleName %>.<%- service.className %>(api_client)
+    <%_ operation.parameters.forEach((parameter) => { _%>
+    <%- parameter.pythonName %> = <%- getExample(parameter) %> # <%- parameter.pythonType %> | <%- parameter.description %><% if (!parameter.isRequired) { %> (optional)<% } %>
+    <%_ }); _%>
+
+    try:
+        <%_ if (operation.description) { _%>
+        # <%- operation.description %>
+        <%_ } _%>
+        <% if (result && result.type !== 'void') { %>api_response = <% } %>api_instance.<%- operation.operationIdSnakeCase %>(<% operation.parameters.forEach((parameter, i) => { %><% if (parameter.isRequired) { %><%- parameter.pythonName %><% } else { %><%- parameter.pythonName %>=<%- parameter.pythonName %><% } %><% if (i < operation.parameters.length - 1) { %>, <% } %><% }); %>)
+        <%_ if (result && result.type !== 'void') { _%>
+        print("The response of <%- service.className %>-><%- operation.operationIdSnakeCase %>:\n")
+        pprint(api_response)
+        <%_ } _%>
+    except ApiException as e:
+        print("Exception when calling <%- service.className %>-><%- operation.operationIdSnakeCase %>: %s\n" % e)
+```

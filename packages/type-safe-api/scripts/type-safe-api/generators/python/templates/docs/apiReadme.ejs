@@ -1,0 +1,73 @@
+<%_ services.forEach((service) => { _%>
+###TSAPI_WRITE_FILE###
+{
+  "dir": "docs",
+  "name": "<%- service.className %>",
+  "ext": ".md",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE#### <%- metadata.moduleName %>.<%- service.className %>
+<%_ if (service.description) { _%>
+<%- service.description %>
+<%_ } _%>
+
+Method | HTTP request | Description
+------------- | ------------- | -------------
+<%_ service.operations.forEach((operation) => { _%>
+[**<%- operation.operationIdSnakeCase %>**](<%- service.className %>.md#<%- operation.operationIdSnakeCase %>) | **<%- operation.method %>** <%- operation.path %> | <%- operation.summary || '' %>
+<%_ }); _%>
+
+<%_ service.operations.forEach((operation) => { _%>
+# **<%- operation.operationIdSnakeCase %>**
+<%_ const result = operation.results[0] _%>
+> <% if (result && result.type !== 'void') { %><%- result.pythonType %> <% } %><%- operation.operationIdSnakeCase %>(<% operation.parameters.forEach((parameter, i) => { %><% if (parameter.isRequired) { %><%- parameter.pythonName %><% } else { %><%- parameter.pythonName %>=<%- parameter.pythonName %><% } %><% if (i < operation.parameters.length - 1) { %>, <% } %><% }); %>)
+
+<%_ if (operation.summary) { _%>
+<%- operation.summary %>
+<%_ } _%>
+<%_ if (operation.description) { _%>
+
+<%- operation.description %>
+<%_ } _%>
+
+### Example
+
+<%- include('operationExample.partial.ejs', { metadata, service, operation }) %>
+
+### Parameters
+<%_ if (operation.parameters.length === 0) { _%>
+This endpoint does not need any parameters.
+<%_ } else { _%>
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+<%_ } _%>
+<%_ operation.parameters.forEach((parameter) => { _%>
+ **<%- parameter.pythonName %>** | <% if (parameter.isPrimitive || parameter.export === "array" || parameter.export === "dictionary") { %>**<%- parameter.pythonType %>**<% } else { %>[**<%- parameter.pythonType %>**](<%- parameter.pythonType %>.md)<% } %> | <%- parameter.description || '' %> | <% if (!parameter.isRequired) { %>[optional] <% } %>
+<%_ }); _%>
+
+### Return type
+
+<%_ if (result && result.type !== "void") { _%>
+<% if (result.isPrimitive || result.export === "array" || result.export === "dictionary") { %>**<%- result.pythonType %>**<% } else { %>[**<%- result.pythonType %>**](<%- result.pythonType %>.md)<% } %>
+<%_ } else { _%>
+void (empty response body)
+<%_ } _%>
+
+### HTTP request headers
+
+ - **Content-Type**: <% if (operation.parametersBody && operation.parametersBody.mediaTypes && operation.parametersBody.mediaTypes.length > 0) { %><%- operation.parametersBody.mediaTypes.join(', ') %><% } else { %>Not defined<% } %>
+ - **Accept**: <% if (result && result.mediaTypes && result.mediaTypes.length > 0) { %><%- result.mediaTypes.join(', ') %><% } else { %>Not defined<% } %>
+
+<%_ if (operation.responses.length > 0) { _%>
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+<%_ operation.responses.forEach((res) => { _%>
+**<%- res.code %>** | <%- res.description || '' %> |  -  |
+<%_ }); _%>
+<%_ } _%>
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+<%_ }); _%>
+<%_ }); _%>

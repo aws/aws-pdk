@@ -37,13 +37,9 @@ describe("Python Client Code Generation Script Unit Tests", () => {
           });
           project.synth();
           exec(
-            project.tasks.tryFind("create-openapitools.json")!.steps[0].exec!,
-            { cwd: outdir }
-          );
-          exec(
             `${path.resolve(
               __dirname,
-              "../../../scripts/type-safe-api/generators/generate"
+              "../../../scripts/type-safe-api/run.js generate"
             )} ${project.buildGenerateCommandArgs()}`,
             {
               cwd: outdir,
@@ -51,10 +47,7 @@ describe("Python Client Code Generation Script Unit Tests", () => {
           );
         },
         {
-          excludeGlobs: [
-            ...GeneratedPythonRuntimeProject.openApiIgnorePatterns,
-            "spec.yaml",
-          ],
+          excludeGlobs: ["spec.yaml", ".github"],
         }
       )
     ).toMatchSnapshot();

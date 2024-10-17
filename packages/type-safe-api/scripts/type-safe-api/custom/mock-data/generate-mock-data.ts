@@ -39,7 +39,7 @@ const resolveSchemaRef = (spec: OpenAPIV3.Document, ref: string): OpenAPIV3.Sche
   return resolved;
 };
 
-const generateMockResponse = (
+export const generateMockDataForSchema = (
   spec: OpenAPIV3.Document,
   args: GenerateProps,
   schemaOrRef: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject,
@@ -75,11 +75,11 @@ const generateMockResponse = (
     // Not isn't likely to occur in a Smithy-based project, but it could come up in OpenAPI
     // To keep this simple we return either an object or a string - since by definition we just need to
     // return a type that isn't the specified one.
-    const notResponse = generateMockResponse(spec, nextArgs, schema.not);
+    const notResponse = generateMockDataForSchema(spec, nextArgs, schema.not);
     if (typeof notResponse === "object") {
-      return generateMockResponse(spec, nextArgs, { type: "string" });
+      return generateMockDataForSchema(spec, nextArgs, { type: "string" });
     }
-    return generateMockResponse(spec, nextArgs, { type: "object" });
+    return generateMockDataForSchema(spec, nextArgs, { type: "object" });
   }
 
   if (schema.type === "integer") {
@@ -125,7 +125,7 @@ const generateMockResponse = (
     }
 
     return [...new Array(faker.number.int({ min: minItems, max: maxItems })).keys()].map(() =>
-      generateMockResponse(spec, nextArgs, (schema as OpenAPIV3.ArraySchemaObject).items));
+      generateMockDataForSchema(spec, nextArgs, (schema as OpenAPIV3.ArraySchemaObject).items));
   }
 
   // Type is an object, or allOf/oneOf/anyOf
@@ -137,7 +137,7 @@ const generateMockResponse = (
 
   if (schema.allOf) {
     // For allOf, combine the mocks together
-    return schema.allOf.map(s => generateMockResponse(spec, nextArgs, s) as object).reduce((allMocks, mock) => ({
+    return schema.allOf.map(s => generateMockDataForSchema(spec, nextArgs, s) as object).reduce((allMocks, mock) => ({
       ...allMocks,
       ...mock,
     }), {});
@@ -149,14 +149,14 @@ const generateMockResponse = (
       throw new Error(`oneOf / anyOf must define at least one subschema`);
     }
     // For oneOf / anyOf pick the first
-    return generateMockResponse(spec, nextArgs, (schema.oneOf || schema.anyOf)![0]);
+    return generateMockDataForSchema(spec, nextArgs, (schema.oneOf || schema.anyOf)![0]);
   }
 
   if (schema.type === "object") {
     // Additional properties that aren't circular refs
     if (!schema.properties && typeof schema.additionalProperties === "object" && !isRef(schema.additionalProperties)) {
       return Object.fromEntries([...new Array(faker.number.int({ min: 0, max: args.maxArrayLength ?? 0 })).keys()]
-        .map(i => [`${faker.lorem.slug(1)}-${i}`, generateMockResponse(spec, nextArgs, schema.additionalProperties as OpenAPIV3.SchemaObject)]));
+        .map(i => [`${faker.lorem.slug(1)}-${i}`, generateMockDataForSchema(spec, nextArgs, schema.additionalProperties as OpenAPIV3.SchemaObject)]));
     }
 
     const requiredProperties = new Set(schema.required ?? []);
@@ -164,7 +164,7 @@ const generateMockResponse = (
       // Filter out circular references we've seen if they are not required
       // If they are required, we'll recursively include them until the max depth is hit
       return requiredProperties.has(k) || !isRef(v);
-    }).map(([k, v]) => [k, generateMockResponse(
+    }).map(([k, v]) => [k, generateMockDataForSchema(
       spec,
       nextArgs,
       v,
@@ -286,7 +286,7 @@ export default async (argv: string[]) => {
             const schema = response?.content?.['application/json']?.schema;
             if (schema) {
               const mockResponseFilePath = path.join(outPath, `${method.toLowerCase()}${p.replace(/\//g, "-")}-${responseCode}.json`);
-              const mockResponse = generateMockResponse(spec, {
+              const mockResponse = generateMockDataForSchema(spec, {
                 faker,
                 maxArrayLength: args.maxArrayLength,
                 maxCircularReferenceDepth: 2,

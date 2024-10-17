@@ -1,0 +1,50 @@
+###TSAPI_WRITE_FILE###
+{
+  "id": "init",
+  "dir": "<%= metadata.srcDir || 'src' %>",
+  "name": "__init__",
+  "ext": ".py",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE#### coding: utf-8
+
+# flake8: noqa
+
+"""
+    <%- info.title %>
+
+    <%- info.description || 'No description provided' %>
+
+    The version of the OpenAPI document: <%- info.version %>
+
+    NOTE: This class is auto generated.
+    Do not edit the class manually.
+"""  # noqa: E501
+
+__version__ = "<%- info.version %>"
+
+# import apis into sdk package
+<%_ services.forEach((service) => { _%>
+from <%- metadata.moduleName %>.api.<%- service.classNameSnakeCase %> import <%- service.className %>
+<%_ }); _%>
+
+# import ApiClient
+from <%- metadata.moduleName %>.api_response import ApiResponse
+from <%- metadata.moduleName %>.api_client import ApiClient
+from <%- metadata.moduleName %>.configuration import Configuration
+from <%- metadata.moduleName %>.exceptions import OpenApiException
+from <%- metadata.moduleName %>.exceptions import ApiTypeError
+from <%- metadata.moduleName %>.exceptions import ApiValueError
+from <%- metadata.moduleName %>.exceptions import ApiKeyError
+from <%- metadata.moduleName %>.exceptions import ApiAttributeError
+from <%- metadata.moduleName %>.exceptions import ApiException
+
+# import models into sdk package
+<%_ const modelsByName = Object.fromEntries(models.map(m => [m.name, m])); _%>
+<%_ const modelNameToParentModel = Object.fromEntries(models
+        .filter(m => m.composedModels && m.composedModels.length > 0)
+        .flatMap(parent => parent.composedModels.map(child => [child.name, parent]))); _%>
+<%_ /* Filter out models which are hoisted children of all-ofs, since for python we mix in child properties */ _%>
+<%_ models.filter(m => !(m.isHoisted && modelNameToParentModel[m.name] && modelNameToParentModel[m.name].export === "all-of")).forEach((model) => { _%>
+from <%- metadata.moduleName %>.models.<%- model.nameSnakeCase %> import <%- model.name %>
+<%_ }); _%>
