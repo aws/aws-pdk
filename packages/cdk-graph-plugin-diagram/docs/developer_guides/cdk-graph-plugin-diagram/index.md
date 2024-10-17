@@ -371,6 +371,23 @@ new CdkGraphDiagramPlugin({
 
 </details>
 
+##### **Node Positions**
+
+<details>
+<summary>Fixed y-coordinate for a node</summary>
+
+<img src="../../assets/cdk-graph-plugin-diagram/node-positions.png" height="200" />
+
+```ts
+{
+  nodePositions: {
+    WebServer: { x: 0, y: 10 },
+  },
+},
+```
+
+</details>
+
 ---
 
 ### Future Enhancements
