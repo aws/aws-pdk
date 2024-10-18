@@ -71,10 +71,8 @@ export class TypeSafeApiProject extends PDKProject {
           "scripts/type-safe-api/generators/generate",
           "scripts/type-safe-api/run.js",
           "scripts/type-safe-api/custom/clean-openapi-generated-code/clean-openapi-generated-code",
-          "scripts/type-safe-api/custom/gradle-wrapper/copy-gradle-wrapper",
           "scripts/type-safe-api/custom/gradle-wrapper/gradlew",
           "scripts/type-safe-api/custom/gradle-wrapper/gradlew.bat",
-          "scripts/type-safe-api/custom/smithy-async-transformer/copy-transformer",
         ],
       },
       bin: {
@@ -82,10 +80,6 @@ export class TypeSafeApiProject extends PDKProject {
         "type-safe-api.generate": "scripts/type-safe-api/generators/generate",
         "type-safe-api.clean-openapi-generated-code":
           "scripts/type-safe-api/custom/clean-openapi-generated-code/clean-openapi-generated-code",
-        "type-safe-api.copy-gradle-wrapper":
-          "scripts/type-safe-api/custom/gradle-wrapper/copy-gradle-wrapper",
-        "type-safe-api.copy-async-smithy-transformer":
-          "scripts/type-safe-api/custom/smithy-async-transformer/copy-transformer",
       },
     });
 
