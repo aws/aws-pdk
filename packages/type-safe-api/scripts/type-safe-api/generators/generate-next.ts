@@ -572,7 +572,7 @@ const isCompositeSchema = (schema: OpenAPIV3.SchemaObject) =>
   !!schema.allOf || !!schema.anyOf || !!schema.oneOf;
 
 const hasSubSchemasToVisit = (schema?: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject): schema is OpenAPIV3.SchemaObject =>
-  !!schema && !isRef(schema) && (["object", "array"].includes(schema.type as any) || isCompositeSchema(schema) || !!schema.not);
+  !!schema && !isRef(schema) && (["object", "array"].includes(schema.type as any) || isCompositeSchema(schema) || !!schema.not || (schema.type === "string" && !!schema.enum));
 
 const filterInlineCompositeSchemas = (schemas: (OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject)[], nameParts: string[], namePartPrefix: string, prop: string): SubSchema[] => {
   let inlineSchemaIndex = 0;
@@ -602,8 +602,8 @@ const hoistInlineObjectSubSchemas = (nameParts: string[], schema: OpenAPIV3.Sche
   const recursiveRefs = inlineSubSchemas.flatMap((s) => hoistInlineObjectSubSchemas(s.nameParts, s.schema));
 
   // Clone the object subschemas to build the refs. Note that only objects with "properties" are hoisted as these are non-dictionary types
-  const refs = inlineSubSchemas.filter(s => (s.schema.type === "object" && s.schema.properties) || isCompositeSchema(s.schema)).map(s => {
-    const name = s.nameParts.map(_upperFirst).join('');
+  const refs = inlineSubSchemas.filter(s => (s.schema.type === "object" && s.schema.properties) || isCompositeSchema(s.schema) || (s.schema.type === "string" && s.schema.enum)).map(s => {
+    const name = [...s.nameParts, ...(s.schema.type === "string" && s.schema.enum ? ["Enum"] : [])].map(_upperFirst).join('');
     const $ref = `#/components/schemas/${name}`;
     const ref = {
       $ref,

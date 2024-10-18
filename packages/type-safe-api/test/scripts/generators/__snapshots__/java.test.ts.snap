@@ -32427,6 +32427,7 @@ api/openapi.yaml
 build.gradle
 build.sbt
 docs/DefaultApi.md
+docs/InlineEnum200Response.md
 docs/MyEnum.md
 git_push.sh
 gradle.properties
@@ -32461,8 +32462,10 @@ src/main/java/test/test/runtime/auth/Authentication.java
 src/main/java/test/test/runtime/auth/HttpBasicAuth.java
 src/main/java/test/test/runtime/auth/HttpBearerAuth.java
 src/main/java/test/test/runtime/model/AbstractOpenApiSchema.java
+src/main/java/test/test/runtime/model/InlineEnum200Response.java
 src/main/java/test/test/runtime/model/MyEnum.java
 src/test/java/test/test/runtime/api/DefaultApiTest.java
+src/test/java/test/test/runtime/model/InlineEnum200ResponseTest.java
 src/test/java/test/test/runtime/model/MyEnumTest.java
 src/main/java/test/test/runtime/api/handlers/Handlers.java
 src/main/java/test/test/runtime/api/handlers/Response.java
@@ -32475,16 +32478,22 @@ src/main/java/test/test/runtime/api/handlers/ChainedRequestInput.java
 src/main/java/test/test/runtime/api/handlers/InterceptorWarmupChainedRequestInput.java
 src/main/java/test/test/runtime/api/handlers/InterceptorWithWarmup.java
 src/main/java/test/test/runtime/api/handlers/array_request_parameters/ArrayRequestParametersResponse.java
+src/main/java/test/test/runtime/api/handlers/inline_enum/InlineEnumResponse.java
 src/main/java/test/test/runtime/api/handlers/reserved_keywords/ReservedKeywordsResponse.java
 src/main/java/test/test/runtime/api/handlers/array_request_parameters/ArrayRequestParameters200Response.java
+src/main/java/test/test/runtime/api/handlers/inline_enum/InlineEnum200Response.java
 src/main/java/test/test/runtime/api/handlers/reserved_keywords/ReservedKeywords200Response.java
 src/main/java/test/test/runtime/api/handlers/array_request_parameters/ArrayRequestParametersRequestParameters.java
+src/main/java/test/test/runtime/api/handlers/inline_enum/InlineEnumRequestParameters.java
 src/main/java/test/test/runtime/api/handlers/reserved_keywords/ReservedKeywordsRequestParameters.java
 src/main/java/test/test/runtime/api/handlers/array_request_parameters/ArrayRequestParametersInput.java
+src/main/java/test/test/runtime/api/handlers/inline_enum/InlineEnumInput.java
 src/main/java/test/test/runtime/api/handlers/reserved_keywords/ReservedKeywordsInput.java
 src/main/java/test/test/runtime/api/handlers/array_request_parameters/ArrayRequestParametersRequestInput.java
+src/main/java/test/test/runtime/api/handlers/inline_enum/InlineEnumRequestInput.java
 src/main/java/test/test/runtime/api/handlers/reserved_keywords/ReservedKeywordsRequestInput.java
 src/main/java/test/test/runtime/api/handlers/array_request_parameters/ArrayRequestParameters.java
+src/main/java/test/test/runtime/api/handlers/inline_enum/InlineEnum.java
 src/main/java/test/test/runtime/api/handlers/reserved_keywords/ReservedKeywords.java
 src/main/java/test/test/runtime/api/handlers/HandlerRouter.java
 src/main/java/test/test/runtime/api/interceptors/TryCatchInterceptor.java
@@ -32635,11 +32644,13 @@ All URIs are relative to *http://localhost*
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 *DefaultApi* | [**arrayRequestParameters**](docs/DefaultApi.md#arrayRequestParameters) | **GET** /array-request-parameters | 
+*DefaultApi* | [**inlineEnum**](docs/DefaultApi.md#inlineEnum) | **GET** /inline-enum | 
 *DefaultApi* | [**reservedKeywords**](docs/DefaultApi.md#reservedKeywords) | **GET** /reserved-keywords | 
 
 
 ## Documentation for Models
 
+ - [InlineEnum200Response](docs/InlineEnum200Response.md)
  - [MyEnum](docs/MyEnum.md)
 
 
@@ -32777,6 +32788,17 @@ paths:
         "200":
           description: ok
       x-accepts: application/json
+  /inline-enum:
+    get:
+      operationId: inlineEnum
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inlineEnum_200_response'
+          description: ok
+      x-accepts: application/json
 components:
   schemas:
     MyEnum:
@@ -32785,6 +32807,14 @@ components:
       - two
       - three
       type: string
+    inlineEnum_200_response:
+      properties:
+        category:
+          enum:
+          - fruit
+          - vegetable
+          type: string
+      type: object
 
 ",
   "docs/DefaultApi.md": "# DefaultApi
@@ -32794,6 +32824,7 @@ All URIs are relative to *http://localhost*
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
 | [**arrayRequestParameters**](DefaultApi.md#arrayRequestParameters) | **GET** /array-request-parameters |  |
+| [**inlineEnum**](DefaultApi.md#inlineEnum) | **GET** /inline-enum |  |
 | [**reservedKeywords**](DefaultApi.md#reservedKeywords) | **GET** /reserved-keywords |  |
 
 
@@ -32879,6 +32910,63 @@ No authorization required
 |-------------|-------------|------------------|
 | **200** | ok |  -  |
 
+<a name="inlineEnum"></a>
+# **inlineEnum**
+> InlineEnum200Response inlineEnum().execute();
+
+
+
+### Example
+\`\`\`java
+// Import classes:
+import test.test.runtime.ApiClient;
+import test.test.runtime.ApiException;
+import test.test.runtime.Configuration;
+import test.test.runtime.models.*;
+import test.test.runtime.api.DefaultApi;
+
+public class Example {
+  public static void main(String[] args) {
+    ApiClient defaultClient = Configuration.getDefaultApiClient();
+    defaultClient.setBasePath("http://localhost");
+
+    DefaultApi apiInstance = new DefaultApi(defaultClient);
+    try {
+      InlineEnum200Response result = apiInstance.inlineEnum()
+            .execute();
+      System.out.println(result);
+    } catch (ApiException e) {
+      System.err.println("Exception when calling DefaultApi#inlineEnum");
+      System.err.println("Status code: " + e.getCode());
+      System.err.println("Reason: " + e.getResponseBody());
+      System.err.println("Response headers: " + e.getResponseHeaders());
+      e.printStackTrace();
+    }
+  }
+}
+\`\`\`
+
+### Parameters
+This endpoint does not need any parameter.
+
+### Return type
+
+[**InlineEnum200Response**](InlineEnum200Response.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | ok |  -  |
+
 <a name="reservedKeywords"></a>
 # **reservedKeywords**
 > reservedKeywords().with(with)._if(_if).propertyClass(propertyClass).execute();
@@ -32945,6 +33033,29 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | ok |  -  |
+
+",
+  "docs/InlineEnum200Response.md": "
+
+# InlineEnum200Response
+
+
+## Properties
+
+| Name | Type | Description | Notes |
+|------------ | ------------- | ------------- | -------------|
+|**category** | [**CategoryEnum**](#CategoryEnum) |  |  [optional] |
+
+
+
+## Enum: CategoryEnum
+
+| Name | Value |
+|---- | -----|
+| FRUIT | &quot;fruit&quot; |
+| VEGETABLE | &quot;vegetable&quot; |
+
+
 
 ",
   "docs/MyEnum.md": "
@@ -35048,6 +35159,7 @@ public class JSON {
         gsonBuilder.registerTypeAdapter(OffsetDateTime.class, offsetDateTimeTypeAdapter);
         gsonBuilder.registerTypeAdapter(LocalDate.class, localDateTypeAdapter);
         gsonBuilder.registerTypeAdapter(byte[].class, byteArrayAdapter);
+        gsonBuilder.registerTypeAdapterFactory(new test.test.runtime.model.InlineEnum200Response.CustomTypeAdapterFactory());
         gson = gsonBuilder.create();
     }
 
@@ -35754,6 +35866,7 @@ import java.io.IOException;
 
 
 import java.math.BigDecimal;
+import test.test.runtime.model.InlineEnum200Response;
 import test.test.runtime.model.MyEnum;
 
 import java.lang.reflect.Type;
@@ -36058,6 +36171,149 @@ public class DefaultApi {
     public APIarrayRequestParametersRequest arrayRequestParameters() {
         return new APIarrayRequestParametersRequest();
     }
+    private okhttp3.Call inlineEnumCall(final ApiCallback _callback) throws ApiException {
+        String basePath = null;
+        // Operation Servers
+        String[] localBasePaths = new String[] {  };
+
+        // Determine Base Path to Use
+        if (localCustomBaseUrl != null){
+            basePath = localCustomBaseUrl;
+        } else if ( localBasePaths.length > 0 ) {
+            basePath = localBasePaths[localHostIndex];
+        } else {
+            basePath = null;
+        }
+
+        Object localVarPostBody = null;
+
+        // create path and map variables
+        String localVarPath = "/inline-enum";
+
+        List<Pair> localVarQueryParams = new ArrayList<Pair>();
+        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
+        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+        Map<String, String> localVarCookieParams = new HashMap<String, String>();
+        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+
+        final String[] localVarAccepts = {
+            "application/json"
+        };
+        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
+        if (localVarAccept != null) {
+            localVarHeaderParams.put("Accept", localVarAccept);
+        }
+
+        final String[] localVarContentTypes = {
+        };
+        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
+        if (localVarContentType != null) {
+            localVarHeaderParams.put("Content-Type", localVarContentType);
+        }
+
+        String[] localVarAuthNames = new String[] {  };
+        return localVarApiClient.buildCall(basePath, localVarPath, "GET", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
+    }
+
+    @SuppressWarnings("rawtypes")
+    private okhttp3.Call inlineEnumValidateBeforeCall(final ApiCallback _callback) throws ApiException {
+        return inlineEnumCall(_callback);
+
+    }
+
+
+    private ApiResponse<InlineEnum200Response> inlineEnumWithHttpInfo() throws ApiException {
+        okhttp3.Call localVarCall = inlineEnumValidateBeforeCall(null);
+        Type localVarReturnType = new TypeToken<InlineEnum200Response>(){}.getType();
+        return localVarApiClient.execute(localVarCall, localVarReturnType);
+    }
+
+    private okhttp3.Call inlineEnumAsync(final ApiCallback<InlineEnum200Response> _callback) throws ApiException {
+
+        okhttp3.Call localVarCall = inlineEnumValidateBeforeCall(_callback);
+        Type localVarReturnType = new TypeToken<InlineEnum200Response>(){}.getType();
+        localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
+        return localVarCall;
+    }
+
+    public class APIinlineEnumRequest {
+
+        private APIinlineEnumRequest() {
+        }
+
+        /**
+         * Build call for inlineEnum
+         * @param _callback ApiCallback API callback
+         * @return Call to execute
+         * @throws ApiException If fail to serialize the request body object
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 200 </td><td> ok </td><td>  -  </td></tr>
+         </table>
+         */
+        public okhttp3.Call buildCall(final ApiCallback _callback) throws ApiException {
+            return inlineEnumCall(_callback);
+        }
+
+        /**
+         * Execute inlineEnum request
+         * @return InlineEnum200Response
+         * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 200 </td><td> ok </td><td>  -  </td></tr>
+         </table>
+         */
+        public InlineEnum200Response execute() throws ApiException {
+            ApiResponse<InlineEnum200Response> localVarResp = inlineEnumWithHttpInfo();
+            return localVarResp.getData();
+        }
+
+        /**
+         * Execute inlineEnum request with HTTP info returned
+         * @return ApiResponse&lt;InlineEnum200Response&gt;
+         * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 200 </td><td> ok </td><td>  -  </td></tr>
+         </table>
+         */
+        public ApiResponse<InlineEnum200Response> executeWithHttpInfo() throws ApiException {
+            return inlineEnumWithHttpInfo();
+        }
+
+        /**
+         * Execute inlineEnum request (asynchronously)
+         * @param _callback The callback to be executed when the API call finishes
+         * @return The request call
+         * @throws ApiException If fail to process the API call, e.g. serializing the request body object
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 200 </td><td> ok </td><td>  -  </td></tr>
+         </table>
+         */
+        public okhttp3.Call executeAsync(final ApiCallback<InlineEnum200Response> _callback) throws ApiException {
+            return inlineEnumAsync(_callback);
+        }
+    }
+
+    /**
+     * 
+     * 
+     * @return APIinlineEnumRequest
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> ok </td><td>  -  </td></tr>
+     </table>
+     */
+    public APIinlineEnumRequest inlineEnum() {
+        return new APIinlineEnumRequest();
+    }
     private okhttp3.Call reservedKeywordsCall(String with, String _if, String propertyClass, final ApiCallback _callback) throws ApiException {
         String basePath = null;
         // Operation Servers
@@ -36289,6 +36545,7 @@ public interface HandlerChain<TInput> {
 package test.test.runtime.api.handlers;
 
 import test.test.runtime.api.handlers.array_request_parameters.*;
+import test.test.runtime.api.handlers.inline_enum.*;
 import test.test.runtime.api.handlers.reserved_keywords.*;
 
 import test.test.runtime.api.handlers.Handlers;
@@ -36308,9 +36565,11 @@ import java.util.Collections;
 
 public abstract class HandlerRouter implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
     private static final String arrayRequestParametersMethodAndPath = Handlers.concatMethodAndPath("GET", "/array-request-parameters");
+    private static final String inlineEnumMethodAndPath = Handlers.concatMethodAndPath("GET", "/inline-enum");
     private static final String reservedKeywordsMethodAndPath = Handlers.concatMethodAndPath("GET", "/reserved-keywords");
 
     private final ArrayRequestParameters constructedArrayRequestParameters;
+    private final InlineEnum constructedInlineEnum;
     private final ReservedKeywords constructedReservedKeywords;
 
     /**
@@ -36318,12 +36577,17 @@ public abstract class HandlerRouter implements RequestHandler<APIGatewayProxyReq
      */
     public abstract ArrayRequestParameters arrayRequestParameters();
     /**
+     * This method must return your implementation of the InlineEnum operation
+     */
+    public abstract InlineEnum inlineEnum();
+    /**
      * This method must return your implementation of the ReservedKeywords operation
      */
     public abstract ReservedKeywords reservedKeywords();
 
     private static enum Route {
         arrayRequestParametersRoute,
+        inlineEnumRoute,
         reservedKeywordsRoute,
     }
 
@@ -36334,11 +36598,13 @@ public abstract class HandlerRouter implements RequestHandler<APIGatewayProxyReq
 
     public HandlerRouter() {
         this.routes.put(arrayRequestParametersMethodAndPath, Route.arrayRequestParametersRoute);
+        this.routes.put(inlineEnumMethodAndPath, Route.inlineEnumRoute);
         this.routes.put(reservedKeywordsMethodAndPath, Route.reservedKeywordsRoute);
         // Handlers are all constructed in the router's constructor such that lambda behaviour remains consistent;
         // ie resources created in the constructor remain in memory between invocations.
         // https://docs.aws.amazon.com/lambda/latest/dg/java-handler.html
         this.constructedArrayRequestParameters = this.arrayRequestParameters();
+        this.constructedInlineEnum = this.inlineEnum();
         this.constructedReservedKeywords = this.reservedKeywords();
     }
 
@@ -36363,6 +36629,10 @@ public abstract class HandlerRouter implements RequestHandler<APIGatewayProxyReq
                 List<Interceptor<ArrayRequestParametersInput>> arrayRequestParametersInterceptors = Handlers.getAnnotationInterceptors(this.getClass());
                 arrayRequestParametersInterceptors.addAll(this.getInterceptors());
                 return this.constructedArrayRequestParameters.handleRequestWithAdditionalInterceptors(event, context, arrayRequestParametersInterceptors);
+            case inlineEnumRoute:
+                List<Interceptor<InlineEnumInput>> inlineEnumInterceptors = Handlers.getAnnotationInterceptors(this.getClass());
+                inlineEnumInterceptors.addAll(this.getInterceptors());
+                return this.constructedInlineEnum.handleRequestWithAdditionalInterceptors(event, context, inlineEnumInterceptors);
             case reservedKeywordsRoute:
                 List<Interceptor<ReservedKeywordsInput>> reservedKeywordsInterceptors = Handlers.getAnnotationInterceptors(this.getClass());
                 reservedKeywordsInterceptors.addAll(this.getInterceptors());
@@ -36406,6 +36676,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 
 import java.math.BigDecimal;
+import test.test.runtime.model.InlineEnum200Response;
 import test.test.runtime.model.MyEnum;
 
 import test.test.runtime.JSON;
@@ -37474,6 +37745,410 @@ import test.test.runtime.api.handlers.Response;
  */
 public interface ArrayRequestParametersResponse extends Response {}
 ",
+  "src/main/java/test/test/runtime/api/handlers/inline_enum/InlineEnum.java": "
+package test.test.runtime.api.handlers.inline_enum;
+
+import test.test.runtime.model.*;
+import test.test.runtime.JSON;
+import test.test.runtime.api.handlers.Interceptor;
+import test.test.runtime.api.handlers.Handlers;
+import test.test.runtime.api.handlers.*;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Collections;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+import java.io.IOException;
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.RequestHandler;
+import org.crac.Core;
+import org.crac.Resource;
+
+
+/**
+ * Lambda handler wrapper for the inlineEnum operation
+ */
+public abstract class InlineEnum implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent>, Resource {
+    {
+        Core.getGlobalContext().register(this);
+    }
+
+    /**
+     * Handle the request for the inlineEnum operation
+     */
+    public abstract InlineEnumResponse handle(final InlineEnumRequestInput request);
+
+    /**
+     * Interceptors that the handler class has been decorated with
+     */
+    private List<Interceptor<InlineEnumInput>> annotationInterceptors = Handlers.getAnnotationInterceptors(InlineEnum.class);
+
+    /**
+     * For more complex interceptors that require instantiation with parameters, you may override this method to
+     * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
+     * prefer the @Interceptors annotation.
+     */
+    public List<Interceptor<InlineEnumInput>> getInterceptors() {
+        return Collections.emptyList();
+    }
+
+    private List<Interceptor<InlineEnumInput>> getHandlerInterceptors() {
+        List<Interceptor<InlineEnumInput>> interceptors = new ArrayList<>();
+        interceptors.addAll(annotationInterceptors);
+        interceptors.addAll(this.getInterceptors());
+        return interceptors;
+    }
+
+    private HandlerChain<InlineEnumInput> buildChain(List<Interceptor<InlineEnumInput>> interceptors) {
+        return Handlers.buildHandlerChain(interceptors, new HandlerChain<InlineEnumInput>() {
+            @Override
+            public Response next(ChainedRequestInput<InlineEnumInput> input) {
+                return handle(new InlineEnumRequestInput(input.getEvent(), input.getContext(), input.getInterceptorContext(), input.getInput()));
+            }
+        });
+    }
+
+    private ChainedRequestInput<InlineEnumInput> buildChainedRequestInput(final APIGatewayProxyRequestEvent event, final Context context, final InlineEnumInput input, final Map<String, Object> interceptorContext) {
+        return new ChainedRequestInput<InlineEnumInput>() {
+            @Override
+            public HandlerChain getChain() {
+                // The chain's next method ignores the chain given as input, and is pre-built to follow the remaining
+                // chain.
+                return null;
+            }
+
+            @Override
+            public APIGatewayProxyRequestEvent getEvent() {
+                return event;
+            }
+
+            @Override
+            public Context getContext() {
+                return context;
+            }
+
+            @Override
+            public InlineEnumInput getInput() {
+                return input;
+            }
+
+            @Override
+            public Map<String, Object> getInterceptorContext() {
+                return interceptorContext;
+            }
+        };
+    }
+
+    @Override
+    public void beforeCheckpoint(org.crac.Context<? extends Resource> context) {
+        // Prime building the handler chain which can take a few 100ms to JIT.
+        this.buildChain(this.getHandlerInterceptors());
+        this.buildChainedRequestInput(null, null, null, null);
+
+        // Initialise instance of Gson and prime serialisation and deserialisation
+        new JSON();
+        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>(), new HashMap<>())), ApiResponse.class);
+
+        try {
+            // Prime input validation - this will likely fail for the fake event but ensures the code path is optimised
+            // ready for a real invocation
+            new InlineEnumInput(new APIGatewayProxyRequestEvent()
+                    .withBody("{}")
+                    .withPathParameters(new HashMap<>())
+                    .withQueryStringParameters(new HashMap<>())
+                    .withMultiValueQueryStringParameters(new HashMap<>())
+                    .withHeaders(new HashMap<>())
+                    .withMultiValueHeaders(new HashMap<>())
+            );
+        } catch (Exception e) {
+
+        }
+
+        this.warmUp();
+    }
+
+    @Override
+    public void afterRestore(org.crac.Context<? extends Resource> context) {
+
+    }
+
+    /**
+     * Override this method to perform any warmup activities which will be executed prior to the snap-start snapshot.
+     */
+    public void warmUp() {
+
+    }
+
+    @Override
+    public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent event, final Context context) {
+        return this.handleRequestWithAdditionalInterceptors(event, context, new ArrayList<>());
+    }
+
+    private Map<String, String> getErrorResponseHeaders(final int statusCode) {
+        Map<String, String> headers = new HashMap<>();
+        return headers;
+    }
+
+    public APIGatewayProxyResponseEvent handleRequestWithAdditionalInterceptors(final APIGatewayProxyRequestEvent event, final Context context, final List<Interceptor<InlineEnumInput>> additionalInterceptors) {
+        final Map<String, Object> interceptorContext = new HashMap<>();
+        interceptorContext.put("operationId", "inlineEnum");
+
+        List<Interceptor<InlineEnumInput>> interceptors = new ArrayList<>();
+        interceptors.addAll(additionalInterceptors);
+        interceptors.addAll(this.getHandlerInterceptors());
+
+        final HandlerChain chain = this.buildChain(interceptors);
+
+        InlineEnumInput input;
+
+        try {
+            input = new InlineEnumInput(event);
+        } catch (RuntimeException e) {
+            Map<String, String> headers = new HashMap<>();
+            headers.putAll(Handlers.extractResponseHeadersFromInterceptors(interceptors));
+            headers.putAll(this.getErrorResponseHeaders(400));
+            return new APIGatewayProxyResponseEvent()
+                .withStatusCode(400)
+                .withHeaders(headers)
+                .withBody("{\\"message\\": \\"" + e.getMessage() + "\\"}");
+        }
+
+        final Response response = chain.next(this.buildChainedRequestInput(event, context, input, interceptorContext));
+
+        Map<String, String> responseHeaders = new HashMap<>();
+        responseHeaders.putAll(this.getErrorResponseHeaders(response.getStatusCode()));
+        responseHeaders.putAll(response.getHeaders());
+
+        return new APIGatewayProxyResponseEvent()
+                .withStatusCode(response.getStatusCode())
+                .withHeaders(responseHeaders)
+                .withMultiValueHeaders(response.getMultiValueHeaders())
+                .withBody(response.getBody());
+    }
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/inline_enum/InlineEnum200Response.java": "
+package test.test.runtime.api.handlers.inline_enum;
+
+import test.test.runtime.model.*;
+import test.test.runtime.JSON;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+
+/**
+ * Response with status code 200 for the inlineEnum operation
+ */
+public class InlineEnum200Response extends RuntimeException implements InlineEnumResponse {
+    static {
+        // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
+        // Create an instance here if required to ensure that the static Gson instance is always available.
+        if (JSON.getGson() == null) {
+            new JSON();
+        }
+    }
+
+    private final String body;
+    private final InlineEnum200Response typedBody;
+    private final Map<String, String> headers;
+    private final Map<String, List<String>> multiValueHeaders;
+
+    private InlineEnum200Response(final InlineEnum200Response body, final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
+        this.typedBody = body;
+        this.body = body.toJson();
+        this.headers = headers;
+        this.multiValueHeaders = multiValueHeaders;
+    }
+
+    @Override
+    public int getStatusCode() {
+        return 200;
+    }
+
+    @Override
+    public String getBody() {
+        return this.body;
+    }
+
+    public InlineEnum200Response getTypedBody() {
+        return this.typedBody;
+    }
+
+    @Override
+    public Map<String, String> getHeaders() {
+        return this.headers;
+    }
+
+    @Override
+    public Map<String, List<String>> getMultiValueHeaders() {
+        return this.multiValueHeaders;
+    }
+
+    /**
+     * Create a InlineEnum200Response with a body
+     */
+    public static InlineEnum200Response of(final InlineEnum200Response body) {
+        return new InlineEnum200Response(body, new HashMap<>(), new HashMap<>());
+    }
+
+    /**
+     * Create a InlineEnum200Response with a body and headers
+     */
+    public static InlineEnum200Response of(final InlineEnum200Response body, final Map<String, String> headers) {
+        return new InlineEnum200Response(body, headers, new HashMap<>());
+    }
+
+    /**
+     * Create a InlineEnum200Response with a body, headers and multi-value headers
+     */
+    public static InlineEnum200Response of(final InlineEnum200Response body, final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
+        return new InlineEnum200Response(body, headers, multiValueHeaders);
+    }
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/inline_enum/InlineEnumInput.java": "
+package test.test.runtime.api.handlers.inline_enum;
+
+import test.test.runtime.model.*;
+import test.test.runtime.JSON;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import java.io.IOException;
+
+/**
+ * Input for the inlineEnum operation
+ */
+@lombok.Builder
+@lombok.AllArgsConstructor
+public class InlineEnumInput {
+    static {
+        // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
+        // Create an instance here if required to ensure that the static Gson instance is always available.
+        if (JSON.getGson() == null) {
+            new JSON();
+        }
+    }
+
+    private final InlineEnumRequestParameters requestParameters;
+
+    public InlineEnumInput(final APIGatewayProxyRequestEvent event) {
+        this.requestParameters = new InlineEnumRequestParameters(event);
+    }
+
+    public InlineEnumRequestParameters getRequestParameters() {
+        return this.requestParameters;
+    }
+
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/inline_enum/InlineEnumRequestInput.java": "
+package test.test.runtime.api.handlers.inline_enum;
+
+import test.test.runtime.model.*;
+import test.test.runtime.api.handlers.RequestInput;
+import java.util.List;
+import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import java.io.IOException;
+import com.amazonaws.services.lambda.runtime.Context;
+
+/**
+ * Full request input for the inlineEnum operation, including the raw API Gateway event
+ */
+@lombok.Builder
+@lombok.AllArgsConstructor
+public class InlineEnumRequestInput implements RequestInput<InlineEnumInput> {
+    private final APIGatewayProxyRequestEvent event;
+    private final Context context;
+    private final Map<String, Object> interceptorContext;
+    private final InlineEnumInput input;
+
+    /**
+     * Returns the typed request input, with path, query and body parameters
+     */
+    public InlineEnumInput getInput() {
+        return this.input;
+    }
+
+    /**
+     * Returns the raw API Gateway event
+     */
+    public APIGatewayProxyRequestEvent getEvent() {
+        return this.event;
+    }
+
+    /**
+     * Returns the lambda context
+     */
+    public Context getContext() {
+        return this.context;
+    }
+
+    /**
+     * Returns the interceptor context, which may contain values set by request interceptors
+     */
+    public Map<String, Object> getInterceptorContext() {
+        return this.interceptorContext;
+    }
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/inline_enum/InlineEnumRequestParameters.java": "
+package test.test.runtime.api.handlers.inline_enum;
+
+import test.test.runtime.api.handlers.Handlers;
+import java.util.Optional;
+import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.time.OffsetDateTime;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+
+/**
+ * Query, path and header parameters for the InlineEnum operation
+ */
+@lombok.Builder
+@lombok.AllArgsConstructor
+public class InlineEnumRequestParameters {
+
+    public InlineEnumRequestParameters(final APIGatewayProxyRequestEvent event) {
+        Map<String, String> rawStringParameters = new HashMap<>();
+        Handlers.putAllFromNullableMap(event.getPathParameters(), rawStringParameters);
+        Handlers.putAllFromNullableMap(event.getQueryStringParameters(), rawStringParameters);
+        Handlers.putAllFromNullableMap(event.getHeaders(), rawStringParameters);
+        Map<String, String> decodedStringParameters = Handlers.decodeRequestParameters(rawStringParameters);
+
+        Map<String, List<String>> rawStringArrayParameters = new HashMap<>();
+        Handlers.putAllFromNullableMap(event.getMultiValueQueryStringParameters(), rawStringArrayParameters);
+        Handlers.putAllFromNullableMap(event.getMultiValueHeaders(), rawStringArrayParameters);
+        Map<String, List<String>> decodedStringArrayParameters = Handlers.decodeRequestArrayParameters(rawStringArrayParameters);
+
+    }
+
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/inline_enum/InlineEnumResponse.java": "
+package test.test.runtime.api.handlers.inline_enum;
+
+import test.test.runtime.api.handlers.Response;
+
+/**
+ * Response for the inlineEnum operation
+ */
+public interface InlineEnumResponse extends Response {}
+",
   "src/main/java/test/test/runtime/api/handlers/reserved_keywords/ReservedKeywords.java": "
 package test.test.runtime.api.handlers.reserved_keywords;
 
@@ -38236,6 +38911,7 @@ public class TracingInterceptor<Input> extends InterceptorWithWarmup<Input> {
 import test.test.runtime.model.*;
 
 import java.math.BigDecimal;
+import test.test.runtime.model.InlineEnum200Response;
 import test.test.runtime.model.MyEnum;
 
 import java.util.HashMap;
@@ -38246,11 +38922,13 @@ import java.util.Map;
 @lombok.Builder @lombok.Getter
 public class OperationConfig<T> {
     private T arrayRequestParameters;
+    private T inlineEnum;
     private T reservedKeywords;
 
     public Map<String, T> asMap() {
         Map<String, T> map = new HashMap<>();
         map.put("arrayRequestParameters", this.arrayRequestParameters);
+        map.put("inlineEnum", this.inlineEnum);
         map.put("reservedKeywords", this.reservedKeywords);
         return map;
     }
@@ -38261,6 +38939,7 @@ public class OperationConfig<T> {
 import test.test.runtime.model.*;
 
 import java.math.BigDecimal;
+import test.test.runtime.model.InlineEnum200Response;
 import test.test.runtime.model.MyEnum;
 
 import java.util.HashMap;
@@ -38290,6 +38969,11 @@ public class OperationLookup {
             .method("GET")
             .contentTypes(Arrays.asList("application/json"))
             .build());
+        config.put("inlineEnum", OperationLookupEntry.builder()
+            .path("/inline-enum")
+            .method("GET")
+            .contentTypes(Arrays.asList("application/json"))
+            .build());
         config.put("reservedKeywords", OperationLookupEntry.builder()
             .path("/reserved-keywords")
             .method("GET")
@@ -38312,6 +38996,7 @@ public class Operations {
     public static <T> OperationConfig.OperationConfigBuilder<T> all(final T value) {
         return OperationConfig.<T>builder()
                 .arrayRequestParameters(value)
+                .inlineEnum(value)
                 .reservedKeywords(value)
                 ;
     }
@@ -38707,6 +39392,260 @@ public abstract class AbstractOpenApiSchema {
 
 
 }
+",
+  "src/main/java/test/test/runtime/model/InlineEnum200Response.java": "/*
+ * Edge Cases
+ * No description provided (generated by Openapi Generator https://github.com/openapitools/openapi-generator)
+ *
+ * The version of the OpenAPI document: 1.0.0
+ * 
+ *
+ * NOTE: This class is auto generated by OpenAPI Generator (https://openapi-generator.tech).
+ * https://openapi-generator.tech
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime.model;
+
+import java.util.Objects;
+import java.util.Arrays;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapterFactory;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import test.test.runtime.JSON;
+
+/**
+ * InlineEnum200Response
+ */
+@lombok.AllArgsConstructor @lombok.experimental.SuperBuilder
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen")
+public class InlineEnum200Response {
+  /**
+   * Gets or Sets category
+   */
+  @JsonAdapter(CategoryEnum.Adapter.class)
+  public enum CategoryEnum {
+    FRUIT("fruit"),
+    
+    VEGETABLE("vegetable");
+
+    private String value;
+
+    CategoryEnum(String value) {
+      this.value = value;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    public static CategoryEnum fromValue(String value) {
+      for (CategoryEnum b : CategoryEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+
+    public static class Adapter extends TypeAdapter<CategoryEnum> {
+      @Override
+      public void write(final JsonWriter jsonWriter, final CategoryEnum enumeration) throws IOException {
+        jsonWriter.value(enumeration.getValue());
+      }
+
+      @Override
+      public CategoryEnum read(final JsonReader jsonReader) throws IOException {
+        String value =  jsonReader.nextString();
+        return CategoryEnum.fromValue(value);
+      }
+    }
+  }
+
+  public static final String SERIALIZED_NAME_CATEGORY = "category";
+  @SerializedName(SERIALIZED_NAME_CATEGORY)
+  private CategoryEnum category;
+
+  public InlineEnum200Response() {
+  }
+
+  public InlineEnum200Response category(CategoryEnum category) {
+    
+    this.category = category;
+    return this;
+  }
+
+   /**
+   * Get category
+   * @return category
+  **/
+  @javax.annotation.Nullable
+
+  public CategoryEnum getCategory() {
+    return category;
+  }
+
+
+  public void setCategory(CategoryEnum category) {
+    this.category = category;
+  }
+
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    InlineEnum200Response inlineEnum200Response = (InlineEnum200Response) o;
+    return Objects.equals(this.category, inlineEnum200Response.category);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(category);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("class InlineEnum200Response {\\n");
+    sb.append("    category: ").append(toIndentedString(category)).append("\\n");
+    sb.append("}");
+    return sb.toString();
+  }
+
+  /**
+   * Convert the given object to string with each line indented by 4 spaces
+   * (except the first line).
+   */
+  private String toIndentedString(Object o) {
+    if (o == null) {
+      return "null";
+    }
+    return o.toString().replace("\\n", "\\n    ");
+  }
+
+
+  public static HashSet<String> openapiFields;
+  public static HashSet<String> openapiRequiredFields;
+
+  static {
+    // a set of all properties/fields (JSON key names)
+    openapiFields = new HashSet<String>();
+    openapiFields.add("category");
+
+    // a set of required properties/fields (JSON key names)
+    openapiRequiredFields = new HashSet<String>();
+  }
+
+ /**
+  * Validates the JSON Object and throws an exception if issues found
+  *
+  * @param jsonObj JSON Object
+  * @throws IOException if the JSON Object is invalid with respect to InlineEnum200Response
+  */
+  public static void validateJsonObject(JsonObject jsonObj) throws IOException {
+      if (jsonObj == null) {
+        if (!InlineEnum200Response.openapiRequiredFields.isEmpty()) { // has required fields but JSON object is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in InlineEnum200Response is not found in the empty JSON string", InlineEnum200Response.openapiRequiredFields.toString()));
+        }
+      }
+
+      Set<Entry<String, JsonElement>> entries = jsonObj.entrySet();
+      // check to see if the JSON string contains additional fields
+      for (Entry<String, JsonElement> entry : entries) {
+        if (!InlineEnum200Response.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field \`%s\` in the JSON string is not defined in the \`InlineEnum200Response\` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
+        }
+      }
+      if ((jsonObj.get("category") != null && !jsonObj.get("category").isJsonNull()) && !jsonObj.get("category").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field \`category\` to be a primitive type in the JSON string but got \`%s\`", jsonObj.get("category").toString()));
+      }
+  }
+
+  public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+       if (!InlineEnum200Response.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'InlineEnum200Response' and its subtypes
+       }
+       final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
+       final TypeAdapter<InlineEnum200Response> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(InlineEnum200Response.class));
+
+       return (TypeAdapter<T>) new TypeAdapter<InlineEnum200Response>() {
+           @Override
+           public void write(JsonWriter out, InlineEnum200Response value) throws IOException {
+             JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
+             elementAdapter.write(out, obj);
+           }
+
+           @Override
+           public InlineEnum200Response read(JsonReader in) throws IOException {
+             JsonObject jsonObj = elementAdapter.read(in).getAsJsonObject();
+             validateJsonObject(jsonObj);
+             return thisAdapter.fromJsonTree(jsonObj);
+           }
+
+       }.nullSafe();
+    }
+  }
+
+ /**
+  * Create an instance of InlineEnum200Response given an JSON string
+  *
+  * @param jsonString JSON string
+  * @return An instance of InlineEnum200Response
+  * @throws IOException if the JSON string is invalid with respect to InlineEnum200Response
+  */
+  public static InlineEnum200Response fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, InlineEnum200Response.class);
+  }
+
+ /**
+  * Convert an instance of InlineEnum200Response to an JSON string
+  *
+  * @return JSON string
+  */
+  public String toJson() {
+    return JSON.getGson().toJson(this);
+  }
+}
+
 ",
   "src/main/java/test/test/runtime/model/MyEnum.java": "/*
  * Edge Cases
