@@ -43,8 +43,8 @@ export enum TypeSafeApiScript {
   GENERATE_NEXT = "type-safe-api generate",
   GENERATE_MOCK_DATA = "type-safe-api generate-mock-data",
   CLEAN_OPENAPI_GENERATED_CODE = "type-safe-api.clean-openapi-generated-code",
-  COPY_GRADLE_WRAPPER = "type-safe-api.copy-gradle-wrapper",
-  COPY_ASYNC_SMITHY_TRANSFORMER = "type-safe-api.copy-async-smithy-transformer",
+  COPY_GRADLE_WRAPPER = "type-safe-api copy-gradle-wrapper",
+  COPY_ASYNC_SMITHY_TRANSFORMER = "type-safe-api copy-async-smithy-transformer",
   GENERATE_ASYNCAPI_SPEC = "type-safe-api generate-asyncapi-spec",
 }
 
