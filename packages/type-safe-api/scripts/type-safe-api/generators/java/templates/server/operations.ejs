@@ -1,10 +1,12 @@
-{{#apiInfo}}
-{{#apis.0}}
-package {{package}}.operation_config;
-{{/apis.0}}
-{{/apiInfo}}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "<%- metadata.srcDir %>/api/operation_config",
+  "name": "Operations",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###package <%- metadata.packageName %>.api.operation_config;
 
-{{>generatedAnnotation}}
 public class Operations {
     /**
      * Returns an OperationConfig Builder with all values populated with the given value.
@@ -13,15 +15,9 @@ public class Operations {
      */
     public static <T> OperationConfig.OperationConfigBuilder<T> all(final T value) {
         return OperationConfig.<T>builder()
-                {{#apiInfo}}
-                {{#apis}}
-                {{#operations}}
-                {{#operation}}
-                .{{nickname}}(value)
-                {{/operation}}
-                {{/operations}}
-                {{/apis}}
-                {{/apiInfo}}
+                <%_ allOperations.forEach((operation) => { _%>
+                .<%- operation.name %>(value)
+                <%_ }); _%>
                 ;
     }
 }

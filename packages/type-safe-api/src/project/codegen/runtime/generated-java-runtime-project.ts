@@ -6,7 +6,7 @@ import {
   GeneratedJavaRuntimeBaseProjectOptions,
 } from "./generated-java-runtime-base-project";
 import { Language } from "../../languages";
-import { GenerationOptions } from "../components/utils";
+import { CodegenOptions } from "../components/utils";
 
 /**
  * Configuration for the generated java runtime project
@@ -22,32 +22,25 @@ export class GeneratedJavaRuntimeProject extends GeneratedJavaRuntimeBaseProject
     super(options);
   }
 
-  protected buildOpenApiGeneratorOptions(): GenerationOptions {
+  protected buildCodegenOptions(): CodegenOptions {
     return {
-      generator: "java",
       specPath: this.options.specPath,
-      generatorDirectory: Language.JAVA,
-      additionalProperties: {
-        useSingleRequestParameter: "true",
+      templateDirs: [
+        // TODO: when implemented, swap to OtherGenerators.JAVA_ASYNC_RUNTIME and "java/templates/client/models"
+        Language.JAVA,
+      ],
+      metadata: {
         groupId: this.pom.groupId,
         artifactId: this.pom.artifactId,
         artifactVersion: this.pom.version,
-        invokerPackage: this.packageName,
-        apiPackage: `${this.packageName}.api`,
-        modelPackage: `${this.packageName}.model`,
-        hideGenerationTimestamp: "true",
-        additionalModelTypeAnnotations: [
-          "@lombok.AllArgsConstructor",
-          // Regular lombok builder is not used since an abstract base schema class is also annotated
-          "@lombok.experimental.SuperBuilder",
-        ].join("\\ "),
+        packageName: this.packageName,
+        srcDir: path.join(
+          "src",
+          "main",
+          "java",
+          ...this.packageName.split(".")
+        ),
       },
-      srcDir: path.join("src", "main", "java", ...this.packageName.split(".")),
-      normalizers: {
-        KEEP_ONLY_FIRST_TAG_IN_OPERATION: true,
-      },
-      // Do not generate map/list types. Generator will use built in HashMap, ArrayList instead
-      generateAliasAsModel: false,
     };
   }
 }

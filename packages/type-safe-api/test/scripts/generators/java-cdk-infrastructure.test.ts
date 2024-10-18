@@ -114,7 +114,6 @@ describe("Java Infrastructure Code Generation Script Unit Tests", () => {
         );
       },
       {
-        excludeGlobs: GeneratedJavaRuntimeProject.openApiIgnorePatterns,
         parseJson: false,
       }
     );

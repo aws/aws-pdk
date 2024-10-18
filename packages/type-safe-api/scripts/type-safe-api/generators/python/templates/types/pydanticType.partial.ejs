@@ -60,12 +60,12 @@ const toPythonPydanticType = (property) => {
     case "reference":
       return toPythonPydanticPrimitive(property);
     case "array": {
-      const type = `List[${property.link ? toPythonPydanticType(property.link) : property.type}]`;
+      const type = `List[${property.link && property.link.export !== "enum" ? toPythonPydanticType(property.link) : property.type}]`;
       const constraints = getPythonPydanticConstraints(property);
       return constraints ? renderPydanticConstraintsType(type, constraints) : type;
     }
     case "dictionary":
-      return `Dict[str, ${property.link ? toPythonPydanticType(property.link) : property.type}]`;
+      return `Dict[str, ${property.link && property.link.export !== "enum" ? toPythonPydanticType(property.link) : property.type}]`;
     default:
       // "any" has export = interface
       if (property.isPrimitive) {

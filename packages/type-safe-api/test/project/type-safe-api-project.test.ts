@@ -6,8 +6,6 @@ import { NodePackageManager } from "projen/lib/javascript";
 import { synthProject, synthSmithyProject } from "./snapshot-utils";
 import {
   DocumentationFormat,
-  GeneratedJavaInfrastructureOptions,
-  GeneratedJavaRuntimeOptions,
   Language,
   Library,
   ModelLanguage,
@@ -382,19 +380,9 @@ describe("Type Safe Api Project Unit Tests", () => {
       ),
       infrastructure: {
         language: Language.JAVA,
-        options: {
-          java: {
-            openApiGeneratorCliConfig,
-          } satisfies Partial<GeneratedJavaInfrastructureOptions> as any,
-        },
       },
       runtime: {
         languages: [Language.JAVA],
-        options: {
-          java: {
-            openApiGeneratorCliConfig,
-          } satisfies Partial<GeneratedJavaRuntimeOptions> as any,
-        },
       },
       model: {
         language: ModelLanguage.SMITHY,
@@ -427,22 +415,6 @@ describe("Type Safe Api Project Unit Tests", () => {
 
     const snapshot = synthSmithyProject(project);
 
-    expect(
-      snapshot[
-        `${path.relative(
-          project.outdir,
-          project.infrastructure.java!.outdir
-        )}/.pdk/dynamic-files/openapitools.json`
-      ]
-    ).toMatchSnapshot();
-    expect(
-      snapshot[
-        `${path.relative(
-          project.outdir,
-          project.runtime.java!.outdir
-        )}/.pdk/dynamic-files/openapitools.json`
-      ]
-    ).toMatchSnapshot();
     expect(
       snapshot[
         `${path.relative(

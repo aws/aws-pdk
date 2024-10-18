@@ -1,0 +1,343 @@
+<%_ services.forEach((service) => { _%>
+###TSAPI_WRITE_FILE###
+{
+  "dir": "<%- metadata.srcDir %>/api",
+  "name": "<%- service.className %>",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###<%- include('../../header.partial.ejs', { info }) %>
+
+
+package <%- metadata.packageName %>.api;
+
+import <%- metadata.packageName %>.ApiCallback;
+import <%- metadata.packageName %>.ApiClient;
+import <%- metadata.packageName %>.ApiException;
+import <%- metadata.packageName %>.ApiResponse;
+import <%- metadata.packageName %>.Configuration;
+import <%- metadata.packageName %>.Pair;
+import <%- metadata.packageName %>.ProgressRequestBody;
+import <%- metadata.packageName %>.ProgressResponseBody;
+
+import com.google.gson.reflect.TypeToken;
+
+import java.io.IOException;
+
+
+import java.math.BigDecimal;
+import java.io.File;
+<%_ service.modelImports.forEach((modelImport) => { _%>
+import <%- metadata.packageName %>.model.<%- modelImport %>;
+<%_ }); _%>
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.ws.rs.core.GenericType;
+
+public class <%- service.className %> {
+    private ApiClient localVarApiClient;
+    private int localHostIndex;
+    private String localCustomBaseUrl;
+
+    public <%- service.className %>() {
+        this(Configuration.getDefaultApiClient());
+    }
+
+    public <%- service.className %>(ApiClient apiClient) {
+        this.localVarApiClient = apiClient;
+    }
+
+    public ApiClient getApiClient() {
+        return localVarApiClient;
+    }
+
+    public void setApiClient(ApiClient apiClient) {
+        this.localVarApiClient = apiClient;
+    }
+
+    public int getHostIndex() {
+        return localHostIndex;
+    }
+
+    public void setHostIndex(int hostIndex) {
+        this.localHostIndex = hostIndex;
+    }
+
+    public String getCustomBaseUrl() {
+        return localCustomBaseUrl;
+    }
+
+    public void setCustomBaseUrl(String customBaseUrl) {
+        this.localCustomBaseUrl = customBaseUrl;
+    }
+
+    <%_ service.operations.forEach((operation) => { _%>
+    <%_ const result = operation.results[0]; _%>
+    <%_ const requiredParameters = operation.parameters.filter(p => p.isRequired); _%>
+    <%_ const optionalParameters = operation.parameters.filter(p => !p.isRequired); _%>
+    <%_
+    // In API methods, the File type is used for binary types
+    const javaType = (parameter) => parameter.javaType === "byte[]" ? "File" : parameter.javaType;
+    _%>
+    private okhttp3.Call <%- operation.name %>Call(<% operation.parameters.forEach((parameter) => { _%><%- javaType(parameter) %> <%- parameter.javaName %>, <% }); %>final ApiCallback _callback) throws ApiException {
+        String basePath = null;
+        // Operation Servers
+        String[] localBasePaths = new String[] {  };
+
+        // Determine Base Path to Use
+        if (localCustomBaseUrl != null){
+            basePath = localCustomBaseUrl;
+        } else if ( localBasePaths.length > 0 ) {
+            basePath = localBasePaths[localHostIndex];
+        } else {
+            basePath = null;
+        }
+
+        Object localVarPostBody = <% if(operation.parametersBody) { %><%- operation.parametersBody.javaName %><% } else { %>null<% } %>;
+
+        // create path and map variables
+        String localVarPath = "<%- operation.path %>"<% operation.parameters.filter(p => p.in === "path").forEach((parameter) => { %>
+            .replace("{" + "<%- parameter.prop %>" + "}", localVarApiClient.escapeString(<% if (parameter.export === "array" && parameter.collectionFormat) { %>localVarApiClient.collectionPathParameterToString("<%- parameter.collectionFormat %>", <%- parameter.javaName %>)<% } else { %><%- parameter.javaName %>.toString()<% } %>))<% }); %>;
+
+        List<Pair> localVarQueryParams = new ArrayList<Pair>();
+        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
+        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+        Map<String, String> localVarCookieParams = new HashMap<String, String>();
+        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+
+        <%_ operation.parameters.filter(p => p.in === "query").forEach((parameter) => { _%>
+        if (<%- parameter.javaName %> != null) {
+            <% if (parameter.export === "array" && parameter.collectionFormat) { %>localVarCollectionQueryParams.addAll(localVarApiClient.parameterToPairs("<%- parameter.collectionFormat %>", <% } else { %>localVarQueryParams.addAll(localVarApiClient.parameterToPair(<% } %>"<%- parameter.prop %>", <%- parameter.javaName %>));
+        }
+
+        <%_ }); _%>
+        <%_ operation.parameters.filter(p => p.in === "header").forEach((parameter) => { _%>
+        if (<%- parameter.javaName %> != null) {
+            localVarHeaderParams.put("<%- parameter.prop %>", localVarApiClient.parameterToString(<%- parameter.javaName %>));
+        }
+
+        <%_ }); _%>
+        <%_ operation.parameters.filter(p => p.in === "cookie").forEach((parameter) => { _%>
+        if (<%- parameter.javaName %> != null) {
+            localVarCookieParams.put("<%- parameter.prop %>", localVarApiClient.parameterToString(<%- parameter.javaName %>));
+        }
+
+        <%_ }); _%>
+        final String[] localVarAccepts = {
+            <%_ ((result || {}).mediaTypes || []).forEach((mediaType, i) => { _%>
+            "<%- mediaType %>"<% if (i < result.mediaTypes.length - 1) { %>,<% } %>
+            <%_ }); _%>
+        };
+        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
+        if (localVarAccept != null) {
+            localVarHeaderParams.put("Accept", localVarAccept);
+        }
+
+        final String[] localVarContentTypes = {
+            <%_ ((operation.parametersBody || {}).mediaTypes || []).forEach((mediaType, i) => { _%>
+            "<%- mediaType %>"<% if (i < operation.parametersBody.mediaTypes.length - 1) { %>,<% } %>
+            <%_ }); _%>
+        };
+        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
+        if (localVarContentType != null) {
+            localVarHeaderParams.put("Content-Type", localVarContentType);
+        }
+
+        String[] localVarAuthNames = new String[] {  };
+        return localVarApiClient.buildCall(basePath, localVarPath, "<%- operation.method %>", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
+    }
+
+    <% if (operation.isDeprecated) { %>@Deprecated<% } %>
+    @SuppressWarnings("rawtypes")
+    private okhttp3.Call <%- operation.name %>ValidateBeforeCall(<% operation.parameters.forEach((parameter) => { _%><%- javaType(parameter) %> <%- parameter.javaName %>, <% }); %>final ApiCallback _callback) throws ApiException {
+        <%_ requiredParameters.forEach((parameter) => { _%>
+        // verify the required parameter '<%- parameter.javaName %>' is set
+        if (<%- parameter.javaName %> == null) {
+            throw new ApiException("Missing the required parameter '<%- parameter.javaName %>' when calling <%- operation.name %>(Async)");
+        }
+
+        <%_ }); _%>
+        return <%- operation.name %>Call(<% operation.parameters.forEach((parameter) => { _%><%- parameter.javaName %>, <% }); %>_callback);
+
+    }
+
+    <%_ const returnType = result && result.type !== 'void' ? result.javaType : 'Void'; _%>
+    private ApiResponse<<%- returnType %>> <%- operation.name %>WithHttpInfo(<% operation.parameters.forEach((parameter, i) => { _%><%- javaType(parameter) %> <%- parameter.javaName %><% if (i < operation.parameters.length - 1) { %>, <% } %><% }); %>) throws ApiException {
+        okhttp3.Call localVarCall = <%- operation.name %>ValidateBeforeCall(<% operation.parameters.forEach((parameter) => { _%><%- parameter.javaName %>, <% }); %>null);
+        <%_ if (returnType === 'Void') { _%>
+        return localVarApiClient.execute(localVarCall);
+        <%_ } else { _%>
+        Type localVarReturnType = new TypeToken<<%- returnType %>>(){}.getType();
+        return localVarApiClient.execute(localVarCall, localVarReturnType);
+        <%_ } _%>
+    }
+
+
+    private okhttp3.Call <%- operation.name %>Async(<% operation.parameters.forEach((parameter) => { _%><%- javaType(parameter) %> <%- parameter.javaName %>, <% }); %>final ApiCallback<<%- returnType %>> _callback) throws ApiException {
+
+        okhttp3.Call localVarCall = <%- operation.name %>ValidateBeforeCall(<% operation.parameters.forEach((parameter) => { _%><%- parameter.javaName %>, <% }); %>_callback);
+        <%_ if (returnType !== 'Void') { _%>
+        Type localVarReturnType = new TypeToken<<%- returnType %>>(){}.getType();
+        localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
+        <%_ } else { _%>
+        localVarApiClient.executeAsync(localVarCall, _callback);
+        <%_ } _%>
+        return localVarCall;
+    }
+
+    public class API<%- operation.name %>Request {
+        <%_ requiredParameters.forEach((parameter) => { _%>
+        private final <%- javaType(parameter) %> <%- parameter.javaName %>;
+        <%_ }); _%>
+        <%_ optionalParameters.forEach((parameter) => { _%>
+        private <%- javaType(parameter) %> <%- parameter.javaName %>;
+        <%_ }); _%>
+
+        private API<%- operation.name %>Request(<% requiredParameters.forEach((parameter, i) => { %><%- javaType(parameter) %> <%- parameter.javaName %><% if (i < requiredParameters.length - 1) { %>, <% } %><% }); %>) {
+            <%_ requiredParameters.forEach((parameter) => { _%>
+            this.<%- parameter.javaName %> = <%- parameter.javaName %>;
+            <%_ }); _%>
+        }
+
+        <%_ optionalParameters.forEach((parameter) => { _%>
+        /**
+         * Set <%- parameter.javaName %>
+         * @param <%- parameter.javaName %> <%- parameter.description || '' %> (optional)
+         * @return API<%- operation.name %>Request
+         */
+        public API<%- operation.name %>Request <%- parameter.javaName %>(<%- javaType(parameter) %> <%- parameter.javaName %>) {
+            this.<%- parameter.javaName %> = <%- parameter.javaName %>;
+            return this;
+        }
+
+        <%_ }); _%>
+        /**
+         * Build call for <%- operation.name %>
+         * @param _callback ApiCallback API callback
+         * @return Call to execute
+         * @throws ApiException If fail to serialize the request body object
+         <%_ if (operation.responses.length > 0) { _%>
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <%_ operation.responses.forEach((response) => { _%>
+            <tr><td> <%- response.code %> </td><td> <%- response.description || '' %> </td><td>  -  </td></tr>
+            <%_ }); _%>
+         </table>
+         <%_ } _%>
+         <%_ if (operation.isDeprecated) { _%>
+         * @deprecated
+         <%_ } _%>
+         */
+        <%_ if (operation.isDeprecated) { _%>
+        @Deprecated
+        <%_ } _%>
+        public okhttp3.Call buildCall(final ApiCallback _callback) throws ApiException {
+            return <%- operation.name %>Call(<% operation.parameters.forEach((parameter) => { %><%- parameter.javaName %>, <% }); %>_callback);
+        }
+
+        /**
+         * Execute <%- operation.name %> request<% if (returnType !== 'Void') { %>
+         * @return <%- returnType %><% } %>
+         * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+         <%_ if (operation.responses.length > 0) { _%>
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <%_ operation.responses.forEach((response) => { _%>
+            <tr><td> <%- response.code %> </td><td> <%- response.description || '' %> </td><td>  -  </td></tr>
+            <%_ }); _%>
+         </table>
+         <%_ } _%>
+         <%_ if (operation.isDeprecated) { _%>
+         * @deprecated
+         <%_ } _%>
+         */
+        <%_ if (operation.isDeprecated) { _%>
+        @Deprecated
+        <%_ } _%>
+        public <%- returnType === 'Void' ? 'void' : returnType %> execute() throws ApiException {
+            <% if (returnType !== 'Void') { %>ApiResponse<<%- returnType %>> localVarResp = <% } %><%- operation.name %>WithHttpInfo(<% operation.parameters.forEach((parameter, i) => { %><%- parameter.javaName %><% if (i < operation.parameters.length - 1) { %>, <% } %><% }); %>);<% if (returnType !== 'Void') { %>
+            return localVarResp.getData();<% } %>
+        }
+
+        /**
+         * Execute <%- operation.name %> request with HTTP info returned
+         * @return ApiResponse&lt;<%- returnType %>&gt;
+         * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+         <%_ if (operation.responses.length > 0) { _%>
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <%_ operation.responses.forEach((response) => { _%>
+            <tr><td> <%- response.code %> </td><td> <%- response.description || '' %> </td><td>  -  </td></tr>
+            <%_ }); _%>
+         </table>
+         <%_ } _%>
+         <%_ if (operation.isDeprecated) { _%>
+         * @deprecated
+         <%_ } _%>
+         */
+        <%_ if (operation.isDeprecated) { _%>
+        @Deprecated
+        <%_ } _%>
+        public ApiResponse<<%- returnType %>> executeWithHttpInfo() throws ApiException {
+            return <%- operation.name %>WithHttpInfo(<% operation.parameters.forEach((parameter, i) => { %><%- parameter.javaName %><% if (i < operation.parameters.length - 1) { %>, <% } %><% }); %>);
+        }
+
+        /**
+         * Execute <%- operation.name %> request (asynchronously)
+         * @param _callback The callback to be executed when the API call finishes
+         * @return The request call
+         * @throws ApiException If fail to process the API call, e.g. serializing the request body object
+         <%_ if (operation.responses.length > 0) { _%>
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <%_ operation.responses.forEach((response) => { _%>
+            <tr><td> <%- response.code %> </td><td> <%- response.description || '' %> </td><td>  -  </td></tr>
+            <%_ }); _%>
+         </table>
+         <%_ } _%>
+         <%_ if (operation.isDeprecated) { _%>
+         * @deprecated
+         <%_ } _%>
+         */
+        <%_ if (operation.isDeprecated) { _%>
+        @Deprecated
+        <%_ } _%>
+        public okhttp3.Call executeAsync(final ApiCallback<<%- returnType %>> _callback) throws ApiException {
+            return <%- operation.name %>Async(<% operation.parameters.forEach((parameter) => { _%><%- parameter.javaName %>, <% }); %>_callback);
+        }
+    }
+
+    /**
+     * <%- operation.summary || '' %>
+     * <%- operation.description || '' %><% requiredParameters.forEach((parameter) => { %>
+     * @param <%- parameter.javaName %> <%- parameter.description || '' %> (required)<% }); %>
+     * @return API<%- operation.name %>Request
+     <%_ if (operation.responses.length > 0) { _%>
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <%_ operation.responses.forEach((response) => { _%>
+        <tr><td> <%- response.code %> </td><td> <%- response.description || '' %> </td><td>  -  </td></tr>
+        <%_ }); _%>
+     </table>
+     <%_ } _%>
+     <%_ if (operation.isDeprecated) { _%>
+     * @deprecated
+     <%_ } _%>
+     */
+    <% if (operation.isDeprecated) { %>@Deprecated<% } %>
+    public API<%- operation.name %>Request <%- operation.name %>(<% requiredParameters.forEach((parameter, i) => { %><%- javaType(parameter) %> <%- parameter.javaName %><% if (i < requiredParameters.length - 1) { %>, <% } %><% }); %>) {
+        return new API<%- operation.name %>Request(<% requiredParameters.forEach((parameter, i) => { %><%- parameter.javaName %><% if (i < requiredParameters.length - 1) { %>, <% } %><% }); %>);
+    }
+    <%_ }); _%>
+}
+
+<%_ }); _%>

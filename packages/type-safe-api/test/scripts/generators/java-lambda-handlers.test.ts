@@ -48,7 +48,6 @@ describe("Java Handlers Code Generation Script Unit Tests", () => {
         );
       },
       {
-        excludeGlobs: GeneratedJavaRuntimeProject.openApiIgnorePatterns,
         parseJson: false,
       }
     );

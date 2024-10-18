@@ -1,0 +1,43 @@
+###TSAPI_WRITE_FILE###
+{
+  "dir": "<%- metadata.srcDir %>/api/operation_config",
+  "name": "OperationLookup",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###package <%- metadata.packageName %>.api.operation_config;
+
+import <%- metadata.packageName %>.model.*;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
+import java.util.Arrays;
+
+
+// Look up path and http method for a given operation name
+public class OperationLookup {
+    @lombok.Builder @lombok.Getter
+    public static class OperationLookupEntry {
+        private String method;
+        private String path;
+        private List<String> contentTypes;
+    }
+
+    /**
+     * Returns the operation lookup information for the TypeSafeRestApi construct
+     */
+    public static Map<String, OperationLookupEntry> getOperationLookup() {
+        final Map<String, OperationLookupEntry> config = new HashMap<>();
+
+        <%_ allOperations.forEach((operation) => { _%>
+        config.put("<%- operation.name %>", OperationLookupEntry.builder()
+            .path("<%- operation.path %>")
+            .method("<%- operation.method %>")
+            .contentTypes(Arrays.asList(<%- operation.parametersBody ? operation.parametersBody.mediaTypes.map(m => `"${m}"`).join(',') : '"application/json"' %>))
+            .build());
+        <%_ }); _%>
+
+        return config;
+    }
+}
