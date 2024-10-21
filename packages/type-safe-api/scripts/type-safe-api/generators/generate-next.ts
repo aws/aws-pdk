@@ -178,6 +178,41 @@ const toPythonName = (namedEntity: 'model' | 'property' | 'operation', name: str
   return nameSnakeCase;
 };
 
+// @see https://github.com/OpenAPITools/openapi-generator/blob/8f2676c5c2bcbcc41942307e5c8648cee38bcc44/modules/openapi-generator/src/main/java/org/openapitools/codegen/languages/AbstractJavaCodegen.java#L179
+const JAVA_KEYWORDS = new Set([
+  // special words
+  "object", "list", "file",
+  // used as internal variables, can collide with parameter names
+  "localVarPath", "localVarQueryParams", "localVarCollectionQueryParams",
+  "localVarHeaderParams", "localVarCookieParams", "localVarFormParams", "localVarPostBody",
+  "localVarAccepts", "localVarAccept", "localVarContentTypes",
+  "localVarContentType", "localVarAuthNames", "localReturnType",
+  "ApiClient", "ApiException", "ApiResponse", "Configuration", "StringUtil",
+
+  // language reserved words
+  "_", "abstract", "continue", "for", "new", "switch", "assert",
+  "default", "if", "package", "synchronized", "boolean", "do", "goto", "private",
+  "this", "break", "double", "implements", "protected", "throw", "byte", "else",
+  "import", "public", "throws", "case", "enum", "instanceof", "return", "transient",
+  "catch", "extends", "int", "short", "try", "char", "final", "interface", "static",
+  "void", "class", "finally", "long", "strictfp", "volatile", "const", "float",
+  "native", "super", "while", "null", "offsetdatetime", "localdate", "localtime"
+]);
+
+const toJavaName = (name: string) => {
+  // Check if the name is a reserved word. Reserved words that overlap with TypeScript will already be escaped
+  // with a leading _ by parseOpenapi, so we remove this to test
+  const unescapedName = _camelCase(name.startsWith('_') ? name.slice(1) : name);
+  if (JAVA_KEYWORDS.has(unescapedName)) {
+    // Special case for "class"
+    if (unescapedName === "class") {
+      return "propertyClass";
+    }
+    return `_${unescapedName}`;
+  }
+  return unescapedName;
+};
+
 /**
  * Clean up any generated code that already exists
  */
@@ -321,25 +356,31 @@ const toTypeScriptType = (property: parseOpenapi.Model): string => {
     case "reference":
       return toTypescriptPrimitive(property);
     case "array":
-      return `Array<${property.link ? toTypeScriptType(property.link) : property.type}>`;
+      return `Array<${property.link && property.link.export !== "enum" ? toTypeScriptType(property.link) : property.type}>`;
     case "dictionary":
-      return `{ [key: string]: ${property.link ? toTypeScriptType(property.link) : property.type}; }`;
+      return `{ [key: string]: ${property.link && property.link.export !== "enum" ? toTypeScriptType(property.link) : property.type}; }`;
     default:
       return property.type;
   }
 };
 
 const toJavaPrimitive = (property: parseOpenapi.Model): string => {
-  if (property.type === "string" && ["date", "date-time"].includes(property.format ?? '')) {
-    return "Date";
-  } else if (property.type === "binary") {
+  if (property.type === "string" && property.format === "date") {
+    return "LocalDate";
+  } else if (property.type === "string" && property.format === "date-time") {
+    return "OffsetDateTime";
+  } else if (property.type === "string" && (property.format as any) === "uuid") {
+    return "UUID";
+  } else if (property.type === "string" && (property.format as any) === "uri") {
+    return "URI";
+  } else if (property.type === "binary" || (property.type === "string" && ["byte", "binary"].includes(property.format as any))) {
     return "byte[]";
   } else if (property.type === "number") {
     switch(property.format) {
       case "int32":
         return "Integer";
       case "int64":
-        return "BigInteger";
+        return "Long";
       case "float":
         return "Float";
       case "double":
@@ -356,6 +397,8 @@ const toJavaPrimitive = (property: parseOpenapi.Model): string => {
     return "Boolean";
   } else if (property.type === "string") {
     return "String";
+  } else if (property.type === "any") {
+    return "Object";
   }
   return property.type;
 };
@@ -366,10 +409,14 @@ const toJavaType = (property: parseOpenapi.Model): string => {
     case "reference":
       return toJavaPrimitive(property);
     case "array":
-      return `${property.uniqueItems ? 'Set' : 'List'}<${property.link ? toTypeScriptType(property.link) : property.type}>`;
+      return `${property.uniqueItems ? 'Set' : 'List'}<${property.link && property.link.export !== "enum" ? toJavaType(property.link) : property.type}>`;
     case "dictionary":
-      return `Map<String, ${property.link ? toTypeScriptType(property.link) : property.type}>`;
+      return `Map<String, ${property.link && property.link.export !== "enum" ? toJavaType(property.link) : property.type}>`;
     default:
+      // "any" has export = interface
+      if (PRIMITIVE_TYPES.has(property.type)) {
+        return toJavaPrimitive(property);
+      }
       return property.type;
   }
 };
@@ -411,9 +458,9 @@ const toPythonType = (property: parseOpenapi.Model): string => {
     case "reference":
       return toPythonPrimitive(property);
     case "array":
-      return `List[${property.link ? toPythonType(property.link) : property.type}]`;
+      return `List[${property.link && property.link.export !== "enum" ? toPythonType(property.link) : property.type}]`;
     case "dictionary":
-      return `Dict[str, ${property.link ? toPythonType(property.link) : property.type}]`;
+      return `Dict[str, ${property.link && property.link.export !== "enum" ? toPythonType(property.link) : property.type}]`;
     default:
       // "any" has export = interface
       if (PRIMITIVE_TYPES.has(property.type)) {
@@ -432,7 +479,7 @@ const mutateModelWithAdditionalTypes = (model: parseOpenapi.Model) => {
 
   (model as any).typescriptName = model.name;
   (model as any).typescriptType = toTypeScriptType(model);
-  (model as any).javaName = model.name;
+  (model as any).javaName = toJavaName(model.name);
   (model as any).javaType = toJavaType(model);
   (model as any).pythonName = toPythonName('property', model.name);
   (model as any).pythonType = toPythonType(model);
@@ -452,6 +499,7 @@ const mutateWithOpenapiSchemaProperties = (spec: OpenAPIV3.Document, model: pars
   (model as any).deprecated = !!schema.deprecated;
   (model as any).openapiType = schema.type;
   (model as any).isNotSchema = !!schema.not;
+  (model as any).isEnum = !!schema.enum && schema.enum.length > 0;
 
   // Copy any schema vendor extensions
   (model as any).vendorExtensions = {};
@@ -506,6 +554,8 @@ const mutateWithOpenapiSchemaProperties = (spec: OpenAPIV3.Document, model: pars
 const ensureModelLinks = (spec: OpenAPIV3.Document, data: parseOpenapi.ParsedSpecification) => {
   const modelsByName = Object.fromEntries(data.models.map((m) => [m.name, m]));
   const visited = new Set<parseOpenapi.Model>();
+
+  // Ensure set for all models
   data.models.forEach((model) => {
     const schema = resolveIfRef(spec, spec?.components?.schemas?.[model.name]);
     if (schema) {
@@ -515,6 +565,27 @@ const ensureModelLinks = (spec: OpenAPIV3.Document, data: parseOpenapi.ParsedSpe
       }
       _ensureModelLinks(spec, modelsByName, model, schema, visited)
     }
+  });
+
+  // Ensure set for all parameters
+  data.services.forEach((service) => {
+    service.operations.forEach((op) => {
+      const specOp = (spec as any)?.paths?.[op.path]?.[op.method.toLowerCase()] as OpenAPIV3.OperationObject | undefined;
+
+      const specParametersByName = Object.fromEntries((specOp?.parameters ?? []).map((p) => {
+        const param = resolveIfRef(spec, p);
+        return [param.name, param];
+      }));
+
+      op.parameters.forEach((parameter) => {
+        const specParameter = specParametersByName[parameter.prop];
+        const specParameterSchema = resolveIfRef(spec, specParameter?.schema);
+
+        if (specParameterSchema) {
+          _ensureModelLinks(spec, modelsByName, parameter, specParameterSchema, visited);
+        }
+      });
+    });
   });
 };
 

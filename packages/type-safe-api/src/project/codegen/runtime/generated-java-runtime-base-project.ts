@@ -6,14 +6,11 @@ import {
   CodeGenerationSourceOptions,
   GeneratedJavaRuntimeOptions,
 } from "../../types";
-import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
-import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
 import { TypeSafeApiCommandEnvironment } from "../components/type-safe-api-command-environment";
 import {
-  buildCleanOpenApiGeneratedCodeCommand,
-  buildInvokeOpenApiGeneratorCommandArgs,
+  buildCodegenCommandArgs,
   buildTypeSafeApiExecCommand,
-  GenerationOptions,
+  CodegenOptions,
   TypeSafeApiScript,
 } from "../components/utils";
 
@@ -60,26 +57,6 @@ const TEST_DEPENDENCIES: string[] = [
  */
 export abstract class GeneratedJavaRuntimeBaseProject extends JavaProject {
   /**
-   * Patterns that are excluded from code generation
-   */
-  public static openApiIgnorePatterns: string[] = [
-    "pom.xml",
-    "gradle",
-    "gradle/**/*",
-    "gradlew",
-    "gradle.properties",
-    "gradlew.bat",
-    "build.gradle",
-    "settings.gradle",
-    "build.sbt",
-    ".travis.yml",
-    "git_push.sh",
-    "src/test",
-    "src/test/**/*",
-    "src/main/AndroidManifest.xml",
-  ];
-
-  /**
    * The package name, for use in imports
    */
   public readonly packageName: string;
@@ -89,8 +66,6 @@ export abstract class GeneratedJavaRuntimeBaseProject extends JavaProject {
    */
   protected readonly options: GeneratedJavaRuntimeBaseProjectOptions;
 
-  protected readonly openapiGeneratorIgnore: OpenApiGeneratorIgnoreFile;
-
   constructor(options: GeneratedJavaRuntimeBaseProjectOptions) {
     super({
       ...(options as any),
@@ -99,17 +74,6 @@ export abstract class GeneratedJavaRuntimeBaseProject extends JavaProject {
     });
     TypeSafeApiCommandEnvironment.ensure(this);
     this.options = options;
-
-    // Ignore files that we will control via projen
-    this.openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);
-    this.openapiGeneratorIgnore.addPatterns(
-      ...GeneratedJavaRuntimeBaseProject.openApiIgnorePatterns
-    );
-
-    // Add OpenAPI Generator cli configuration
-    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
-      options.openApiGeneratorCliConfig
-    );
 
     // Add dependencies
     DEPENDENCIES.forEach((dep) => this.addDependency(dep));
@@ -126,10 +90,9 @@ export abstract class GeneratedJavaRuntimeBaseProject extends JavaProject {
 
     // Generate the java code
     const generateTask = this.addTask("generate");
-    generateTask.exec(buildCleanOpenApiGeneratedCodeCommand());
     generateTask.exec(
       buildTypeSafeApiExecCommand(
-        TypeSafeApiScript.GENERATE,
+        TypeSafeApiScript.GENERATE_NEXT,
         this.buildGenerateCommandArgs()
       )
     );
@@ -138,23 +101,14 @@ export abstract class GeneratedJavaRuntimeBaseProject extends JavaProject {
 
     if (!options.commitGeneratedCode) {
       // Ignore all the generated code
-      this.gitignore.addPatterns(
-        "src",
-        "docs",
-        "api",
-        "README.md",
-        ".openapi-generator"
-      );
-    } else {
-      this.gitignore.addPatterns(".openapi-generator");
+      this.gitignore.addPatterns("src", "docs", "api", "README.md");
     }
+    this.gitignore.addPatterns(".openapi-generator", ".tsapi-manifest");
   }
 
   public buildGenerateCommandArgs = () => {
-    return buildInvokeOpenApiGeneratorCommandArgs(
-      this.buildOpenApiGeneratorOptions()
-    );
+    return buildCodegenCommandArgs(this.buildCodegenOptions());
   };
 
-  protected abstract buildOpenApiGeneratorOptions(): GenerationOptions;
+  protected abstract buildCodegenOptions(): CodegenOptions;
 }

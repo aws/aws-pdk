@@ -1,0 +1,647 @@
+<%_ const lowerFirst = (str) => str.charAt(0).toLowerCase() + str.slice(1); _%>
+<%_ const modelsByName = Object.fromEntries(models.map(m => [m.name, m])); _%>
+<%_ const modelNameToParentModel = Object.fromEntries(models
+        .filter(m => m.composedModels && m.composedModels.length > 0)
+        .flatMap(parent => parent.composedModels.map(child => [child.name, parent]))); _%>
+<%_ /* Filter out models which are hoisted children of all-ofs, since for java we mix in child properties */ _%>
+<%_ models.filter(m => !(m.isHoisted && modelNameToParentModel[m.name] && modelNameToParentModel[m.name].export === "all-of")).forEach((model) => { _%>
+<%_ const getRecursiveAllOfChildren = (m) => m.export === "all-of" ? [...m.composedModels, ...m.composedModels.flatMap(c => getRecursiveAllOfChildren(c))] : []; _%>
+<%_ const recursiveAllOfChildren = getRecursiveAllOfChildren(model); _%>
+<%_ const properties = [
+    // For all-of models, filter out the properties which are composed models, since we're mixing in child properties instead
+    ...model.properties.filter(p => model.export !== "all-of" || p.name),
+    ...recursiveAllOfChildren.flatMap(m => m.properties.filter(p => model.export !== "all-of" || p.name)),
+]; _%>
+<%_ const propertyTypes = new Set(properties.map(p => p.type)); _%>
+<%_ const unique = (items) => {
+    const seen = new Set();
+    const res = [];
+    items.forEach(item => {
+        if (!seen.has(item)) {
+            res.push(item);
+            seen.add(item);
+        }
+    });
+    return res;
+}; _%>
+<%_ const uniqueImports = unique([
+    ...model.uniqueImports,
+    ...recursiveAllOfChildren.flatMap(m => m.uniqueImports),
+    // Filter out imports that aren't referenced (for all-of where we want to import the child model's properties rather than the child models)
+]).filter(uniqueImport => propertyTypes.has(uniqueImport)); _%>
+###TSAPI_WRITE_FILE###
+{
+  "dir": "<%- metadata.srcDir %>/model",
+  "name": "<%- model.name %>",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###<%- include('../../header.partial.ejs', { info }) %>
+
+
+package <%- metadata.packageName %>.model;
+
+import java.util.Objects;
+import java.util.Arrays;
+<%_ uniqueImports.forEach((importName) => { _%>
+import <%- metadata.packageName %>.model.<%- importName %>;
+<%_ }); _%>
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+
+import javax.ws.rs.core.GenericType;
+
+import java.io.IOException;
+import java.io.File;
+import java.math.BigDecimal;
+import java.net.URI;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.util.UUID;
+import java.lang.reflect.Type;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.List;
+import java.util.Set;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+
+import <%- metadata.packageName %>.JSON;
+
+<%_ if (model.export === "enum") { _%>
+/**
+ * Gets or Sets <%- model.name %>
+ */
+@JsonAdapter(<%- model.name %>.Adapter.class)
+public enum <%- model.name %> {
+  <%_ model.enum.forEach((e, i) => { _%>
+
+  <%- e.name %>("<%- e.value.replace(/["']/g, '') %>")<% if (i < model.enum.length - 1) { %>,<% } else { %>;<% } %>
+  <%_ }); _%>
+
+  private String value;
+
+  <%- model.name %>(String value) {
+    this.value = value;
+  }
+
+  public String getValue() {
+    return value;
+  }
+
+  @Override
+  public String toString() {
+    return String.valueOf(value);
+  }
+
+  public static <%- model.name %> fromValue(String value) {
+    for (<%- model.name %> b : <%- model.name %>.values()) {
+      if (b.value.equals(value)) {
+        return b;
+      }
+    }
+    throw new IllegalArgumentException("Unexpected value '" + value + "'");
+  }
+
+  public static class Adapter extends TypeAdapter<<%- model.name %>> {
+    @Override
+    public void write(final JsonWriter jsonWriter, final <%- model.name %> enumeration) throws IOException {
+      jsonWriter.value(enumeration.getValue());
+    }
+
+    @Override
+    public <%- model.name %> read(final JsonReader jsonReader) throws IOException {
+      String value = jsonReader.nextString();
+      return <%- model.name %>.fromValue(value);
+    }
+  }
+}
+<%_ } else if (model.export === "one-of" || model.export === "any-of") { _%>
+@lombok.experimental.SuperBuilder
+public class <%- model.name %> extends AbstractOpenApiSchema {
+    private static final Logger log = Logger.getLogger(<%- model.name %>.class.getName());
+
+    public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
+        @SuppressWarnings("unchecked")
+        @Override
+        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+            if (!<%- model.name %>.class.isAssignableFrom(type.getRawType())) {
+                return null; // this class only serializes '<%- model.name %>' and its subtypes
+            }
+            final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
+            <%_ properties.forEach((composedType) => { _%>
+            final TypeAdapter<<%- composedType.javaType %>> adapter<%- composedType.javaType %> = gson.getDelegateAdapter(this, TypeToken.get(<%- composedType.javaType %>.class));
+            <%_ }); _%>
+
+            return (TypeAdapter<T>) new TypeAdapter<<%- model.name %>>() {
+                @Override
+                public void write(JsonWriter out, <%- model.name %> value) throws IOException {
+                    if (value == null || value.getActualInstance() == null) {
+                        elementAdapter.write(out, null);
+                        return;
+                    }
+
+                    <%_ properties.forEach((composedType) => { _%>
+                    // check if the actual instance is of the type `<%- composedType.javaType %>`
+                    if (value.getActualInstance() instanceof <%- composedType.javaType %>) {
+                        JsonObject obj = adapter<%- composedType.javaType %>.toJsonTree((<%- composedType.javaType %>)value.getActualInstance()).getAsJsonObject();
+                        elementAdapter.write(out, obj);
+                        return;
+                    }
+
+                    <%_ }); _%>
+                    throw new IOException("Failed to serialize as the type doesn't match oneOf schemas: <%- properties.map((p) => p.javaType).join(', ') %>");
+                }
+
+                @Override
+                public <%- model.name %> read(JsonReader in) throws IOException {
+                    Object deserialized = null;
+                    JsonObject jsonObject = elementAdapter.read(in).getAsJsonObject();
+
+                    <%_ if (model.export === "one-of") { _%>
+                    int match = 0;
+                    ArrayList<String> errorMessages = new ArrayList<>();
+                    TypeAdapter actualAdapter = elementAdapter;
+                    <%_ } _%>
+
+                    <%_ properties.forEach((composedType) => { _%>
+                    // deserialize <%- composedType.javaType %>
+                    try {
+                        // validate the JSON object to see if any exception is thrown
+                        <%- composedType.javaType %>.validateJsonObject(jsonObject);
+                        <%_ if (model.export === "one-of") { _%>
+                        actualAdapter = adapter<%- composedType.javaType %>;
+                        match++;
+                        <%_ } _%>
+                        log.log(Level.FINER, "Input data matches schema '<%- composedType.javaType %>'");
+                        <%_ if (model.export === "any-of") { _%>
+                        <%- model.name %> ret = new <%- model.name %>();
+                        ret.setActualInstance(adapter<%- composedType.javaType %>.fromJsonTree(jsonObject));
+                        return ret;
+                        <%_ } _%>
+                    } catch (Exception e) {
+                        // deserialization failed, continue
+                        <%_ if (model.export === "one-of") { _%>
+                        errorMessages.add(String.format("Deserialization for <%- composedType.javaType %> failed with `%s`.", e.getMessage()));
+                        <%_ } _%>
+                        log.log(Level.FINER, "Input data does not match schema '<%- composedType.javaType %>'", e);
+                    }
+
+                    <%_ }); _%>
+                    <%_ if (model.export === "one-of") { _%>
+                    if (match == 1) {
+                        <%- model.name %> ret = new <%- model.name %>();
+                        ret.setActualInstance(actualAdapter.fromJsonTree(jsonObject));
+                        return ret;
+                    }
+                    <%_ } _%>
+
+                    <%_ if (model.export === "one-of") { _%>
+                    throw new IOException(String.format("Failed deserialization for <%- model.name %>: %d classes match result, expected 1. Detailed failure message for oneOf schemas: %s. JSON: %s", match, errorMessages, jsonObject.toString()));
+                    <%_ } else { _%>
+                    throw new IOException(String.format("Failed deserialization for <%- model.name %>: no class matched. JSON: %s", jsonObject.toString()));
+                    <%_ } _%>
+                }
+            }.nullSafe();
+        }
+    }
+
+    // store a list of schema names defined in <%- model.export === "one-of" ? "oneOf" : "anyOf" %>
+    public static final Map<String, GenericType> schemas = new HashMap<String, GenericType>();
+
+    public <%- model.name %>() {
+        super("<%- model.export === "one-of" ? "oneOf" : "anyOf" %>", <% if (model.isNullable) { %>Boolean.TRUE<% } else { %>Boolean.FALSE<% } %>);
+    }
+
+    <%_ properties.forEach((composedType) => { _%>
+    public <%- model.name %>(<%- composedType.javaType %> o) {
+        super("<%- model.export === "one-of" ? "oneOf" : "anyOf" %>", <% if (model.isNullable) { %>Boolean.TRUE<% } else { %>Boolean.FALSE<% } %>);
+        setActualInstance(o);
+    }
+
+    <%_ }); _%>
+    static {
+        <%_ properties.forEach((composedType) => { _%>
+        schemas.put("<%- composedType.javaType %>", new GenericType<<%- composedType.javaType %>>() {
+        });
+        <%_ }); _%>
+    }
+
+    @Override
+    public Map<String, GenericType> getSchemas() {
+        return <%- model.name %>.schemas;
+    }
+
+    /**
+     * Set the instance that matches the <%- model.export === "one-of" ? "oneOf" : "anyOf" %> child schema, check
+     * the instance parameter is valid against the <%- model.export === "one-of" ? "oneOf" : "anyOf" %> child schemas:
+     * <%- properties.map((p) => p.javaType).join(', ') %>
+     *
+     * It could be an instance of the '<%- model.export === "one-of" ? "oneOf" : "anyOf" %>' schemas.
+     * The <%- model.export === "one-of" ? "oneOf" : "anyOf" %> child schemas may themselves be a composed schema (allOf, anyOf, oneOf).
+     */
+    @Override
+    public void setActualInstance(Object instance) {
+        <%_ if (model.isNullable) { _%>
+        if (instance == null) {
+            super.setActualInstance(instance);
+            return;
+        }
+
+        <%_ } _%>
+        <%_ properties.forEach((composedType) => { _%>
+        if (instance instanceof <%- composedType.javaType %>) {
+            super.setActualInstance(instance);
+            return;
+        }
+
+        <%_ }); _%>
+        throw new RuntimeException("Invalid instance type. Must be <%- properties.map((p) => p.javaType).join(', ') %>");
+    }
+
+    /**
+     * Get the actual instance, which can be the following:
+     * <%- properties.map((p) => p.javaType).join(', ') %>
+     *
+     * @return The actual instance (<%- properties.map((p) => p.javaType).join(', ') %>)
+     */
+    @Override
+    public Object getActualInstance() {
+        return super.getActualInstance();
+    }
+
+  <%_ properties.forEach((composedType) => { _%>
+    /**
+     * Get the actual instance of `<%- composedType.javaType %>`. If the actual instance is not `<%- composedType.javaType %>`,
+     * the ClassCastException will be thrown.
+     *
+     * @return The actual instance of `<%- composedType.javaType %>`
+     * @throws ClassCastException if the instance is not `<%- composedType.javaType %>`
+     */
+    public <%- composedType.javaType %> get<%- composedType.javaType %>() throws ClassCastException {
+        return (<%- composedType.javaType %>)super.getActualInstance();
+    }
+
+  <%_ }); _%>
+
+ /**
+  * Validates the JSON Object and throws an exception if issues found
+  *
+  * @param jsonObj JSON Object
+  * @throws IOException if the JSON Object is invalid with respect to <%- model.name %>
+  */
+  public static void validateJsonObject(JsonObject jsonObj) throws IOException {
+    // validate <%- model.export === "one-of" ? "oneOf" : "anyOf" %> schemas one by one
+    int validCount = 0;
+    <%_ if (model.export === "one-of") { _%>
+    ArrayList<String> errorMessages = new ArrayList<>();
+    <%_ } _%>
+    <%_ properties.forEach((composedType) => { _%>
+    // validate the json string with <%- composedType.javaType %>
+    try {
+      <%- composedType.javaType %>.validateJsonObject(jsonObj);
+      <%_ if (model.export === "one-of") { _%>
+      validCount++;
+      <%_ } else { _%>
+      return; // return earlier as at least one schema is valid with respect to the Json object
+      //validCount++;
+      <%_ } _%>
+    } catch (Exception e) {
+      <%_ if (model.export === "one-of") { _%>
+      errorMessages.add(String.format("Deserialization for <%- composedType.javaType %> failed with `%s`.", e.getMessage()));
+      <%_ } _%>
+      // continue to the next one
+    }
+    <%_ }); _%>
+    <%_ if (model.export === "one-of") { _%>
+    if (validCount != 1) {
+      throw new IOException(String.format("The JSON string is invalid for <%- model.name %> with oneOf schemas: <%- properties.map((p) => p.javaType).join(', ') %>. %d class(es) match the result, expected 1. Detailed failure message for oneOf schemas: %s. JSON: %s", validCount, errorMessages, jsonObj.toString()));
+    }
+    <%_ } else { _%>
+    if (validCount == 0) {
+      throw new IOException(String.format("The JSON string is invalid for <%- model.name %> with anyOf schemas: <%- properties.map((p) => p.javaType).join(', ') %>. JSON: %s", jsonObj.toString()));
+    }
+    <%_ } _%>
+  }
+
+ /**
+  * Create an instance of <%- model.name %> given an JSON string
+  *
+  * @param jsonString JSON string
+  * @return An instance of <%- model.name %>
+  * @throws IOException if the JSON string is invalid with respect to <%- model.name %>
+  */
+  public static <%- model.name %> fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, <%- model.name %>.class);
+  }
+
+ /**
+  * Convert an instance of <%- model.name %> to an JSON string
+  *
+  * @return JSON string
+  */
+  public String toJson() {
+    return JSON.getGson().toJson(this);
+  }
+
+}
+<%_ } else { _%>
+/**
+ * <%- model.description || model.name %>
+ <%_ if (model.isDeprecated) { _%>
+ * @deprecated
+ <%_ } _%>
+ */
+@lombok.AllArgsConstructor @lombok.experimental.SuperBuilder
+public class <%- model.name %> {
+  <%_ properties.forEach((property) => { _%>
+  public static final String SERIALIZED_NAME_<%- property.pythonName.toUpperCase() %> = "<%- property.name %>";
+  @SerializedName(SERIALIZED_NAME_<%- property.pythonName.toUpperCase() %>)
+  <%_ if (property.export === "array" || property.export === "dictionary") { _%>
+  private <%- property.javaType %> <%- property.javaName %> = <% if (property.isRequired) { %>new <%- property.export === "array" ? 'ArrayList' : 'HashMap' %><>()<% } else { %>null<% } %>;
+  <%_ } else { _%>
+  private <%- property.javaType %> <%- property.javaName %><% if (property.type === "any") { %> = null<% } %>;
+  <%_ } _%>
+
+  <%_ }); _%>
+  public <%- model.name %>() {
+  }
+
+  <%_ properties.forEach((property) => { _%>
+  public <%- model.name %> <%- property.javaName %>(<%- property.javaType %> <%- property.javaName %>) {
+
+    this.<%- property.javaName %> = <%- property.javaName %>;
+    return this;
+  }
+  <%_ if (property.export === "array") { _%>
+
+  public <%- model.name %> <%- include('../../getterSetter.partial.ejs', { prefix: 'add', name: property.javaName }) %>Item(<%- property.link.javaType %> <%- property.javaName %>Item) {
+    <%_ if (!property.isRequired) { _%>
+    if (this.<%- property.javaName %> == null) {
+      this.<%- property.javaName %> = new ArrayList<>();
+    }
+    <%_ } _%>
+    this.<%- property.javaName %>.add(<%- property.javaName %>Item);
+    return this;
+  }
+  <%_ } else if (property.export === "dictionary") { _%>
+
+  public <%- model.name %> <%- include('../../getterSetter.partial.ejs', { prefix: 'put', name: property.javaName }) %>Item(String key, <%- property.link.javaType %> <%- property.javaName %>Item) {
+    <%_ if (!property.isRequired) { _%>
+    if (this.<%- property.javaName %> == null) {
+      this.<%- property.javaName %> = new HashMap<>();
+    }
+    <%_ } _%>
+    this.<%- property.javaName %>.put(key, <%- property.javaName %>Item);
+    return this;
+  }
+  <%_ } _%>
+
+   /**
+   * <% if (property.description) { %><%- property.description %><% } else { %>Get <%- property.javaName %><% } %>
+   * @return <%- property.javaName %>
+  **/
+  @javax.annotation.<%- property.isNullable || !property.isRequired ? 'Nullable' : 'Nonnull' %>
+  public <%- property.javaType %> <%- include('../../getterSetter.partial.ejs', { prefix: 'get', name: property.javaName }) %>() {
+    return <%- property.javaName %>;
+  }
+
+
+  public void <%- include('../../getterSetter.partial.ejs', { prefix: 'set', name: property.javaName }) %>(<%- property.javaType %> <%- property.javaName %>) {
+    this.<%- property.javaName %> = <%- property.javaName %>;
+  }
+
+  <%_ }); _%>
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    <%- model.name %> <%- lowerFirst(model.name) %> = (<%- model.name %>) o;
+    return <% properties.forEach((property, i) => { %>Objects.equals(this.<%- property.javaName %>, <%- lowerFirst(model.name) %>.<%- property.javaName %>)<% if (i < properties.length - 1) { %> &&<% } else { %>;<% } %>
+        <% }); %>
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(<%- properties.map((property) => property.javaName).join(', ') %>);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("class <%- model.name %> {\n");
+    <%_ properties.forEach((property) => { _%>
+    sb.append("    <%- property.javaName %>: ").append(toIndentedString(<%- property.javaName %>)).append("\n");
+    <%_ }); _%>
+    sb.append("}");
+    return sb.toString();
+  }
+
+  /**
+   * Convert the given object to string with each line indented by 4 spaces
+   * (except the first line).
+   */
+  private String toIndentedString(Object o) {
+    if (o == null) {
+      return "null";
+    }
+    return o.toString().replace("\n", "\n    ");
+  }
+
+
+  public static HashSet<String> openapiFields;
+  public static HashSet<String> openapiRequiredFields;
+
+  static {
+    // a set of all properties/fields (JSON key names)
+    openapiFields = new HashSet<String>();
+    <%_ properties.forEach((property) => { _%>
+    openapiFields.add("<%- property.name %>");
+    <%_ }); _%>
+
+    // a set of required properties/fields (JSON key names)
+    openapiRequiredFields = new HashSet<String>();
+    <%_ properties.filter(p => p.isRequired).forEach((property) => { _%>
+    openapiRequiredFields.add("<%- property.name %>");
+    <%_ }); _%>
+  }
+
+ /**
+  * Validates the JSON Object and throws an exception if issues found
+  *
+  * @param jsonObj JSON Object
+  * @throws IOException if the JSON Object is invalid with respect to <%- model.name %>
+  */
+  public static void validateJsonObject(JsonObject jsonObj) throws IOException {
+      if (jsonObj == null) {
+        if (!<%- model.name %>.openapiRequiredFields.isEmpty()) { // has required fields but JSON object is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in <%- model.name %> is not found in the empty JSON string", <%- model.name %>.openapiRequiredFields.toString()));
+        }
+      }
+
+      Set<Entry<String, JsonElement>> entries = jsonObj.entrySet();
+      // check to see if the JSON string contains additional fields
+      for (Entry<String, JsonElement> entry : entries) {
+        if (!<%- model.name %>.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `<%- model.name %>` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
+        }
+      }
+      <%_ if (properties.filter(p => p.isRequired).length > 0) { _%>
+
+      // check to make sure all required properties/fields are present in the JSON string
+      for (String requiredField : <%- model.name %>.openapiRequiredFields) {
+        if (jsonObj.get(requiredField) == null) {
+          throw new IllegalArgumentException(String.format("The required field `%s` is not found in the JSON string: %s", requiredField, jsonObj.toString()));
+        }
+      }
+      <%_ } _%>
+      <%_ properties.forEach((property) => { _%>
+      <%_ if (property.export === "array") { _%>
+      <%_ if (!property.link.isPrimitive) { _%>
+      <%_ if (property.isRequired) { _%>
+      // ensure the json data is an array
+      if (!jsonObj.get("<%- property.name %>").isJsonArray()) {
+        throw new IllegalArgumentException(String.format("Expected the field `<%- property.name %>` to be an array in the JSON string but got `%s`", jsonObj.get("<%- property.name %>").toString()));
+      }
+
+      JsonArray jsonArray<%- property.javaName %> = jsonObj.getAsJsonArray("<%- property.name %>");
+      // validate the required field `<%- property.name %>` (array)
+      for (int i = 0; i < jsonArray<%- property.javaName %>.size(); i++) {
+        <%- property.link.javaType %>.validateJsonObject(jsonArray<%- property.javaName %>.get(i).getAsJsonObject());
+      };
+      <%_ } else { _%>
+      if (jsonObj.get("<%- property.name %>") != null && !jsonObj.get("<%- property.name %>").isJsonNull()) {
+        JsonArray jsonArray<%- property.javaName %> = jsonObj.getAsJsonArray("<%- property.name %>");
+        if (jsonArray<%- property.javaName %> != null) {
+          // ensure the json data is an array
+          if (!jsonObj.get("<%- property.name %>").isJsonArray()) {
+            throw new IllegalArgumentException(String.format("Expected the field `<%- property.name %>` to be an array in the JSON string but got `%s`", jsonObj.get("<%- property.name %>").toString()));
+          }
+
+          // validate the optional field `<%- property.name %>` (array)
+          for (int i = 0; i < jsonArray<%- property.javaName %>.size(); i++) {
+            <%- property.link.javaType %>.validateJsonObject(jsonArray<%- property.javaName %>.get(i).getAsJsonObject());
+          };
+        }
+      }
+      <%_ } _%>
+      <%_ } else { _%>
+      <%_ if (!property.isRequired) { _%>
+      // ensure the optional json data is an array if present
+      if (jsonObj.get("<%- property.name %>") != null && !jsonObj.get("<%- property.name %>").isJsonArray()) {
+        throw new IllegalArgumentException(String.format("Expected the field `<%- property.name %>` to be an array in the JSON string but got `%s`", jsonObj.get("<%- property.name %>").toString()));
+      }
+      <%_ } else { _%>
+      // ensure the required json array is present
+      if (jsonObj.get("<%- property.name %>") == null) {
+        throw new IllegalArgumentException("Expected the field `linkedContent` to be an array in the JSON string but got `null`");
+      } else if (!jsonObj.get("<%- property.name %>").isJsonArray()) {
+        throw new IllegalArgumentException(String.format("Expected the field `<%- property.name %>` to be an array in the JSON string but got `%s`", jsonObj.get("<%- property.name %>").toString()));
+      }
+      <%_ } _%>
+      <%_ } _%>
+      <%_ } _%>
+      <%_ if (property.isPrimitive) { _%>
+      <%_ if (property.type === "string") { _%>
+      if (<% if (!property.isRequired) { %>(jsonObj.get("<%- property.name %>") != null && !jsonObj.get("<%- property.name %>").isJsonNull()) && <% } %>!jsonObj.get("<%- property.name %>").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `<%- property.name %>` to be a primitive type in the JSON string but got `%s`", jsonObj.get("<%- property.name %>").toString()));
+      }
+      <%_ } _%>
+      <%_ } else if (property.export !== "array" && property.export !== "dictionary") { _%>
+      <%_ if (property.isRequired) { _%>
+      // validate the required field `<%- property.name %>`
+      <%- property.javaType %>.validateJsonObject(jsonObj.getAsJsonObject("<%- property.name %>"));
+      <%_ } else { _%>
+      // validate the optional field `<%- property.name %>`
+      if (jsonObj.get("<%- property.name %>") != null && !jsonObj.get("<%- property.name %>").isJsonNull()) {
+        <%- property.javaType %>.validateJsonObject(jsonObj.getAsJsonObject("<%- property.name %>"));
+      }
+      <%_ } _%>
+      <%_ } _%>
+      <%_ }); _%>
+  }
+
+  public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+       if (!<%- model.name %>.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes '<%- model.name %>' and its subtypes
+       }
+       final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
+       final TypeAdapter<<%- model.name %>> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(<%- model.name %>.class));
+
+       return (TypeAdapter<T>) new TypeAdapter<<%- model.name %>>() {
+           @Override
+           public void write(JsonWriter out, <%- model.name %> value) throws IOException {
+             JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
+             elementAdapter.write(out, obj);
+           }
+
+           @Override
+           public <%- model.name %> read(JsonReader in) throws IOException {
+             JsonObject jsonObj = elementAdapter.read(in).getAsJsonObject();
+             validateJsonObject(jsonObj);
+             return thisAdapter.fromJsonTree(jsonObj);
+           }
+
+       }.nullSafe();
+    }
+  }
+
+ /**
+  * Create an instance of <%- model.name %> given an JSON string
+  *
+  * @param jsonString JSON string
+  * @return An instance of <%- model.name %>
+  * @throws IOException if the JSON string is invalid with respect to <%- model.name %>
+  */
+  public static <%- model.name %> fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, <%- model.name %>.class);
+  }
+
+ /**
+  * Convert an instance of <%- model.name %> to an JSON string
+  *
+  * @return JSON string
+  */
+  public String toJson() {
+    return JSON.getGson().toJson(this);
+  }
+}
+<%_ } _%>
+<%_ }); _%>

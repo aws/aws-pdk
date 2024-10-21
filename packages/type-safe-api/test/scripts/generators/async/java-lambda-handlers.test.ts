@@ -51,7 +51,6 @@ describe("Java Async Handlers Code Generation Script Unit Tests", () => {
         );
       },
       {
-        excludeGlobs: GeneratedJavaAsyncRuntimeProject.openApiIgnorePatterns,
         parseJson: false,
       }
     );
