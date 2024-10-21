@@ -9,7 +9,7 @@ import {
 } from "projen/lib/typescript";
 import {
   CodeGenerationSourceOptions,
-  GeneratedWithOpenApiGeneratorOptions,
+  GeneratedProjectOptions,
 } from "../../../types";
 import { TypeSafeApiCommandEnvironment } from "../../components/type-safe-api-command-environment";
 import {
@@ -23,7 +23,7 @@ import { GeneratedTypescriptRuntimeBaseProject } from "../../runtime/generated-t
 
 export interface GeneratedTypescriptInfrastructureBaseOptions
   extends TypeScriptProjectOptions,
-    GeneratedWithOpenApiGeneratorOptions {}
+    GeneratedProjectOptions {}
 
 export interface GeneratedTypescriptCdkInfrastructureBaseProjectOptions
   extends GeneratedTypescriptInfrastructureBaseOptions,
@@ -117,7 +117,7 @@ export abstract class GeneratedTypescriptCdkInfrastructureBaseProject extends Ty
     this.generateTask = generateTask;
     generateTask.exec(
       buildTypeSafeApiExecCommand(
-        TypeSafeApiScript.GENERATE_NEXT,
+        TypeSafeApiScript.GENERATE,
         this.buildGenerateCommandArgs()
       )
     );

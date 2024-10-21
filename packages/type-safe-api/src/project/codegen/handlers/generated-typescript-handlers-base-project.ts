@@ -92,7 +92,7 @@ export abstract class GeneratedTypescriptHandlersBaseProject extends TypeScriptP
     this.generateTask = this.addTask("generate");
     this.generateTask.exec(
       buildTypeSafeApiExecCommand(
-        TypeSafeApiScript.GENERATE_NEXT,
+        TypeSafeApiScript.GENERATE,
         this.buildGenerateCommandArgs()
       )
     );

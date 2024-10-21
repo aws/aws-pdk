@@ -49,7 +49,6 @@ describe("CloudscapeReactTsWebsiteProject Unit Tests", () => {
       },
       documentation: {
         formats: [
-          DocumentationFormat.HTML2,
           DocumentationFormat.MARKDOWN,
           DocumentationFormat.PLANTUML,
           DocumentationFormat.HTML_REDOC,
@@ -93,7 +92,6 @@ describe("CloudscapeReactTsWebsiteProject Unit Tests", () => {
       },
       documentation: {
         formats: [
-          DocumentationFormat.HTML2,
           DocumentationFormat.MARKDOWN,
           DocumentationFormat.PLANTUML,
           DocumentationFormat.HTML_REDOC,

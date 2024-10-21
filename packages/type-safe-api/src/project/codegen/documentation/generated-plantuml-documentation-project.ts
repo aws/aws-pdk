@@ -28,7 +28,7 @@ export class GeneratedPlantumlDocumentationProject extends Project {
     this.generateTask = this.addTask("generate");
     this.generateTask.exec(
       buildTypeSafeApiExecCommand(
-        TypeSafeApiScript.GENERATE_NEXT,
+        TypeSafeApiScript.GENERATE,
         buildCodegenCommandArgs({
           specPath: options.specPath,
           templateDirs: ["docs/templates/plantuml"],
@@ -41,7 +41,6 @@ export class GeneratedPlantumlDocumentationProject extends Project {
     if (!options.commitGeneratedCode) {
       this.gitignore.addPatterns("schemas.plantuml");
     }
-
     this.gitignore.addPatterns(".openapi-generator", ".tsapi-manifest");
   }
 }

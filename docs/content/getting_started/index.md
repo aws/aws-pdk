@@ -181,14 +181,18 @@ git config --global user.email "username@domain.com"
 git config --global user.name "username"
 ```
 
-### JDK + Maven (If using Type Safe API)
+### JDK + Maven (If using Type Safe API with Smithy)
 
-The Type Safe API requires JDK >= 11 and Maven >= 3.8 in order to perform the required code generation.
+If you intend to use Type Safe API with [Smithy](https://smithy.io/2.0/), JDK >= 11 and Maven >= 3.8 are required in order to build and validate the Smithy model.
 
 To install these, follow the below links:
 
 - JDK: We recommend installing any Coretto version >= 11 https://docs.aws.amazon.com/corretto/
 - Maven: You can any version of Maven >= 3.8: https://maven.apache.org/install.html
+
+!!!note
+
+    If you are using another modelling language (for example OpenAPI), these are not required.
 
 ### Language specific
 

@@ -92,7 +92,7 @@ export abstract class GeneratedJavaRuntimeBaseProject extends JavaProject {
     const generateTask = this.addTask("generate");
     generateTask.exec(
       buildTypeSafeApiExecCommand(
-        TypeSafeApiScript.GENERATE_NEXT,
+        TypeSafeApiScript.GENERATE,
         this.buildGenerateCommandArgs()
       )
     );

@@ -44,7 +44,6 @@ The `TypeSafeApiProject` projen project creates a REST API, and produces the fol
         |_ python
         |_ java
     |_ documentation/ - generated documentation in the formats you specified
-        |_ html2
         |_ html_redoc
         |_ plantuml
         |_ markdown

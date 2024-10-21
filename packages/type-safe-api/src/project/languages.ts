@@ -57,19 +57,11 @@ export enum DocumentationFormat {
    */
   HTML_REDOC = "html_redoc",
   /**
-   * OpenAPI Generator 'html2' documentation
-   * @see https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/html2.md
-   * @deprecated Will be removed in 0.24.0. Please use HTML_REDOC instead for HTML documentation.
-   */
-  HTML2 = "html2",
-  /**
-   * OpenAPI Generator 'markdown' documentation
-   * @see https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/markdown.md
+   * Markdown documentation
    */
   MARKDOWN = "markdown",
   /**
-   * OpenAPI Generator 'plantuml' documentation
-   * @see https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/plantuml.md
+   * PlantUML schema diagrams
    */
   PLANTUML = "plantuml",
 }

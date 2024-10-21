@@ -316,7 +316,6 @@ export class TypeSafeApiProject extends Project {
 
     this.documentation = {
       htmlRedoc: generatedDocs[DocumentationFormat.HTML_REDOC],
-      html2: generatedDocs[DocumentationFormat.HTML2],
       markdown: generatedDocs[DocumentationFormat.MARKDOWN],
       plantuml: generatedDocs[DocumentationFormat.PLANTUML],
     };

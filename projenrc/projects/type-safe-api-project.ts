@@ -67,19 +67,13 @@ export class TypeSafeApiProject extends PDKProject {
       },
       publishConfig: {
         executableFiles: [
-          "scripts/type-safe-api/common/common.sh",
-          "scripts/type-safe-api/generators/generate",
           "scripts/type-safe-api/run.js",
-          "scripts/type-safe-api/custom/clean-openapi-generated-code/clean-openapi-generated-code",
           "scripts/type-safe-api/custom/gradle-wrapper/gradlew",
           "scripts/type-safe-api/custom/gradle-wrapper/gradlew.bat",
         ],
       },
       bin: {
         "type-safe-api": "scripts/type-safe-api/run.js",
-        "type-safe-api.generate": "scripts/type-safe-api/generators/generate",
-        "type-safe-api.clean-openapi-generated-code":
-          "scripts/type-safe-api/custom/clean-openapi-generated-code/clean-openapi-generated-code",
       },
     });
 
