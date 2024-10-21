@@ -128,6 +128,8 @@ export abstract class GeneratedJavaCdkInfrastructureBaseProject extends JavaProj
       "echo $(pwd) > src/main/resources/project-absolute-path.txt"
     );
 
+    this.gitignore.addPatterns(".tsapi-manifest", ".openapi-generator");
+
     this.preCompileTask.spawn(generateTask);
   }
 
