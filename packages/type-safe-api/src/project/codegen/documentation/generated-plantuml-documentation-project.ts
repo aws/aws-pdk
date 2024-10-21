@@ -2,7 +2,6 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { Project, ProjectOptions, Task } from "projen";
 import { GeneratedPlantumlDocumentationOptions } from "../../types";
-import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
 import { TypeSafeApiCommandEnvironment } from "../components/type-safe-api-command-environment";
 import {
   buildCodegenCommandArgs,
@@ -26,11 +25,6 @@ export class GeneratedPlantumlDocumentationProject extends Project {
     super(options);
     TypeSafeApiCommandEnvironment.ensure(this);
 
-    // Add OpenAPI Generator cli configuration
-    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
-      options.openApiGeneratorCliConfig
-    );
-
     this.generateTask = this.addTask("generate");
     this.generateTask.exec(
       buildTypeSafeApiExecCommand(
@@ -45,9 +39,9 @@ export class GeneratedPlantumlDocumentationProject extends Project {
     this.compileTask.spawn(this.generateTask);
 
     if (!options.commitGeneratedCode) {
-      this.gitignore.addPatterns(".openapi-generator", "schemas.plantuml");
-    } else {
-      this.gitignore.addPatterns(".openapi-generator");
+      this.gitignore.addPatterns("schemas.plantuml");
     }
+
+    this.gitignore.addPatterns(".openapi-generator", ".tsapi-manifest");
   }
 }

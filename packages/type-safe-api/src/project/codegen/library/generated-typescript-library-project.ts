@@ -92,12 +92,7 @@ export abstract class GeneratedTypescriptLibraryProject extends TypeScriptProjec
 
     if (!options.commitGeneratedCode) {
       // Ignore all the generated code
-      this.gitignore.addPatterns(
-        "src",
-        ".npmignore",
-        "README.md",
-        ".openapi-generator"
-      );
+      this.gitignore.addPatterns("src", ".npmignore", "README.md");
     }
 
     this.gitignore.addPatterns(".openapi-generator", ".tsapi-manifest");
