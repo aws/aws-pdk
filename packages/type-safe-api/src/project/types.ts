@@ -505,6 +505,7 @@ export interface GeneratedDocumentationOptions {
   readonly htmlRedoc?: GeneratedHtmlRedocDocumentationOptions;
   /**
    * Generated html2 documentation project options
+   * @deprecated Will be removed in 0.24.0. Please use HTML_REDOC for HTML documentation.
    */
   readonly html2?: GeneratedHtml2DocumentationOptions;
   /**
@@ -541,6 +542,7 @@ export interface GeneratedDocumentationProjects {
   readonly htmlRedoc?: Project;
   /**
    * Generated html2 documentation project
+   * @deprecated Will be removed in 0.24.0. Please use HTML_REDOC for HTML documentation.
    */
   readonly html2?: Project;
   /**

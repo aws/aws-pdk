@@ -59,6 +59,7 @@ export enum DocumentationFormat {
   /**
    * OpenAPI Generator 'html2' documentation
    * @see https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/html2.md
+   * @deprecated Will be removed in 0.24.0. Please use HTML_REDOC instead for HTML documentation.
    */
   HTML2 = "html2",
   /**
