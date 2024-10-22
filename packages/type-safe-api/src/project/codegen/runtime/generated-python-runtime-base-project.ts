@@ -57,7 +57,7 @@ export abstract class GeneratedPythonRuntimeBaseProject extends PythonProject {
     const generateTask = this.addTask("generate");
     generateTask.exec(
       buildTypeSafeApiExecCommand(
-        TypeSafeApiScript.GENERATE_NEXT,
+        TypeSafeApiScript.GENERATE,
         this.buildGenerateCommandArgs()
       )
     );

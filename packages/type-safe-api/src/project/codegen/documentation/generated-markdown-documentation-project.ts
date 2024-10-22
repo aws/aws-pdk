@@ -28,7 +28,7 @@ export class GeneratedMarkdownDocumentationProject extends Project {
     this.generateTask = this.addTask("generate");
     this.generateTask.exec(
       buildTypeSafeApiExecCommand(
-        TypeSafeApiScript.GENERATE_NEXT,
+        TypeSafeApiScript.GENERATE,
         buildCodegenCommandArgs({
           specPath: options.specPath,
           templateDirs: ["docs/templates/markdown"],

@@ -6,7 +6,6 @@ import { Project, TextFile } from "projen";
 import { GeneratedAsyncApiHtmlDocumentationProject } from "./documentation/generated-asyncapi-html-documentation-project";
 import { GeneratedAsyncApiMarkdownDocumentationProject } from "./documentation/generated-asyncapi-markdown-documentation-project";
 import { GeneratedHtmlRedocDocumentationProject } from "./documentation/generated-html-redoc-documentation-project";
-import { GeneratedHtml2DocumentationProject } from "./documentation/generated-html2-documentation-project";
 import { GeneratedMarkdownDocumentationProject } from "./documentation/generated-markdown-documentation-project";
 import { GeneratedPlantumlDocumentationProject } from "./documentation/generated-plantuml-documentation-project";
 import { GeneratedJavaAsyncHandlersProject } from "./handlers/generated-java-async-handlers-project";
@@ -768,12 +767,6 @@ const generateDocsProject = (
   };
 
   switch (format) {
-    case DocumentationFormat.HTML2: {
-      return new GeneratedHtml2DocumentationProject({
-        ...commonProps,
-        ...options.documentationOptions?.html2,
-      });
-    }
     case DocumentationFormat.HTML_REDOC: {
       return new GeneratedHtmlRedocDocumentationProject({
         ...commonProps,

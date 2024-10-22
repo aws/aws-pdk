@@ -194,12 +194,6 @@ RUN dnf -y install graphviz
 RUN dnf -y install rubygems ruby
 RUN gem install license_finder
 
-# Open API Generator
-RUN mkdir -p ~/.open-api-generator-cli
-RUN curl https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/6.3.0/openapi-generator-cli-6.3.0.jar -o ~/.open-api-generator-cli/6.3.0.jar
-RUN curl https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/7.1.0/openapi-generator-cli-7.1.0.jar -o ~/.open-api-generator-cli/7.1.0.jar
-RUN curl https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/6.6.0/openapi-generator-cli-6.6.0.jar -o ~/.open-api-generator-cli/6.6.0.jar
-
 # =====================================
 
 # Entrypoint script

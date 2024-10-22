@@ -5,7 +5,7 @@ import { DependencyType, Task } from "projen";
 import { PythonProject, PythonProjectOptions } from "projen/lib/python";
 import {
   CodeGenerationSourceOptions,
-  GeneratedWithOpenApiGeneratorOptions,
+  GeneratedProjectOptions,
 } from "../../../types";
 import { TypeSafeApiCommandEnvironment } from "../../components/type-safe-api-command-environment";
 import {
@@ -19,7 +19,7 @@ import { GeneratedPythonRuntimeBaseProject } from "../../runtime/generated-pytho
 
 export interface GeneratedPythonInfrastructureBaseOptions
   extends PythonProjectOptions,
-    GeneratedWithOpenApiGeneratorOptions {}
+    GeneratedProjectOptions {}
 
 export interface GeneratedPythonCdkInfrastructureBaseProjectOptions
   extends GeneratedPythonInfrastructureBaseOptions,
@@ -75,7 +75,7 @@ export abstract class GeneratedPythonCdkInfrastructureBaseProject extends Python
     this.generateTask = generateTask;
     generateTask.exec(
       buildTypeSafeApiExecCommand(
-        TypeSafeApiScript.GENERATE_NEXT,
+        TypeSafeApiScript.GENERATE,
         this.buildGenerateCommandArgs()
       )
     );

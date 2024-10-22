@@ -6,7 +6,7 @@ import { DependencyType, Task } from "projen";
 import { JavaProject, JavaProjectOptions } from "projen/lib/java";
 import {
   CodeGenerationSourceOptions,
-  GeneratedWithOpenApiGeneratorOptions,
+  GeneratedProjectOptions,
 } from "../../../types";
 import { TypeSafeApiCommandEnvironment } from "../../components/type-safe-api-command-environment";
 import {
@@ -20,7 +20,7 @@ import { GeneratedJavaRuntimeBaseProject } from "../../runtime/generated-java-ru
 
 export interface GeneratedJavaInfrastructureBaseOptions
   extends JavaProjectOptions,
-    GeneratedWithOpenApiGeneratorOptions {}
+    GeneratedProjectOptions {}
 
 export interface GeneratedJavaCdkInfrastructureBaseProjectOptions
   extends GeneratedJavaInfrastructureBaseOptions,
@@ -112,7 +112,7 @@ export abstract class GeneratedJavaCdkInfrastructureBaseProject extends JavaProj
     this.generateTask = generateTask;
     generateTask.exec(
       buildTypeSafeApiExecCommand(
-        TypeSafeApiScript.GENERATE_NEXT,
+        TypeSafeApiScript.GENERATE,
         this.buildGenerateCommandArgs()
       )
     );

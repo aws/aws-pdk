@@ -9,7 +9,6 @@ import {
   Language,
   Library,
   ModelLanguage,
-  OpenApiGeneratorCliConfig,
   TypeSafeApiProject,
 } from "../../src";
 
@@ -28,7 +27,6 @@ describe("Type Safe Api Project Unit Tests", () => {
         },
         documentation: {
           formats: [
-            DocumentationFormat.HTML2,
             DocumentationFormat.MARKDOWN,
             DocumentationFormat.PLANTUML,
             DocumentationFormat.HTML_REDOC,
@@ -69,7 +67,6 @@ describe("Type Safe Api Project Unit Tests", () => {
         },
         documentation: {
           formats: [
-            DocumentationFormat.HTML2,
             DocumentationFormat.MARKDOWN,
             DocumentationFormat.PLANTUML,
             DocumentationFormat.HTML_REDOC,
@@ -113,7 +110,6 @@ describe("Type Safe Api Project Unit Tests", () => {
         },
         documentation: {
           formats: [
-            DocumentationFormat.HTML2,
             DocumentationFormat.MARKDOWN,
             DocumentationFormat.PLANTUML,
             DocumentationFormat.HTML_REDOC,
@@ -160,7 +156,6 @@ describe("Type Safe Api Project Unit Tests", () => {
         },
         documentation: {
           formats: [
-            DocumentationFormat.HTML2,
             DocumentationFormat.MARKDOWN,
             DocumentationFormat.PLANTUML,
             DocumentationFormat.HTML_REDOC,
@@ -207,7 +202,6 @@ describe("Type Safe Api Project Unit Tests", () => {
       },
       documentation: {
         formats: [
-          DocumentationFormat.HTML2,
           DocumentationFormat.MARKDOWN,
           DocumentationFormat.PLANTUML,
           DocumentationFormat.HTML_REDOC,
@@ -265,7 +259,6 @@ describe("Type Safe Api Project Unit Tests", () => {
       },
       documentation: {
         formats: [
-          DocumentationFormat.HTML2,
           DocumentationFormat.MARKDOWN,
           DocumentationFormat.PLANTUML,
           DocumentationFormat.HTML_REDOC,
@@ -359,70 +352,6 @@ describe("Type Safe Api Project Unit Tests", () => {
     expect(project.handlers.python).toBeDefined();
 
     expect(synthSmithyProject(project)).toMatchSnapshot();
-  });
-
-  it("Custom OpenAPI Generator CLI Configuration", () => {
-    const openApiGeneratorCliConfig: OpenApiGeneratorCliConfig = {
-      version: "6.2.0",
-      storageDir: "~/.my-storage-dir",
-      repository: {
-        downloadUrl:
-          "https://my.custom.maven.repo/maven2/${groupId}/${artifactId}/${versionName}/${artifactId}-${versionName}.jar",
-      },
-      useDocker: true,
-    };
-
-    const project = new TypeSafeApiProject({
-      name: `custom-openapi-generator-cli-configuration`,
-      outdir: path.resolve(
-        __dirname,
-        `custom-openapi-generator-cli-configuration`
-      ),
-      infrastructure: {
-        language: Language.JAVA,
-      },
-      runtime: {
-        languages: [Language.JAVA],
-      },
-      model: {
-        language: ModelLanguage.SMITHY,
-        options: {
-          smithy: {
-            serviceName: {
-              namespace: "com.test",
-              serviceName: "MyService",
-            },
-          },
-        },
-      },
-      documentation: {
-        formats: [DocumentationFormat.HTML2],
-        options: {
-          html2: {
-            openApiGeneratorCliConfig,
-          },
-        },
-      },
-    });
-
-    expect(project.runtime.typescript).not.toBeDefined();
-    expect(project.runtime.java).toBeDefined();
-    expect(project.runtime.python).not.toBeDefined();
-
-    expect(project.library.typescriptReactQueryHooks).not.toBeDefined();
-
-    expect(project.documentation.html2).toBeDefined();
-
-    const snapshot = synthSmithyProject(project);
-
-    expect(
-      snapshot[
-        `${path.relative(
-          project.outdir,
-          project.documentation.html2!.outdir
-        )}/.pdk/dynamic-files/openapitools.json`
-      ]
-    ).toMatchSnapshot();
   });
 
   it("commitGeneratedCode includes generated code", () => {

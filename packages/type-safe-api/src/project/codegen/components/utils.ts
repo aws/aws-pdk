@@ -12,7 +12,6 @@ import { RuntimeVersionUtils } from "../runtime-version-utils";
  * Enum for generator directories for non-runtime generators
  */
 export enum OtherGenerators {
-  DOCS = "docs",
   // Infrastructure
   TYPESCRIPT_CDK_INFRASTRUCTURE = "typescript-cdk-infrastructure",
   PYTHON_CDK_INFRASTRUCTURE = "python-cdk-infrastructure",
@@ -39,10 +38,8 @@ export enum OtherGenerators {
  */
 export enum TypeSafeApiScript {
   PARSE_OPENAPI_SPEC = "type-safe-api parse-openapi-spec",
-  GENERATE = "type-safe-api.generate",
-  GENERATE_NEXT = "type-safe-api generate",
+  GENERATE = "type-safe-api generate",
   GENERATE_MOCK_DATA = "type-safe-api generate-mock-data",
-  CLEAN_OPENAPI_GENERATED_CODE = "type-safe-api.clean-openapi-generated-code",
   COPY_GRADLE_WRAPPER = "type-safe-api copy-gradle-wrapper",
   COPY_ASYNC_SMITHY_TRANSFORMER = "type-safe-api copy-async-smithy-transformer",
   GENERATE_ASYNCAPI_SPEC = "type-safe-api generate-asyncapi-spec",
@@ -57,67 +54,10 @@ export type GeneratorDirectory =
   | WebSocketLibrary
   | OtherGenerators;
 
-/**
- * Types of normalizers supported by openapi-generator
- * @see https://openapi-generator.tech/docs/customization/#openapi-normalizer
- */
-export type OpenApiNormalizer = "KEEP_ONLY_FIRST_TAG_IN_OPERATION";
-
 export interface CodegenOptions {
   readonly specPath: string;
   readonly templateDirs: string[];
   readonly metadata?: object;
-}
-
-/**
- * Options for generating code or docs using OpenAPI Generator CLI
- */
-export interface GenerationOptions {
-  /**
-   * The OpenAPI generator to use to generate the code/docs
-   */
-  readonly generator: string;
-  /**
-   * The directory to use for OpenAPI generation
-   */
-  readonly generatorDirectory: GeneratorDirectory;
-  /**
-   * The path of the OpenAPI spec to generate code from
-   */
-  readonly specPath: string;
-  /**
-   * Additional properties to pass to the generate cli
-   */
-  readonly additionalProperties?: {
-    [key: string]: string;
-  };
-  /**
-   * Supply the relative path from the code project root to the source code directory in which custom generated files
-   * (eg. operation config) should be placed.
-   */
-  readonly srcDir?: string;
-  /**
-   * Supply the relative path from the code project root to the test directory in which custom generated test files
-   * should be generated
-   */
-  readonly tstDir?: string;
-  /**
-   * Normalizers to apply to the spec prior to generation, if any
-   * @see https://openapi-generator.tech/docs/customization/#openapi-normalizer
-   */
-  readonly normalizers?: Partial<Record<OpenApiNormalizer, boolean>>;
-  /**
-   * Vendor extensions to add for code generation, allowing custom properties to be passed to the generator templates
-   * Keys should begin with "x-"
-   */
-  readonly extraVendorExtensions?: Record<string, string | boolean>;
-  /**
-   * Generate alias as model.
-   * Defines whether "primitive types" defined at the model/schema level will be wrapped in a model (ie maps/lists)
-   * @see https://openapi-generator.tech/docs/globals/
-   * @default true
-   */
-  readonly generateAliasAsModel?: boolean;
 }
 
 /**
@@ -139,11 +79,6 @@ export const buildTypeSafeApiExecCommand = (
   }`;
 };
 
-const serializeProperties = (properties: { [key: string]: string }) =>
-  Object.entries(properties)
-    .map(([key, value]) => `${key}=${value}`)
-    .join(",");
-
 export const buildCodegenCommandArgs = (options: CodegenOptions): string => {
   const metadata = options.metadata
     ? ` --metadata '${JSON.stringify(options.metadata)}'`
@@ -153,54 +88,6 @@ export const buildCodegenCommandArgs = (options: CodegenOptions): string => {
   } --outputPath . --templateDirs ${options.templateDirs
     .map((t) => `"${t}"`)
     .join(" ")}${metadata}`;
-};
-
-/**
- * Generate code or docs by invoking the root generate script
- */
-export const buildInvokeOpenApiGeneratorCommandArgs = (
-  options: GenerationOptions
-): string => {
-  const srcDir = options.srcDir ?? "src";
-  const tstDir = options.tstDir ?? "test";
-
-  const additionalProperties = options.additionalProperties
-    ? ` --additional-properties "${serializeProperties(
-        options.additionalProperties
-      )}"`
-    : "";
-
-  const normalizers = options.normalizers
-    ? ` --openapi-normalizer "${serializeProperties(
-        Object.fromEntries(
-          Object.entries(options.normalizers).map(([k, v]) => [k, `${v}`])
-        )
-      )}"`
-    : "";
-
-  const extensions = options.extraVendorExtensions
-    ? ` --extra-vendor-extensions '${JSON.stringify(
-        options.extraVendorExtensions
-      )}'`
-    : "";
-
-  const generateAliasAsModel =
-    options.generateAliasAsModel ?? true ? " --generate-alias-as-model" : "";
-
-  const specPath = options.specPath;
-  const outputPath = ".";
-
-  return `--generator ${options.generator} --spec-path ${specPath} --output-path ${outputPath} --generator-dir ${options.generatorDirectory} --src-dir ${srcDir} --tst-dir ${tstDir}${additionalProperties}${normalizers}${extensions}${generateAliasAsModel}`;
-};
-
-/**
- * Builds a command to clean up files which were previously generated by openapi generator
- */
-export const buildCleanOpenApiGeneratedCodeCommand = (): string => {
-  return buildTypeSafeApiExecCommand(
-    TypeSafeApiScript.CLEAN_OPENAPI_GENERATED_CODE,
-    `--code-path .`
-  );
 };
 
 /**

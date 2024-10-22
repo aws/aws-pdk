@@ -76,7 +76,7 @@ const api = new TypeSafeApiProject({
         libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
     },
     documentation: {
-        formats: [DocumentationFormat.HTML2],
+        formats: [DocumentationFormat.HTML_REDOC],
     },
 });
 
@@ -101,7 +101,7 @@ new AwsCdkTypeScriptApp({
     prettier: true,
     name: "infra-main",
     deps: [
-+       "@aws/pdk",        
++       "@aws/pdk",
         "@aws-prototyping-sdk/static-website",
         "@aws-prototyping-sdk/identity",
         "@aws-prototyping-sdk/pipeline",
@@ -183,7 +183,7 @@ const graph = new CdkGraph(app, {
 -                        // do something
 -                    },
 +                    { store: Filters.pruneCustomResources() },
-+                    { 
++                    {
 +                        store: (store) => {
 +                            // do something
 +                        }
@@ -209,7 +209,7 @@ The `PDKPipelineTsProject` has been removed as it did not provide an adequate le
 +import { AwsCdkTypeScriptApp } from "projen/lib/awscdk"
 
 -const pipelineProject = new PDKPipelineTsProject({
-+const pipelineProject = new AwsCdkTypeScriptApp({    
++const pipelineProject = new AwsCdkTypeScriptApp({
     parent: monorepo,
     outdir: "packages/infra",
     defaultReleaseBranch: "mainline",
