@@ -1810,13 +1810,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-do-i-customise-openapi-generator-cli" class="md-nav__link">
-    How do I customise OpenAPI Generator CLI?
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#can-i-implement-my-api-operations-with-something-other-than-lambda-like-ecs" class="md-nav__link">
     Can I implement my API operations with something other than Lambda, like ECS?
   </a>
@@ -3852,13 +3845,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-do-i-customise-openapi-generator-cli" class="md-nav__link">
-    How do I customise OpenAPI Generator CLI?
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#can-i-implement-my-api-operations-with-something-other-than-lambda-like-ecs" class="md-nav__link">
     Can I implement my API operations with something other than Lambda, like ECS?
   </a>
@@ -4081,82 +4067,11 @@ npx<span class="w"> </span>cdk<span class="w"> </span>synth<span class="w"> </sp
 <p>Make sure you do not deploy your CDK stack with <code>type-safe-api-local</code> set to <code>true</code>, since this uses an inline API definition which bloats the CloudFormation template and can exceed the maximum template size depending on the size of your API.</p>
 <p>⚠️ <strong>Important Note</strong>: There is currently a limitation with SAM CLI where it does not support mock integrations, which means that the development server will not respond to OPTIONS requests even if you specified <code>corsOptions: { ... }</code> in your <code>Api</code> construct. This is being tracked as a <a href="https://github.com/aws/aws-sam-cli/issues/4973">feature request here</a>.</p>
 <p>Note also that your API business logic may include operations which do not work locally, or may interact with real AWS resources depending on the AWS credentials you start your local development server with.</p>
-<h3 id="how-do-i-customise-openapi-generator-cli">How do I customise OpenAPI Generator CLI?</h3>
-<p><a href="https://github.com/OpenAPITools/openapi-generator-cli">OpenAPI Generator CLI</a> is used to generate the infrastructure, runtime and library projects. You can customise some of its properties for specific projects if you like. Note that changing the <code>version</code> may cause generated code to be broken, since it's written assuming the default version.</p>
-<p>For example, to customise the maven repository used to pull the OpenAPI Generator jar, you can configure the <code>TypeSafeApiProject</code> as follows:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">TS</label><label for="__tabbed_3_2">JAVA</label><label for="__tabbed_3_3">PYTHON</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">openApiGeneratorCliConfig</span><span class="o">:</span><span class="w"> </span><span class="kt">OpenApiGeneratorCliConfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">repository</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">downloadUrl</span><span class="o">:</span>
-<span class="w">      </span><span class="s2">&quot;https://my.custom.maven.repo/maven2/${groupId}/${artifactId}/${versionName}/${artifactId}-${versionName}.jar&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="p">},</span>
-<span class="p">};</span>
-
-<span class="kd">const</span><span class="w"> </span><span class="nx">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TypeSafeApiProject</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">infrastructure</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">language</span><span class="o">:</span><span class="w"> </span><span class="kt">Language.TYPESCRIPT</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">typescript</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">openApiGeneratorCliConfig</span><span class="p">,</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="c1">// Repeat for handlers, runtime, documentation, library</span>
-<span class="w">  </span><span class="p">...</span>
-<span class="p">});</span>
-</code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">OpenApiGeneratorCliConfig</span><span class="w"> </span><span class="n">openApiGeneratorCliConfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OpenApiGeneratorCliConfig</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
-<span class="w">            </span><span class="p">.</span><span class="na">repository</span><span class="p">(</span><span class="n">OpenApiGeneratorCliConfigRepository</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
-<span class="w">                    </span><span class="p">.</span><span class="na">downloadUrl</span><span class="p">(</span><span class="s">&quot;https://my.custom.maven.repo/maven2/${groupId}/${artifactId}/${versionName}/${artifactId}-${versionName}.jar&quot;</span><span class="p">)</span>
-<span class="w">                    </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
-<span class="w">            </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
-
-<span class="n">TypeSafeApiProject</span><span class="w"> </span><span class="n">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TypeSafeApiProject</span><span class="p">(</span><span class="n">TypeSafeApiProjectOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
-<span class="w">        </span><span class="p">.</span><span class="na">infrastructure</span><span class="p">(</span><span class="n">InfrastructureConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
-<span class="w">                </span><span class="p">.</span><span class="na">language</span><span class="p">(</span><span class="n">Language</span><span class="p">.</span><span class="na">JAVA</span><span class="p">)</span>
-<span class="w">                </span><span class="p">.</span><span class="na">options</span><span class="p">(</span><span class="n">GeneratedInfrastructureCodeOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
-<span class="w">                        </span><span class="p">.</span><span class="na">java</span><span class="p">(</span><span class="n">GeneratedJavaInfrastructureOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
-<span class="w">                                </span><span class="p">.</span><span class="na">openApiGeneratorCliConfig</span><span class="p">(</span><span class="n">openApiGeneratorCliConfig</span><span class="p">)</span>
-<span class="w">                                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
-<span class="w">                        </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
-<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
-<span class="w">        </span><span class="c1">// Repeat for handlers, runtime, documentation, library</span>
-<span class="w">        </span><span class="p">...</span>
-<span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
-</code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">openapi_generator_cli_config</span> <span class="o">=</span> <span class="n">OpenApiGeneratorCliConfig</span><span class="p">(</span>
-    <span class="n">repository</span><span class="o">=</span><span class="n">OpenApiGeneratorCliConfigRepository</span><span class="p">(</span>
-        <span class="n">download_url</span><span class="o">=</span><span class="s2">&quot;https://my.custom.maven.repo/maven2/$</span><span class="si">{groupId}</span><span class="s2">/$</span><span class="si">{artifactId}</span><span class="s2">/$</span><span class="si">{versionName}</span><span class="s2">/$</span><span class="si">{artifactId}</span><span class="s2">-$</span><span class="si">{versionName}</span><span class="s2">.jar&quot;</span>
-    <span class="p">)</span>
-<span class="p">)</span>
-
-<span class="n">project</span> <span class="o">=</span> <span class="n">TypeSafeApiProject</span><span class="p">(</span>
-    <span class="n">infrastructure</span><span class="o">=</span><span class="n">InfrastructureConfiguration</span><span class="p">(</span>
-        <span class="n">language</span><span class="o">=</span><span class="n">Language</span><span class="o">.</span><span class="n">PYTHON</span><span class="p">,</span>
-        <span class="n">options</span><span class="o">=</span><span class="n">GeneratedInfrastructureCodeOptions</span><span class="p">(</span>
-            <span class="n">python</span><span class="o">=</span><span class="n">GeneratedPythonInfrastructureOptions</span><span class="p">(</span>
-                <span class="n">open_api_generator_cli_config</span><span class="o">=</span><span class="n">open_api_generator_cli_config</span>
-            <span class="p">)</span>
-        <span class="p">)</span>
-    <span class="p">),</span>
-    <span class="c1"># Repeat for handlers, runtime, documentation, library</span>
-    <span class="o">...</span>
-<span class="p">)</span>
-</code></pre></div>
-</div>
-</div>
-</div>
 <h3 id="can-i-implement-my-api-operations-with-something-other-than-lambda-like-ecs">Can I implement my API operations with something other than Lambda, like ECS?</h3>
 <p>Yes. You can write a custom integration and integrate with any of the services supported by API Gateway. See the <a href="integrations.html">Integrations</a> section for more information.</p>
 <h3 id="how-do-i-customise-the-smithy-version">How do I customise the Smithy version?</h3>
 <p>You can customise the versions of Smithy dependencies by including them in <code>smithyBuildOptions.maven.dependencies</code>. You must override the versions of all of the built-in Smithy dependencies to ensure you don't end up with a mixture of versions. For example in your <code>.projenrc</code>:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="4:3"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><input id="__tabbed_4_3" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">TS</label><label for="__tabbed_4_2">JAVA</label><label for="__tabbed_4_3">PYTHON</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">TS</label><label for="__tabbed_3_2">JAVA</label><label for="__tabbed_3_3">PYTHON</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="ow">new</span><span class="w"> </span><span class="nx">TypeSafeApiProject</span><span class="p">({</span>
@@ -4249,7 +4164,7 @@ npx<span class="w"> </span>cdk<span class="w"> </span>synth<span class="w"> </sp
   <small>
     
       Last update:
-      2024-10-21
+      2024-10-22
     
   </small>
 </div>
