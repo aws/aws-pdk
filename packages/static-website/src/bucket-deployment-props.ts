@@ -85,6 +85,15 @@ export interface BucketDeploymentProps {
    */
   readonly prune?: boolean;
   /**
+   * If set to false, the custom resource will not send back the SourceObjectKeys.
+   * This is useful when you are facing the error `Response object is too long`
+   *
+   * See https://github.com/aws/aws-cdk/issues/28579
+   * @default true
+   * @stability stable
+   */
+  readonly outputObjectKeys?: boolean;
+  /**
    * User-defined object metadata to be set on all objects in the deployment.
    * @default - No user metadata is set
    * @stability stable

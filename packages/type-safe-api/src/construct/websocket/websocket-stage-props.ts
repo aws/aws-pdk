@@ -23,6 +23,12 @@ export interface WebSocketStageProps {
    */
   readonly domainMapping?: aws_apigatewayv2.DomainMappingOptions;
   /**
+   * The description for the API stage.
+   * @default - no description
+   * @stability stable
+   */
+  readonly description?: string;
+  /**
    * Whether updates to an API automatically trigger a new deployment.
    * @default false
    * @stability stable
