@@ -6,6 +6,10 @@ import { PythonProject } from "projen/lib/python";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { JavaProjectOptions } from "./java-project-options";
 import { JavaVersion, NodeVersion, PythonVersion } from "./languages";
+import { OpenApiAsyncModelProject } from "./model/openapi/open-api-async-model-project";
+import { OpenApiModelProject } from "./model/openapi/open-api-model-project";
+import { SmithyAsyncModelProject } from "./model/smithy/smithy-async-model-project";
+import { SmithyModelProject } from "./model/smithy/smithy-model-project";
 import { SmithyBuildOptions } from "./model/smithy/types";
 import { PythonProjectOptions } from "./python-project-options";
 import { TypeScriptProjectOptions } from "./typescript-project-options";
@@ -362,6 +366,59 @@ export interface GeneratedCodeProjects {
    * Generated java project
    */
   readonly java?: JavaProject;
+}
+
+/**
+ * Common details for API model projects
+ */
+export interface ModelProjectDetails {
+  /**
+   * Name of the API
+   */
+  readonly apiName: string;
+  /**
+   * Name of the bundled OpenAPI specification file
+   */
+  readonly parsedSpecFile: string;
+  /**
+   * Directory of the model project
+   */
+  readonly outdir: string;
+}
+
+/**
+ * Model project references
+ */
+export interface ModelProject extends ModelProjectDetails {
+  /**
+   * Reference to the Smithy model project. Will be defined if the model language is Smithy
+   */
+  readonly smithy?: SmithyModelProject;
+
+  /**
+   * Reference to the OpenAPI model project. Will be defined if the model language is OpenAPI
+   */
+  readonly openapi?: OpenApiModelProject;
+}
+
+/**
+ * WebSocket model project references
+ */
+export interface WebSocketModelProject extends ModelProjectDetails {
+  /**
+   * File name of the generated async api specification
+   */
+  readonly asyncApiSpecFile: string;
+
+  /**
+   * Reference to the Smithy model project. Will be defined if the model language is Smithy
+   */
+  readonly smithy?: SmithyAsyncModelProject;
+
+  /**
+   * Reference to the OpenAPI model project. Will be defined if the model language is OpenAPI
+   */
+  readonly openapi?: OpenApiAsyncModelProject;
 }
 
 /**

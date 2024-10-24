@@ -21,6 +21,7 @@ import {
   generateInfraProject,
   generateLibraryProjects,
   generateHandlersProjects,
+  generateModelProject,
 } from "./codegen/generate";
 import { GeneratedJavaHandlersProject } from "./codegen/handlers/generated-java-handlers-project";
 import { GeneratedPythonHandlersProject } from "./codegen/handlers/generated-python-handlers-project";
@@ -29,7 +30,6 @@ import { GeneratedJavaRuntimeProject } from "./codegen/runtime/generated-java-ru
 import { GeneratedPythonRuntimeProject } from "./codegen/runtime/generated-python-runtime-project";
 import { GeneratedTypescriptRuntimeProject } from "./codegen/runtime/generated-typescript-runtime-project";
 import { DocumentationFormat, Language, Library } from "./languages";
-import { TypeSafeApiModelProject } from "./model/type-safe-api-model-project";
 import {
   GeneratedRuntimeCodeOptions,
   GeneratedCodeProjects,
@@ -42,6 +42,7 @@ import {
   GeneratedInfrastructureCodeOptions,
   GeneratedHandlersCodeOptions,
   ProjectCollections,
+  ModelProject,
 } from "./types";
 
 /**
@@ -177,7 +178,7 @@ export class TypeSafeApiProject extends Project {
   /**
    * Project for the api model
    */
-  public readonly model: TypeSafeApiModelProject;
+  public readonly model: ModelProject;
   /**
    * Generated runtime projects. When `runtime.languages` includes the corresponding language, the project can be
    * assumed to be defined.
@@ -217,16 +218,30 @@ export class TypeSafeApiProject extends Project {
 
     const handlerLanguages = [...new Set(options.handlers?.languages ?? [])];
 
+    // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
+    const defaultReleaseBranch =
+      nxWorkspace?.affected.defaultBase ?? "mainline";
+    const packageManager =
+      this.parent && ProjectUtils.isNamedInstanceOf(this.parent, NodeProject)
+        ? this.parent.package.packageManager
+        : NodePackageManager.PNPM;
+
     // API Definition project containing the model
     const modelDir = "model";
-    this.model = new TypeSafeApiModelProject({
+    const parsedSpecFile = ".api.json";
+
+    this.model = generateModelProject({
       parent: nxWorkspace ? this.parent : this,
       outdir: nxWorkspace ? path.join(options.outdir!, modelDir) : modelDir,
       name: `${options.name}-model`,
       modelLanguage: options.model.language,
       modelOptions: options.model.options,
       handlerLanguages,
+      parsedSpecFile,
     });
+    const modelProject = [this.model.openapi, this.model.smithy].filter(
+      (m) => m
+    )[0] as Project;
 
     // Ensure we always generate a runtime project for the infrastructure language, regardless of what was specified by
     // the user. Likewise we generate a runtime project for any handler languages specified
@@ -263,13 +278,8 @@ export class TypeSafeApiProject extends Project {
       // Spec path relative to each generated runtime dir
       parsedSpecPath: parsedSpecRelativeToGeneratedPackageDir,
       typescriptOptions: {
-        // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
-        defaultReleaseBranch: nxWorkspace?.affected?.defaultBase ?? "mainline",
-        packageManager:
-          this.parent &&
-          ProjectUtils.isNamedInstanceOf(this.parent, NodeProject)
-            ? this.parent.package.packageManager
-            : NodePackageManager.PNPM,
+        defaultReleaseBranch,
+        packageManager,
         commitGeneratedCode:
           options.runtime?.options?.typescript?.commitGeneratedCode ??
           options.commitGeneratedCode ??
@@ -336,13 +346,8 @@ export class TypeSafeApiProject extends Project {
       // Spec path relative to each generated library dir
       parsedSpecPath: parsedSpecRelativeToGeneratedPackageDir,
       typescriptReactQueryHooksOptions: {
-        // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
-        defaultReleaseBranch: nxWorkspace?.affected.defaultBase ?? "mainline",
-        packageManager:
-          this.parent &&
-          ProjectUtils.isNamedInstanceOf(this.parent, NodeProject)
-            ? this.parent.package.packageManager
-            : NodePackageManager.PNPM,
+        defaultReleaseBranch,
+        packageManager,
         commitGeneratedCode:
           options.library?.options?.typescriptReactQueryHooks
             ?.commitGeneratedCode ??
@@ -359,7 +364,7 @@ export class TypeSafeApiProject extends Project {
         ...Object.values(generatedDocs),
         ...Object.values(generatedLibraryProjects),
       ].forEach((project) => {
-        NxProject.ensure(project).addImplicitDependency(this.model);
+        NxProject.ensure(project).addImplicitDependency(modelProject);
       });
     }
 
@@ -496,13 +501,8 @@ export class TypeSafeApiProject extends Project {
       // Spec path relative to each generated infra package dir
       parsedSpecPath: parsedSpecRelativeToGeneratedPackageDir,
       typescriptOptions: {
-        // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
-        defaultReleaseBranch: nxWorkspace?.affected.defaultBase ?? "mainline",
-        packageManager:
-          this.parent &&
-          ProjectUtils.isNamedInstanceOf(this.parent, NodeProject)
-            ? this.parent.package.packageManager
-            : NodePackageManager.PNPM,
+        defaultReleaseBranch,
+        packageManager,
         commitGeneratedCode:
           options.infrastructure.options?.typescript?.commitGeneratedCode ??
           options.commitGeneratedCode ??
@@ -578,7 +578,7 @@ export class TypeSafeApiProject extends Project {
     }
     this.infrastructure = infraProjects;
 
-    NxProject.ensure(infraProject).addImplicitDependency(this.model);
+    NxProject.ensure(infraProject).addImplicitDependency(modelProject);
 
     // Expose collections of projects
     const allRuntimes = Object.values(generatedRuntimeProjects);
@@ -588,14 +588,14 @@ export class TypeSafeApiProject extends Project {
     const allHandlers = Object.values(generatedHandlersProjects);
 
     this.all = {
-      model: [this.model],
+      model: [modelProject],
       runtimes: allRuntimes,
       infrastructure: allInfrastructure,
       libraries: allLibraries,
       documentation: allDocumentation,
       handlers: allHandlers,
       projects: [
-        this.model,
+        modelProject,
         ...allRuntimes,
         ...allInfrastructure,
         ...allLibraries,
@@ -607,7 +607,7 @@ export class TypeSafeApiProject extends Project {
     if (!nxWorkspace) {
       // Add a task for the non-monorepo case to build the projects in the right order
       [
-        this.model,
+        modelProject,
         ...Object.values(generatedRuntimeProjects),
         infraProject,
         ...Object.values(generatedLibraryProjects),

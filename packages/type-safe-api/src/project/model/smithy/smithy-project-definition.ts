@@ -1,19 +1,19 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
-import { Component } from "projen";
+import { Component, Project } from "projen";
 import { SmithyBuild } from "projen/lib/smithy/smithy-build";
 import { SmithyAwsPdkPrelude } from "./components/smithy-aws-pdk-prelude";
 import { SmithyBuildGradleFile } from "./components/smithy-build-gradle-file";
 import { SmithySettingsGradleFile } from "./components/smithy-settings-gradle-file";
 import { DEFAULT_SMITHY_VERSION } from "./version";
+import { GenerateTask } from "../../codegen/components/generate-task";
 import {
   buildTypeSafeApiExecCommand,
   TypeSafeApiScript,
 } from "../../codegen/components/utils";
 import { Language } from "../../languages";
 import { SmithyModelOptions } from "../../types";
-import { TypeSafeApiModelProjectBase } from "../type-safe-api-model-project-base";
 
 /**
  * Options for a smithy build project
@@ -64,10 +64,7 @@ export class SmithyProjectDefinition extends Component {
    */
   protected readonly generatedModelDir: string;
 
-  constructor(
-    project: TypeSafeApiModelProjectBase,
-    options: SmithyProjectDefinitionOptions
-  ) {
+  constructor(project: Project, options: SmithyProjectDefinitionOptions) {
     super(project);
 
     const { smithyOptions } = options;
@@ -193,14 +190,16 @@ export class SmithyProjectDefinition extends Component {
       "model.json"
     );
 
+    const generateTask = GenerateTask.ensure(project);
+
     // Copy the gradle files during build if they don't exist. We don't overwrite to allow users to BYO gradle wrapper
     // and set `ignoreGradleWrapper: false`.
-    project.generateTask.exec(
+    generateTask.exec(
       buildTypeSafeApiExecCommand(TypeSafeApiScript.COPY_GRADLE_WRAPPER)
     );
 
     // Build with gradle to generate smithy projections, and any other tasks
-    project.generateTask.exec("./gradlew build");
+    generateTask.exec("./gradlew build");
 
     if (smithyOptions.ignoreSmithyBuildOutput ?? true) {
       // Ignore the build directory, and smithy-output which was the old build directory for the cli-based generation

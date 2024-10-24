@@ -1,16 +1,17 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { Project } from "projen";
 import { SmithyAsyncSampleCode } from "./components/smithy-async-sample-code";
 import { SmithyAwsPdkAsyncPrelude } from "./components/smithy-aws-pdk-async-prelude";
 import {
   SmithyProjectDefinition,
   SmithyProjectDefinitionOptions,
 } from "./smithy-project-definition";
+import { GenerateTask } from "../../codegen/components/generate-task";
 import {
   TypeSafeApiScript,
   buildTypeSafeApiExecCommand,
 } from "../../codegen/components/utils";
-import { TypeSafeWebSocketApiModelProject } from "../type-safe-websocket-api-model-project";
 
 /**
  * Options for a smithy build project
@@ -22,10 +23,7 @@ export interface SmithyAsyncDefinitionOptions
  * Creates a project which transforms a Smithy model for an async API to OpenAPI
  */
 export class SmithyAsyncDefinition extends SmithyProjectDefinition {
-  constructor(
-    project: TypeSafeWebSocketApiModelProject,
-    options: SmithyAsyncDefinitionOptions
-  ) {
+  constructor(project: Project, options: SmithyAsyncDefinitionOptions) {
     super(project, {
       ...options,
       smithyOptions: {
@@ -65,8 +63,10 @@ export class SmithyAsyncDefinition extends SmithyProjectDefinition {
       handlerLanguages: options.handlerLanguages,
     });
 
+    const generateTask = GenerateTask.ensure(project);
+
     // Copy the async transformer jar
-    project.generateTask.prependExec(
+    generateTask.prependExec(
       buildTypeSafeApiExecCommand(
         TypeSafeApiScript.COPY_ASYNC_SMITHY_TRANSFORMER
       )

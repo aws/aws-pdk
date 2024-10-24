@@ -20,6 +20,7 @@ import {
   generateAsyncHandlersProjects,
   generateAsyncInfraProject,
   generateAsyncLibraryProjects,
+  generateAsyncModelProject,
 } from "./codegen/generate";
 import { GeneratedJavaAsyncHandlersProject } from "./codegen/handlers/generated-java-async-handlers-project";
 import { GeneratedPythonAsyncHandlersProject } from "./codegen/handlers/generated-python-async-handlers-project";
@@ -32,7 +33,6 @@ import {
   WebSocketDocumentationFormat,
   WebSocketLibrary,
 } from "./languages";
-import { TypeSafeWebSocketApiModelProject } from "./model/type-safe-websocket-api-model-project";
 import { ModelConfiguration } from "./type-safe-api-project";
 import {
   GeneratedRuntimeCodeOptions,
@@ -44,6 +44,7 @@ import {
   GeneratedWebSocketLibraryProjects,
   GeneratedWebSocketDocumentationProjects,
   GeneratedWebSocketDocumentationOptions,
+  WebSocketModelProject,
 } from "./types";
 
 /**
@@ -161,9 +162,9 @@ export interface TypeSafeWebSocketApiProjectOptions extends ProjectOptions {
  */
 export class TypeSafeWebSocketApiProject extends Project {
   /**
-   * Project for the api model
+   * Project for the api model.
    */
-  public readonly model: TypeSafeWebSocketApiModelProject;
+  public readonly model: WebSocketModelProject;
   /**
    * Generated runtime projects. When `runtime.languages` includes the corresponding language, the project can be
    * assumed to be defined.
@@ -203,16 +204,31 @@ export class TypeSafeWebSocketApiProject extends Project {
 
     const handlerLanguages = [...new Set(options.handlers?.languages ?? [])];
 
+    // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
+    const defaultReleaseBranch =
+      nxWorkspace?.affected.defaultBase ?? "mainline";
+    const packageManager =
+      this.parent && ProjectUtils.isNamedInstanceOf(this.parent, NodeProject)
+        ? this.parent.package.packageManager
+        : NodePackageManager.PNPM;
+
     // API Definition project containing the model
     const modelDir = "model";
-    this.model = new TypeSafeWebSocketApiModelProject({
+    const parsedSpecFile = ".api.json";
+    const asyncApiSpecFile = ".asyncapi.json";
+    this.model = generateAsyncModelProject({
       parent: nxWorkspace ? this.parent : this,
       outdir: nxWorkspace ? path.join(options.outdir!, modelDir) : modelDir,
       name: `${options.name}-model`,
       modelLanguage: options.model.language,
       modelOptions: options.model.options,
       handlerLanguages,
+      parsedSpecFile,
+      asyncApiSpecFile,
     });
+    const modelProject = [this.model.openapi, this.model.smithy].filter(
+      (m) => m
+    )[0] as Project;
 
     // Ensure we always generate a runtime project for the infrastructure language, regardless of what was specified by
     // the user. Likewise we generate a runtime project for any handler languages specified
@@ -271,14 +287,8 @@ export class TypeSafeWebSocketApiProject extends Project {
         // Spec path relative to each generated runtime dir
         parsedSpecPath: parsedSpecRelativeToGeneratedPackageDir,
         typescriptOptions: {
-          // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
-          defaultReleaseBranch:
-            nxWorkspace?.affected?.defaultBase ?? "mainline",
-          packageManager:
-            this.parent &&
-            ProjectUtils.isNamedInstanceOf(this.parent, NodeProject)
-              ? this.parent.package.packageManager
-              : NodePackageManager.PNPM,
+          defaultReleaseBranch,
+          packageManager,
           ...options.runtime?.options?.typescript,
         },
         pythonOptions: {
@@ -354,25 +364,15 @@ export class TypeSafeWebSocketApiProject extends Project {
       // Spec path relative to each generated library dir
       parsedSpecPath: parsedSpecRelativeToGeneratedPackageDir,
       typescriptWebSocketClientOptions: {
-        // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
-        defaultReleaseBranch: nxWorkspace?.affected.defaultBase ?? "mainline",
-        packageManager:
-          this.parent &&
-          ProjectUtils.isNamedInstanceOf(this.parent, NodeProject)
-            ? this.parent.package.packageManager
-            : NodePackageManager.PNPM,
+        defaultReleaseBranch,
+        packageManager,
         ...options.library?.options?.typescriptWebSocketClient,
       },
       typescriptWebSocketHooksOptions: {
-        // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
-        defaultReleaseBranch: nxWorkspace?.affected.defaultBase ?? "mainline",
+        defaultReleaseBranch,
         clientPackageName:
           options.library?.options?.typescriptWebSocketClient?.name,
-        packageManager:
-          this.parent &&
-          ProjectUtils.isNamedInstanceOf(this.parent, NodeProject)
-            ? this.parent.package.packageManager
-            : NodePackageManager.PNPM,
+        packageManager,
         ...options.library?.options?.typescriptWebSocketHooks,
       },
     });
@@ -384,7 +384,7 @@ export class TypeSafeWebSocketApiProject extends Project {
         ...Object.values(generatedDocs),
         ...Object.values(generatedLibraryProjects),
       ].forEach((project) => {
-        NxProject.ensure(project).addImplicitDependency(this.model);
+        NxProject.ensure(project).addImplicitDependency(modelProject);
       });
     }
 
@@ -452,13 +452,8 @@ export class TypeSafeWebSocketApiProject extends Project {
         // Spec path relative to each generated handlers package dir
         parsedSpecPath: parsedSpecRelativeToHandlersDir,
         typescriptOptions: {
-          // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
-          defaultReleaseBranch: nxWorkspace?.affected.defaultBase ?? "mainline",
-          packageManager:
-            this.parent &&
-            ProjectUtils.isNamedInstanceOf(this.parent, NodeProject)
-              ? this.parent.package.packageManager
-              : NodePackageManager.PNPM,
+          defaultReleaseBranch,
+          packageManager,
           ...options.handlers?.options?.typescript,
         },
         pythonOptions: {
@@ -530,13 +525,8 @@ export class TypeSafeWebSocketApiProject extends Project {
         // Spec path relative to each generated infra package dir
         parsedSpecPath: parsedSpecRelativeToGeneratedPackageDir,
         typescriptOptions: {
-          // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
-          defaultReleaseBranch: nxWorkspace?.affected.defaultBase ?? "mainline",
-          packageManager:
-            this.parent &&
-            ProjectUtils.isNamedInstanceOf(this.parent, NodeProject)
-              ? this.parent.package.packageManager
-              : NodePackageManager.PNPM,
+          defaultReleaseBranch,
+          packageManager,
           ...options.infrastructure.options?.typescript,
         },
         pythonOptions: {
@@ -605,7 +595,7 @@ export class TypeSafeWebSocketApiProject extends Project {
     }
     this.infrastructure = infraProjects;
 
-    NxProject.ensure(infraProject).addImplicitDependency(this.model);
+    NxProject.ensure(infraProject).addImplicitDependency(modelProject);
 
     // Expose collections of projects
     const allRuntimes = Object.values(generatedRuntimeProjects);
@@ -615,14 +605,14 @@ export class TypeSafeWebSocketApiProject extends Project {
     const allHandlers = Object.values(generatedHandlersProjects);
 
     this.all = {
-      model: [this.model],
+      model: [modelProject],
       runtimes: allRuntimes,
       infrastructure: allInfrastructure,
       libraries: allLibraries,
       documentation: allDocumentation,
       handlers: allHandlers,
       projects: [
-        this.model,
+        modelProject,
         ...allRuntimes,
         ...allInfrastructure,
         ...allLibraries,
@@ -634,7 +624,7 @@ export class TypeSafeWebSocketApiProject extends Project {
     if (!nxWorkspace) {
       // Add a task for the non-monorepo case to build the projects in the right order
       [
-        this.model,
+        modelProject,
         ...Object.values(generatedRuntimeProjects),
         infraProject,
         ...Object.values(generatedLibraryProjects),

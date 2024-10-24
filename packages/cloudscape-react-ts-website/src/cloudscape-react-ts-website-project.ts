@@ -229,7 +229,7 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
       `mkdir -p ${targetApiSpecFolder} && cp ${path.relative(
         this.outdir,
         tsApi.model.outdir
-      )}/.api.json ${targetApiSpecPath}`
+      )}/${tsApi.model.parsedSpecFile} ${targetApiSpecPath}`
     );
   }
 

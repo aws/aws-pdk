@@ -10,10 +10,6 @@ import {
   WebSocketDocumentationFormat,
   WebSocketLibrary,
 } from "../languages";
-import {
-  GeneratedDocumentationOptions,
-  GeneratedWebSocketDocumentationOptions,
-} from "../types";
 import { GeneratedAsyncApiHtmlDocumentationProject } from "./documentation/generated-asyncapi-html-documentation-project";
 import { GeneratedAsyncApiMarkdownDocumentationProject } from "./documentation/generated-asyncapi-markdown-documentation-project";
 import { GeneratedHtmlRedocDocumentationProject } from "./documentation/generated-html-redoc-documentation-project";
@@ -64,6 +60,21 @@ import {
   GeneratedTypescriptRuntimeProject,
   GeneratedTypescriptTypesProjectOptions,
 } from "./runtime/generated-typescript-runtime-project";
+import { OpenApiAsyncModelProject } from "../model/openapi/open-api-async-model-project";
+import { OpenApiModelProject } from "../model/openapi/open-api-model-project";
+import { SmithyAsyncModelProject } from "../model/smithy/smithy-async-model-project";
+import { SmithyModelProject } from "../model/smithy/smithy-model-project";
+import { TypeSafeApiAsyncModelBuildOutputOptions } from "../model/type-safe-api-async-model-build";
+import { TypeSafeApiModelBuildOutputOptions } from "../model/type-safe-api-model-build";
+import { TypeSafeApiModelProjectOptions } from "../model/type-safe-api-model-project";
+import { TypeSafeWebSocketApiModelProjectOptions } from "../model/type-safe-websocket-api-model-project";
+import {
+  GeneratedDocumentationOptions,
+  GeneratedWebSocketDocumentationOptions,
+  ModelLanguage,
+  ModelProject,
+  WebSocketModelProject,
+} from "../types";
 
 const logger = getLogger();
 
@@ -646,6 +657,113 @@ export const generateLibraryProjects = (
   });
 
   return generatedLibraries;
+};
+
+export interface CommonModelProjectOptions {
+  readonly name: string;
+  readonly parent?: Project;
+  readonly outdir: string;
+}
+
+export interface GenerateModelProjectOptions
+  extends CommonModelProjectOptions,
+    TypeSafeApiModelProjectOptions,
+    TypeSafeApiModelBuildOutputOptions {}
+
+export const generateModelProject = ({
+  modelLanguage,
+  modelOptions,
+  ...options
+}: GenerateModelProjectOptions): ModelProject => {
+  if (modelLanguage === ModelLanguage.SMITHY) {
+    if (!modelOptions.smithy) {
+      throw new Error(
+        `modelOptions.smithy is required when selected model language is ${ModelLanguage.SMITHY}`
+      );
+    }
+
+    const smithy = new SmithyModelProject({
+      ...options,
+      smithyOptions: modelOptions.smithy,
+    });
+    return {
+      smithy,
+      parsedSpecFile: options.parsedSpecFile,
+      apiName: smithy.apiName,
+      outdir: smithy.outdir,
+    };
+  } else if (modelLanguage === ModelLanguage.OPENAPI) {
+    if (!modelOptions.openapi) {
+      throw new Error(
+        `modelOptions.openapi is required when selected model language is ${ModelLanguage.OPENAPI}`
+      );
+    }
+
+    const openapi = new OpenApiModelProject({
+      ...options,
+      openApiOptions: modelOptions.openapi,
+    });
+    return {
+      openapi,
+      parsedSpecFile: options.parsedSpecFile,
+      apiName: openapi.apiName,
+      outdir: openapi.outdir,
+    };
+  } else {
+    throw new Error(`Unknown model language ${modelLanguage}`);
+  }
+};
+
+export interface GenerateAsyncModelProjectOptions
+  extends CommonModelProjectOptions,
+    TypeSafeWebSocketApiModelProjectOptions,
+    TypeSafeApiAsyncModelBuildOutputOptions,
+    TypeSafeApiModelBuildOutputOptions {}
+
+export const generateAsyncModelProject = ({
+  modelLanguage,
+  modelOptions,
+  ...options
+}: GenerateAsyncModelProjectOptions): WebSocketModelProject => {
+  if (modelLanguage === ModelLanguage.SMITHY) {
+    if (!modelOptions.smithy) {
+      throw new Error(
+        `modelOptions.smithy is required when selected model language is ${ModelLanguage.SMITHY}`
+      );
+    }
+
+    const smithy = new SmithyAsyncModelProject({
+      ...options,
+      smithyOptions: modelOptions.smithy,
+    });
+    return {
+      smithy,
+      parsedSpecFile: options.parsedSpecFile,
+      asyncApiSpecFile: options.asyncApiSpecFile,
+      apiName: smithy.apiName,
+      outdir: smithy.outdir,
+    };
+  } else if (modelLanguage === ModelLanguage.OPENAPI) {
+    if (!modelOptions.openapi) {
+      throw new Error(
+        `modelOptions.openapi is required when selected model language is ${ModelLanguage.OPENAPI}`
+      );
+    }
+
+    const openapi = new OpenApiAsyncModelProject({
+      ...options,
+      openApiOptions: modelOptions.openapi,
+    });
+    return {
+      openapi,
+      parsedSpecFile: options.parsedSpecFile,
+      asyncApiSpecFile: options.asyncApiSpecFile,
+      apiName: openapi.apiName,
+      outdir: openapi.outdir,
+    };
+  } else {
+    throw new Error(`Unknown model language ${modelLanguage}`);
+  }
 };
 
 /**

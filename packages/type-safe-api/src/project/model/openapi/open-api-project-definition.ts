@@ -1,9 +1,8 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { Component } from "projen";
+import { Component, Project } from "projen";
 import { Language } from "../../languages";
 import { OpenApiModelOptions } from "../../types";
-import { TypeSafeApiModelProjectBase } from "../type-safe-api-model-project-base";
 
 /**
  * Options for the OpenAPI Spec
@@ -29,10 +28,7 @@ export class OpenApiProjectDefinition extends Component {
   public readonly openApiSpecificationPath: string =
     "src/main/openapi/main.yaml";
 
-  constructor(
-    project: TypeSafeApiModelProjectBase,
-    _options: OpenApiProjectDefinitionOptions
-  ) {
+  constructor(project: Project, _options: OpenApiProjectDefinitionOptions) {
     super(project);
   }
 }
