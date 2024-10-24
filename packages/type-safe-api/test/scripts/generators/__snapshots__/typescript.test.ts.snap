@@ -8239,6 +8239,7 @@ src/models/index.ts
 src/models/model-utils.ts
 src/models/InlineEnum200Response.ts
 src/models/InlineEnum200ResponseCategoryEnum.ts
+src/models/InlineRequestBodyRequestContent.ts
 src/models/MyEnum.ts",
   "src/apis/DefaultApi.ts": "/* tslint:disable */
 /* eslint-disable */
@@ -8256,11 +8257,14 @@ src/models/MyEnum.ts",
 import * as runtime from '../runtime';
 import type {
   InlineEnum200Response,
+  InlineRequestBodyRequestContent,
   MyEnum,
 } from '../models';
 import {
     InlineEnum200ResponseFromJSON,
     InlineEnum200ResponseToJSON,
+    InlineRequestBodyRequestContentFromJSON,
+    InlineRequestBodyRequestContentToJSON,
     MyEnumFromJSON,
     MyEnumToJSON,
 } from '../models';
@@ -8277,6 +8281,10 @@ export interface ArrayRequestParametersRequest {
     myEnumRequestParam?: MyEnum;
 }
 
+
+export interface InlineRequestBodyRequest {
+    inlineRequestBodyRequestContent?: InlineRequestBodyRequestContent;
+}
 
 export interface ReservedKeywordsRequest {
     _with?: string;
@@ -8384,6 +8392,36 @@ export class DefaultApi extends runtime.BaseAPI {
     /**
      * 
      */
+    async inlineRequestBodyRaw(requestParameters: InlineRequestBodyRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const queryParameters: any = {};
+
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+
+        const response = await this.request({
+            path: \`/inline-request-body\`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: InlineRequestBodyRequestContentToJSON(requestParameters.inlineRequestBodyRequestContent),
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * 
+     */
+    async inlineRequestBody(requestParameters: InlineRequestBodyRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.inlineRequestBodyRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     * 
+     */
     async reservedKeywordsRaw(requestParameters: ReservedKeywordsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         const queryParameters: any = {};
 
@@ -8432,6 +8470,9 @@ import {
     InlineEnum200ResponseCategoryEnum,
     InlineEnum200ResponseCategoryEnumFromJSON,
     InlineEnum200ResponseCategoryEnumToJSON,
+    InlineRequestBodyRequestContent,
+    InlineRequestBodyRequestContentFromJSON,
+    InlineRequestBodyRequestContentToJSON,
     MyEnum,
     MyEnumFromJSON,
     MyEnumToJSON,
@@ -8439,6 +8480,7 @@ import {
 // Import request parameter interfaces
 import {
     ArrayRequestParametersRequest,
+    InlineRequestBodyRequest,
     ReservedKeywordsRequest,
 } from '..';
 
@@ -8449,6 +8491,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda
 export interface OperationConfig<T> {
     arrayRequestParameters: T;
     inlineEnum: T;
+    inlineRequestBody: T;
     reservedKeywords: T;
 }
 
@@ -8462,6 +8505,11 @@ export const OperationLookup = {
     inlineEnum: {
         path: '/inline-enum',
         method: 'GET',
+        contentTypes: ['application/json'],
+    },
+    inlineRequestBody: {
+        path: '/inline-request-body',
+        method: 'POST',
         contentTypes: ['application/json'],
     },
     reservedKeywords: {
@@ -8585,7 +8633,7 @@ const extractResponseHeadersFromInterceptors = (interceptors: any[]): { [key: st
   }), {} as { [key: string]: string });
 };
 
-export type OperationIds = | 'arrayRequestParameters' | 'inlineEnum' | 'reservedKeywords';
+export type OperationIds = | 'arrayRequestParameters' | 'inlineEnum' | 'inlineRequestBody' | 'reservedKeywords';
 export type OperationApiGatewayProxyResult<T extends OperationIds> = APIGatewayProxyResult & { __operationId?: T };
 
 // Api gateway lambda handler type
@@ -8897,6 +8945,114 @@ export const inlineEnumHandler = (
     };
 };
 /**
+ * Path, Query and Header parameters for InlineRequestBody
+ */
+export interface InlineRequestBodyRequestParameters {
+}
+
+/**
+ * Request body parameter for InlineRequestBody
+ */
+export type InlineRequestBodyRequestBody = InlineRequestBodyRequestContent;
+
+export type InlineRequestBody204OperationResponse = OperationResponse<204, undefined>;
+
+export type InlineRequestBodyOperationResponses = | InlineRequestBody204OperationResponse ;
+
+// Type that the handler function provided to the wrapper must conform to
+export type InlineRequestBodyHandlerFunction = LambdaHandlerFunction<InlineRequestBodyRequestParameters, InlineRequestBodyRequestBody, InlineRequestBodyOperationResponses>;
+export type InlineRequestBodyChainedHandlerFunction = ChainedLambdaHandlerFunction<InlineRequestBodyRequestParameters, InlineRequestBodyRequestBody, InlineRequestBodyOperationResponses>;
+export type InlineRequestBodyChainedRequestInput = ChainedRequestInput<InlineRequestBodyRequestParameters, InlineRequestBodyRequestBody, InlineRequestBodyOperationResponses>;
+
+/**
+ * Lambda handler wrapper to provide typed interface for the implementation of inlineRequestBody
+ */
+export const inlineRequestBodyHandler = (
+    ...handlers: [InlineRequestBodyChainedHandlerFunction, ...InlineRequestBodyChainedHandlerFunction[]]
+): OperationApiGatewayLambdaHandler<'inlineRequestBody'> => async (event: any, context: any, _callback?: any, additionalInterceptors: InlineRequestBodyChainedHandlerFunction[] = []): Promise<any> => {
+    const operationId = "inlineRequestBody";
+
+    const rawSingleValueParameters = decodeRequestParameters({
+      ...(event.pathParameters || {}),
+      ...(event.queryStringParameters || {}),
+      ...(event.headers || {}),
+    }) as { [key: string]: string | undefined };
+    const rawMultiValueParameters = decodeRequestParameters({
+      ...(event.multiValueQueryStringParameters || {}),
+      ...(event.multiValueHeaders || {}),
+    }) as { [key: string]: string[] | undefined };
+
+    const marshal = (statusCode: number, responseBody: any): string => {
+        let marshalledBody = responseBody;
+        switch(statusCode) {
+            case 204:
+                break;
+            default:
+                break;
+        }
+
+        return marshalledBody;
+    };
+
+    const errorHeaders = (statusCode: number): { [key: string]: string } => {
+        let headers = {};
+
+        switch(statusCode) {
+            default:
+                break;
+        }
+
+        return headers;
+    };
+
+    let requestParameters: InlineRequestBodyRequestParameters | undefined = undefined;
+
+    try {
+      requestParameters = {
+
+      };
+    } catch (e: any) {
+      const res = {
+        statusCode: 400,
+        body: { message: e.message },
+        headers: extractResponseHeadersFromInterceptors(handlers),
+      };
+      return {
+        ...res,
+        headers: {
+          ...errorHeaders(res.statusCode),
+          ...res.headers,
+        },
+        body: res.body ? marshal(res.statusCode, res.body) : '',
+      };
+    }
+
+    const demarshal = (bodyString: string): any => {
+        return InlineRequestBodyRequestContentFromJSON(JSON.parse(bodyString));
+    };
+    const body = parseBody(event.body, demarshal, ['application/json']) as InlineRequestBodyRequestBody;
+
+    const chain = buildHandlerChain(...additionalInterceptors, ...handlers);
+    const response = await chain.next({
+        input: {
+            requestParameters,
+            body,
+        },
+        event,
+        context,
+        interceptorContext: { operationId },
+    });
+
+    return {
+        ...response,
+        headers: {
+          ...errorHeaders(response.statusCode),
+          ...response.headers,
+        },
+        body: response.body ? marshal(response.statusCode, response.body) : '',
+    };
+};
+/**
  * Path, Query and Header parameters for ReservedKeywords
  */
 export interface ReservedKeywordsRequestParameters {
@@ -9014,12 +9170,13 @@ export const reservedKeywordsHandler = (
 export interface HandlerRouterHandlers {
   readonly arrayRequestParameters: OperationApiGatewayLambdaHandler<'arrayRequestParameters'>;
   readonly inlineEnum: OperationApiGatewayLambdaHandler<'inlineEnum'>;
+  readonly inlineRequestBody: OperationApiGatewayLambdaHandler<'inlineRequestBody'>;
   readonly reservedKeywords: OperationApiGatewayLambdaHandler<'reservedKeywords'>;
 }
 
-export type AnyOperationRequestParameters = | ArrayRequestParametersRequestParameters| InlineEnumRequestParameters| ReservedKeywordsRequestParameters;
-export type AnyOperationRequestBodies = | ArrayRequestParametersRequestBody| InlineEnumRequestBody| ReservedKeywordsRequestBody;
-export type AnyOperationResponses = | ArrayRequestParametersOperationResponses| InlineEnumOperationResponses| ReservedKeywordsOperationResponses;
+export type AnyOperationRequestParameters = | ArrayRequestParametersRequestParameters| InlineEnumRequestParameters| InlineRequestBodyRequestParameters| ReservedKeywordsRequestParameters;
+export type AnyOperationRequestBodies = | ArrayRequestParametersRequestBody| InlineEnumRequestBody| InlineRequestBodyRequestBody| ReservedKeywordsRequestBody;
+export type AnyOperationResponses = | ArrayRequestParametersOperationResponses| InlineEnumOperationResponses| InlineRequestBodyOperationResponses| ReservedKeywordsOperationResponses;
 
 export interface HandlerRouterProps<
   RequestParameters,
@@ -9474,6 +9631,72 @@ export function InlineEnum200ResponseCategoryEnumToJSON(value?: InlineEnum200Res
 }
 
 ",
+  "src/models/InlineRequestBodyRequestContent.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Edge Cases
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * 
+ * @export
+ * @interface InlineRequestBodyRequestContent
+ */
+export interface InlineRequestBodyRequestContent {
+    /**
+     * 
+     * @type {string}
+     * @memberof InlineRequestBodyRequestContent
+     */
+    someProperty: string;
+}
+
+
+/**
+ * Check if a given object implements the InlineRequestBodyRequestContent interface.
+ */
+export function instanceOfInlineRequestBodyRequestContent(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "someProperty" in value;
+    return isInstance;
+}
+
+export function InlineRequestBodyRequestContentFromJSON(json: any): InlineRequestBodyRequestContent {
+    return InlineRequestBodyRequestContentFromJSONTyped(json, false);
+}
+
+export function InlineRequestBodyRequestContentFromJSONTyped(json: any, ignoreDiscriminator: boolean): InlineRequestBodyRequestContent {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'someProperty': json['someProperty'],
+    };
+}
+
+export function InlineRequestBodyRequestContentToJSON(value?: InlineRequestBodyRequestContent | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'someProperty': value.someProperty,
+    };
+}
+
+",
   "src/models/MyEnum.ts": "/* tslint:disable */
 /* eslint-disable */
 /**
@@ -9518,6 +9741,7 @@ export function MyEnumToJSON(value?: MyEnum | null): any {
 /* eslint-disable */
 export * from './InlineEnum200Response';
 export * from './InlineEnum200ResponseCategoryEnum';
+export * from './InlineRequestBodyRequestContent';
 export * from './MyEnum';
 ",
   "src/models/model-utils.ts": "/* tslint:disable */

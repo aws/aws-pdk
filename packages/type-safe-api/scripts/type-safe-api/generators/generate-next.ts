@@ -718,21 +718,34 @@ const buildData = async (inSpec: OpenAPIV3.Document, metadata: any) => {
     };
   }
 
-  // "Hoist" inline response schemas
+  // "Hoist" inline request and response schemas
   Object.entries(spec.paths ?? {}).forEach(([path, pathOps]) => Object.entries(pathOps ?? {}).forEach(([method, op]) => {
     const operation = resolveIfRef(spec, op);
-    if (operation && typeof operation === "object" && "responses" in operation) {
-      Object.entries(operation.responses ?? {}).forEach(([code, res]) => {
-        const response = resolveIfRef(spec, res);
-        const jsonResponseSchema = response?.content?.['application/json']?.schema;
-        if (jsonResponseSchema && !isRef(jsonResponseSchema) && ["object", "array"].includes(jsonResponseSchema.type!)) {
-          const schemaName = `${_upperFirst(_camelCase(operation.operationId ?? `${path}-${method}`))}${code}Response`;
-          spec.components!.schemas![schemaName] = jsonResponseSchema;
-          response!.content!['application/json'].schema = {
-            $ref: `#/components/schemas/${schemaName}`,
-          };
+    if (operation && typeof operation === "object") {
+      if ("responses" in operation) {
+        Object.entries(operation.responses ?? {}).forEach(([code, res]) => {
+          const response = resolveIfRef(spec, res);
+          const jsonResponseSchema = response?.content?.['application/json']?.schema;
+          if (jsonResponseSchema && !isRef(jsonResponseSchema) && ["object", "array"].includes(jsonResponseSchema.type!)) {
+            const schemaName = `${_upperFirst(_camelCase(operation.operationId ?? `${path}-${method}`))}${code}Response`;
+            spec.components!.schemas![schemaName] = jsonResponseSchema;
+            response!.content!['application/json'].schema = {
+              $ref: `#/components/schemas/${schemaName}`,
+            };
+          }
+        });
+      }
+      if ("requestBody" in operation) {
+        const requestBody = resolveIfRef(spec, operation.requestBody);
+        const jsonRequestSchema = requestBody?.content?.['application/json']?.schema;
+        if (jsonRequestSchema && !isRef(jsonRequestSchema) && ["object", "array"].includes(jsonRequestSchema.type!)) {
+          const schemaName = `${_upperFirst(_camelCase(operation.operationId ?? `${path}-${method}`))}RequestContent`;
+            spec.components!.schemas![schemaName] = jsonRequestSchema;
+            requestBody!.content!['application/json'].schema = {
+              $ref: `#/components/schemas/${schemaName}`,
+            };
         }
-      });
+      }
     }
   }));
 

@@ -30335,21 +30335,27 @@ src/main/java/test/test/runtime/api/handlers/InterceptorWarmupChainedRequestInpu
 src/main/java/test/test/runtime/api/handlers/InterceptorWithWarmup.java
 src/main/java/test/test/runtime/api/handlers/array_request_parameters/ArrayRequestParametersResponse.java
 src/main/java/test/test/runtime/api/handlers/inline_enum/InlineEnumResponse.java
+src/main/java/test/test/runtime/api/handlers/inline_request_body/InlineRequestBodyResponse.java
 src/main/java/test/test/runtime/api/handlers/reserved_keywords/ReservedKeywordsResponse.java
 src/main/java/test/test/runtime/api/handlers/array_request_parameters/ArrayRequestParameters200Response.java
 src/main/java/test/test/runtime/api/handlers/inline_enum/InlineEnum200Response.java
+src/main/java/test/test/runtime/api/handlers/inline_request_body/InlineRequestBody204Response.java
 src/main/java/test/test/runtime/api/handlers/reserved_keywords/ReservedKeywords200Response.java
 src/main/java/test/test/runtime/api/handlers/array_request_parameters/ArrayRequestParametersRequestParameters.java
 src/main/java/test/test/runtime/api/handlers/inline_enum/InlineEnumRequestParameters.java
+src/main/java/test/test/runtime/api/handlers/inline_request_body/InlineRequestBodyRequestParameters.java
 src/main/java/test/test/runtime/api/handlers/reserved_keywords/ReservedKeywordsRequestParameters.java
 src/main/java/test/test/runtime/api/handlers/array_request_parameters/ArrayRequestParametersInput.java
 src/main/java/test/test/runtime/api/handlers/inline_enum/InlineEnumInput.java
+src/main/java/test/test/runtime/api/handlers/inline_request_body/InlineRequestBodyInput.java
 src/main/java/test/test/runtime/api/handlers/reserved_keywords/ReservedKeywordsInput.java
 src/main/java/test/test/runtime/api/handlers/array_request_parameters/ArrayRequestParametersRequestInput.java
 src/main/java/test/test/runtime/api/handlers/inline_enum/InlineEnumRequestInput.java
+src/main/java/test/test/runtime/api/handlers/inline_request_body/InlineRequestBodyRequestInput.java
 src/main/java/test/test/runtime/api/handlers/reserved_keywords/ReservedKeywordsRequestInput.java
 src/main/java/test/test/runtime/api/handlers/array_request_parameters/ArrayRequestParameters.java
 src/main/java/test/test/runtime/api/handlers/inline_enum/InlineEnum.java
+src/main/java/test/test/runtime/api/handlers/inline_request_body/InlineRequestBody.java
 src/main/java/test/test/runtime/api/handlers/reserved_keywords/ReservedKeywords.java
 src/main/java/test/test/runtime/api/handlers/HandlerRouter.java
 src/main/java/test/test/runtime/api/interceptors/TryCatchInterceptor.java
@@ -30382,6 +30388,7 @@ src/main/java/test/test/runtime/StringUtil.java
 src/main/java/test/test/runtime/model/AbstractOpenApiSchema.java
 src/main/java/test/test/runtime/model/InlineEnum200Response.java
 src/main/java/test/test/runtime/model/InlineEnum200ResponseCategoryEnum.java
+src/main/java/test/test/runtime/model/InlineRequestBodyRequestContent.java
 src/main/java/test/test/runtime/model/MyEnum.java",
   "src/main/java/test/test/runtime/ApiCallback.java": "/*
  * Edge Cases
@@ -32450,6 +32457,7 @@ public class JSON {
         gsonBuilder.registerTypeAdapter(LocalDate.class, localDateTypeAdapter);
         gsonBuilder.registerTypeAdapter(byte[].class, byteArrayAdapter);
         gsonBuilder.registerTypeAdapterFactory(new test.test.runtime.model.InlineEnum200Response.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new test.test.runtime.model.InlineRequestBodyRequestContent.CustomTypeAdapterFactory());
         gson = gsonBuilder.create();
     }
 
@@ -33151,6 +33159,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.io.File;
 import test.test.runtime.model.InlineEnum200Response;
+import test.test.runtime.model.InlineRequestBodyRequestContent;
 import test.test.runtime.model.MyEnum;
 
 import java.lang.reflect.Type;
@@ -33617,6 +33626,158 @@ public class DefaultApi {
     public APIinlineEnumRequest inlineEnum() {
         return new APIinlineEnumRequest();
     }
+    private okhttp3.Call inlineRequestBodyCall(InlineRequestBodyRequestContent inlineRequestBodyRequestContent, final ApiCallback _callback) throws ApiException {
+        String basePath = null;
+        // Operation Servers
+        String[] localBasePaths = new String[] {  };
+
+        // Determine Base Path to Use
+        if (localCustomBaseUrl != null){
+            basePath = localCustomBaseUrl;
+        } else if ( localBasePaths.length > 0 ) {
+            basePath = localBasePaths[localHostIndex];
+        } else {
+            basePath = null;
+        }
+
+        Object localVarPostBody = inlineRequestBodyRequestContent;
+
+        // create path and map variables
+        String localVarPath = "/inline-request-body";
+
+        List<Pair> localVarQueryParams = new ArrayList<Pair>();
+        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
+        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+        Map<String, String> localVarCookieParams = new HashMap<String, String>();
+        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+
+        final String[] localVarAccepts = {
+        };
+        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
+        if (localVarAccept != null) {
+            localVarHeaderParams.put("Accept", localVarAccept);
+        }
+
+        final String[] localVarContentTypes = {
+            "application/json"
+        };
+        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
+        if (localVarContentType != null) {
+            localVarHeaderParams.put("Content-Type", localVarContentType);
+        }
+
+        String[] localVarAuthNames = new String[] {  };
+        return localVarApiClient.buildCall(basePath, localVarPath, "POST", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
+    }
+
+    
+    @SuppressWarnings("rawtypes")
+    private okhttp3.Call inlineRequestBodyValidateBeforeCall(InlineRequestBodyRequestContent inlineRequestBodyRequestContent, final ApiCallback _callback) throws ApiException {
+        return inlineRequestBodyCall(inlineRequestBodyRequestContent, _callback);
+
+    }
+
+    private ApiResponse<Void> inlineRequestBodyWithHttpInfo(InlineRequestBodyRequestContent inlineRequestBodyRequestContent) throws ApiException {
+        okhttp3.Call localVarCall = inlineRequestBodyValidateBeforeCall(inlineRequestBodyRequestContent, null);
+        return localVarApiClient.execute(localVarCall);
+    }
+
+
+    private okhttp3.Call inlineRequestBodyAsync(InlineRequestBodyRequestContent inlineRequestBodyRequestContent, final ApiCallback<Void> _callback) throws ApiException {
+
+        okhttp3.Call localVarCall = inlineRequestBodyValidateBeforeCall(inlineRequestBodyRequestContent, _callback);
+        localVarApiClient.executeAsync(localVarCall, _callback);
+        return localVarCall;
+    }
+
+    public class APIinlineRequestBodyRequest {
+        private InlineRequestBodyRequestContent inlineRequestBodyRequestContent;
+
+        private APIinlineRequestBodyRequest() {
+        }
+
+        /**
+         * Set inlineRequestBodyRequestContent
+         * @param inlineRequestBodyRequestContent  (optional)
+         * @return APIinlineRequestBodyRequest
+         */
+        public APIinlineRequestBodyRequest inlineRequestBodyRequestContent(InlineRequestBodyRequestContent inlineRequestBodyRequestContent) {
+            this.inlineRequestBodyRequestContent = inlineRequestBodyRequestContent;
+            return this;
+        }
+
+        /**
+         * Build call for inlineRequestBody
+         * @param _callback ApiCallback API callback
+         * @return Call to execute
+         * @throws ApiException If fail to serialize the request body object
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 204 </td><td> ok </td><td>  -  </td></tr>
+         </table>
+         */
+        public okhttp3.Call buildCall(final ApiCallback _callback) throws ApiException {
+            return inlineRequestBodyCall(inlineRequestBodyRequestContent, _callback);
+        }
+
+        /**
+         * Execute inlineRequestBody request
+         * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 204 </td><td> ok </td><td>  -  </td></tr>
+         </table>
+         */
+        public void execute() throws ApiException {
+            inlineRequestBodyWithHttpInfo(inlineRequestBodyRequestContent);
+        }
+
+        /**
+         * Execute inlineRequestBody request with HTTP info returned
+         * @return ApiResponse&lt;Void&gt;
+         * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 204 </td><td> ok </td><td>  -  </td></tr>
+         </table>
+         */
+        public ApiResponse<Void> executeWithHttpInfo() throws ApiException {
+            return inlineRequestBodyWithHttpInfo(inlineRequestBodyRequestContent);
+        }
+
+        /**
+         * Execute inlineRequestBody request (asynchronously)
+         * @param _callback The callback to be executed when the API call finishes
+         * @return The request call
+         * @throws ApiException If fail to process the API call, e.g. serializing the request body object
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 204 </td><td> ok </td><td>  -  </td></tr>
+         </table>
+         */
+        public okhttp3.Call executeAsync(final ApiCallback<Void> _callback) throws ApiException {
+            return inlineRequestBodyAsync(inlineRequestBodyRequestContent, _callback);
+        }
+    }
+
+    /**
+     * 
+     * 
+     * @return APIinlineRequestBodyRequest
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 204 </td><td> ok </td><td>  -  </td></tr>
+     </table>
+     */
+    
+    public APIinlineRequestBodyRequest inlineRequestBody() {
+        return new APIinlineRequestBodyRequest();
+    }
     private okhttp3.Call reservedKeywordsCall(String with, String _if, String propertyClass, final ApiCallback _callback) throws ApiException {
         String basePath = null;
         // Operation Servers
@@ -33852,6 +34013,7 @@ package test.test.runtime.api.handlers;
 
 import test.test.runtime.api.handlers.array_request_parameters.*;
 import test.test.runtime.api.handlers.inline_enum.*;
+import test.test.runtime.api.handlers.inline_request_body.*;
 import test.test.runtime.api.handlers.reserved_keywords.*;
 
 import test.test.runtime.api.handlers.Handlers;
@@ -33872,10 +34034,12 @@ import java.util.Collections;
 public abstract class HandlerRouter implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
     private static final String arrayRequestParametersMethodAndPath = Handlers.concatMethodAndPath("GET", "/array-request-parameters");
     private static final String inlineEnumMethodAndPath = Handlers.concatMethodAndPath("GET", "/inline-enum");
+    private static final String inlineRequestBodyMethodAndPath = Handlers.concatMethodAndPath("POST", "/inline-request-body");
     private static final String reservedKeywordsMethodAndPath = Handlers.concatMethodAndPath("GET", "/reserved-keywords");
 
     private final ArrayRequestParameters constructedArrayRequestParameters;
     private final InlineEnum constructedInlineEnum;
+    private final InlineRequestBody constructedInlineRequestBody;
     private final ReservedKeywords constructedReservedKeywords;
 
     /**
@@ -33887,6 +34051,10 @@ public abstract class HandlerRouter implements RequestHandler<APIGatewayProxyReq
      */
     public abstract InlineEnum inlineEnum();
     /**
+     * This method must return your implementation of the InlineRequestBody operation
+     */
+    public abstract InlineRequestBody inlineRequestBody();
+    /**
      * This method must return your implementation of the ReservedKeywords operation
      */
     public abstract ReservedKeywords reservedKeywords();
@@ -33894,6 +34062,7 @@ public abstract class HandlerRouter implements RequestHandler<APIGatewayProxyReq
     private static enum Route {
         arrayRequestParametersRoute,
         inlineEnumRoute,
+        inlineRequestBodyRoute,
         reservedKeywordsRoute,
     }
 
@@ -33905,12 +34074,14 @@ public abstract class HandlerRouter implements RequestHandler<APIGatewayProxyReq
     public HandlerRouter() {
         this.routes.put(arrayRequestParametersMethodAndPath, Route.arrayRequestParametersRoute);
         this.routes.put(inlineEnumMethodAndPath, Route.inlineEnumRoute);
+        this.routes.put(inlineRequestBodyMethodAndPath, Route.inlineRequestBodyRoute);
         this.routes.put(reservedKeywordsMethodAndPath, Route.reservedKeywordsRoute);
         // Handlers are all constructed in the router's constructor such that lambda behaviour remains consistent;
         // ie resources created in the constructor remain in memory between invocations.
         // https://docs.aws.amazon.com/lambda/latest/dg/java-handler.html
         this.constructedArrayRequestParameters = this.arrayRequestParameters();
         this.constructedInlineEnum = this.inlineEnum();
+        this.constructedInlineRequestBody = this.inlineRequestBody();
         this.constructedReservedKeywords = this.reservedKeywords();
     }
 
@@ -33939,6 +34110,10 @@ public abstract class HandlerRouter implements RequestHandler<APIGatewayProxyReq
                 List<Interceptor<InlineEnumInput>> inlineEnumInterceptors = Handlers.getAnnotationInterceptors(this.getClass());
                 inlineEnumInterceptors.addAll(this.getInterceptors());
                 return this.constructedInlineEnum.handleRequestWithAdditionalInterceptors(event, context, inlineEnumInterceptors);
+            case inlineRequestBodyRoute:
+                List<Interceptor<InlineRequestBodyInput>> inlineRequestBodyInterceptors = Handlers.getAnnotationInterceptors(this.getClass());
+                inlineRequestBodyInterceptors.addAll(this.getInterceptors());
+                return this.constructedInlineRequestBody.handleRequestWithAdditionalInterceptors(event, context, inlineRequestBodyInterceptors);
             case reservedKeywordsRoute:
                 List<Interceptor<ReservedKeywordsInput>> reservedKeywordsInterceptors = Handlers.getAnnotationInterceptors(this.getClass());
                 reservedKeywordsInterceptors.addAll(this.getInterceptors());
@@ -35461,6 +35636,419 @@ import test.test.runtime.api.handlers.Response;
  */
 public interface InlineEnumResponse extends Response {}
 ",
+  "src/main/java/test/test/runtime/api/handlers/inline_request_body/InlineRequestBody.java": "
+package test.test.runtime.api.handlers.inline_request_body;
+
+import test.test.runtime.model.*;
+import test.test.runtime.JSON;
+import test.test.runtime.api.handlers.Interceptor;
+import test.test.runtime.api.handlers.Handlers;
+import test.test.runtime.api.handlers.*;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Collections;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+import java.io.IOException;
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.RequestHandler;
+import org.crac.Core;
+import org.crac.Resource;
+
+
+/**
+ * Lambda handler wrapper for the inlineRequestBody operation
+ */
+public abstract class InlineRequestBody implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent>, Resource {
+    {
+        Core.getGlobalContext().register(this);
+    }
+
+    /**
+     * Handle the request for the inlineRequestBody operation
+     */
+    public abstract InlineRequestBodyResponse handle(final InlineRequestBodyRequestInput request);
+
+    /**
+     * Interceptors that the handler class has been decorated with
+     */
+    private List<Interceptor<InlineRequestBodyInput>> annotationInterceptors = Handlers.getAnnotationInterceptors(InlineRequestBody.class);
+
+    /**
+     * For more complex interceptors that require instantiation with parameters, you may override this method to
+     * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
+     * prefer the @Interceptors annotation.
+     */
+    public List<Interceptor<InlineRequestBodyInput>> getInterceptors() {
+        return Collections.emptyList();
+    }
+
+    private List<Interceptor<InlineRequestBodyInput>> getHandlerInterceptors() {
+        List<Interceptor<InlineRequestBodyInput>> interceptors = new ArrayList<>();
+        interceptors.addAll(annotationInterceptors);
+        interceptors.addAll(this.getInterceptors());
+        return interceptors;
+    }
+
+    private HandlerChain<InlineRequestBodyInput> buildChain(List<Interceptor<InlineRequestBodyInput>> interceptors) {
+        return Handlers.buildHandlerChain(interceptors, new HandlerChain<InlineRequestBodyInput>() {
+            @Override
+            public Response next(ChainedRequestInput<InlineRequestBodyInput> input) {
+                return handle(new InlineRequestBodyRequestInput(input.getEvent(), input.getContext(), input.getInterceptorContext(), input.getInput()));
+            }
+        });
+    }
+
+    private ChainedRequestInput<InlineRequestBodyInput> buildChainedRequestInput(final APIGatewayProxyRequestEvent event, final Context context, final InlineRequestBodyInput input, final Map<String, Object> interceptorContext) {
+        return new ChainedRequestInput<InlineRequestBodyInput>() {
+            @Override
+            public HandlerChain getChain() {
+                // The chain's next method ignores the chain given as input, and is pre-built to follow the remaining
+                // chain.
+                return null;
+            }
+
+            @Override
+            public APIGatewayProxyRequestEvent getEvent() {
+                return event;
+            }
+
+            @Override
+            public Context getContext() {
+                return context;
+            }
+
+            @Override
+            public InlineRequestBodyInput getInput() {
+                return input;
+            }
+
+            @Override
+            public Map<String, Object> getInterceptorContext() {
+                return interceptorContext;
+            }
+        };
+    }
+
+    @Override
+    public void beforeCheckpoint(org.crac.Context<? extends Resource> context) {
+        // Prime building the handler chain which can take a few 100ms to JIT.
+        this.buildChain(this.getHandlerInterceptors());
+        this.buildChainedRequestInput(null, null, null, null);
+
+        // Initialise instance of Gson and prime serialisation and deserialisation
+        new JSON();
+        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>(), new HashMap<>())), ApiResponse.class);
+
+        try {
+            // Prime input validation - this will likely fail for the fake event but ensures the code path is optimised
+            // ready for a real invocation
+            new InlineRequestBodyInput(new APIGatewayProxyRequestEvent()
+                    .withBody("{}")
+                    .withPathParameters(new HashMap<>())
+                    .withQueryStringParameters(new HashMap<>())
+                    .withMultiValueQueryStringParameters(new HashMap<>())
+                    .withHeaders(new HashMap<>())
+                    .withMultiValueHeaders(new HashMap<>())
+            );
+        } catch (Exception e) {
+
+        }
+
+        this.warmUp();
+    }
+
+    @Override
+    public void afterRestore(org.crac.Context<? extends Resource> context) {
+
+    }
+
+    /**
+     * Override this method to perform any warmup activities which will be executed prior to the snap-start snapshot.
+     */
+    public void warmUp() {
+
+    }
+
+    @Override
+    public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent event, final Context context) {
+        return this.handleRequestWithAdditionalInterceptors(event, context, new ArrayList<>());
+    }
+
+    private Map<String, String> getErrorResponseHeaders(final int statusCode) {
+        Map<String, String> headers = new HashMap<>();
+        return headers;
+    }
+
+    public APIGatewayProxyResponseEvent handleRequestWithAdditionalInterceptors(final APIGatewayProxyRequestEvent event, final Context context, final List<Interceptor<InlineRequestBodyInput>> additionalInterceptors) {
+        final Map<String, Object> interceptorContext = new HashMap<>();
+        interceptorContext.put("operationId", "inlineRequestBody");
+
+        List<Interceptor<InlineRequestBodyInput>> interceptors = new ArrayList<>();
+        interceptors.addAll(additionalInterceptors);
+        interceptors.addAll(this.getHandlerInterceptors());
+
+        final HandlerChain chain = this.buildChain(interceptors);
+
+        InlineRequestBodyInput input;
+
+        try {
+            input = new InlineRequestBodyInput(event);
+        } catch (RuntimeException e) {
+            Map<String, String> headers = new HashMap<>();
+            headers.putAll(Handlers.extractResponseHeadersFromInterceptors(interceptors));
+            headers.putAll(this.getErrorResponseHeaders(400));
+            return new APIGatewayProxyResponseEvent()
+                .withStatusCode(400)
+                .withHeaders(headers)
+                .withBody("{\\"message\\": \\"" + e.getMessage() + "\\"}");
+        }
+
+        final Response response = chain.next(this.buildChainedRequestInput(event, context, input, interceptorContext));
+
+        Map<String, String> responseHeaders = new HashMap<>();
+        responseHeaders.putAll(this.getErrorResponseHeaders(response.getStatusCode()));
+        responseHeaders.putAll(response.getHeaders());
+
+        return new APIGatewayProxyResponseEvent()
+                .withStatusCode(response.getStatusCode())
+                .withHeaders(responseHeaders)
+                .withMultiValueHeaders(response.getMultiValueHeaders())
+                .withBody(response.getBody());
+    }
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/inline_request_body/InlineRequestBody204Response.java": "
+package test.test.runtime.api.handlers.inline_request_body;
+
+import test.test.runtime.model.*;
+import test.test.runtime.JSON;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+
+/**
+ * Response with status code 204 for the inlineRequestBody operation
+ */
+public class InlineRequestBody204Response extends RuntimeException implements InlineRequestBodyResponse {
+    static {
+        // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
+        // Create an instance here if required to ensure that the static Gson instance is always available.
+        if (JSON.getGson() == null) {
+            new JSON();
+        }
+    }
+
+    private final String body;
+    
+    private final Map<String, String> headers;
+    private final Map<String, List<String>> multiValueHeaders;
+
+    private InlineRequestBody204Response(final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
+        
+        this.body = "";
+        this.headers = headers;
+        this.multiValueHeaders = multiValueHeaders;
+    }
+
+    @Override
+    public int getStatusCode() {
+        return 204;
+    }
+
+    @Override
+    public String getBody() {
+        return this.body;
+    }
+
+
+    @Override
+    public Map<String, String> getHeaders() {
+        return this.headers;
+    }
+
+    @Override
+    public Map<String, List<String>> getMultiValueHeaders() {
+        return this.multiValueHeaders;
+    }
+
+    /**
+     * Create a InlineRequestBody204Response without a body
+     */
+    public static InlineRequestBody204Response of() {
+        return new InlineRequestBody204Response(new HashMap<>(), new HashMap<>());
+    }
+
+    /**
+     * Create a InlineRequestBody204Response without a body and headers
+     */
+    public static InlineRequestBody204Response of(final Map<String, String> headers) {
+        return new InlineRequestBody204Response(headers, new HashMap<>());
+    }
+
+    /**
+     * Create a InlineRequestBody204Response without a body, headers and multi-value headers
+     */
+    public static InlineRequestBody204Response of(final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
+        return new InlineRequestBody204Response(headers, multiValueHeaders);
+    }
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/inline_request_body/InlineRequestBodyInput.java": "
+package test.test.runtime.api.handlers.inline_request_body;
+
+import test.test.runtime.model.*;
+import test.test.runtime.JSON;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import java.io.IOException;
+
+/**
+ * Input for the inlineRequestBody operation
+ */
+@lombok.Builder
+@lombok.AllArgsConstructor
+public class InlineRequestBodyInput {
+    static {
+        // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
+        // Create an instance here if required to ensure that the static Gson instance is always available.
+        if (JSON.getGson() == null) {
+            new JSON();
+        }
+    }
+
+    private final InlineRequestBodyRequestParameters requestParameters;
+    private final InlineRequestBodyRequestContent body;
+
+    public InlineRequestBodyInput(final APIGatewayProxyRequestEvent event) {
+        this.requestParameters = new InlineRequestBodyRequestParameters(event);
+        try {
+            this.body = InlineRequestBodyRequestContent.fromJson(event.getBody());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        };
+    }
+
+    public InlineRequestBodyRequestParameters getRequestParameters() {
+        return this.requestParameters;
+    }
+
+    public InlineRequestBodyRequestContent getBody() {
+        return this.body;
+    }
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/inline_request_body/InlineRequestBodyRequestInput.java": "
+package test.test.runtime.api.handlers.inline_request_body;
+
+import test.test.runtime.model.*;
+import test.test.runtime.api.handlers.RequestInput;
+import java.util.List;
+import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import java.io.IOException;
+import com.amazonaws.services.lambda.runtime.Context;
+
+/**
+ * Full request input for the inlineRequestBody operation, including the raw API Gateway event
+ */
+@lombok.Builder
+@lombok.AllArgsConstructor
+public class InlineRequestBodyRequestInput implements RequestInput<InlineRequestBodyInput> {
+    private final APIGatewayProxyRequestEvent event;
+    private final Context context;
+    private final Map<String, Object> interceptorContext;
+    private final InlineRequestBodyInput input;
+
+    /**
+     * Returns the typed request input, with path, query and body parameters
+     */
+    public InlineRequestBodyInput getInput() {
+        return this.input;
+    }
+
+    /**
+     * Returns the raw API Gateway event
+     */
+    public APIGatewayProxyRequestEvent getEvent() {
+        return this.event;
+    }
+
+    /**
+     * Returns the lambda context
+     */
+    public Context getContext() {
+        return this.context;
+    }
+
+    /**
+     * Returns the interceptor context, which may contain values set by request interceptors
+     */
+    public Map<String, Object> getInterceptorContext() {
+        return this.interceptorContext;
+    }
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/inline_request_body/InlineRequestBodyRequestParameters.java": "
+package test.test.runtime.api.handlers.inline_request_body;
+
+import test.test.runtime.api.handlers.Handlers;
+import java.util.Optional;
+import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.time.OffsetDateTime;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.stream.Collectors;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+
+import test.test.runtime.model.*;
+
+/**
+ * Query, path and header parameters for the InlineRequestBody operation
+ */
+@lombok.Builder
+@lombok.AllArgsConstructor
+public class InlineRequestBodyRequestParameters {
+
+    public InlineRequestBodyRequestParameters(final APIGatewayProxyRequestEvent event) {
+        Map<String, String> rawStringParameters = new HashMap<>();
+        Handlers.putAllFromNullableMap(event.getPathParameters(), rawStringParameters);
+        Handlers.putAllFromNullableMap(event.getQueryStringParameters(), rawStringParameters);
+        Handlers.putAllFromNullableMap(event.getHeaders(), rawStringParameters);
+        Map<String, String> decodedStringParameters = Handlers.decodeRequestParameters(rawStringParameters);
+
+        Map<String, List<String>> rawStringArrayParameters = new HashMap<>();
+        Handlers.putAllFromNullableMap(event.getMultiValueQueryStringParameters(), rawStringArrayParameters);
+        Handlers.putAllFromNullableMap(event.getMultiValueHeaders(), rawStringArrayParameters);
+        Map<String, List<String>> decodedStringArrayParameters = Handlers.decodeRequestArrayParameters(rawStringArrayParameters);
+
+    }
+
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/inline_request_body/InlineRequestBodyResponse.java": "
+package test.test.runtime.api.handlers.inline_request_body;
+
+import test.test.runtime.api.handlers.Response;
+
+/**
+ * Response for the inlineRequestBody operation
+ */
+public interface InlineRequestBodyResponse extends Response {}
+",
   "src/main/java/test/test/runtime/api/handlers/reserved_keywords/ReservedKeywords.java": "
 package test.test.runtime.api.handlers.reserved_keywords;
 
@@ -36233,12 +36821,14 @@ import java.util.Map;
 public class OperationConfig<T> {
     private T arrayRequestParameters;
     private T inlineEnum;
+    private T inlineRequestBody;
     private T reservedKeywords;
 
     public Map<String, T> asMap() {
         Map<String, T> map = new HashMap<>();
         map.put("arrayRequestParameters", this.arrayRequestParameters);
         map.put("inlineEnum", this.inlineEnum);
+        map.put("inlineRequestBody", this.inlineRequestBody);
         map.put("reservedKeywords", this.reservedKeywords);
         return map;
     }
@@ -36279,6 +36869,11 @@ public class OperationLookup {
             .method("GET")
             .contentTypes(Arrays.asList("application/json"))
             .build());
+        config.put("inlineRequestBody", OperationLookupEntry.builder()
+            .path("/inline-request-body")
+            .method("POST")
+            .contentTypes(Arrays.asList("application/json"))
+            .build());
         config.put("reservedKeywords", OperationLookupEntry.builder()
             .path("/reserved-keywords")
             .method("GET")
@@ -36301,6 +36896,7 @@ public class Operations {
         return OperationConfig.<T>builder()
                 .arrayRequestParameters(value)
                 .inlineEnum(value)
+                .inlineRequestBody(value)
                 .reservedKeywords(value)
                 ;
     }
@@ -37027,6 +37623,239 @@ public enum InlineEnum200ResponseCategoryEnum {
       String value = jsonReader.nextString();
       return InlineEnum200ResponseCategoryEnum.fromValue(value);
     }
+  }
+}
+",
+  "src/main/java/test/test/runtime/model/InlineRequestBodyRequestContent.java": "/*
+ * Edge Cases
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime.model;
+
+import java.util.Objects;
+import java.util.Arrays;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+
+import javax.ws.rs.core.GenericType;
+
+import java.io.IOException;
+import java.io.File;
+import java.math.BigDecimal;
+import java.net.URI;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.util.UUID;
+import java.lang.reflect.Type;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.List;
+import java.util.Set;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+
+import test.test.runtime.JSON;
+
+/**
+ * InlineRequestBodyRequestContent
+ */
+@lombok.AllArgsConstructor @lombok.experimental.SuperBuilder
+public class InlineRequestBodyRequestContent {
+  public static final String SERIALIZED_NAME_SOME_PROPERTY = "someProperty";
+  @SerializedName(SERIALIZED_NAME_SOME_PROPERTY)
+  private String someProperty;
+
+  public InlineRequestBodyRequestContent() {
+  }
+
+  public InlineRequestBodyRequestContent someProperty(String someProperty) {
+
+    this.someProperty = someProperty;
+    return this;
+  }
+
+   /**
+   * Get someProperty
+   * @return someProperty
+  **/
+  @javax.annotation.Nonnull
+  public String getSomeProperty() {
+    return someProperty;
+  }
+
+
+  public void setSomeProperty(String someProperty) {
+    this.someProperty = someProperty;
+  }
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    InlineRequestBodyRequestContent inlineRequestBodyRequestContent = (InlineRequestBodyRequestContent) o;
+    return Objects.equals(this.someProperty, inlineRequestBodyRequestContent.someProperty);
+        
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(someProperty);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("class InlineRequestBodyRequestContent {\\n");
+    sb.append("    someProperty: ").append(toIndentedString(someProperty)).append("\\n");
+    sb.append("}");
+    return sb.toString();
+  }
+
+  /**
+   * Convert the given object to string with each line indented by 4 spaces
+   * (except the first line).
+   */
+  private String toIndentedString(Object o) {
+    if (o == null) {
+      return "null";
+    }
+    return o.toString().replace("\\n", "\\n    ");
+  }
+
+
+  public static HashSet<String> openapiFields;
+  public static HashSet<String> openapiRequiredFields;
+
+  static {
+    // a set of all properties/fields (JSON key names)
+    openapiFields = new HashSet<String>();
+    openapiFields.add("someProperty");
+
+    // a set of required properties/fields (JSON key names)
+    openapiRequiredFields = new HashSet<String>();
+    openapiRequiredFields.add("someProperty");
+  }
+
+ /**
+  * Validates the JSON Object and throws an exception if issues found
+  *
+  * @param jsonObj JSON Object
+  * @throws IOException if the JSON Object is invalid with respect to InlineRequestBodyRequestContent
+  */
+  public static void validateJsonObject(JsonObject jsonObj) throws IOException {
+      if (jsonObj == null) {
+        if (!InlineRequestBodyRequestContent.openapiRequiredFields.isEmpty()) { // has required fields but JSON object is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in InlineRequestBodyRequestContent is not found in the empty JSON string", InlineRequestBodyRequestContent.openapiRequiredFields.toString()));
+        }
+      }
+
+      Set<Entry<String, JsonElement>> entries = jsonObj.entrySet();
+      // check to see if the JSON string contains additional fields
+      for (Entry<String, JsonElement> entry : entries) {
+        if (!InlineRequestBodyRequestContent.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field \`%s\` in the JSON string is not defined in the \`InlineRequestBodyRequestContent\` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
+        }
+      }
+
+      // check to make sure all required properties/fields are present in the JSON string
+      for (String requiredField : InlineRequestBodyRequestContent.openapiRequiredFields) {
+        if (jsonObj.get(requiredField) == null) {
+          throw new IllegalArgumentException(String.format("The required field \`%s\` is not found in the JSON string: %s", requiredField, jsonObj.toString()));
+        }
+      }
+      if (!jsonObj.get("someProperty").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field \`someProperty\` to be a primitive type in the JSON string but got \`%s\`", jsonObj.get("someProperty").toString()));
+      }
+  }
+
+  public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+       if (!InlineRequestBodyRequestContent.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'InlineRequestBodyRequestContent' and its subtypes
+       }
+       final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
+       final TypeAdapter<InlineRequestBodyRequestContent> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(InlineRequestBodyRequestContent.class));
+
+       return (TypeAdapter<T>) new TypeAdapter<InlineRequestBodyRequestContent>() {
+           @Override
+           public void write(JsonWriter out, InlineRequestBodyRequestContent value) throws IOException {
+             JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
+             elementAdapter.write(out, obj);
+           }
+
+           @Override
+           public InlineRequestBodyRequestContent read(JsonReader in) throws IOException {
+             JsonObject jsonObj = elementAdapter.read(in).getAsJsonObject();
+             validateJsonObject(jsonObj);
+             return thisAdapter.fromJsonTree(jsonObj);
+           }
+
+       }.nullSafe();
+    }
+  }
+
+ /**
+  * Create an instance of InlineRequestBodyRequestContent given an JSON string
+  *
+  * @param jsonString JSON string
+  * @return An instance of InlineRequestBodyRequestContent
+  * @throws IOException if the JSON string is invalid with respect to InlineRequestBodyRequestContent
+  */
+  public static InlineRequestBodyRequestContent fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, InlineRequestBodyRequestContent.class);
+  }
+
+ /**
+  * Convert an instance of InlineRequestBodyRequestContent to an JSON string
+  *
+  * @return JSON string
+  */
+  public String toJson() {
+    return JSON.getGson().toJson(this);
   }
 }
 ",
