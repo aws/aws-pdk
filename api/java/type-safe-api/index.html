@@ -6221,6 +6221,7 @@ this type-testing method instead.</p>
 <span class="c1">//  .onSuccess(IDestination)</span>
 <span class="c1">//  .retryAttempts(java.lang.Number)</span>
 <span class="c1">//  .adotInstrumentation(AdotInstrumentationConfig)</span>
+<span class="c1">//  .allowAllIpv6Outbound(java.lang.Boolean)</span>
 <span class="c1">//  .allowAllOutbound(java.lang.Boolean)</span>
 <span class="c1">//  .allowPublicSubnet(java.lang.Boolean)</span>
 <span class="c1">//  .applicationLogLevel(java.lang.String)</span>
@@ -6252,6 +6253,7 @@ this type-testing method instead.</p>
 <span class="c1">//  .paramsAndSecrets(ParamsAndSecretsLayerVersion)</span>
 <span class="c1">//  .profiling(java.lang.Boolean)</span>
 <span class="c1">//  .profilingGroup(IProfilingGroup)</span>
+<span class="c1">//  .recursiveLoop(RecursiveLoop)</span>
 <span class="c1">//  .reservedConcurrentExecutions(java.lang.Number)</span>
 <span class="c1">//  .role(IRole)</span>
 <span class="c1">//  .runtimeManagementMode(RuntimeManagementMode)</span>
@@ -6314,9 +6316,14 @@ this type-testing method instead.</p>
 <td>Specify the configuration of AWS Distro for OpenTelemetry (ADOT) instrumentation.</td>
 </tr>
 <tr>
+<td><code><a href="#@aws/type-safe-api.SnapStartFunction.Initializer.parameter.allowAllIpv6Outbound">allowAllIpv6Outbound</a></code></td>
+<td><code>java.lang.Boolean</code></td>
+<td>Whether to allow the Lambda to send all ipv6 network traffic.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws/type-safe-api.SnapStartFunction.Initializer.parameter.allowAllOutbound">allowAllOutbound</a></code></td>
 <td><code>java.lang.Boolean</code></td>
-<td>Whether to allow the Lambda to send all network traffic.</td>
+<td>Whether to allow the Lambda to send all network traffic (except ipv6).</td>
 </tr>
 <tr>
 <td><code><a href="#@aws/type-safe-api.SnapStartFunction.Initializer.parameter.allowPublicSubnet">allowPublicSubnet</a></code></td>
@@ -6469,6 +6476,11 @@ this type-testing method instead.</p>
 <td>Profiling Group.</td>
 </tr>
 <tr>
+<td><code><a href="#@aws/type-safe-api.SnapStartFunction.Initializer.parameter.recursiveLoop">recursiveLoop</a></code></td>
+<td><code>software.amazon.awscdk.services.lambda.RecursiveLoop</code></td>
+<td>Sets the Recursive Loop Protection for Lambda Function.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws/type-safe-api.SnapStartFunction.Initializer.parameter.reservedConcurrentExecutions">reservedConcurrentExecutions</a></code></td>
 <td><code>java.lang.Number</code></td>
 <td>The maximum of concurrent executions you want to reserve for the function.</td>
@@ -6598,12 +6610,24 @@ Maximum: 2</p>
 <p><a href="https://aws-otel.github.io/docs/getting-started/lambda">https://aws-otel.github.io/docs/getting-started/lambda</a></p>
 </blockquote>
 <hr />
+<h5 id="allowallipv6outboundoptional"><code>allowAllIpv6Outbound</code><sup>Optional</sup> <a name="allowAllIpv6Outbound" id="@aws/type-safe-api.SnapStartFunction.Initializer.parameter.allowAllIpv6Outbound"></a></h5>
+<ul>
+<li><em>Type:</em> java.lang.Boolean</li>
+<li><em>Default:</em> false</li>
+</ul>
+<p>Whether to allow the Lambda to send all ipv6 network traffic.</p>
+<p>If set to true, there will only be a single egress rule which allows all
+outbound ipv6 traffic. If set to false, you must individually add traffic rules to allow the
+Lambda to connect to network targets using ipv6.</p>
+<p>Do not specify this property if the <code>securityGroups</code> or <code>securityGroup</code> property is set.
+Instead, configure <code>allowAllIpv6Outbound</code> directly on the security group.</p>
+<hr />
 <h5 id="allowalloutboundoptional"><code>allowAllOutbound</code><sup>Optional</sup> <a name="allowAllOutbound" id="@aws/type-safe-api.SnapStartFunction.Initializer.parameter.allowAllOutbound"></a></h5>
 <ul>
 <li><em>Type:</em> java.lang.Boolean</li>
 <li><em>Default:</em> true</li>
 </ul>
-<p>Whether to allow the Lambda to send all network traffic.</p>
+<p>Whether to allow the Lambda to send all network traffic (except ipv6).</p>
 <p>If set to false, you must individually add traffic rules to allow the
 Lambda to connect to network targets.</p>
 <p>Do not specify this property if the <code>securityGroups</code> or <code>securityGroup</code> property is set.
@@ -6886,6 +6910,14 @@ Developer Guide.</p>
 <p><a href="https://docs.aws.amazon.com/codeguru/latest/profiler-ug/setting-up-lambda.html">https://docs.aws.amazon.com/codeguru/latest/profiler-ug/setting-up-lambda.html</a></p>
 </blockquote>
 <hr />
+<h5 id="recursiveloopoptional"><code>recursiveLoop</code><sup>Optional</sup> <a name="recursiveLoop" id="@aws/type-safe-api.SnapStartFunction.Initializer.parameter.recursiveLoop"></a></h5>
+<ul>
+<li><em>Type:</em> software.amazon.awscdk.services.lambda.RecursiveLoop</li>
+<li><em>Default:</em> RecursiveLoop.Terminate</li>
+</ul>
+<p>Sets the Recursive Loop Protection for Lambda Function.</p>
+<p>It lets Lambda detect and terminate unintended recusrive loops.</p>
+<hr />
 <h5 id="reservedconcurrentexecutionsoptional"><code>reservedConcurrentExecutions</code><sup>Optional</sup> <a name="reservedConcurrentExecutions" id="@aws/type-safe-api.SnapStartFunction.Initializer.parameter.reservedConcurrentExecutions"></a></h5>
 <ul>
 <li><em>Type:</em> java.lang.Number</li>
@@ -7080,8 +7112,16 @@ Guide.</p>
 <td>Grant multiple principals the ability to invoke this Lambda via CompositePrincipal.</td>
 </tr>
 <tr>
+<td><code><a href="#@aws/type-safe-api.SnapStartFunction.grantInvokeLatestVersion">grantInvokeLatestVersion</a></code></td>
+<td>Grant the given identity permissions to invoke the $LATEST version or unqualified version of this Lambda.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws/type-safe-api.SnapStartFunction.grantInvokeUrl">grantInvokeUrl</a></code></td>
 <td>Grant the given identity permissions to invoke this Lambda Function URL.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/type-safe-api.SnapStartFunction.grantInvokeVersion">grantInvokeVersion</a></code></td>
+<td>Grant the given identity permissions to invoke the given version of this Lambda.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws/type-safe-api.SnapStartFunction.metric">metric</a></code></td>
@@ -7251,13 +7291,36 @@ This function is overridden as a noOp for QualifiedFunctionBase.</p>
 <li><em>Type:</em> software.amazon.awscdk.services.iam.CompositePrincipal</li>
 </ul>
 <hr />
+<h5 id="grantinvokelatestversion"><code>grantInvokeLatestVersion</code> <a name="grantInvokeLatestVersion" id="@aws/type-safe-api.SnapStartFunction.grantInvokeLatestVersion"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">Grant</span><span class="w"> </span><span class="nf">grantInvokeLatestVersion</span><span class="p">(</span><span class="n">IGrantable</span><span class="w"> </span><span class="n">grantee</span><span class="p">)</span>
+</code></pre></div>
+<p>Grant the given identity permissions to invoke the $LATEST version or unqualified version of this Lambda.</p>
+<h6 id="granteerequired_1"><code>grantee</code><sup>Required</sup> <a name="grantee" id="@aws/type-safe-api.SnapStartFunction.grantInvokeLatestVersion.parameter.grantee"></a></h6>
+<ul>
+<li><em>Type:</em> software.amazon.awscdk.services.iam.IGrantable</li>
+</ul>
+<hr />
 <h5 id="grantinvokeurl"><code>grantInvokeUrl</code> <a name="grantInvokeUrl" id="@aws/type-safe-api.SnapStartFunction.grantInvokeUrl"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">Grant</span><span class="w"> </span><span class="nf">grantInvokeUrl</span><span class="p">(</span><span class="n">IGrantable</span><span class="w"> </span><span class="n">grantee</span><span class="p">)</span>
 </code></pre></div>
 <p>Grant the given identity permissions to invoke this Lambda Function URL.</p>
-<h6 id="granteerequired_1"><code>grantee</code><sup>Required</sup> <a name="grantee" id="@aws/type-safe-api.SnapStartFunction.grantInvokeUrl.parameter.grantee"></a></h6>
+<h6 id="granteerequired_2"><code>grantee</code><sup>Required</sup> <a name="grantee" id="@aws/type-safe-api.SnapStartFunction.grantInvokeUrl.parameter.grantee"></a></h6>
 <ul>
 <li><em>Type:</em> software.amazon.awscdk.services.iam.IGrantable</li>
+</ul>
+<hr />
+<h5 id="grantinvokeversion"><code>grantInvokeVersion</code> <a name="grantInvokeVersion" id="@aws/type-safe-api.SnapStartFunction.grantInvokeVersion"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">Grant</span><span class="w"> </span><span class="nf">grantInvokeVersion</span><span class="p">(</span><span class="n">IGrantable</span><span class="w"> </span><span class="n">grantee</span><span class="p">,</span><span class="w"> </span><span class="n">IVersion</span><span class="w"> </span><span class="n">version</span><span class="p">)</span>
+</code></pre></div>
+<p>Grant the given identity permissions to invoke the given version of this Lambda.</p>
+<h6 id="granteerequired_3"><code>grantee</code><sup>Required</sup> <a name="grantee" id="@aws/type-safe-api.SnapStartFunction.grantInvokeVersion.parameter.grantee"></a></h6>
+<ul>
+<li><em>Type:</em> software.amazon.awscdk.services.iam.IGrantable</li>
+</ul>
+<hr />
+<h6 id="versionrequired"><code>version</code><sup>Required</sup> <a name="version" id="@aws/type-safe-api.SnapStartFunction.grantInvokeVersion.parameter.version"></a></h6>
+<ul>
+<li><em>Type:</em> software.amazon.awscdk.services.lambda.IVersion</li>
 </ul>
 <hr />
 <h5 id="metric"><code>metric</code> <a name="metric" id="@aws/type-safe-api.SnapStartFunction.metric"></a></h5>
@@ -38095,6 +38158,7 @@ of gradle to the one provided by default</p>
 <span class="c1">//  .onSuccess(IDestination)</span>
 <span class="c1">//  .retryAttempts(java.lang.Number)</span>
 <span class="c1">//  .adotInstrumentation(AdotInstrumentationConfig)</span>
+<span class="c1">//  .allowAllIpv6Outbound(java.lang.Boolean)</span>
 <span class="c1">//  .allowAllOutbound(java.lang.Boolean)</span>
 <span class="c1">//  .allowPublicSubnet(java.lang.Boolean)</span>
 <span class="c1">//  .applicationLogLevel(java.lang.String)</span>
@@ -38126,6 +38190,7 @@ of gradle to the one provided by default</p>
 <span class="c1">//  .paramsAndSecrets(ParamsAndSecretsLayerVersion)</span>
 <span class="c1">//  .profiling(java.lang.Boolean)</span>
 <span class="c1">//  .profilingGroup(IProfilingGroup)</span>
+<span class="c1">//  .recursiveLoop(RecursiveLoop)</span>
 <span class="c1">//  .reservedConcurrentExecutions(java.lang.Number)</span>
 <span class="c1">//  .role(IRole)</span>
 <span class="c1">//  .runtimeManagementMode(RuntimeManagementMode)</span>
@@ -38179,9 +38244,14 @@ of gradle to the one provided by default</p>
 <td>Specify the configuration of AWS Distro for OpenTelemetry (ADOT) instrumentation.</td>
 </tr>
 <tr>
+<td><code><a href="#@aws/type-safe-api.SnapStartFunctionProps.property.allowAllIpv6Outbound">allowAllIpv6Outbound</a></code></td>
+<td><code>java.lang.Boolean</code></td>
+<td>Whether to allow the Lambda to send all ipv6 network traffic.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws/type-safe-api.SnapStartFunctionProps.property.allowAllOutbound">allowAllOutbound</a></code></td>
 <td><code>java.lang.Boolean</code></td>
-<td>Whether to allow the Lambda to send all network traffic.</td>
+<td>Whether to allow the Lambda to send all network traffic (except ipv6).</td>
 </tr>
 <tr>
 <td><code><a href="#@aws/type-safe-api.SnapStartFunctionProps.property.allowPublicSubnet">allowPublicSubnet</a></code></td>
@@ -38334,6 +38404,11 @@ of gradle to the one provided by default</p>
 <td>Profiling Group.</td>
 </tr>
 <tr>
+<td><code><a href="#@aws/type-safe-api.SnapStartFunctionProps.property.recursiveLoop">recursiveLoop</a></code></td>
+<td><code>software.amazon.awscdk.services.lambda.RecursiveLoop</code></td>
+<td>Sets the Recursive Loop Protection for Lambda Function.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws/type-safe-api.SnapStartFunctionProps.property.reservedConcurrentExecutions">reservedConcurrentExecutions</a></code></td>
 <td><code>java.lang.Number</code></td>
 <td>The maximum of concurrent executions you want to reserve for the function.</td>
@@ -38463,6 +38538,20 @@ Maximum: 2</p>
 <p><a href="https://aws-otel.github.io/docs/getting-started/lambda">https://aws-otel.github.io/docs/getting-started/lambda</a></p>
 </blockquote>
 <hr />
+<h5 id="allowallipv6outboundoptional_1"><code>allowAllIpv6Outbound</code><sup>Optional</sup> <a name="allowAllIpv6Outbound" id="@aws/type-safe-api.SnapStartFunctionProps.property.allowAllIpv6Outbound"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Boolean</span><span class="w"> </span><span class="nf">getAllowAllIpv6Outbound</span><span class="p">();</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.lang.Boolean</li>
+<li><em>Default:</em> false</li>
+</ul>
+<p>Whether to allow the Lambda to send all ipv6 network traffic.</p>
+<p>If set to true, there will only be a single egress rule which allows all
+outbound ipv6 traffic. If set to false, you must individually add traffic rules to allow the
+Lambda to connect to network targets using ipv6.</p>
+<p>Do not specify this property if the <code>securityGroups</code> or <code>securityGroup</code> property is set.
+Instead, configure <code>allowAllIpv6Outbound</code> directly on the security group.</p>
+<hr />
 <h5 id="allowalloutboundoptional_1"><code>allowAllOutbound</code><sup>Optional</sup> <a name="allowAllOutbound" id="@aws/type-safe-api.SnapStartFunctionProps.property.allowAllOutbound"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Boolean</span><span class="w"> </span><span class="nf">getAllowAllOutbound</span><span class="p">();</span>
 </code></pre></div>
@@ -38470,7 +38559,7 @@ Maximum: 2</p>
 <li><em>Type:</em> java.lang.Boolean</li>
 <li><em>Default:</em> true</li>
 </ul>
-<p>Whether to allow the Lambda to send all network traffic.</p>
+<p>Whether to allow the Lambda to send all network traffic (except ipv6).</p>
 <p>If set to false, you must individually add traffic rules to allow the
 Lambda to connect to network targets.</p>
 <p>Do not specify this property if the <code>securityGroups</code> or <code>securityGroup</code> property is set.
@@ -38808,6 +38897,16 @@ Developer Guide.</p>
 <blockquote>
 <p><a href="https://docs.aws.amazon.com/codeguru/latest/profiler-ug/setting-up-lambda.html">https://docs.aws.amazon.com/codeguru/latest/profiler-ug/setting-up-lambda.html</a></p>
 </blockquote>
+<hr />
+<h5 id="recursiveloopoptional_1"><code>recursiveLoop</code><sup>Optional</sup> <a name="recursiveLoop" id="@aws/type-safe-api.SnapStartFunctionProps.property.recursiveLoop"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">RecursiveLoop</span><span class="w"> </span><span class="nf">getRecursiveLoop</span><span class="p">();</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> software.amazon.awscdk.services.lambda.RecursiveLoop</li>
+<li><em>Default:</em> RecursiveLoop.Terminate</li>
+</ul>
+<p>Sets the Recursive Loop Protection for Lambda Function.</p>
+<p>It lets Lambda detect and terminate unintended recusrive loops.</p>
 <hr />
 <h5 id="reservedconcurrentexecutionsoptional_1"><code>reservedConcurrentExecutions</code><sup>Optional</sup> <a name="reservedConcurrentExecutions" id="@aws/type-safe-api.SnapStartFunctionProps.property.reservedConcurrentExecutions"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Number</span><span class="w"> </span><span class="nf">getReservedConcurrentExecutions</span><span class="p">();</span>
@@ -43929,6 +44028,7 @@ both client and server projects.</p>
 
 <span class="n">WebSocketStageProps</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
 <span class="c1">//  .autoDeploy(java.lang.Boolean)</span>
+<span class="c1">//  .description(java.lang.String)</span>
 <span class="c1">//  .domainMapping(DomainMappingOptions)</span>
 <span class="c1">//  .stageName(java.lang.String)</span>
 <span class="c1">//  .throttle(ThrottleSettings)</span>
@@ -43948,6 +44048,11 @@ both client and server projects.</p>
 <td><code><a href="#@aws/type-safe-api.WebSocketStageProps.property.autoDeploy">autoDeploy</a></code></td>
 <td><code>java.lang.Boolean</code></td>
 <td>Whether updates to an API automatically trigger a new deployment.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/type-safe-api.WebSocketStageProps.property.description">description</a></code></td>
+<td><code>java.lang.String</code></td>
+<td>The description for the API stage.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws/type-safe-api.WebSocketStageProps.property.domainMapping">domainMapping</a></code></td>
@@ -43975,6 +44080,15 @@ both client and server projects.</p>
 <li><em>Default:</em> false</li>
 </ul>
 <p>Whether updates to an API automatically trigger a new deployment.</p>
+<hr />
+<h5 id="descriptionoptional_22"><code>description</code><sup>Optional</sup> <a name="description" id="@aws/type-safe-api.WebSocketStageProps.property.description"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getDescription</span><span class="p">();</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.lang.String</li>
+<li><em>Default:</em> no description</li>
+</ul>
+<p>The description for the API stage.</p>
 <hr />
 <h5 id="domainmappingoptional"><code>domainMapping</code><sup>Optional</sup> <a name="domainMapping" id="@aws/type-safe-api.WebSocketStageProps.property.domainMapping"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">DomainMappingOptions</span><span class="w"> </span><span class="nf">getDomainMapping</span><span class="p">();</span>
@@ -45882,7 +45996,7 @@ overlapping response status patterns.</p>
   <small>
     
       Last update:
-      2024-10-22
+      2024-10-24
     
   </small>
 </div>

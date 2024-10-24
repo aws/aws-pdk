@@ -4276,6 +4276,11 @@ this type-testing method instead.</p>
 <td>User-defined object metadata to be set on all objects in the deployment.</td>
 </tr>
 <tr>
+<td><code><a href="#@aws/pdk/static-website.BucketDeploymentProps.property.outputObjectKeys">outputObjectKeys</a></code></td>
+<td><code>boolean</code></td>
+<td>If set to false, the custom resource will not send back the SourceObjectKeys.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws/pdk/static-website.BucketDeploymentProps.property.prune">prune</a></code></td>
 <td><code>boolean</code></td>
 <td>If this is set to false, files in the destination bucket that do not exist in the asset, will NOT be deleted during deployment (create/update).</td>
@@ -4528,6 +4533,17 @@ accordingly.</p>
 <li><em>Default:</em> No user metadata is set</li>
 </ul>
 <p>User-defined object metadata to be set on all objects in the deployment.</p>
+<hr />
+<h5 id="outputobjectkeysoptional"><code>outputObjectKeys</code><sup>Optional</sup> <a name="outputObjectKeys" id="@aws/pdk/static-website.BucketDeploymentProps.property.outputObjectKeys"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">outputObjectKeys</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> boolean</li>
+<li><em>Default:</em> true</li>
+</ul>
+<p>If set to false, the custom resource will not send back the SourceObjectKeys.</p>
+<p>This is useful when you are facing the error <code>Response object is too long</code></p>
+<p>See <a class="magiclink magiclink-github magiclink-issue" href="https://github.com/aws/aws-cdk/issues/28579" title="GitHub Issue: aws/aws-cdk #28579">aws-cdk#28579</a></p>
 <hr />
 <h5 id="pruneoptional"><code>prune</code><sup>Optional</sup> <a name="prune" id="@aws/pdk/static-website.BucketDeploymentProps.property.prune"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">prune</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
@@ -4942,7 +4958,9 @@ To configure AWS WAF to allow, block, or count requests that originated from IP 
 <p>Alternative domain names for this distribution.</p>
 <p>If you want to use your own domain name, such as <a href="http://www.example.com">www.example.com</a>, instead of the cloudfront.net domain name,
 you can add an alternate domain name to your distribution. If you attach a certificate to the distribution,
-you must add (at least one of) the domain names of the certificate to this list.</p>
+you should add (at least one of) the domain names of the certificate to this list.</p>
+<p>When you want to move a domain name between distributions, you can associate a certificate without specifying any domain names.
+For more information, see the <em>Moving an alternate domain name to a different distribution</em> section in the README.</p>
 <hr />
 <h5 id="enabledoptional"><code>enabled</code><sup>Optional</sup> <a name="enabled" id="@aws/pdk/static-website.DistributionProps.property.enabled"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">enabled</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
@@ -5397,7 +5415,7 @@ You will need to pass in an instance of StaticWebsiteOrigin (NoOp) to keep the c
   <small>
     
       Last update:
-      2024-10-22
+      2024-10-24
     
   </small>
 </div>

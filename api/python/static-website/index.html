@@ -4324,6 +4324,7 @@ this type-testing method instead.</p>
   <span class="n">log_retention</span><span class="p">:</span> <span class="n">RetentionDays</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">memory_limit</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">output_object_keys</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">prune</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">retain_on_delete</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">role</span><span class="p">:</span> <span class="n">IRole</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4443,6 +4444,11 @@ this type-testing method instead.</p>
 <td><code><a href="#@aws/static-website.BucketDeploymentProps.property.metadata">metadata</a></code></td>
 <td><code>typing.Mapping[str]</code></td>
 <td>User-defined object metadata to be set on all objects in the deployment.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/static-website.BucketDeploymentProps.property.outputObjectKeys">output_object_keys</a></code></td>
+<td><code>bool</code></td>
+<td>If set to false, the custom resource will not send back the SourceObjectKeys.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws/static-website.BucketDeploymentProps.property.prune">prune</a></code></td>
@@ -4697,6 +4703,17 @@ accordingly.</p>
 <li><em>Default:</em> No user metadata is set</li>
 </ul>
 <p>User-defined object metadata to be set on all objects in the deployment.</p>
+<hr />
+<h5 id="output_object_keysoptional"><code>output_object_keys</code><sup>Optional</sup> <a name="output_object_keys" id="@aws/static-website.BucketDeploymentProps.property.outputObjectKeys"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">output_object_keys</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true</li>
+</ul>
+<p>If set to false, the custom resource will not send back the SourceObjectKeys.</p>
+<p>This is useful when you are facing the error <code>Response object is too long</code></p>
+<p>See <a class="magiclink magiclink-github magiclink-issue" href="https://github.com/aws/aws-cdk/issues/28579" title="GitHub Issue: aws/aws-cdk #28579">aws-cdk#28579</a></p>
 <hr />
 <h5 id="pruneoptional"><code>prune</code><sup>Optional</sup> <a name="prune" id="@aws/static-website.BucketDeploymentProps.property.prune"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">prune</span><span class="p">:</span> <span class="nb">bool</span>
@@ -5139,7 +5156,9 @@ To configure AWS WAF to allow, block, or count requests that originated from IP 
 <p>Alternative domain names for this distribution.</p>
 <p>If you want to use your own domain name, such as <a href="http://www.example.com">www.example.com</a>, instead of the cloudfront.net domain name,
 you can add an alternate domain name to your distribution. If you attach a certificate to the distribution,
-you must add (at least one of) the domain names of the certificate to this list.</p>
+you should add (at least one of) the domain names of the certificate to this list.</p>
+<p>When you want to move a domain name between distributions, you can associate a certificate without specifying any domain names.
+For more information, see the <em>Moving an alternate domain name to a different distribution</em> section in the README.</p>
 <hr />
 <h5 id="enabledoptional"><code>enabled</code><sup>Optional</sup> <a name="enabled" id="@aws/static-website.DistributionProps.property.enabled"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">enabled</span><span class="p">:</span> <span class="nb">bool</span>
@@ -5593,7 +5612,8 @@ You will need to pass in an instance of StaticWebsiteOrigin (NoOp) to keep the c
 <h5 id="bind"><code>bind</code> <a name="bind" id="@aws/static-website.StaticWebsiteOrigin.bind"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">bind</span><span class="p">(</span>
   <span class="n">_scope</span><span class="p">:</span> <span class="n">Construct</span><span class="p">,</span>
-  <span class="n">origin_id</span><span class="p">:</span> <span class="nb">str</span>
+  <span class="n">origin_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">distribution_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OriginBindConfig</span>
 </code></pre></div>
 <p>The method called when a given Origin is added (for the first time) to a Distribution.</p>
@@ -5608,13 +5628,21 @@ You will need to pass in an instance of StaticWebsiteOrigin (NoOp) to keep the c
 </ul>
 <p>The identifier of this Origin, as assigned by the Distribution this Origin has been used added to.</p>
 <hr />
+<h6 id="distribution_idoptional"><code>distribution_id</code><sup>Optional</sup> <a name="distribution_id" id="@aws/static-website.StaticWebsiteOrigin.bind.parameter.distributionId"></a></h6>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> no distribution id</li>
+</ul>
+<p>The identifier of the Distribution this Origin is used for.</p>
+<p>This is used to grant origin access permissions to the distribution for origin access control.</p>
+<hr />
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      2024-10-22
+      2024-10-24
     
   </small>
 </div>
