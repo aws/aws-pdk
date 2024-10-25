@@ -192,7 +192,7 @@ To install these, follow the below links:
 
 !!!note
 
-    If you are using another modelling language (for example OpenAPI), these are not required.
+    If you are using another modelling language (for example TypeSpec or OpenAPI), these are not required.
 
 ### Language specific
 

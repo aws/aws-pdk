@@ -1,12 +1,12 @@
 # Using OpenAPI
 
-As an alternative to [Smithy](./websocket_using_smithy.md), you can use [OpenAPI Version 3.0.3](https://swagger.io/specification/) to define your API.
+As an alternative to [Smithy](./websocket_using_smithy.md) or [TypeSpec](./websocket_using_typespec.md), you can use [OpenAPI Version 3.0.3](https://swagger.io/specification/) to define your API.
 
 !!!warning
 
     Note that while Type Safe WebSocket API uses the OpenAPI format to define operations, many of the features of OpenAPI are not supported by WebSockets and therefore may be ignored if you define them in your model, for example specifying `parameters` or `responses`.
 
-    [Smithy](./websocket_using_smithy.md) is the recommended model language for WebSocket APIs.
+    [TypeSpec](./websocket_using_typespec.md) and [Smithy](./websocket_using_smithy.md) are the recommended model languages for WebSocket APIs.
 
 To use OpenAPI, in `TypeSafeWebSocketApiProject`, specify it as the `model.language`.
 

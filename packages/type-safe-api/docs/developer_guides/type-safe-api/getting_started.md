@@ -10,7 +10,7 @@ This section describes how to get started with the Type Safe API. For more infor
 
 The `TypeSafeApiProject` projen project sets up the project structure for you. Consider the following parameters when creating the project:
 
-- `model` - Configure the API model. Select a `language` for the model from either [Smithy](https://smithy.io/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and provide `options.smithy` or `options.openapi` depending on your choice.
+- `model` - Configure the API model. Select a `language` for the model from either [Smithy](https://smithy.io/2.0/), [TypeSpec](https://typespec.io/) or [OpenAPI v3](https://swagger.io/specification/), and provide `options.smithy`, `options.typeSpec` or `options.openapi` depending on your choice.
 - `infrastructure` - Select the `language` you are writing your CDK infrastructure in. A construct will be generated in this language which can be used to deploy the API.
 - `handlers` - Optionally select the `languages` in which you wish to write lambda handlers for operations in.
 - `runtime` - Optionally configure additional generated runtime projects. Include one or more `languages` you want to write your client and/or server-side code in. These projects contain generated types defined in your model, as well as type-safe lambda handler wrappers for implementing each operation. You'll notice runtime packages are automatically generated for languages you picked for `infrastructure` and `handlers`.
@@ -63,7 +63,7 @@ npx projen new --from @aws/pdk monorepo-ts --package-manager=pnpm
       name: "myapi",
       parent: monorepo,
       outdir: "packages/api",
-      // Smithy as the model language. You can also use ModelLanguage.OPENAPI
+      // Smithy as the model language. You can also use ModelLanguage.TYPESPEC or ModelLanguage.OPENAPI
       model: {
         language: ModelLanguage.SMITHY,
         options: {
@@ -238,6 +238,19 @@ The generated runtime projects include lambda handler wrappers which provide typ
             message: String
         }
     }
+    ```
+
+=== "TYPESPEC"
+
+    Use the `@handler` decorator, and specify the language you wish to implement the operation in.
+
+    ```tsp hl_lines="3"
+    @get
+    @route("/hello")
+    @handler({ language: "typescript" })
+    op SayHello(@query name: string): {
+        message: string;
+    };
     ```
 
 === "OPENAPI"
@@ -733,6 +746,32 @@ Add the new operation in the `model` project, for example:
             SayGoodbye // <- add your new operation here
         ]
     }
+    ```
+
+=== "TYPESPEC"
+
+    In `model/src/main.tsp` or another `.tsp` file somewhere in the `model/src` directory, define the operation:
+
+    ```tsp
+    namespace MyApi; // <- ensure the namespace is the same as in main.tsp if defining in another file
+
+    /**
+     * Documentation about the operation can go here
+     */
+    @post
+    @route("/goodbye")
+    @handler({ language: "typescript" }) // <- you can also choose "python" or "java"
+    op SayGoodbye(
+        name: string,
+    ): {
+        message: string;
+    };
+    ```
+
+    If you defined your operation in a different file, you must import it in `model/src/main.tsp`:
+
+    ```tsp
+    import "./operations/say-goodbye.tsp";
     ```
 
 === "OPENAPI"

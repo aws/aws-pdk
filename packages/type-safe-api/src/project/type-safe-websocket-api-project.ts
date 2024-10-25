@@ -223,12 +223,16 @@ export class TypeSafeWebSocketApiProject extends Project {
       modelLanguage: options.model.language,
       modelOptions: options.model.options,
       handlerLanguages,
+      packageManager,
+      defaultReleaseBranch,
       parsedSpecFile,
       asyncApiSpecFile,
     });
-    const modelProject = [this.model.openapi, this.model.smithy].filter(
-      (m) => m
-    )[0] as Project;
+    const modelProject = [
+      this.model.openapi,
+      this.model.smithy,
+      this.model.typeSpec,
+    ].filter((m) => m)[0] as Project;
 
     // Ensure we always generate a runtime project for the infrastructure language, regardless of what was specified by
     // the user. Likewise we generate a runtime project for any handler languages specified

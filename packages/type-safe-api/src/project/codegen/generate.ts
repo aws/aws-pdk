@@ -3,6 +3,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { getLogger } from "log4js";
 import { Project, TextFile } from "projen";
+import { NodePackageManager } from "projen/lib/javascript";
 import {
   DocumentationFormat,
   Language,
@@ -68,6 +69,8 @@ import { TypeSafeApiAsyncModelBuildOutputOptions } from "../model/type-safe-api-
 import { TypeSafeApiModelBuildOutputOptions } from "../model/type-safe-api-model-build";
 import { TypeSafeApiModelProjectOptions } from "../model/type-safe-api-model-project";
 import { TypeSafeWebSocketApiModelProjectOptions } from "../model/type-safe-websocket-api-model-project";
+import { TypeSpecAsyncModelProject } from "../model/type-spec/type-spec-async-model-project";
+import { TypeSpecModelProject } from "../model/type-spec/type-spec-model-project";
 import {
   GeneratedDocumentationOptions,
   GeneratedWebSocketDocumentationOptions,
@@ -663,6 +666,8 @@ export interface CommonModelProjectOptions {
   readonly name: string;
   readonly parent?: Project;
   readonly outdir: string;
+  readonly defaultReleaseBranch: string;
+  readonly packageManager: NodePackageManager;
 }
 
 export interface GenerateModelProjectOptions
@@ -708,6 +713,24 @@ export const generateModelProject = ({
       parsedSpecFile: options.parsedSpecFile,
       apiName: openapi.apiName,
       outdir: openapi.outdir,
+    };
+  } else if (modelLanguage === ModelLanguage.TYPESPEC) {
+    if (!modelOptions.typeSpec) {
+      throw new Error(
+        `modelOptions.typeSpec is required when selected model language is ${ModelLanguage.TYPESPEC}`
+      );
+    }
+
+    const typeSpec = new TypeSpecModelProject({
+      ...options,
+      name: sanitiseTypescriptPackageName(options.name),
+      typeSpecOptions: modelOptions.typeSpec,
+    });
+    return {
+      typeSpec,
+      parsedSpecFile: options.parsedSpecFile,
+      apiName: typeSpec.apiName,
+      outdir: typeSpec.outdir,
     };
   } else {
     throw new Error(`Unknown model language ${modelLanguage}`);
@@ -760,6 +783,25 @@ export const generateAsyncModelProject = ({
       asyncApiSpecFile: options.asyncApiSpecFile,
       apiName: openapi.apiName,
       outdir: openapi.outdir,
+    };
+  } else if (modelLanguage === ModelLanguage.TYPESPEC) {
+    if (!modelOptions.typeSpec) {
+      throw new Error(
+        `modelOptions.typeSpec is required when selected model language is ${ModelLanguage.TYPESPEC}`
+      );
+    }
+
+    const typeSpec = new TypeSpecAsyncModelProject({
+      ...options,
+      name: sanitiseTypescriptPackageName(options.name),
+      typeSpecOptions: modelOptions.typeSpec,
+    });
+    return {
+      typeSpec,
+      parsedSpecFile: options.parsedSpecFile,
+      asyncApiSpecFile: options.asyncApiSpecFile,
+      apiName: typeSpec.apiName,
+      outdir: typeSpec.outdir,
     };
   } else {
     throw new Error(`Unknown model language ${modelLanguage}`);

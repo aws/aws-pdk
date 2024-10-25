@@ -10,7 +10,7 @@ This section describes how to get started with the Type Safe WebSocket API. For 
 
 The `TypeSafeWebSocketApiProject` projen project sets up the project structure for you. Consider the following parameters when creating the project:
 
-- `model` - Configure the API model. Select a `language` for the model from either [Smithy](https://smithy.io/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and provide `options.smithy` or `options.openapi` depending on your choice.
+- `model` - Configure the API model. Select a `language` for the model from either [Smithy](https://smithy.io/2.0/), [TypeSpec](https://typespec.io/) or [OpenAPI v3](https://swagger.io/specification/), and provide `options.smithy`, `options.typeSpec` or `options.openapi` depending on your choice.
 - `infrastructure` - Select the `language` you are writing your CDK infrastructure in. A construct will be generated in this language which can be used to deploy the API.
 - `handlers` - Optionally select the `languages` in which you wish to write lambda handlers for operations in.
 - `runtime` - Optionally configure additional generated runtime projects. Include one or more `languages` you want to write your server-side code in. These projects contain generated types defined in your model, as well as type-safe lambda handler wrappers for implementing each operation, and server SDKs for sending messages to connected clients. You'll notice runtime packages are automatically generated for languages you picked for `infrastructure` and `handlers`.
@@ -60,7 +60,7 @@ npx projen new --from @aws/pdk monorepo-ts --package-manager=pnpm
       name: "myapi",
       parent: monorepo,
       outdir: "packages/api",
-      // Smithy as the model language. You can also use ModelLanguage.OPENAPI
+      // Smithy as the model language. You can also use ModelLanguage.TYPESPEC or ModelLanguage.OPENAPI
       model: {
         language: ModelLanguage.SMITHY,
         options: {
@@ -126,15 +126,15 @@ npx projen new --from @aws/pdk monorepo-ts --package-manager=pnpm
 
 3.) Given we have modified our `projenrc` file we need to run the `npx projen` command to synthesize our new API and infrastructure onto the filesystem. We can then run a first build with `npx projen build`.
 
-A sample API definition is generated for you in `packages/api/model`, which you are free to modify. Modelling WebSocket APIs is slightly different to REST APIs, namely each operation in a WebSocket API is one-way, sent either from a client to a server or from a server to a client. This means that WebSocket operations define only an input and do not define response types. For more details please refer to [Using Smithy](./websocket_using_smithy.md) and [Using OpenAPI](./websocket_using_smithy.md),
+A sample API definition is generated for you in `packages/api/model`, which you are free to modify. Modelling WebSocket APIs is slightly different to REST APIs, namely each operation in a WebSocket API is one-way, sent either from a client to a server or from a server to a client. This means that WebSocket operations define only an input and do not define response types. For more details please refer to [Using Smithy](./websocket_using_smithy.md), [Using TypeSpec](./websocket_using_typespec.md) and [Using OpenAPI](./websocket_using_smithy.md).
 
 ## Implement a Lambda handler
 
-The generated runtime projects include lambda handler wrappers which provide type-safety for implementing your API operations. The generated `handlers` projects include generated stubs for you to implement for every operation which has been annotated accordingly:
+The generated runtime projects include lambda handler wrappers which provide type-safety for implementing your `client_to_server` or `bidirectional` operations. The generated `handlers` projects include generated stubs for you to implement for every operation which has been annotated accordingly:
 
 === "SMITHY"
 
-    Use the `@async` trait to select the operation direction. Choose between `client_to_server`, `server_to_client` or `bidirectional`
+    Use the `@async` trait to select the operation direction. Choose between `client_to_server`, `server_to_client` or `bidirectional`.
 
     Use the `@handler` trait, and specify the language you wish to implement this operation in.
 
@@ -152,6 +152,25 @@ The generated runtime projects include lambda handler wrappers which provide typ
     !!!tip
 
         The `@handler` trait may only be applied to `client_to_server` or `bidirectional` operations.
+
+
+=== "TYPESPEC"
+
+    Use the `@async` decorator to select the operation direction. Choose between `client_to_server`, `server_to_client` or `bidirectional`.
+
+    Use the `@handler` trait, and specify the language you wish to implement this operation in.
+
+    ```tsp hl_lines="1-2"
+    @async({ direction: "client_to_server" })
+    @handler({ language: "typescript" })
+    op SubscribeToNotifications(
+      topic: string,
+    ): void;
+    ```
+
+    !!!tip
+
+        The `@handler` decorator may only be applied to `client_to_server` or `bidirectional` operations.
 
 === "OPENAPI"
 
@@ -390,6 +409,35 @@ Add the new operation in the `model` project, for example:
     }
     ```
 
+=== "TYPESPEC"
+
+    In `model/src/main.tsp`, or another `.tsp` file somewhere in `model/src`, define the operation:
+
+    ```tsp
+    @async({ direction: "bidirectional" }) // <- you can also choose "client_to_server" or "server_to_client"
+    @handler({ language: "typescript" })
+    op Ping(
+      message: string,
+    ): void;
+    ```
+
+    If you defined your operation in a separate file, make sure you import it in `model/src/main.tsp`, eg:
+
+    ```tsp
+    import "./operations/ping.tsp";
+    ```
+
+    !!!note
+
+          If you defined your operation in a separate file, you will need to import the decorators from `model/generated/aws-pdk`, for example:
+
+          ```tsp
+          import "../../generated/aws-pdk/prelude.tsp";
+          import "../../generated/aws-pdk/async.tsp";
+          ```
+
+          You will also need to ensure the `namespace` is the same as the one in your `main.tsp` file.
+
 === "OPENAPI"
 
     In `model/src/main/openapi/main.yaml`, add the new operation under `paths`, and any new schemas under `components.schemas`.
@@ -440,7 +488,7 @@ To run a build in the root of your monorepo, use the `npx projen build` command:
 npx projen build
 ```
 
-The build will regenerate the infrastructure, runtime, and library projects based on your updated model. It will also generate a new stub for your new operation if you specified the `@handler` trait in Smithy or `x-handler` vendor extension in OpenAPI.
+The build will regenerate the infrastructure, runtime, and library projects based on your updated model. It will also generate a new stub for your new operation if you specified the `@handler` trait in Smithy/TypeSpec or `x-handler` vendor extension in OpenAPI.
 
 As you must define an integration for every `client_to_server` or `bidirectional` operation, you may see the following build error in your CDK application.
 

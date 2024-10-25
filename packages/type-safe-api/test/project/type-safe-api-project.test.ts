@@ -516,6 +516,32 @@ describe("Type Safe Api Project Unit Tests", () => {
     );
   });
 
+  it.each([Language.TYPESCRIPT, Language.PYTHON, Language.JAVA])(
+    "TypeSpec With %s Infra",
+    (infrastructureLanguage) => {
+      const project = new TypeSafeApiProject({
+        name: `typespec-${infrastructureLanguage}`,
+        outdir: path.resolve(__dirname, `typespec-${infrastructureLanguage}`),
+        infrastructure: {
+          language: infrastructureLanguage,
+        },
+        handlers: {
+          languages: [Language.JAVA, Language.PYTHON, Language.TYPESCRIPT],
+        },
+        model: {
+          language: ModelLanguage.TYPESPEC,
+          options: {
+            typeSpec: {
+              namespace: "MyService",
+            },
+          },
+        },
+      });
+
+      expect(synthProject(project)).toMatchSnapshot();
+    }
+  );
+
   it("Throws For Missing Smithy Options", () => {
     expect(() => {
       new TypeSafeApiProject({
@@ -546,5 +572,21 @@ describe("Type Safe Api Project Unit Tests", () => {
         },
       });
     }).toThrow(/modelOptions.openapi is required.*/);
+  });
+
+  it("Throws For Missing TypeSpec Options", () => {
+    expect(() => {
+      new TypeSafeApiProject({
+        outdir: path.resolve(__dirname, "typespec"),
+        name: "typespec",
+        model: {
+          language: ModelLanguage.TYPESPEC,
+          options: {},
+        },
+        infrastructure: {
+          language: Language.TYPESCRIPT,
+        },
+      });
+    }).toThrow(/modelOptions.typeSpec is required.*/);
   });
 });

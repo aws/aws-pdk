@@ -1,6 +1,6 @@
 # Using OpenAPI
 
-As an alternative to [Smithy](./using_smithy.md), you can use [OpenAPI Version 3.0.3](https://swagger.io/specification/) to define your API.
+As an alternative to [Smithy](./using_smithy.md) or [TypeSpec](./using_typespec.md), you can use [OpenAPI Version 3.0.3](https://swagger.io/specification/) to define your API.
 
 To use OpenAPI, in `TypeSafeApiProject`, specify it as the `model.language`.
 

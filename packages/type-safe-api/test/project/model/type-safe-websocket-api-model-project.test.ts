@@ -5,6 +5,7 @@ import {
   Language,
   OpenApiAsyncModelProject,
   SmithyAsyncModelProject,
+  TypeSpecAsyncModelProject,
 } from "../../../src";
 import { synthProject, synthSmithyProject } from "../snapshot-utils";
 
@@ -68,6 +69,37 @@ describe("Type Safe Api Model Project Unit Tests", () => {
       handlerLanguages: [Language.JAVA, Language.PYTHON],
       parsedSpecFile: ".api.json",
       asyncApiSpecFile: ".asyncapi.json",
+    });
+
+    expect(synthProject(project)).toMatchSnapshot();
+  });
+
+  it("TypeSpec", () => {
+    const project = new TypeSpecAsyncModelProject({
+      outdir: path.resolve(__dirname, "typespec-async"),
+      name: "typespec-async",
+      typeSpecOptions: {
+        namespace: "MyService",
+      },
+      parsedSpecFile: ".api.json",
+      asyncApiSpecFile: ".asyncapi.json",
+      defaultReleaseBranch: "mainline",
+    });
+
+    expect(synthProject(project)).toMatchSnapshot();
+  });
+
+  it("TypeSpec with handlers", () => {
+    const project = new TypeSpecAsyncModelProject({
+      outdir: path.resolve(__dirname, "typespec-async-handlers"),
+      name: "typespec-async-handlers",
+      typeSpecOptions: {
+        namespace: "MyService",
+      },
+      parsedSpecFile: ".api.json",
+      asyncApiSpecFile: ".asyncapi.json",
+      defaultReleaseBranch: "mainline",
+      handlerLanguages: [Language.PYTHON, Language.JAVA],
     });
 
     expect(synthProject(project)).toMatchSnapshot();

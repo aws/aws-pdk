@@ -11,6 +11,8 @@ import { OpenApiModelProject } from "./model/openapi/open-api-model-project";
 import { SmithyAsyncModelProject } from "./model/smithy/smithy-async-model-project";
 import { SmithyModelProject } from "./model/smithy/smithy-model-project";
 import { SmithyBuildOptions } from "./model/smithy/types";
+import { TypeSpecAsyncModelProject } from "./model/type-spec/type-spec-async-model-project";
+import { TypeSpecModelProject } from "./model/type-spec/type-spec-model-project";
 import { PythonProjectOptions } from "./python-project-options";
 import { TypeScriptProjectOptions } from "./typescript-project-options";
 
@@ -28,6 +30,11 @@ export enum ModelLanguage {
    * @see https://www.openapis.org/
    */
   OPENAPI = "OPENAPI",
+  /**
+   * TypeSpec
+   * @see https://typespec.io/
+   */
+  TYPESPEC = "TYPESPEC",
 }
 
 /**
@@ -81,6 +88,18 @@ export interface OpenApiModelOptions {
 }
 
 /**
+ * Options for the TypeSpec model
+ */
+export interface TypeSpecModelOptions {
+  /**
+   * The namespace for your API
+   * @see https://typespec.io/docs/language-basics/namespaces/
+   * eg. MyApi
+   */
+  readonly namespace: string;
+}
+
+/**
  * Options for models
  */
 export interface ModelOptions {
@@ -93,6 +112,11 @@ export interface ModelOptions {
    * Options for the OpenAPI model - required when model language is OPENAPI
    */
   readonly openapi?: OpenApiModelOptions;
+
+  /**
+   * Options for the TypeSpec model - required when the model language is TYPESPEC.
+   */
+  readonly typeSpec?: TypeSpecModelOptions;
 }
 
 /**
@@ -399,6 +423,11 @@ export interface ModelProject extends ModelProjectDetails {
    * Reference to the OpenAPI model project. Will be defined if the model language is OpenAPI
    */
   readonly openapi?: OpenApiModelProject;
+
+  /**
+   * Reference to the TypeSpec model project. Will be defined if the model language is TypeSpec
+   */
+  readonly typeSpec?: TypeSpecModelProject;
 }
 
 /**
@@ -419,6 +448,11 @@ export interface WebSocketModelProject extends ModelProjectDetails {
    * Reference to the OpenAPI model project. Will be defined if the model language is OpenAPI
    */
   readonly openapi?: OpenApiAsyncModelProject;
+
+  /**
+   * Reference to the TypeSpec model project. Will be defined if the model language is TypeSpec
+   */
+  readonly typeSpec?: TypeSpecAsyncModelProject;
 }
 
 /**

@@ -360,6 +360,42 @@ describe("Type Safe Api Project Unit Tests", () => {
     expect(synthSmithyProject(project)).toMatchSnapshot();
   });
 
+  it.each([Language.TYPESCRIPT /*, Language.PYTHON, Language.JAVA*/])(
+    "TypeSpec With %s Infra in Monorepo",
+    (infrastructureLanguage) => {
+      const monorepo = new MonorepoTsProject({
+        name: "monorepo",
+        outdir: path.resolve(
+          __dirname,
+          `async-monorepo-typespec-${infrastructureLanguage}`
+        ),
+        defaultReleaseBranch: "main",
+      });
+
+      new TypeSafeWebSocketApiProject({
+        parent: monorepo,
+        name: `typespec-${infrastructureLanguage}`,
+        outdir: "packages/api",
+        infrastructure: {
+          language: infrastructureLanguage,
+        },
+        handlers: {
+          languages: [/*Language.JAVA, Language.PYTHON,*/ Language.TYPESCRIPT],
+        },
+        model: {
+          language: ModelLanguage.TYPESPEC,
+          options: {
+            typeSpec: {
+              namespace: "MyService",
+            },
+          },
+        },
+      });
+
+      expect(synthProject(monorepo)).toMatchSnapshot();
+    }
+  );
+
   // TODO: Remove this test and uncomment JAVA/PYTHON test cases above once support is added
   it.each([Language.JAVA, Language.PYTHON])(
     "Throws an error for language %s",
@@ -416,5 +452,21 @@ describe("Type Safe Api Project Unit Tests", () => {
         },
       });
     }).toThrow(/modelOptions.openapi is required.*/);
+  });
+
+  it("Throws For Missing TypeSpec Options", () => {
+    expect(() => {
+      new TypeSafeWebSocketApiProject({
+        outdir: path.resolve(__dirname, "typespec-async"),
+        name: "typespec-async",
+        model: {
+          language: ModelLanguage.TYPESPEC,
+          options: {},
+        },
+        infrastructure: {
+          language: Language.TYPESCRIPT,
+        },
+      });
+    }).toThrow(/modelOptions.typeSpec is required.*/);
   });
 });

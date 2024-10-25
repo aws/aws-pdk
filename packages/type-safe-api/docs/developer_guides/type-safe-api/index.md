@@ -6,9 +6,9 @@
 
 > Define your REST or WebSocket API's declaratively in a type-safe manner to reduce preventable issues and increase overall productivity.
 
-The _type-safe-api_ package provides projen projects which allow you to define a REST or WebSocket API using either [Smithy](https://smithy.io/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and constructs which manage deploying these APIs on API Gateway.
+The _type-safe-api_ package provides projen projects which allow you to define a REST or WebSocket API using [Smithy](https://smithy.io/2.0/), [TypeSpec](https://typespec.io/) or [OpenAPI v3](https://swagger.io/specification/), and constructs which manage deploying these APIs on API Gateway.
 
-You can define your APIs using [Smithy](https://smithy.io/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and leverage the power of generated client and server types, infrastructure, documentation, and automatic input validation.
+You can define your APIs using [Smithy](https://smithy.io/2.0/), [TypeSpec](https://typespec.io/) or [OpenAPI v3](https://swagger.io/specification/), and leverage the power of generated client and server types, infrastructure, documentation, and automatic input validation.
 
 !!! note
 
@@ -16,7 +16,7 @@ You can define your APIs using [Smithy](https://smithy.io/2.0/) or [OpenAPI v3](
 
 ## How does it work?
 
-Use the projen projects vended by Type Safe API to create REST APIs and WebSocket APIs. Model your API in either Smithy or OpenAPI. The project will generate type-safe clients, server-side bindings and CDK constructs in your desired languages so you can focus on implementing the business logic for your application.
+Use the projen projects vended by Type Safe API to create REST APIs and WebSocket APIs. Model your API in either Smithy, TypeSpec or OpenAPI. The project will generate type-safe clients, server-side bindings and CDK constructs in your desired languages so you can focus on implementing the business logic for your application.
 
 !!! note
 
@@ -26,10 +26,7 @@ The `TypeSafeApiProject` projen project creates a REST API, and produces the fol
 
 ```
 |_ model/
-    |_ src/
-        |_ main/
-            |_ smithy - your API definition if you chose ModelLanguage.SMITHY
-            |_ openapi - your API definition if you chose ModelLanguage.OPENAPI
+    |_ src - your model source, in Smithy, TypeSpec or OpenAPI depending on your selected model language
 |_ handlers/
     |_ typescript - lambda handlers for operations you choose to implement in TypeScript
     |_ python - lambda handlers for operations you choose to implement in Python

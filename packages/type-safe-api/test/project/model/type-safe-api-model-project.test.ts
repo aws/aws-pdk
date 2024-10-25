@@ -5,6 +5,7 @@ import {
   Language,
   OpenApiModelProject,
   SmithyModelProject,
+  TypeSpecModelProject,
 } from "../../../src";
 import { synthProject, synthSmithyProject } from "../snapshot-utils";
 
@@ -129,6 +130,35 @@ describe("Type Safe Api Model Project Unit Tests", () => {
       },
       handlerLanguages: [Language.JAVA, Language.PYTHON],
       parsedSpecFile: ".api.json",
+    });
+
+    expect(synthProject(project)).toMatchSnapshot();
+  });
+
+  it("TypeSpec", () => {
+    const project = new TypeSpecModelProject({
+      outdir: path.resolve(__dirname, "typespec"),
+      name: "typespec",
+      typeSpecOptions: {
+        namespace: "MyService",
+      },
+      parsedSpecFile: ".api.json",
+      defaultReleaseBranch: "mainline",
+    });
+
+    expect(synthProject(project)).toMatchSnapshot();
+  });
+
+  it("TypeSpec with handlers", () => {
+    const project = new TypeSpecModelProject({
+      outdir: path.resolve(__dirname, "typespec-handlers"),
+      name: "typespec-handlers",
+      typeSpecOptions: {
+        namespace: "MyService",
+      },
+      parsedSpecFile: ".api.json",
+      defaultReleaseBranch: "mainline",
+      handlerLanguages: [Language.TYPESCRIPT, Language.PYTHON],
     });
 
     expect(synthProject(project)).toMatchSnapshot();
