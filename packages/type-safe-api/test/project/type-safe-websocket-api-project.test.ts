@@ -385,4 +385,36 @@ describe("Type Safe Api Project Unit Tests", () => {
       }).toThrow(/.*not supported.*/);
     }
   );
+
+  it("Throws For Missing Smithy Options", () => {
+    expect(() => {
+      new TypeSafeWebSocketApiProject({
+        outdir: path.resolve(__dirname, "smithy-async"),
+        name: "smithy-async",
+        model: {
+          language: ModelLanguage.SMITHY,
+          options: {},
+        },
+        infrastructure: {
+          language: Language.TYPESCRIPT,
+        },
+      });
+    }).toThrow(/modelOptions.smithy is required.*/);
+  });
+
+  it("Throws For Missing OpenAPI Options", () => {
+    expect(() => {
+      new TypeSafeWebSocketApiProject({
+        outdir: path.resolve(__dirname, "openapi-async"),
+        name: "openapi-async",
+        model: {
+          language: ModelLanguage.OPENAPI,
+          options: {},
+        },
+        infrastructure: {
+          language: Language.TYPESCRIPT,
+        },
+      });
+    }).toThrow(/modelOptions.openapi is required.*/);
+  });
 });

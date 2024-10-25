@@ -1,11 +1,10 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { SampleFile } from "projen";
+import { Project, SampleFile } from "projen";
 import {
   OpenApiProjectDefinition,
   OpenApiProjectDefinitionOptions,
 } from "./open-api-project-definition";
-import { TypeSafeWebSocketApiModelProject } from "../type-safe-websocket-api-model-project";
 
 /**
  * Options for the OpenAPI Spec
@@ -17,10 +16,7 @@ export interface OpenApiAsyncDefinitionOptions
  * The OpenAPI Spec
  */
 export class OpenApiAsyncDefinition extends OpenApiProjectDefinition {
-  constructor(
-    project: TypeSafeWebSocketApiModelProject,
-    options: OpenApiAsyncDefinitionOptions
-  ) {
+  constructor(project: Project, options: OpenApiAsyncDefinitionOptions) {
     super(project, options);
 
     const firstHandlerLanguage = options.handlerLanguages?.[0];

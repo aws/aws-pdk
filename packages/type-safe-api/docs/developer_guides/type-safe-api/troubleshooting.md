@@ -112,7 +112,7 @@ If you would like to introduce tags without breaking existing clients, we recomm
 
 ### I have multiple Smithy-based APIs, can they share common structures?
 
-Yes. You can create a `TypeSafeApiModelProject` on its own to create a standalone Smithy model library, which can contain the shared structures.
+Yes. You can create a `SmithyModelProject` on its own to create a standalone Smithy model library, which can contain the shared structures.
 
 You can consume the library using the `addSmithyDeps` method, which adds a local file dependency to the built Smithy jar.
 
@@ -120,17 +120,14 @@ You can consume the library using the `addSmithyDeps` method, which adds a local
 
     ```ts
     // Standalone model project, used as our model library
-    const shapes = new TypeSafeApiModelProject({
+    const shapes = new SmithyModelProject({
       name: "shapes",
       parent: monorepo,
       outdir: "packages/shapes",
-      modelLanguage: ModelLanguage.SMITHY,
-      modelOptions: {
-        smithy: {
-          serviceName: {
-            namespace: "com.my.shared.shapes",
-            serviceName: "Ignored",
-          },
+      smithyOptions: {
+        serviceName: {
+          namespace: "com.my.shared.shapes",
+          serviceName: "Ignored",
         },
       },
     });
@@ -138,55 +135,49 @@ You can consume the library using the `addSmithyDeps` method, which adds a local
     const api = new TypeSafeApiProject({ ... });
 
     // Add the implicit monorepo dependency (if using the monorepo) to ensure the shape library is built before the api model
-    monorepo.addImplicitDependency(api.model, shapes);
+    monorepo.addImplicitDependency(api.model.smithy!, shapes);
 
     // Add a local file dependency on the built shapes jar
-    api.model.smithy!.addSmithyDeps(shapes.smithy!);
+    api.model.smithy!.definition.addSmithyDeps(shapes.definition);
     ```
 
 === "JAVA"
 
     ```java
     // Standalone model project, used as our model library
-    TypeSafeApiModelProject shapes = TypeSafeApiModelProject.Builder.create()
+    SmithyModelProject shapes = SmithyModelProject.Builder.create()
             .name("shapes")
             .parent(monorepo)
             .outdir("packages/shapes")
-            .modelLanguage(ModelLanguage.getSMITHY())
-            .modelOptions(ModelOptions.builder()
-                .smithy(SmithyModelOptions.builder()
-                        .serviceName(SmithyServiceName.builder()
-                                .namespace("com.my.shared.shapes")
-                                .serviceName("Ignored")
-                                .build())
-                        .build())
-                .build())
+            .smithyOptions(SmithyModelOptions.builder()
+                    .serviceName(SmithyServiceName.builder()
+                            .namespace("com.my.shared.shapes")
+                            .serviceName("Ignored")
+                            .build())
+                    .build())
             .build();
 
     TypeSafeApiProject api = new TypeSafeApiProject(TypeSafeApiProjectOptions.builder()....build();
 
     // Add the implicit monorepo dependency (if using the monorepo) to ensure the shape library is built before the api model
-    monorepo.addImplicitDependency(api.getModel(), shapes);
+    monorepo.addImplicitDependency(api.getModel().getSmithy(), shapes.getDefinition());
 
     // Add a local file dependency on the built shapes jar
-    api.model.smithy.addSmithyDeps(shapes.getSmithy());
+    api.getModel().getSmithy().getDefinition().addSmithyDeps(shapes.getSmithy());
     ```
 
 === "PYTHON"
 
     ```python
     # Standalone model project, used as our model library
-    shapes = TypeSafeApiModelProject(
+    shapes = SmithyModelProject(
         name="shapes",
         parent=monorepo,
         outdir="packages/shapes",
-        model_language=ModelLanguage.SMITHY,
-        model_options=ModelOptions(
-            smithy=SmithyModelOptions(
-                service_name=SmithyServiceName(
-                    namespace="com.my.shared.shapes",
-                    service_name="Ignored"
-                )
+        smithy_options=SmithyModelOptions(
+            service_name=SmithyServiceName(
+                namespace="com.my.shared.shapes",
+                service_name="Ignored"
             )
         )
     )
@@ -194,10 +185,10 @@ You can consume the library using the `addSmithyDeps` method, which adds a local
     api = TypeSafeApiProject(...)
 
     # Add the implicit monorepo dependency (if using the monorepo) to ensure the shape library is built before the api model
-    monorepo.add_implicit_dependency(api.model, shapes)
+    monorepo.add_implicit_dependency(api.model.smithy, shapes)
 
     # Add a local file dependency on the built shapes jar
-    api.model.smithy.add_smithy_deps(shapes.smithy)
+    api.model.smithy.definition.add_smithy_deps(shapes.definition)
     ```
 
 ### How do I debug my API locally?

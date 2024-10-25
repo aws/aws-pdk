@@ -515,4 +515,36 @@ describe("Type Safe Api Project Unit Tests", () => {
       ])
     );
   });
+
+  it("Throws For Missing Smithy Options", () => {
+    expect(() => {
+      new TypeSafeApiProject({
+        outdir: path.resolve(__dirname, "smithy"),
+        name: "smithy",
+        model: {
+          language: ModelLanguage.SMITHY,
+          options: {},
+        },
+        infrastructure: {
+          language: Language.TYPESCRIPT,
+        },
+      });
+    }).toThrow(/modelOptions.smithy is required.*/);
+  });
+
+  it("Throws For Missing OpenAPI Options", () => {
+    expect(() => {
+      new TypeSafeApiProject({
+        outdir: path.resolve(__dirname, "openapi"),
+        name: "openapi",
+        model: {
+          language: ModelLanguage.OPENAPI,
+          options: {},
+        },
+        infrastructure: {
+          language: Language.TYPESCRIPT,
+        },
+      });
+    }).toThrow(/modelOptions.openapi is required.*/);
+  });
 });
