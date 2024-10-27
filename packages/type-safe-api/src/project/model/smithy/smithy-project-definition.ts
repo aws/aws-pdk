@@ -3,44 +3,42 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { Component, Project } from "projen";
 import { SmithyBuild } from "projen/lib/smithy/smithy-build";
-import { SmithyAwsPdkPrelude } from "./components/smithy-aws-pdk-prelude";
 import { SmithyBuildGradleFile } from "./components/smithy-build-gradle-file";
 import { SmithySettingsGradleFile } from "./components/smithy-settings-gradle-file";
+import { SmithyBuildOptions } from "./types";
 import { DEFAULT_SMITHY_VERSION } from "./version";
 import { GenerateTask } from "../../codegen/components/generate-task";
 import {
   buildTypeSafeApiExecCommand,
   TypeSafeApiScript,
 } from "../../codegen/components/utils";
-import { Language } from "../../languages";
-import { SmithyModelOptions } from "../../types";
 
 /**
- * Options for a smithy build project
+ * Options for a smithy project definition
  */
 export interface SmithyProjectDefinitionOptions {
   /**
-   * Smithy engine options
+   * Smithy build options
    */
-  readonly smithyOptions: SmithyModelOptions;
+  readonly smithyBuildOptions?: SmithyBuildOptions;
   /**
-   * The languages users have specified for handler projects (if any)
+   * Set to false if you would like to check in your smithy build output or have more fine-grained control over what is
+   * checked in, eg if you add other projections to the smithy-build.json file.
+   * @default true
    */
-  readonly handlerLanguages?: Language[];
+  readonly ignoreSmithyBuildOutput?: boolean;
+  /**
+   * Set to false if you would like to check in your gradle wrapper. Do so if you would like to use a different version
+   * of gradle to the one provided by default
+   * @default true
+   */
+  readonly ignoreGradleWrapper?: boolean;
 }
 
 /**
- * Creates a project which transforms a Smithy model to OpenAPI
+ * Definition for a Smithy project
  */
 export class SmithyProjectDefinition extends Component {
-  /**
-   * Path to the generated OpenAPI specification, relative to the project outdir
-   */
-  public readonly openApiSpecificationPath: string;
-  /**
-   * Path to the json Smithy model, relative to the project outdir
-   */
-  public readonly smithyJsonModelPath: string;
   /**
    * Name of the gradle project
    */
@@ -58,19 +56,17 @@ export class SmithyProjectDefinition extends Component {
   /**
    * Directory of model source code
    */
-  protected readonly modelDir: string;
+  public readonly modelDir: string;
   /**
-   * Directory of generated model source code
+   * Set of dependencies used to avoid adding duplicates
    */
-  protected readonly generatedModelDir: string;
+  private readonly dependencySet: Set<string> = new Set();
 
   constructor(project: Project, options: SmithyProjectDefinitionOptions) {
     super(project);
 
-    const { smithyOptions } = options;
-
     // Ignore gradle wrapper by default
-    if (smithyOptions.ignoreGradleWrapper ?? true) {
+    if (options.ignoreGradleWrapper ?? true) {
       project.gitignore.addPatterns("gradle");
       project.gitignore.addPatterns("gradlew");
       project.gitignore.addPatterns("gradlew.bat");
@@ -92,13 +88,11 @@ export class SmithyProjectDefinition extends Component {
     const requiredDependencies = [
       "software.amazon.smithy:smithy-cli",
       "software.amazon.smithy:smithy-model",
-      "software.amazon.smithy:smithy-openapi",
-      "software.amazon.smithy:smithy-aws-traits",
     ];
 
     // Ensure dependencies always include the required dependencies, allowing users to customise the version
     const userSpecifiedDependencies =
-      smithyOptions.smithyBuildOptions?.maven?.dependencies ?? [];
+      options.smithyBuildOptions?.maven?.dependencies ?? [];
     const userSpecifiedDependencySet = new Set(
       userSpecifiedDependencies.map((dep) =>
         dep.split(":").slice(0, -1).join(":")
@@ -115,48 +109,27 @@ export class SmithyProjectDefinition extends Component {
     // Add build.gradle
     this.smithyBuildGradleFile = new SmithyBuildGradleFile(project, {
       modelDir,
-      dependencies,
-      repositoryUrls: smithyOptions.smithyBuildOptions?.maven?.repositoryUrls,
+      dependencies: [],
+      repositoryUrls: options.smithyBuildOptions?.maven?.repositoryUrls,
     });
-
-    const { namespace: serviceNamespace, serviceName } =
-      smithyOptions.serviceName;
 
     // Create the smithy build json file
     this.smithyBuild = new SmithyBuild(project, {
       version: "2.0",
-      ...smithyOptions.smithyBuildOptions,
+      ...options.smithyBuildOptions,
       sources: [
         modelDir,
         ...this.asRelativePathsToProject(
-          smithyOptions.smithyBuildOptions?.additionalSources ?? []
+          options.smithyBuildOptions?.additionalSources ?? []
         ),
       ],
       projections: {
-        ...smithyOptions.smithyBuildOptions?.projections,
-        openapi: {
-          ...smithyOptions.smithyBuildOptions?.projections?.openapi,
-          plugins: {
-            openapi: {
-              service: `${serviceNamespace}#${serviceName}`,
-              // By default, preserve tags in the generated spec, but allow users to explicitly overwrite this
-              tags: true,
-              // By default, use integer types as this is more intuitive when smithy distinguishes between Integers and Doubles.
-              // Users may also override this.
-              useIntegerType: true,
-              ...smithyOptions.smithyBuildOptions?.projections?.openapi?.plugins
-                ?.openapi,
-            },
-          },
-        },
+        ...options.smithyBuildOptions?.projections,
       },
       maven: {
-        // Filter out any file dependencies since these aren't supported in smithy-build.json
-        dependencies: dependencies.filter(
-          (dep) => !dep.startsWith(SmithyBuildGradleFile.fileDependencyPrefix)
-        ),
+        dependencies: [],
         repositories: (
-          smithyOptions.smithyBuildOptions?.maven?.repositoryUrls ?? [
+          options.smithyBuildOptions?.maven?.repositoryUrls ?? [
             "https://repo.maven.apache.org/maven2/",
             "file://~/.m2/repository",
           ]
@@ -164,31 +137,7 @@ export class SmithyProjectDefinition extends Component {
       },
     });
 
-    // Add the smithy prelude (managed by aws-pdk)
-    this.generatedModelDir = path.join("generated", "main", "smithy");
-    new SmithyAwsPdkPrelude(project, {
-      generatedModelDir: this.generatedModelDir,
-      serviceNamespace,
-      handlerLanguages: options.handlerLanguages,
-    });
-    this.addSources(this.generatedModelDir);
-
-    const projectionOutputPath = path.join(
-      "build",
-      "smithyprojections",
-      this.gradleProjectName,
-      "openapi"
-    );
-    this.openApiSpecificationPath = path.join(
-      projectionOutputPath,
-      "openapi",
-      `${serviceName}.openapi.json`
-    );
-    this.smithyJsonModelPath = path.join(
-      projectionOutputPath,
-      "model",
-      "model.json"
-    );
+    this.addDeps(...dependencies);
 
     const generateTask = GenerateTask.ensure(project);
 
@@ -201,7 +150,7 @@ export class SmithyProjectDefinition extends Component {
     // Build with gradle to generate smithy projections, and any other tasks
     generateTask.exec("./gradlew build");
 
-    if (smithyOptions.ignoreSmithyBuildOutput ?? true) {
+    if (options.ignoreSmithyBuildOutput ?? true) {
       // Ignore the build directory, and smithy-output which was the old build directory for the cli-based generation
       project.gitignore.addPatterns("build", "smithy-output");
     }
@@ -212,9 +161,11 @@ export class SmithyProjectDefinition extends Component {
    * @param deps dependencies to add, eg "software.amazon.smithy:smithy-validation-model:1.27.2" or "file://../some/path/build/lib/my-shapes.jar
    */
   public addDeps(...deps: string[]) {
-    this.smithyBuildGradleFile.addDeps(...deps);
+    const depsToAdd = deps.filter((dep) => !this.dependencySet.has(dep));
+    depsToAdd.forEach((dep) => this.dependencySet.add(dep));
+    this.smithyBuildGradleFile.addDeps(...depsToAdd);
     this.smithyBuild.addMavenDependencies(
-      ...deps.filter(
+      ...depsToAdd.filter(
         (dep) => !dep.startsWith(SmithyBuildGradleFile.fileDependencyPrefix)
       )
     );

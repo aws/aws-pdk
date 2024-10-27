@@ -10,9 +10,9 @@ import { OpenApiAsyncModelProject } from "./model/openapi/open-api-async-model-p
 import { OpenApiModelProject } from "./model/openapi/open-api-model-project";
 import { SmithyAsyncModelProject } from "./model/smithy/smithy-async-model-project";
 import { SmithyModelProject } from "./model/smithy/smithy-model-project";
-import { SmithyBuildOptions } from "./model/smithy/types";
 import { TypeSpecAsyncModelProject } from "./model/type-spec/type-spec-async-model-project";
 import { TypeSpecModelProject } from "./model/type-spec/type-spec-model-project";
+import { SmithyProjectDefinitionOptions } from "./model/smithy/smithy-project-definition";
 import { PythonProjectOptions } from "./python-project-options";
 import { TypeScriptProjectOptions } from "./typescript-project-options";
 
@@ -54,27 +54,11 @@ export enum Architecture {
 /**
  * Options for a Smithy model
  */
-export interface SmithyModelOptions {
+export interface SmithyModelOptions extends SmithyProjectDefinitionOptions {
   /**
    * Smithy service name
    */
   readonly serviceName: SmithyServiceName;
-  /**
-   * Smithy build options
-   */
-  readonly smithyBuildOptions?: SmithyBuildOptions;
-  /**
-   * Set to false if you would like to check in your smithy build output or have more fine-grained control over what is
-   * checked in, eg if you add other projections to the smithy-build.json file.
-   * @default true
-   */
-  readonly ignoreSmithyBuildOutput?: boolean;
-  /**
-   * Set to false if you would like to check in your gradle wrapper. Do so if you would like to use a different version
-   * of gradle to the one provided by default
-   * @default true
-   */
-  readonly ignoreGradleWrapper?: boolean;
 }
 
 /**
