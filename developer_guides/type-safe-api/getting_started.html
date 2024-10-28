@@ -1352,6 +1352,8 @@
         
           
         
+          
+        
       
       
         <label class="md-nav__link" for="__nav_3_13_2" id="__nav_3_13_2_label" tabindex="0">
@@ -1498,6 +1500,20 @@
     <li class="md-nav__item">
       <a href="using_smithy.html" class="md-nav__link">
         Using Smithy
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="using_typespec.html" class="md-nav__link">
+        Using TypeSpec
       </a>
     </li>
   
@@ -1672,6 +1688,8 @@
         
           
         
+          
+        
       
       
         <label class="md-nav__link" for="__nav_3_13_3" id="__nav_3_13_3_label" tabindex="0">
@@ -1708,6 +1726,20 @@
     <li class="md-nav__item">
       <a href="websocket_using_smithy.html" class="md-nav__link">
         Using Smithy
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="websocket_using_typespec.html" class="md-nav__link">
+        Using TypeSpec
       </a>
     </li>
   
@@ -3913,7 +3945,7 @@
 <h2 id="type-safe-api-project-structure">Type Safe API project structure</h2>
 <p>The <code>TypeSafeApiProject</code> projen project sets up the project structure for you. Consider the following parameters when creating the project:</p>
 <ul>
-<li><code>model</code> - Configure the API model. Select a <code>language</code> for the model from either <a href="https://smithy.io/2.0/">Smithy</a> or <a href="https://swagger.io/specification/">OpenAPI v3</a>, and provide <code>options.smithy</code> or <code>options.openapi</code> depending on your choice.</li>
+<li><code>model</code> - Configure the API model. Select a <code>language</code> for the model from either <a href="https://smithy.io/2.0/">Smithy</a>, <a href="https://typespec.io/">TypeSpec</a> or <a href="https://swagger.io/specification/">OpenAPI v3</a>, and provide <code>options.smithy</code>, <code>options.typeSpec</code> or <code>options.openapi</code> depending on your choice.</li>
 <li><code>infrastructure</code> - Select the <code>language</code> you are writing your CDK infrastructure in. A construct will be generated in this language which can be used to deploy the API.</li>
 <li><code>handlers</code> - Optionally select the <code>languages</code> in which you wish to write lambda handlers for operations in.</li>
 <li><code>runtime</code> - Optionally configure additional generated runtime projects. Include one or more <code>languages</code> you want to write your client and/or server-side code in. These projects contain generated types defined in your model, as well as type-safe lambda handler wrappers for implementing each operation. You'll notice runtime packages are automatically generated for languages you picked for <code>infrastructure</code> and <code>handlers</code>.</li>
@@ -3961,7 +3993,7 @@
 <span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;myapi&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/api&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="c1">// Smithy as the model language. You can also use ModelLanguage.OPENAPI</span>
+<span class="w">  </span><span class="c1">// Smithy as the model language. You can also use ModelLanguage.TYPESPEC or ModelLanguage.OPENAPI</span>
 <span class="w">  </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">language</span><span class="o">:</span><span class="w"> </span><span class="kt">ModelLanguage.SMITHY</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
@@ -4112,7 +4144,7 @@
 <p>3.) Given we have modified our <code>projenrc</code> file we need to run the <code>npx projen</code> command to synthesize our new API and infrastructure onto the filesystem. We can then run a first build with <code>npx projen build</code>.</p>
 <h2 id="implement-a-lambda-handler">Implement a Lambda handler</h2>
 <p>The generated runtime projects include lambda handler wrappers which provide type-safety for implementing your API operations. The generated <code>handlers</code> projects include generated stubs for you to implement for every operation which has been annotated accordingly:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">SMITHY</label><label for="__tabbed_2_2">OPENAPI</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">SMITHY</label><label for="__tabbed_2_2">TYPESPEC</label><label for="__tabbed_2_3">OPENAPI</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>Use the <code>@handler</code> trait, and specify the language you wish to implement this operation in.</p>
@@ -4130,6 +4162,16 @@
 <span class="w">        </span><span class="nl">message:</span><span class="w"> </span><span class="vc">String</span>
 <span class="w">    </span>}
 }
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<p>Use the <code>@handler</code> decorator, and specify the language you wish to implement the operation in.</p>
+<div class="highlight"><pre><span></span><code>@get
+@route(&quot;/hello&quot;)
+<span class="hll">@handler({ language: &quot;typescript&quot; })
+</span>op SayHello(@query name: string): {
+    message: string;
+};
 </code></pre></div>
 </div>
 <div class="tabbed-block">
@@ -4573,7 +4615,7 @@
 <p>To add a new operation to your API, follow these steps.</p>
 <h3 id="define-the-operation-in-your-model">Define the operation in your model</h3>
 <p>Add the new operation in the <code>model</code> project, for example:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="6:2"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">SMITHY</label><label for="__tabbed_6_2">OPENAPI</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="6:3"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><input id="__tabbed_6_3" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">SMITHY</label><label for="__tabbed_6_2">TYPESPEC</label><label for="__tabbed_6_3">OPENAPI</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>In <code>model/src/main/smithy/main.smithy</code>, or another <code>.smithy</code> file somewhere in <code>model/src/main/smithy</code>, define the operation:</p>
@@ -4600,6 +4642,26 @@
 <span class="w">        </span><span class="vc">SayGoodbye</span><span class="w"> </span><span class="c">// &lt;- add your new operation here</span>
 <span class="w">    </span>]
 }
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<p>In <code>model/src/main.tsp</code> or another <code>.tsp</code> file somewhere in the <code>model/src</code> directory, define the operation:</p>
+<div class="highlight"><pre><span></span><code>namespace MyApi; // &lt;- ensure the namespace is the same as in main.tsp if defining in another file
+
+/**
+ * Documentation about the operation can go here
+ */
+@post
+@route(&quot;/goodbye&quot;)
+@handler({ language: &quot;typescript&quot; }) // &lt;- you can also choose &quot;python&quot; or &quot;java&quot;
+op SayGoodbye(
+    name: string,
+): {
+    message: string;
+};
+</code></pre></div>
+<p>If you defined your operation in a different file, you must import it in <code>model/src/main.tsp</code>:</p>
+<div class="highlight"><pre><span></span><code>import &quot;./operations/say-goodbye.tsp&quot;;
 </code></pre></div>
 </div>
 <div class="tabbed-block">

@@ -1350,6 +1350,8 @@
         
           
         
+          
+        
       
       
         <label class="md-nav__link" for="__nav_3_13_2" id="__nav_3_13_2_label" tabindex="0">
@@ -1386,6 +1388,20 @@
     <li class="md-nav__item">
       <a href="using_smithy.html" class="md-nav__link">
         Using Smithy
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="using_typespec.html" class="md-nav__link">
+        Using TypeSpec
       </a>
     </li>
   
@@ -1562,6 +1578,8 @@
         
           
         
+          
+        
       
       
         <label class="md-nav__link" for="__nav_3_13_3" id="__nav_3_13_3_label" tabindex="0">
@@ -1708,6 +1726,20 @@
     <li class="md-nav__item">
       <a href="websocket_using_smithy.html" class="md-nav__link">
         Using Smithy
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="websocket_using_typespec.html" class="md-nav__link">
+        Using TypeSpec
       </a>
     </li>
   
@@ -3913,7 +3945,7 @@
 <h3 id="type-safe-websocket-api-project-structure">Type Safe WebSocket API project structure</h3>
 <p>The <code>TypeSafeWebSocketApiProject</code> projen project sets up the project structure for you. Consider the following parameters when creating the project:</p>
 <ul>
-<li><code>model</code> - Configure the API model. Select a <code>language</code> for the model from either <a href="https://smithy.io/2.0/">Smithy</a> or <a href="https://swagger.io/specification/">OpenAPI v3</a>, and provide <code>options.smithy</code> or <code>options.openapi</code> depending on your choice.</li>
+<li><code>model</code> - Configure the API model. Select a <code>language</code> for the model from either <a href="https://smithy.io/2.0/">Smithy</a>, <a href="https://typespec.io/">TypeSpec</a> or <a href="https://swagger.io/specification/">OpenAPI v3</a>, and provide <code>options.smithy</code>, <code>options.typeSpec</code> or <code>options.openapi</code> depending on your choice.</li>
 <li><code>infrastructure</code> - Select the <code>language</code> you are writing your CDK infrastructure in. A construct will be generated in this language which can be used to deploy the API.</li>
 <li><code>handlers</code> - Optionally select the <code>languages</code> in which you wish to write lambda handlers for operations in.</li>
 <li><code>runtime</code> - Optionally configure additional generated runtime projects. Include one or more <code>languages</code> you want to write your server-side code in. These projects contain generated types defined in your model, as well as type-safe lambda handler wrappers for implementing each operation, and server SDKs for sending messages to connected clients. You'll notice runtime packages are automatically generated for languages you picked for <code>infrastructure</code> and <code>handlers</code>.</li>
@@ -3958,7 +3990,7 @@
 <span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;myapi&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/api&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="c1">// Smithy as the model language. You can also use ModelLanguage.OPENAPI</span>
+<span class="w">  </span><span class="c1">// Smithy as the model language. You can also use ModelLanguage.TYPESPEC or ModelLanguage.OPENAPI</span>
 <span class="w">  </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">language</span><span class="o">:</span><span class="w"> </span><span class="kt">ModelLanguage.SMITHY</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
@@ -4025,13 +4057,13 @@
 </div>
 </div>
 <p>3.) Given we have modified our <code>projenrc</code> file we need to run the <code>npx projen</code> command to synthesize our new API and infrastructure onto the filesystem. We can then run a first build with <code>npx projen build</code>.</p>
-<p>A sample API definition is generated for you in <code>packages/api/model</code>, which you are free to modify. Modelling WebSocket APIs is slightly different to REST APIs, namely each operation in a WebSocket API is one-way, sent either from a client to a server or from a server to a client. This means that WebSocket operations define only an input and do not define response types. For more details please refer to <a href="websocket_using_smithy.html">Using Smithy</a> and <a href="websocket_using_smithy.html">Using OpenAPI</a>,</p>
+<p>A sample API definition is generated for you in <code>packages/api/model</code>, which you are free to modify. Modelling WebSocket APIs is slightly different to REST APIs, namely each operation in a WebSocket API is one-way, sent either from a client to a server or from a server to a client. This means that WebSocket operations define only an input and do not define response types. For more details please refer to <a href="websocket_using_smithy.html">Using Smithy</a>, <a href="websocket_using_typespec.html">Using TypeSpec</a> and <a href="websocket_using_smithy.html">Using OpenAPI</a>.</p>
 <h2 id="implement-a-lambda-handler">Implement a Lambda handler</h2>
-<p>The generated runtime projects include lambda handler wrappers which provide type-safety for implementing your API operations. The generated <code>handlers</code> projects include generated stubs for you to implement for every operation which has been annotated accordingly:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">SMITHY</label><label for="__tabbed_2_2">OPENAPI</label></div>
+<p>The generated runtime projects include lambda handler wrappers which provide type-safety for implementing your <code>client_to_server</code> or <code>bidirectional</code> operations. The generated <code>handlers</code> projects include generated stubs for you to implement for every operation which has been annotated accordingly:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">SMITHY</label><label for="__tabbed_2_2">TYPESPEC</label><label for="__tabbed_2_3">OPENAPI</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<p>Use the <code>@async</code> trait to select the operation direction. Choose between <code>client_to_server</code>, <code>server_to_client</code> or <code>bidirectional</code></p>
+<p>Use the <code>@async</code> trait to select the operation direction. Choose between <code>client_to_server</code>, <code>server_to_client</code> or <code>bidirectional</code>.</p>
 <p>Use the <code>@handler</code> trait, and specify the language you wish to implement this operation in.</p>
 <div class="highlight"><pre><span></span><code><span class="hll"><span class="nd">@async</span>(<span class="nl">direction:</span><span class="w"> </span><span class="s2">&quot;client_to_server&quot;</span>)
 </span><span class="hll"><span class="nd">@handler</span>(<span class="nl">language:</span><span class="w"> </span><span class="s2">&quot;typescript&quot;</span>)
@@ -4045,6 +4077,20 @@
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>The <code>@handler</code> trait may only be applied to <code>client_to_server</code> or <code>bidirectional</code> operations.</p>
+</div>
+</div>
+<div class="tabbed-block">
+<p>Use the <code>@async</code> decorator to select the operation direction. Choose between <code>client_to_server</code>, <code>server_to_client</code> or <code>bidirectional</code>.</p>
+<p>Use the <code>@handler</code> trait, and specify the language you wish to implement this operation in.</p>
+<div class="highlight"><pre><span></span><code><span class="hll">@async({ direction: &quot;client_to_server&quot; })
+</span><span class="hll">@handler({ language: &quot;typescript&quot; })
+</span>op SubscribeToNotifications(
+  topic: string,
+): void;
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>The <code>@handler</code> decorator may only be applied to <code>client_to_server</code> or <code>bidirectional</code> operations.</p>
 </div>
 </div>
 <div class="tabbed-block">
@@ -4248,7 +4294,7 @@
 <p>To add a new operation to your API, follow these steps.</p>
 <h3 id="define-the-operation-in-your-model">Define the operation in your model</h3>
 <p>Add the new operation in the <code>model</code> project, for example:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="6:2"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">SMITHY</label><label for="__tabbed_6_2">OPENAPI</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="6:3"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><input id="__tabbed_6_3" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">SMITHY</label><label for="__tabbed_6_2">TYPESPEC</label><label for="__tabbed_6_3">OPENAPI</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>In <code>model/src/main/smithy/main.smithy</code>, or another <code>.smithy</code> file somewhere in <code>model/src/main/smithy</code>, define the operation:</p>
@@ -4273,6 +4319,26 @@
 <span class="w">    </span>]
 }
 </code></pre></div>
+</div>
+<div class="tabbed-block">
+<p>In <code>model/src/main.tsp</code>, or another <code>.tsp</code> file somewhere in <code>model/src</code>, define the operation:</p>
+<div class="highlight"><pre><span></span><code>@async({ direction: &quot;bidirectional&quot; }) // &lt;- you can also choose &quot;client_to_server&quot; or &quot;server_to_client&quot;
+@handler({ language: &quot;typescript&quot; })
+op Ping(
+  message: string,
+): void;
+</code></pre></div>
+<p>If you defined your operation in a separate file, make sure you import it in <code>model/src/main.tsp</code>, eg:</p>
+<div class="highlight"><pre><span></span><code>import &quot;./operations/ping.tsp&quot;;
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you defined your operation in a separate file, you will need to import the decorators from <code>model/generated/aws-pdk</code>, for example:</p>
+<div class="highlight"><pre><span></span><code>import &quot;../../generated/aws-pdk/prelude.tsp&quot;;
+import &quot;../../generated/aws-pdk/async.tsp&quot;;
+</code></pre></div>
+<p>You will also need to ensure the <code>namespace</code> is the same as the one in your <code>main.tsp</code> file.</p>
+</div>
 </div>
 <div class="tabbed-block">
 <p>In <code>model/src/main/openapi/main.yaml</code>, add the new operation under <code>paths</code>, and any new schemas under <code>components.schemas</code>.</p>
@@ -4319,7 +4385,7 @@
 <p>To run a build in the root of your monorepo, use the <code>npx projen build</code> command:</p>
 <div class="highlight"><pre><span></span><code>npx projen build
 </code></pre></div>
-<p>The build will regenerate the infrastructure, runtime, and library projects based on your updated model. It will also generate a new stub for your new operation if you specified the <code>@handler</code> trait in Smithy or <code>x-handler</code> vendor extension in OpenAPI.</p>
+<p>The build will regenerate the infrastructure, runtime, and library projects based on your updated model. It will also generate a new stub for your new operation if you specified the <code>@handler</code> trait in Smithy/TypeSpec or <code>x-handler</code> vendor extension in OpenAPI.</p>
 <p>As you must define an integration for every <code>client_to_server</code> or <code>bidirectional</code> operation, you may see the following build error in your CDK application.</p>
 <div class="highlight"><pre><span></span><code><span class="nx">TSError</span><span class="o">:</span><span class="w"> </span><span class="err">⨯</span><span class="w"> </span><span class="nx">Unable</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="nx">compile</span><span class="w"> </span><span class="nx">TypeScript</span><span class="o">:</span>
 <span class="kt">src</span><span class="o">/</span><span class="nx">constructs</span><span class="o">/</span><span class="nx">api</span><span class="o">/</span><span class="nx">myapi.ts</span><span class="o">:</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="nx">TS2741</span><span class="o">:</span><span class="w"> </span><span class="kt">Property</span><span class="w"> </span><span class="s1">&#39;ping&#39;</span><span class="w"> </span><span class="nx">is</span><span class="w"> </span><span class="nx">missing</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="s1">&#39;{ subscribeToNotifications: { integration: WebSocketLambdaIntegration; }; }&#39;</span><span class="w"> </span><span class="nx">but</span><span class="w"> </span><span class="nx">required</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="s1">&#39;OperationConfig&lt;TypeSafeWebSocketApiIntegration&gt;&#39;</span><span class="p">.</span>
