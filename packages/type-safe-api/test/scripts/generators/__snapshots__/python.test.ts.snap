@@ -28976,7 +28976,6 @@ from typing import Any, List, Union, ClassVar, Dict, Optional, TYPE_CHECKING
 from pydantic import Field, StrictStr, ValidationError, field_validator, BaseModel, SecretStr, StrictFloat, StrictInt, StrictBytes, StrictBool
 from decimal import Decimal
 from typing_extensions import Annotated, Literal
-from test_project.models.hello_response import HelloResponse
 try:
     from typing import Self
 except ImportError:
@@ -29098,6 +29097,3132 @@ class Response(Generic[ResponseBody]):
 
 """
     Example API
+
+    No description provided
+
+    The version of the OpenAPI document: 1.0.0
+
+    NOTE: This class is auto generated.
+    Do not edit the class manually.
+"""  # noqa: E501
+
+
+import io
+import json
+import re
+import ssl
+
+import urllib3
+
+from test_project.exceptions import ApiException, ApiValueError
+
+RESTResponseType = urllib3.HTTPResponse
+
+class RESTResponse(io.IOBase):
+
+    def __init__(self, resp) -> None:
+        self.response = resp
+        self.status = resp.status
+        self.reason = resp.reason
+        self.data = None
+
+    def read(self):
+        if self.data is None:
+            self.data = self.response.data
+        return self.data
+
+    def getheaders(self):
+        """Returns a dictionary of the response headers."""
+        return self.response.headers
+
+    def getheader(self, name, default=None):
+        """Returns a given response header."""
+        return self.response.headers.get(name, default)
+
+
+class RESTClientObject:
+
+    def __init__(self, configuration) -> None:
+        # urllib3.PoolManager will pass all kw parameters to connectionpool
+        # https://github.com/shazow/urllib3/blob/f9409436f83aeb79fbaf090181cd81b784f1b8ce/urllib3/poolmanager.py#L75  # noqa: E501
+        # https://github.com/shazow/urllib3/blob/f9409436f83aeb79fbaf090181cd81b784f1b8ce/urllib3/connectionpool.py#L680  # noqa: E501
+        # Custom SSL certificates and client certificates: http://urllib3.readthedocs.io/en/latest/advanced-usage.html  # noqa: E501
+
+        # cert_reqs
+        if configuration.verify_ssl:
+            cert_reqs = ssl.CERT_REQUIRED
+        else:
+            cert_reqs = ssl.CERT_NONE
+
+        addition_pool_args = {}
+        if configuration.assert_hostname is not None:
+            addition_pool_args['assert_hostname'] = (
+                configuration.assert_hostname
+            )
+
+        if configuration.retries is not None:
+            addition_pool_args['retries'] = configuration.retries
+
+        if configuration.tls_server_name:
+            addition_pool_args['server_hostname'] = configuration.tls_server_name
+
+
+        if configuration.socket_options is not None:
+            addition_pool_args['socket_options'] = configuration.socket_options
+
+        # https pool manager
+        if configuration.proxy:
+            self.pool_manager = urllib3.ProxyManager(
+                cert_reqs=cert_reqs,
+                ca_certs=configuration.ssl_ca_cert,
+                cert_file=configuration.cert_file,
+                key_file=configuration.key_file,
+                proxy_url=configuration.proxy,
+                proxy_headers=configuration.proxy_headers,
+                **addition_pool_args
+            )
+        else:
+            self.pool_manager = urllib3.PoolManager(
+                cert_reqs=cert_reqs,
+                ca_certs=configuration.ssl_ca_cert,
+                cert_file=configuration.cert_file,
+                key_file=configuration.key_file,
+                **addition_pool_args
+            )
+
+    def request(
+        self,
+        method,
+        url,
+        headers=None,
+        body=None,
+        post_params=None,
+        _request_timeout=None
+    ):
+        """Perform requests.
+
+        :param method: http request method
+        :param url: http request url
+        :param headers: http request headers
+        :param body: request json body, for \`application/json\`
+        :param post_params: request post parameters,
+                            \`application/x-www-form-urlencoded\`
+                            and \`multipart/form-data\`
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        """
+        method = method.upper()
+        assert method in [
+            'GET',
+            'HEAD',
+            'DELETE',
+            'POST',
+            'PUT',
+            'PATCH',
+            'OPTIONS'
+        ]
+
+        if post_params and body:
+            raise ApiValueError(
+                "body parameter cannot be used with post_params parameter."
+            )
+
+        post_params = post_params or {}
+        headers = headers or {}
+
+        timeout = None
+        if _request_timeout:
+            if isinstance(_request_timeout, (int, float)):
+                timeout = urllib3.Timeout(total=_request_timeout)
+            elif (
+                    isinstance(_request_timeout, tuple)
+                    and len(_request_timeout) == 2
+                ):
+                timeout = urllib3.Timeout(
+                    connect=_request_timeout[0],
+                    read=_request_timeout[1]
+                )
+
+        try:
+            # For \`POST\`, \`PUT\`, \`PATCH\`, \`OPTIONS\`, \`DELETE\`
+            if method in ['POST', 'PUT', 'PATCH', 'OPTIONS', 'DELETE']:
+
+                # no content type provided or payload is json
+                content_type = headers.get('Content-Type')
+                if (
+                    not content_type
+                    or re.search('json', content_type, re.IGNORECASE)
+                ):
+                    request_body = None
+                    if body is not None:
+                        request_body = json.dumps(body)
+                    r = self.pool_manager.request(
+                        method,
+                        url,
+                        body=request_body,
+                        timeout=timeout,
+                        headers=headers,
+                        preload_content=False
+                    )
+                elif content_type == 'application/x-www-form-urlencoded':
+                    r = self.pool_manager.request(
+                        method,
+                        url,
+                        fields=post_params,
+                        encode_multipart=False,
+                        timeout=timeout,
+                        headers=headers,
+                        preload_content=False
+                    )
+                elif content_type == 'multipart/form-data':
+                    # must del headers['Content-Type'], or the correct
+                    # Content-Type which generated by urllib3 will be
+                    # overwritten.
+                    del headers['Content-Type']
+                    r = self.pool_manager.request(
+                        method,
+                        url,
+                        fields=post_params,
+                        encode_multipart=True,
+                        timeout=timeout,
+                        headers=headers,
+                        preload_content=False
+                    )
+                # Pass a \`string\` parameter directly in the body to support
+                # other content types than Json when \`body\` argument is
+                # provided in serialized form
+                elif isinstance(body, str) or isinstance(body, bytes):
+                    request_body = body
+                    r = self.pool_manager.request(
+                        method,
+                        url,
+                        body=request_body,
+                        timeout=timeout,
+                        headers=headers,
+                        preload_content=False
+                    )
+                else:
+                    # Cannot generate the request from given parameters
+                    msg = """Cannot prepare a request message for provided
+                             arguments. Please check that your arguments match
+                             declared content type."""
+                    raise ApiException(status=0, reason=msg)
+            # For \`GET\`, \`HEAD\`
+            else:
+                r = self.pool_manager.request(
+                    method,
+                    url,
+                    fields={},
+                    timeout=timeout,
+                    headers=headers,
+                    preload_content=False
+                )
+        except urllib3.exceptions.SSLError as e:
+            msg = "\\n".join([type(e).__name__, str(e)])
+            raise ApiException(status=0, reason=msg)
+
+        return RESTResponse(r)
+",
+}
+`;
+
+exports[`Python Client Code Generation Script Unit Tests Generates With recursive.yaml 1`] = `
+{
+  ".gitattributes": "# ~~ Generated by projen. To modify, edit .projenrc.py and run "npx projen".
+
+/.gitattributes linguist-generated
+/.github/workflows/pull-request-lint.yml linguist-generated
+/.gitignore linguist-generated
+/.projen/** linguist-generated
+/.projen/deps.json linguist-generated
+/.projen/files.json linguist-generated
+/.projen/tasks.json linguist-generated
+/pyproject.toml linguist-generated",
+  ".github/workflows/pull-request-lint.yml": "# ~~ Generated by projen. To modify, edit .projenrc.py and run "npx projen".
+
+name: pull-request-lint
+on:
+  pull_request_target:
+    types:
+      - labeled
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+      - edited
+jobs:
+  validate:
+    name: Validate PR title
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5.4.0
+        env:
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |-
+            feat
+            fix
+            chore
+          requireScope: false
+",
+  ".gitignore": "# ~~ Generated by projen. To modify, edit .projenrc.py and run "npx projen".
+node_modules/
+!/.gitattributes
+!/.projen/tasks.json
+!/.projen/deps.json
+!/.projen/files.json
+!/.github/workflows/pull-request-lint.yml
+!/pyproject.toml
+/poetry.toml
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.manifest
+*.spec
+pip-log.txt
+pip-delete-this-directory.txt
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+*.mo
+*.pot
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+instance/
+.webassets-cache
+.scrapy
+docs/_build/
+.pybuilder/
+target/
+.ipynb_checkpoints
+profile_default/
+ipython_config.py
+__pypackages__/
+celerybeat-schedule
+celerybeat.pid
+*.sage.py
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.spyderproject
+.spyproject
+.ropeproject
+/site
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+cython_debug/
+test_project
+docs
+README.md
+.openapi-generator
+.tsapi-manifest
+!/.projenrc.py
+",
+  ".projen/deps.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.py and run "npx projen".",
+    "dependencies": [
+      {
+        "name": "projen",
+        "type": "devenv",
+        "version": "99.99.99",
+      },
+      {
+        "name": "aenum",
+        "type": "runtime",
+        "version": "^3.1.11",
+      },
+      {
+        "name": "aws-lambda-powertools",
+        "type": "runtime",
+        "version": "{extras=["tracer", "aws-sdk"],version="^2.28.0"}",
+      },
+      {
+        "name": "pydantic",
+        "type": "runtime",
+        "version": "^2.5.2",
+      },
+      {
+        "name": "python-dateutil",
+        "type": "runtime",
+        "version": "~2.8.2",
+      },
+      {
+        "name": "python",
+        "type": "runtime",
+        "version": "^3.9",
+      },
+      {
+        "name": "urllib3",
+        "type": "runtime",
+        "version": "~1.26.7",
+      },
+    ],
+  },
+  ".projen/files.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.py and run "npx projen".",
+    "files": [
+      ".gitattributes",
+      ".github/workflows/pull-request-lint.yml",
+      ".gitignore",
+      ".projen/deps.json",
+      ".projen/files.json",
+      ".projen/tasks.json",
+      "poetry.toml",
+      "pyproject.toml",
+    ],
+  },
+  ".projen/tasks.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.py and run "npx projen".",
+    "env": {
+      "AWS_PDK_VERSION": "0.0.0",
+      "PATH": "$(echo $(poetry env info -p)/bin:$PATH)",
+      "VIRTUAL_ENV": "$(poetry env info -p || poetry run poetry env info -p)",
+    },
+    "tasks": {
+      "build": {
+        "description": "Full release build",
+        "name": "build",
+        "steps": [
+          {
+            "spawn": "default",
+          },
+          {
+            "spawn": "pre-compile",
+          },
+          {
+            "spawn": "compile",
+          },
+          {
+            "spawn": "post-compile",
+          },
+          {
+            "spawn": "test",
+          },
+          {
+            "spawn": "package",
+          },
+        ],
+      },
+      "clobber": {
+        "condition": "git diff --exit-code > /dev/null",
+        "description": "hard resets to HEAD of origin and cleans the local repo",
+        "env": {
+          "BRANCH": "$(git branch --show-current)",
+        },
+        "name": "clobber",
+        "steps": [
+          {
+            "exec": "git checkout -b scratch",
+            "name": "save current HEAD in "scratch" branch",
+          },
+          {
+            "exec": "git checkout $BRANCH",
+          },
+          {
+            "exec": "git fetch origin",
+            "name": "fetch latest changes from origin",
+          },
+          {
+            "exec": "git reset --hard origin/$BRANCH",
+            "name": "hard reset to origin commit",
+          },
+          {
+            "exec": "git clean -fdx",
+            "name": "clean all untracked files",
+          },
+          {
+            "say": "ready to rock! (unpushed commits are under the "scratch" branch)",
+          },
+        ],
+      },
+      "compile": {
+        "description": "Only compile",
+        "name": "compile",
+      },
+      "default": {
+        "description": "Synthesize project files",
+        "name": "default",
+        "steps": [
+          {
+            "exec": "python .projenrc.py",
+          },
+        ],
+      },
+      "eject": {
+        "description": "Remove projen from the project",
+        "env": {
+          "PROJEN_EJECTING": "true",
+        },
+        "name": "eject",
+        "steps": [
+          {
+            "spawn": "default",
+          },
+        ],
+      },
+      "generate": {
+        "name": "generate",
+        "steps": [
+          {
+            "exec": "npx --yes -p @aws/pdk@$AWS_PDK_VERSION type-safe-api generate --specPath spec.yaml --outputPath . --templateDirs "python" --metadata '{"srcDir":"test_project","moduleName":"test_project","projectName":"test_project"}'",
+          },
+        ],
+      },
+      "install": {
+        "description": "Install dependencies and update lockfile",
+        "name": "install",
+        "steps": [
+          {
+            "exec": "mkdir -p test_project && touch test_project/__init__.py README.md",
+          },
+          {
+            "exec": "poetry update",
+          },
+        ],
+      },
+      "install:ci": {
+        "description": "Install dependencies with frozen lockfile",
+        "name": "install:ci",
+        "steps": [
+          {
+            "exec": "mkdir -p test_project && touch test_project/__init__.py README.md",
+          },
+          {
+            "exec": "poetry check --lock && poetry install",
+          },
+        ],
+      },
+      "package": {
+        "description": "Creates the distribution package",
+        "name": "package",
+        "steps": [
+          {
+            "exec": "poetry build",
+          },
+        ],
+      },
+      "post-compile": {
+        "description": "Runs after successful compilation",
+        "name": "post-compile",
+      },
+      "pre-compile": {
+        "description": "Prepare the project for compilation",
+        "name": "pre-compile",
+        "steps": [
+          {
+            "spawn": "generate",
+          },
+        ],
+      },
+      "publish": {
+        "description": "Uploads the package to PyPI.",
+        "name": "publish",
+        "steps": [
+          {
+            "exec": "poetry publish",
+          },
+        ],
+      },
+      "publish:test": {
+        "description": "Uploads the package against a test PyPI endpoint.",
+        "name": "publish:test",
+        "steps": [
+          {
+            "exec": "poetry publish -r testpypi",
+          },
+        ],
+      },
+      "test": {
+        "description": "Run tests",
+        "name": "test",
+      },
+    },
+  },
+  ".tsapi-manifest": "test_project/api_client.py
+test_project/api_response.py
+test_project/configuration.py
+test_project/exceptions.py
+test_project/__init__.py
+test_project/py.typed
+test_project/rest.py
+docs/DefaultApi.md
+docs/TreeNode.md
+README.md
+test_project/interceptors/try_catch.py
+test_project/interceptors/response_headers.py
+test_project/interceptors/powertools/logger.py
+test_project/interceptors/powertools/tracer.py
+test_project/interceptors/powertools/metrics.py
+test_project/interceptors/__init__.py
+test_project/api/operation_config.py
+test_project/response.py
+test_project/api/default_api.py
+test_project/api/__init__.py
+test_project/models/__init__.py
+test_project/models/tree_node.py",
+  "README.md": "# Recursive schema
+
+
+This Python package is automatically generated.
+
+- API version: 1.0.0
+
+## Requirements.
+
+Python 3.7+
+
+## Getting Started
+
+See the following example for usage:
+
+\`\`\`python
+import time
+import test_project
+from test_project.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = test_project.Configuration(
+    host = "http://localhost"
+)
+
+# Enter a context with an instance of the API client
+with test_project.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = test_project.DefaultApi(api_client)
+
+    try:
+        api_response = api_instance.get_tree()
+        print("The response of DefaultApi->get_tree:\\n")
+        pprint(api_response)
+    except ApiException as e:
+        print("Exception when calling DefaultApi->get_tree: %s\\n" % e)
+\`\`\`
+
+## Documentation for API Endpoints
+
+Class | Method | HTTP request | Description
+------------ | ------------- | ------------- | -------------
+*DefaultApi* | [**get_tree**](docs/DefaultApi.md#get_tree) | **GET** /tree | 
+
+## Documentation For Models
+
+ - [TreeNode](docs/TreeNode.md)
+",
+  "docs/DefaultApi.md": "# test_project.DefaultApi
+
+Method | HTTP request | Description
+------------- | ------------- | -------------
+[**get_tree**](DefaultApi.md#get_tree) | **GET** /tree | 
+
+# **get_tree**
+> TreeNode get_tree()
+
+
+### Example
+
+\`\`\`python
+import time
+import test_project
+from test_project.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = test_project.Configuration(
+    host = "http://localhost"
+)
+
+# Enter a context with an instance of the API client
+with test_project.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = test_project.DefaultApi(api_client)
+
+    try:
+        api_response = api_instance.get_tree()
+        print("The response of DefaultApi->get_tree:\\n")
+        pprint(api_response)
+    except ApiException as e:
+        print("Exception when calling DefaultApi->get_tree: %s\\n" % e)
+\`\`\`
+
+### Parameters
+This endpoint does not need any parameters.
+
+### Return type
+
+[**TreeNode**](TreeNode.md)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Ok |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+",
+  "docs/TreeNode.md": "# TreeNode
+
+## Properties
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**left** | [**TreeNode**](TreeNode.md) |  | [optional] 
+**right** | [**TreeNode**](TreeNode.md) |  | [optional] 
+
+## Example
+
+\`\`\`python
+from test_project.models.tree_node import TreeNode
+
+# TODO update the JSON string below
+json = "{}"
+# create an instance of TreeNode from a JSON string
+tree_node_instance = TreeNode.from_json(json)
+# print the JSON string representation of the object
+print(TreeNode.to_json())
+
+# convert the object into a dict
+tree_node_dict = tree_node_instance.to_dict()
+# create an instance of TreeNode from a dict
+tree_node_form_dict = tree_node.from_dict(tree_node_dict)
+\`\`\`
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+",
+  "poetry.toml": "# ~~ Generated by projen. To modify, edit .projenrc.py and run "npx projen".
+
+[repositories.testpypi]
+url = "https://test.pypi.org/legacy/"
+",
+  "pyproject.toml": "# ~~ Generated by projen. To modify, edit .projenrc.py and run "npx projen".
+
+[tool.poetry]
+name = "test_project"
+version = "1.0.0"
+description = ""
+authors = [ "test <me@example.com>" ]
+readme = "README.md"
+include = [ "test_project", "test_project/**/*.py" ]
+
+  [[tool.poetry.packages]]
+  include = "test_project"
+
+  [tool.poetry.dependencies]
+  aenum = "^3.1.11"
+  pydantic = "^2.5.2"
+  python-dateutil = "~2.8.2"
+  python = "^3.9"
+  urllib3 = "~1.26.7"
+
+    [tool.poetry.dependencies.aws-lambda-powertools]
+    extras = [ "tracer", "aws-sdk" ]
+    version = "^2.28.0"
+
+[tool.poetry.group.dev.dependencies]
+projen = "99.99.99"
+
+[build-system]
+requires = [ "poetry-core" ]
+build-backend = "poetry.core.masonry.api"
+",
+  "test_project/__init__.py": "# coding: utf-8
+
+# flake8: noqa
+
+"""
+    Recursive schema
+
+    No description provided
+
+    The version of the OpenAPI document: 1.0.0
+
+    NOTE: This class is auto generated.
+    Do not edit the class manually.
+"""  # noqa: E501
+
+__version__ = "1.0.0"
+
+# import apis into sdk package
+from test_project.api.default_api import DefaultApi
+
+# import ApiClient
+from test_project.api_response import ApiResponse
+from test_project.api_client import ApiClient
+from test_project.configuration import Configuration
+from test_project.exceptions import OpenApiException
+from test_project.exceptions import ApiTypeError
+from test_project.exceptions import ApiValueError
+from test_project.exceptions import ApiKeyError
+from test_project.exceptions import ApiAttributeError
+from test_project.exceptions import ApiException
+
+# import models into sdk package
+from test_project.models.tree_node import TreeNode
+",
+  "test_project/api/__init__.py": "# flake8: noqa
+
+# import apis into api package
+from test_project.api.default_api import DefaultApi
+",
+  "test_project/api/default_api.py": "# coding: utf-8
+
+"""
+    Recursive schema
+
+    No description provided
+
+    The version of the OpenAPI document: 1.0.0
+
+    NOTE: This class is auto generated.
+    Do not edit the class manually.
+"""  # noqa: E501
+
+import io
+import warnings
+
+from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
+from typing import Dict, List, Optional, Tuple, Union, Any
+
+try:
+    from typing import Annotated
+except ImportError:
+    from typing_extensions import Annotated
+
+from test_project.models.tree_node import TreeNode
+
+from test_project.api_client import ApiClient
+from test_project.api_response import ApiResponse
+from test_project.rest import RESTResponseType
+
+
+class DefaultApi:
+    """NOTE: This class is auto generated
+
+    Do not edit the class manually.
+    """
+
+    def __init__(self, api_client=None) -> None:
+        if api_client is None:
+            api_client = ApiClient.get_default()
+        self.api_client = api_client
+
+    @validate_call
+    def get_tree(
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> TreeNode:
+        """get_tree
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_tree_serialize(
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "TreeNode"
+        }
+
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def get_tree_with_http_info(
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[TreeNode]:
+        """get_tree
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_tree_serialize(
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "TreeNode"
+        }
+
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def get_tree_without_preload_content(
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """get_tree
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_tree_serialize(
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "TreeNode"
+        }
+
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _get_tree_serialize(
+        self,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> Tuple:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[str, str] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header \`Accept\`
+        _header_params['Accept'] = self.api_client.select_header_accept(
+            [
+                'application/json'
+            ]
+        )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/tree',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+",
+  "test_project/api/operation_config.py": "from __future__ import annotations
+import urllib.parse
+import json
+from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal, Annotated
+from functools import wraps
+from dataclasses import dataclass, fields
+from datetime import datetime
+import dateutil.parser
+from pydantic import BaseModel, Field, StrictStr, conlist, StrictBool, StrictInt, StrictFloat
+
+from test_project.models import *
+
+T = TypeVar('T')
+
+# Generic type for object keyed by operation names
+@dataclass
+class OperationConfig(Generic[T]):
+    get_tree: T
+    ...
+
+# Look up path and http method for a given operation name
+OperationLookup = {
+    "get_tree": {
+        "path": "/tree",
+        "method": "GET",
+        "contentTypes": ["application/json"]
+    },
+}
+
+class Operations:
+    @staticmethod
+    def all(value: T) -> OperationConfig[T]:
+        """
+        Returns an OperationConfig with the same value for every operation
+        """
+        return OperationConfig(**{ operation_id: value for operation_id, _ in OperationLookup.items() })
+
+def uri_decode(value):
+    """
+    URI decode a value or list of values
+    """
+    if isinstance(value, list):
+        return [urllib.parse.unquote(v) for v in value]
+    return urllib.parse.unquote(value)
+
+def decode_request_parameters(parameters):
+    """
+    URI decode api request parameters (path, query or multi-value query)
+    """
+    return { key: uri_decode(parameters[key]) if parameters[key] is not None else parameters[key] for key in parameters.keys() }
+
+def parse_body(body, content_types, model):
+    """
+    Parse the body of an api request into the given model if present
+    """
+    if len([c for c in content_types if c != 'application/json']) == 0:
+        if model != Any:
+            body = model.model_validate(json.loads(body))
+        else:
+            body = json.loads(body or '{}')
+    return body
+
+def assert_required(required, base_name, parameters):
+    if required and parameters.get(base_name) is None:
+        raise Exception(f"Missing required request parameter '{base_name}'")
+
+def coerce_float(base_name, s):
+    try:
+        return float(s)
+    except Exception as e:
+        raise Exception(f"Expected a number for request parameter '{base_name}'")
+
+def coerce_int(base_name, s):
+    try:
+        return int(s)
+    except Exception as e:
+        raise Exception(f"Expected an integer for request parameter '{base_name}'")
+
+def coerce_datetime(base_name, s):
+    try:
+        return dateutil.parser.parse(s)
+    except Exception as e:
+        raise Exception(f"Expected a valid date (iso format) for request parameter '{base_name}'")
+
+def coerce_bool(base_name, s):
+    if s == "true":
+        return True
+    elif s == "false":
+        return False
+    raise Exception(f"Expected a boolean (true or false) for request parameter '{base_name}'")
+
+def coerce_parameter(base_name, data_type, raw_string_parameters, raw_string_array_parameters, required):
+    if data_type == "float":
+        assert_required(required, base_name, raw_string_parameters)
+        param = raw_string_parameters.get(base_name)
+        return None if param is None else coerce_float(base_name, param)
+    elif data_type == "int":
+        assert_required(required, base_name, raw_string_parameters)
+        param = raw_string_parameters.get(base_name)
+        return None if param is None else coerce_int(base_name, param)
+    elif data_type == "bool":
+        assert_required(required, base_name, raw_string_parameters)
+        param = raw_string_parameters.get(base_name)
+        return None if param is None else coerce_bool(base_name, param)
+    elif data_type == "datetime":
+        assert_required(required, base_name, raw_string_parameters)
+        param = raw_string_parameters.get(base_name)
+        return None if param is None else coerce_datetime(base_name, param)
+    elif data_type == "List[float]":
+        assert_required(required, base_name, raw_string_array_parameters)
+        param = raw_string_array_parameters.get(base_name)
+        return None if param is None else [coerce_float(base_name, p) for p in param]
+    elif data_type == "List[int]":
+        assert_required(required, base_name, raw_string_array_parameters)
+        param = raw_string_array_parameters.get(base_name)
+        return None if param is None else [coerce_int(base_name, p) for p in param]
+    elif data_type == "List[bool]":
+        assert_required(required, base_name, raw_string_array_parameters)
+        param = raw_string_array_parameters.get(base_name)
+        return None if param is None else [coerce_bool(base_name, p) for p in param]
+    elif data_type == "List[datetime]":
+        assert_required(required, base_name, raw_string_array_parameters)
+        param = raw_string_array_parameters.get(base_name)
+        return None if param is None else [coerce_datetime(base_name, p) for p in param]
+    elif data_type == "List[str]":
+        assert_required(required, base_name, raw_string_array_parameters)
+        return raw_string_array_parameters.get(base_name)
+    else: # data_type == "str"
+        assert_required(required, base_name, raw_string_parameters)
+        return raw_string_parameters.get(base_name)
+
+
+def extract_response_headers_from_interceptors(interceptors):
+    headers = {}
+    for interceptor in interceptors:
+        additional_headers = getattr(interceptor, "__type_safe_api_response_headers", None)
+        headers = {**headers, **(additional_headers or {})}
+    return headers
+
+
+RequestParameters = TypeVar('RequestParameters')
+RequestBody = TypeVar('RequestBody')
+ResponseBody = TypeVar('ResponseBody')
+StatusCode = TypeVar('StatusCode')
+
+@dataclass
+class ApiRequest(Generic[RequestParameters, RequestBody]):
+    request_parameters: RequestParameters
+    body: RequestBody
+    event: Any
+    context: Any
+    interceptor_context: Dict[str, Any]
+
+@dataclass
+class ChainedApiRequest(ApiRequest[RequestParameters, RequestBody],
+    Generic[RequestParameters, RequestBody]):
+
+    chain: 'HandlerChain'
+
+@dataclass
+class ApiResponse(Exception, Generic[StatusCode, ResponseBody]):
+    status_code: StatusCode
+    headers: Dict[str, str]
+    body: ResponseBody
+    multi_value_headers: Optional[Dict[str, List[str]]] = None
+
+class HandlerChain(Generic[RequestParameters, RequestBody, StatusCode, ResponseBody]):
+    def next(self, request: ChainedApiRequest[RequestParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
+        raise Exception("Not implemented!")
+
+def _build_handler_chain(_interceptors, handler) -> HandlerChain:
+    if len(_interceptors) == 0:
+        class BaseHandlerChain(HandlerChain[RequestParameters, RequestBody, StatusCode, ResponseBody]):
+            def next(self, request: ApiRequest[RequestParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
+                return handler(request)
+        return BaseHandlerChain()
+    else:
+        interceptor = _interceptors[0]
+
+        class RemainingHandlerChain(HandlerChain[RequestParameters, RequestBody, StatusCode, ResponseBody]):
+            def next(self, request: ChainedApiRequest[RequestParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
+                return interceptor(ChainedApiRequest(
+                    request_parameters = request.request_parameters,
+                    body = request.body,
+                    event = request.event,
+                    context = request.context,
+                    interceptor_context = request.interceptor_context,
+                    chain = _build_handler_chain(_interceptors[1:len(_interceptors)], handler),
+                ))
+        return RemainingHandlerChain()
+
+
+class GetTreeRequestParameters(BaseModel):
+    """
+    Query, path and header parameters for the GetTree operation
+    """
+
+    class Config:
+        """Pydantic configuration"""
+        populate_by_name = True
+        validate_assignment = True
+
+    def to_json(self) -> str:
+        return json.dumps(self.to_dict())
+
+    @classmethod
+    def from_json(cls, json_str: str) -> GetTreeRequestParameters:
+        return cls.from_dict(json.loads(json_str))
+
+    def to_dict(self):
+        return self.model_dump(exclude={}, exclude_none=True)
+
+    @classmethod
+    def from_dict(cls, obj: dict) -> GetTreeRequestParameters:
+        if obj is None:
+            return None
+        return GetTreeRequestParameters.model_validate(obj)
+
+
+# Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
+GetTreeRequestBody = Any
+
+GetTree200OperationResponse = ApiResponse[Literal[200], TreeNode]
+
+GetTreeOperationResponses = Union[GetTree200OperationResponse, ]
+
+# Request type for get_tree
+GetTreeRequest = ApiRequest[GetTreeRequestParameters, GetTreeRequestBody]
+GetTreeChainedRequest = ChainedApiRequest[GetTreeRequestParameters, GetTreeRequestBody]
+
+class GetTreeHandlerFunction(Protocol):
+    def __call__(self, input: GetTreeRequest, **kwargs) -> GetTreeOperationResponses:
+        ...
+
+GetTreeInterceptor = Callable[[GetTreeChainedRequest], GetTreeOperationResponses]
+
+def get_tree_handler(_handler: GetTreeHandlerFunction = None, interceptors: List[GetTreeInterceptor] = []):
+    """
+    Decorator for an api handler for the get_tree operation, providing a typed interface for inputs and outputs
+    """
+    def _handler_wrapper(handler: GetTreeHandlerFunction):
+        @wraps(handler)
+        def wrapper(event, context, additional_interceptors = [], **kwargs):
+            all_interceptors = additional_interceptors + interceptors
+
+            raw_string_parameters = decode_request_parameters({
+                **(event.get('pathParameters', {}) or {}),
+                **(event.get('queryStringParameters', {}) or {}),
+                **(event.get('headers', {}) or {}),
+            })
+            raw_string_array_parameters = decode_request_parameters({
+                **(event.get('multiValueQueryStringParameters', {}) or {}),
+                **(event.get('multiValueHeaders', {}) or {}),
+            })
+
+            def response_headers_for_status_code(status_code):
+                headers_for_status = {}
+                return headers_for_status
+
+            request_parameters = None
+            try:
+                request_parameters = GetTreeRequestParameters.from_dict({
+                })
+            except Exception as e:
+                return {
+                    'statusCode': 400,
+                    'headers': {**response_headers_for_status_code(400), **extract_response_headers_from_interceptors(all_interceptors)},
+                    'body': '{"message": "' + str(e) + '"}',
+                }
+
+            body = {}
+            interceptor_context = {
+                "operationId": "get_tree",
+            }
+
+            chain = _build_handler_chain(all_interceptors, handler)
+            response = chain.next(ApiRequest(
+                request_parameters,
+                body,
+                event,
+                context,
+                interceptor_context,
+            ), **kwargs)
+
+            response_headers = {** (response.headers or {}), **response_headers_for_status_code(response.status_code)}
+            response_body = ''
+            if response.body is None:
+                pass
+            elif response.status_code == 200:
+                response_body = response.body.to_json()
+
+            return {
+                'statusCode': response.status_code,
+                'headers': response_headers,
+                'multiValueHeaders': response.multi_value_headers or {},
+                'body': response_body,
+            }
+        return wrapper
+
+    # Support use as a decorator with no arguments, or with interceptor arguments
+    if callable(_handler):
+        return _handler_wrapper(_handler)
+    elif _handler is None:
+        return _handler_wrapper
+    else:
+        raise Exception("Positional arguments are not supported by get_tree_handler.")
+
+Interceptor = Callable[[ChainedApiRequest[RequestParameters, RequestBody]], ApiResponse[StatusCode, ResponseBody]]
+
+def concat_method_and_path(method: str, path: str):
+    return "{}||{}".format(method.lower(), path)
+
+OperationIdByMethodAndPath = { concat_method_and_path(method_and_path["method"], method_and_path["path"]): operation for operation, method_and_path in OperationLookup.items() }
+
+@dataclass
+class HandlerRouterHandlers:
+  get_tree: Callable[[Dict, Any], Dict]
+
+def handler_router(handlers: HandlerRouterHandlers, interceptors: List[Interceptor] = []):
+    """
+    Returns a lambda handler which can be used to route requests to the appropriate typed lambda handler function.
+    """
+    _handlers = { field.name: getattr(handlers, field.name) for field in fields(handlers) }
+
+    def handler_wrapper(event, context):
+        operation_id = OperationIdByMethodAndPath[concat_method_and_path(event['requestContext']['httpMethod'], event['requestContext']['resourcePath'])]
+        handler = _handlers[operation_id]
+        return handler(event, context, additional_interceptors=interceptors)
+    return handler_wrapper
+",
+  "test_project/api_client.py": "# coding: utf-8
+
+"""
+    Recursive schema
+
+    No description provided
+
+    The version of the OpenAPI document: 1.0.0
+
+    NOTE: This class is auto generated.
+    Do not edit the class manually.
+"""  # noqa: E501
+
+
+import atexit
+import datetime
+from dateutil.parser import parse
+import json
+import mimetypes
+import os
+import re
+import tempfile
+
+from urllib.parse import quote
+from typing import Tuple, Optional, List
+
+from test_project.configuration import Configuration
+from test_project.api_response import ApiResponse
+import test_project.models
+from test_project import rest
+from test_project.exceptions import (
+    ApiValueError,
+    ApiException,
+    BadRequestException,
+    UnauthorizedException,
+    ForbiddenException,
+    NotFoundException,
+    ServiceException
+)
+
+
+class ApiClient:
+    """Generic API client for OpenAPI client library builds.
+
+    OpenAPI generic API client. This client handles the client-
+    server communication, and is invariant across implementations. Specifics of
+    the methods and models for each application are generated from the OpenAPI
+    templates.
+
+    :param configuration: .Configuration object for this client
+    :param header_name: a header to pass when making calls to the API.
+    :param header_value: a header value to pass when making calls to
+        the API.
+    :param cookie: a cookie to include in the header when making calls
+        to the API
+    """
+
+    PRIMITIVE_TYPES = (float, bool, bytes, str, int)
+    NATIVE_TYPES_MAPPING = {
+        'int': int,
+        'long': int, # TODO remove as only py3 is supported?
+        'float': float,
+        'str': str,
+        'bool': bool,
+        'date': datetime.date,
+        'datetime': datetime.datetime,
+        'object': object,
+    }
+    _pool = None
+
+    def __init__(
+        self,
+        configuration=None,
+        header_name=None,
+        header_value=None,
+        cookie=None
+    ) -> None:
+        # use default configuration if none is provided
+        if configuration is None:
+            configuration = Configuration.get_default()
+        self.configuration = configuration
+
+        self.rest_client = rest.RESTClientObject(configuration)
+        self.default_headers = {}
+        if header_name is not None:
+            self.default_headers[header_name] = header_value
+        self.cookie = cookie
+        # Set default User-Agent.
+        self.user_agent = 'OpenAPI-Generator/1.0.0/python'
+        self.client_side_validation = configuration.client_side_validation
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        pass
+
+    @property
+    def user_agent(self):
+        """User agent for this API client"""
+        return self.default_headers['User-Agent']
+
+    @user_agent.setter
+    def user_agent(self, value):
+        self.default_headers['User-Agent'] = value
+
+    def set_default_header(self, header_name, header_value):
+        self.default_headers[header_name] = header_value
+
+
+    _default = None
+
+    @classmethod
+    def get_default(cls):
+        """Return new instance of ApiClient.
+
+        This method returns newly created, based on default constructor,
+        object of ApiClient class or returns a copy of default
+        ApiClient.
+
+        :return: The ApiClient object.
+        """
+        if cls._default is None:
+            cls._default = ApiClient()
+        return cls._default
+
+    @classmethod
+    def set_default(cls, default):
+        """Set default instance of ApiClient.
+
+        It stores default ApiClient.
+
+        :param default: object of ApiClient.
+        """
+        cls._default = default
+
+    def param_serialize(
+        self,
+        method,
+        resource_path,
+        path_params=None,
+        query_params=None,
+        header_params=None,
+        body=None,
+        post_params=None,
+        files=None, auth_settings=None,
+        collection_formats=None,
+        _host=None,
+        _request_auth=None
+    ) -> Tuple:
+
+        """Builds the HTTP request params needed by the request.
+        :param method: Method to call.
+        :param resource_path: Path to method endpoint.
+        :param path_params: Path parameters in the url.
+        :param query_params: Query parameters in the url.
+        :param header_params: Header parameters to be
+            placed in the request header.
+        :param body: Request body.
+        :param post_params dict: Request post form parameters,
+            for \`application/x-www-form-urlencoded\`, \`multipart/form-data\`.
+        :param auth_settings list: Auth Settings names for the request.
+        :param files dict: key -> filename, value -> filepath,
+            for \`multipart/form-data\`.
+        :param collection_formats: dict of collection formats for path, query,
+            header, and post parameters.
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the authentication
+                              in the spec for a single request.
+        :return: tuple of form (path, http_method, query_params, header_params,
+            body, post_params, files)
+        """
+
+        config = self.configuration
+
+        # header parameters
+        header_params = header_params or {}
+        header_params.update(self.default_headers)
+        if self.cookie:
+            header_params['Cookie'] = self.cookie
+        if header_params:
+            header_params = self.sanitize_for_serialization(header_params)
+            header_params = dict(
+                self.parameters_to_tuples(header_params,collection_formats)
+            )
+
+        # path parameters
+        if path_params:
+            path_params = self.sanitize_for_serialization(path_params)
+            path_params = self.parameters_to_tuples(
+                path_params,
+                collection_formats
+            )
+            for k, v in path_params:
+                # specified safe chars, encode everything
+                resource_path = resource_path.replace(
+                    '{%s}' % k,
+                    quote(str(v), safe=config.safe_chars_for_path_param)
+                )
+
+        # post parameters
+        if post_params or files:
+            post_params = post_params if post_params else []
+            post_params = self.sanitize_for_serialization(post_params)
+            post_params = self.parameters_to_tuples(
+                post_params,
+                collection_formats
+            )
+            post_params.extend(self.files_parameters(files))
+
+        # auth setting
+        self.update_params_for_auth(
+            header_params,
+            query_params,
+            auth_settings,
+            resource_path,
+            method,
+            body,
+            request_auth=_request_auth
+        )
+
+        # body
+        if body:
+            body = self.sanitize_for_serialization(body)
+
+        # request url
+        if _host is None:
+            url = self.configuration.host + resource_path
+        else:
+            # use server/host defined in path or operation instead
+            url = _host + resource_path
+
+        # query parameters
+        if query_params:
+            query_params = self.sanitize_for_serialization(query_params)
+            url_query = self.parameters_to_url_query(
+                query_params,
+                collection_formats
+            )
+            url += "?" + url_query
+
+        return method, url, header_params, body, post_params
+
+
+    def call_api(
+        self,
+        method,
+        url,
+        header_params=None,
+        body=None,
+        post_params=None,
+        _request_timeout=None
+    ) -> rest.RESTResponse:
+        """Makes the HTTP request (synchronous)
+        :param method: Method to call.
+        :param url: Path to method endpoint.
+        :param header_params: Header parameters to be
+            placed in the request header.
+        :param body: Request body.
+        :param post_params dict: Request post form parameters,
+            for \`application/x-www-form-urlencoded\`, \`multipart/form-data\`.
+        :param _request_timeout: timeout setting for this request.
+        :return: RESTResponse
+        """
+
+        try:
+            # perform request and return response
+            response_data = self.rest_client.request(
+                method, url,
+                headers=header_params,
+                body=body, post_params=post_params,
+                _request_timeout=_request_timeout
+            )
+
+        except ApiException as e:
+            if e.body:
+                e.body = e.body.decode('utf-8')
+            raise e
+
+        return response_data
+
+    def response_deserialize(
+        self,
+        response_data=None,
+        response_types_map=None
+    ) -> ApiResponse:
+        """Deserializes response into an object.
+        :param response_data: RESTResponse object to be deserialized.
+        :param response_types_map: dict of response types.
+        :return: ApiResponse
+        """
+
+
+        response_type = response_types_map.get(str(response_data.status), None)
+        if not response_type and isinstance(response_data.status, int) and 100 <= response_data.status <= 599:
+            # if not found, look for '1XX', '2XX', etc.
+            response_type = response_types_map.get(str(response_data.status)[0] + "XX", None)
+
+        if not 200 <= response_data.status <= 299:
+            if response_data.status == 400:
+                raise BadRequestException(http_resp=response_data)
+
+            if response_data.status == 401:
+                raise UnauthorizedException(http_resp=response_data)
+
+            if response_data.status == 403:
+                raise ForbiddenException(http_resp=response_data)
+
+            if response_data.status == 404:
+                raise NotFoundException(http_resp=response_data)
+
+            if 500 <= response_data.status <= 599:
+                raise ServiceException(http_resp=response_data)
+            raise ApiException(http_resp=response_data)
+
+        # deserialize response data
+
+        if response_type == "bytearray":
+            return_data = response_data.data
+        elif response_type is None:
+            return_data = None
+        elif response_type == "file":
+            return_data = self.__deserialize_file(response_data)
+        else:
+            match = None
+            content_type = response_data.getheader('content-type')
+            if content_type is not None:
+                match = re.search(r"charset=([a-zA-Z\\-\\d]+)[\\s;]?", content_type)
+            encoding = match.group(1) if match else "utf-8"
+            response_text = response_data.data.decode(encoding)
+            return_data = self.deserialize(response_text, response_type)
+
+        return ApiResponse(
+            status_code = response_data.status,
+            data = return_data,
+            headers = response_data.getheaders(),
+            raw_data = response_data.data
+        )
+
+    def sanitize_for_serialization(self, obj):
+        """Builds a JSON POST object.
+
+        If obj is None, return None.
+        If obj is str, int, long, float, bool, return directly.
+        If obj is datetime.datetime, datetime.date
+            convert to string in iso8601 format.
+        If obj is list, sanitize each element in the list.
+        If obj is dict, return the dict.
+        If obj is OpenAPI model, return the properties dict.
+
+        :param obj: The data to serialize.
+        :return: The serialized form of data.
+        """
+        if obj is None:
+            return None
+        elif isinstance(obj, self.PRIMITIVE_TYPES):
+            return obj
+        elif isinstance(obj, list):
+            return [
+                self.sanitize_for_serialization(sub_obj) for sub_obj in obj
+            ]
+        elif isinstance(obj, tuple):
+            return tuple(
+                self.sanitize_for_serialization(sub_obj) for sub_obj in obj
+            )
+        elif isinstance(obj, (datetime.datetime, datetime.date)):
+            return obj.isoformat()
+
+        elif isinstance(obj, dict):
+            obj_dict = obj
+        else:
+            # Convert model obj to dict except
+            # attributes \`openapi_types\`, \`attribute_map\`
+            # and attributes which value is not None.
+            # Convert attribute name to json key in
+            # model definition for request.
+            obj_dict = obj.to_dict()
+
+        return {
+            key: self.sanitize_for_serialization(val)
+            for key, val in obj_dict.items()
+        }
+
+    def deserialize(self, response_text, response_type):
+        """Deserializes response into an object.
+
+        :param response: RESTResponse object to be deserialized.
+        :param response_type: class literal for
+            deserialized object, or string of class name.
+
+        :return: deserialized object.
+        """
+
+        # fetch data from response object
+        try:
+            data = json.loads(response_text)
+        except ValueError:
+            data = response_text
+
+        return self.__deserialize(data, response_type)
+
+    def __deserialize(self, data, klass):
+        """Deserializes dict, list, str into an object.
+
+        :param data: dict, list or str.
+        :param klass: class literal, or string of class name.
+
+        :return: object.
+        """
+        if data is None:
+            return None
+
+        if isinstance(klass, str):
+            if klass.startswith('List['):
+                sub_kls = re.match(r'List\\[(.*)]', klass).group(1)
+                return [self.__deserialize(sub_data, sub_kls)
+                        for sub_data in data]
+
+            if klass.startswith('Dict['):
+                sub_kls = re.match(r'Dict\\[([^,]*), (.*)]', klass).group(2)
+                return {k: self.__deserialize(v, sub_kls)
+                        for k, v in data.items()}
+
+            # convert str to class
+            if klass in self.NATIVE_TYPES_MAPPING:
+                klass = self.NATIVE_TYPES_MAPPING[klass]
+            else:
+                klass = getattr(test_project.models, klass)
+
+        if klass in self.PRIMITIVE_TYPES:
+            return self.__deserialize_primitive(data, klass)
+        elif klass == object:
+            return self.__deserialize_object(data)
+        elif klass == datetime.date:
+            return self.__deserialize_date(data)
+        elif klass == datetime.datetime:
+            return self.__deserialize_datetime(data)
+        else:
+            return self.__deserialize_model(data, klass)
+
+    def parameters_to_tuples(self, params, collection_formats):
+        """Get parameters as list of tuples, formatting collections.
+
+        :param params: Parameters as dict or list of two-tuples
+        :param dict collection_formats: Parameter collection formats
+        :return: Parameters as list of tuples, collections formatted
+        """
+        new_params = []
+        if collection_formats is None:
+            collection_formats = {}
+        for k, v in params.items() if isinstance(params, dict) else params:
+            if k in collection_formats:
+                collection_format = collection_formats[k]
+                if collection_format == 'multi':
+                    new_params.extend((k, value) for value in v)
+                else:
+                    if collection_format == 'ssv':
+                        delimiter = ' '
+                    elif collection_format == 'tsv':
+                        delimiter = '\\t'
+                    elif collection_format == 'pipes':
+                        delimiter = '|'
+                    else:  # csv is the default
+                        delimiter = ','
+                    new_params.append(
+                        (k, delimiter.join(str(value) for value in v)))
+            else:
+                new_params.append((k, v))
+        return new_params
+
+    def parameters_to_url_query(self, params, collection_formats):
+        """Get parameters as list of tuples, formatting collections.
+
+        :param params: Parameters as dict or list of two-tuples
+        :param dict collection_formats: Parameter collection formats
+        :return: URL query string (e.g. a=Hello%20World&b=123)
+        """
+        new_params = []
+        if collection_formats is None:
+            collection_formats = {}
+        for k, v in params.items() if isinstance(params, dict) else params:
+            if isinstance(v, bool):
+                v = str(v).lower()
+            if isinstance(v, (int, float)):
+                v = str(v)
+            if isinstance(v, dict):
+                v = json.dumps(v)
+
+            if k in collection_formats:
+                collection_format = collection_formats[k]
+                if collection_format == 'multi':
+                    new_params.extend((k, value) for value in v)
+                else:
+                    if collection_format == 'ssv':
+                        delimiter = ' '
+                    elif collection_format == 'tsv':
+                        delimiter = '\\t'
+                    elif collection_format == 'pipes':
+                        delimiter = '|'
+                    else:  # csv is the default
+                        delimiter = ','
+                    new_params.append(
+                        (k, delimiter.join(quote(str(value)) for value in v))
+                    )
+            else:
+                new_params.append((k, quote(str(v))))
+
+        return "&".join(["=".join(item) for item in new_params])
+
+    def files_parameters(self, files=None):
+        """Builds form parameters.
+
+        :param files: File parameters.
+        :return: Form parameters with files.
+        """
+        params = []
+
+        if files:
+            for k, v in files.items():
+                if not v:
+                    continue
+                file_names = v if type(v) is list else [v]
+                for n in file_names:
+                    with open(n, 'rb') as f:
+                        filename = os.path.basename(f.name)
+                        filedata = f.read()
+                        mimetype = (
+                            mimetypes.guess_type(filename)[0]
+                            or 'application/octet-stream'
+                        )
+                        params.append(
+                            tuple([k, tuple([filename, filedata, mimetype])])
+                        )
+
+        return params
+
+    def select_header_accept(self, accepts: List[str]) -> Optional[str]:
+        """Returns \`Accept\` based on an array of accepts provided.
+
+        :param accepts: List of headers.
+        :return: Accept (e.g. application/json).
+        """
+        if not accepts:
+            return None
+
+        for accept in accepts:
+            if re.search('json', accept, re.IGNORECASE):
+                return accept
+
+        return accepts[0]
+
+    def select_header_content_type(self, content_types):
+        """Returns \`Content-Type\` based on an array of content_types provided.
+
+        :param content_types: List of content-types.
+        :return: Content-Type (e.g. application/json).
+        """
+        if not content_types:
+            return None
+
+        for content_type in content_types:
+            if re.search('json', content_type, re.IGNORECASE):
+                return content_type
+
+        return content_types[0]
+
+    def update_params_for_auth(
+        self,
+        headers,
+        queries,
+        auth_settings,
+        resource_path,
+        method,
+        body,
+        request_auth=None
+    ) -> None:
+        """Updates header and query params based on authentication setting.
+
+        :param headers: Header parameters dict to be updated.
+        :param queries: Query parameters tuple list to be updated.
+        :param auth_settings: Authentication setting identifiers list.
+        :resource_path: A string representation of the HTTP request resource path.
+        :method: A string representation of the HTTP request method.
+        :body: A object representing the body of the HTTP request.
+        The object type is the return value of sanitize_for_serialization().
+        :param request_auth: if set, the provided settings will
+                             override the token in the configuration.
+        """
+        if not auth_settings:
+            return
+
+        if request_auth:
+            self._apply_auth_params(
+                headers,
+                queries,
+                resource_path,
+                method,
+                body,
+                request_auth
+            )
+        else:
+            for auth in auth_settings:
+                auth_setting = self.configuration.auth_settings().get(auth)
+                if auth_setting:
+                    self._apply_auth_params(
+                        headers,
+                        queries,
+                        resource_path,
+                        method,
+                        body,
+                        auth_setting
+                    )
+
+    def _apply_auth_params(
+        self,
+        headers,
+        queries,
+        resource_path,
+        method,
+        body,
+        auth_setting
+    ) -> None:
+        """Updates the request parameters based on a single auth_setting
+
+        :param headers: Header parameters dict to be updated.
+        :param queries: Query parameters tuple list to be updated.
+        :resource_path: A string representation of the HTTP request resource path.
+        :method: A string representation of the HTTP request method.
+        :body: A object representing the body of the HTTP request.
+        The object type is the return value of sanitize_for_serialization().
+        :param auth_setting: auth settings for the endpoint
+        """
+        if auth_setting['in'] == 'cookie':
+            headers['Cookie'] = auth_setting['value']
+        elif auth_setting['in'] == 'header':
+            if auth_setting['type'] != 'http-signature':
+                headers[auth_setting['key']] = auth_setting['value']
+        elif auth_setting['in'] == 'query':
+            queries.append((auth_setting['key'], auth_setting['value']))
+        else:
+            raise ApiValueError(
+                'Authentication token must be in \`query\` or \`header\`'
+            )
+
+    def __deserialize_file(self, response):
+        """Deserializes body to file
+
+        Saves response body into a file in a temporary folder,
+        using the filename from the \`Content-Disposition\` header if provided.
+
+        handle file downloading
+        save response body into a tmp file and return the instance
+
+        :param response:  RESTResponse.
+        :return: file path.
+        """
+        fd, path = tempfile.mkstemp(dir=self.configuration.temp_folder_path)
+        os.close(fd)
+        os.remove(path)
+
+        content_disposition = response.getheader("Content-Disposition")
+        if content_disposition:
+            filename = re.search(
+                r'filename=[\\'"]?([^\\'"\\s]+)[\\'"]?',
+                content_disposition
+            ).group(1)
+            path = os.path.join(os.path.dirname(path), filename)
+
+        with open(path, "wb") as f:
+            f.write(response.data)
+
+        return path
+
+    def __deserialize_primitive(self, data, klass):
+        """Deserializes string to primitive type.
+
+        :param data: str.
+        :param klass: class literal.
+
+        :return: int, long, float, str, bool.
+        """
+        try:
+            return klass(data)
+        except UnicodeEncodeError:
+            return str(data)
+        except TypeError:
+            return data
+
+    def __deserialize_object(self, value):
+        """Return an original value.
+
+        :return: object.
+        """
+        return value
+
+    def __deserialize_date(self, string):
+        """Deserializes string to date.
+
+        :param string: str.
+        :return: date.
+        """
+        try:
+            return parse(string).date()
+        except ImportError:
+            return string
+        except ValueError:
+            raise rest.ApiException(
+                status=0,
+                reason="Failed to parse \`{0}\` as date object".format(string)
+            )
+
+    def __deserialize_datetime(self, string):
+        """Deserializes string to datetime.
+
+        The string should be in iso8601 datetime format.
+
+        :param string: str.
+        :return: datetime.
+        """
+        try:
+            return parse(string)
+        except ImportError:
+            return string
+        except ValueError:
+            raise rest.ApiException(
+                status=0,
+                reason=(
+                    "Failed to parse \`{0}\` as datetime object"
+                    .format(string)
+                )
+            )
+
+    def __deserialize_model(self, data, klass):
+        """Deserializes list or dict to model.
+
+        :param data: dict, list.
+        :param klass: class literal.
+        :return: model object.
+        """
+
+        return klass.from_dict(data)
+",
+  "test_project/api_response.py": """"API response object."""
+
+from __future__ import annotations
+from typing import Any, Dict, Optional, Generic, TypeVar
+from pydantic import Field, StrictInt, StrictStr, StrictBytes, BaseModel
+
+T = TypeVar("T")
+
+class ApiResponse(BaseModel, Generic[T]):
+    """
+    API response object
+    """
+
+    status_code: StrictInt = Field(description="HTTP status code")
+    headers: Optional[Dict[StrictStr, StrictStr]] = Field(None, description="HTTP headers")
+    data: T = Field(description="Deserialized data given the data type")
+    raw_data: StrictBytes = Field(description="Raw data (HTTP response body)")
+
+    model_config = {
+        "arbitrary_types_allowed": True
+    }
+",
+  "test_project/configuration.py": "# coding: utf-8
+
+"""
+    Recursive schema
+
+    No description provided
+
+    The version of the OpenAPI document: 1.0.0
+
+    NOTE: This class is auto generated.
+    Do not edit the class manually.
+"""  # noqa: E501
+
+
+import copy
+import logging
+import sys
+import urllib3
+
+import http.client as httplib
+
+JSON_SCHEMA_VALIDATION_KEYWORDS = {
+    'multipleOf', 'maximum', 'exclusiveMaximum',
+    'minimum', 'exclusiveMinimum', 'maxLength',
+    'minLength', 'pattern', 'maxItems', 'minItems'
+}
+
+class Configuration:
+    """This class contains various settings of the API client.
+
+    :param host: Base url.
+    :param api_key: Dict to store API key(s).
+      Each entry in the dict specifies an API key.
+      The dict key is the name of the security scheme in the OAS specification.
+      The dict value is the API key secret.
+    :param api_key_prefix: Dict to store API prefix (e.g. Bearer).
+      The dict key is the name of the security scheme in the OAS specification.
+      The dict value is an API key prefix when generating the auth data.
+    :param username: Username for HTTP basic authentication.
+    :param password: Password for HTTP basic authentication.
+    :param access_token: Access token.
+    :param server_index: Index to servers configuration.
+    :param server_variables: Mapping with string values to replace variables in
+      templated server configuration. The validation of enums is performed for
+      variables with defined enum values before.
+    :param server_operation_index: Mapping from operation ID to an index to server
+      configuration.
+    :param server_operation_variables: Mapping from operation ID to a mapping with
+      string values to replace variables in templated server configuration.
+      The validation of enums is performed for variables with defined enum
+      values before.
+    :param ssl_ca_cert: str - the path to a file of concatenated CA certificates
+      in PEM format.
+
+    """
+
+    _default = None
+
+    def __init__(self, host=None,
+                 api_key=None, api_key_prefix=None,
+                 username=None, password=None,
+                 access_token=None,
+                 server_index=None, server_variables=None,
+                 server_operation_index=None, server_operation_variables=None,
+                 ssl_ca_cert=None,
+                 ) -> None:
+        """Constructor
+        """
+        self._base_path = "http://localhost" if host is None else host
+        """Default Base url
+        """
+        self.server_index = 0 if server_index is None and host is None else server_index
+        self.server_operation_index = server_operation_index or {}
+        """Default server index
+        """
+        self.server_variables = server_variables or {}
+        self.server_operation_variables = server_operation_variables or {}
+        """Default server variables
+        """
+        self.temp_folder_path = None
+        """Temp file folder for downloading files
+        """
+        # Authentication Settings
+        self.api_key = {}
+        if api_key:
+            self.api_key = api_key
+        """dict to store API key(s)
+        """
+        self.api_key_prefix = {}
+        if api_key_prefix:
+            self.api_key_prefix = api_key_prefix
+        """dict to store API prefix (e.g. Bearer)
+        """
+        self.refresh_api_key_hook = None
+        """function hook to refresh API key if expired
+        """
+        self.username = username
+        """Username for HTTP basic authentication
+        """
+        self.password = password
+        """Password for HTTP basic authentication
+        """
+        self.access_token = access_token
+        """Access token
+        """
+        self.logger = {}
+        """Logging Settings
+        """
+        self.logger["package_logger"] = logging.getLogger("test_project")
+        self.logger["urllib3_logger"] = logging.getLogger("urllib3")
+        self.logger_format = '%(asctime)s %(levelname)s %(message)s'
+        """Log format
+        """
+        self.logger_stream_handler = None
+        """Log stream handler
+        """
+        self.logger_file_handler = None
+        """Log file handler
+        """
+        self.logger_file = None
+        """Debug file location
+        """
+        self.debug = False
+        """Debug switch
+        """
+
+        self.verify_ssl = True
+        """SSL/TLS verification
+           Set this to false to skip verifying SSL certificate when calling API
+           from https server.
+        """
+        self.ssl_ca_cert = ssl_ca_cert
+        """Set this to customize the certificate file to verify the peer.
+        """
+        self.cert_file = None
+        """client certificate file
+        """
+        self.key_file = None
+        """client key file
+        """
+        self.assert_hostname = None
+        """Set this to True/False to enable/disable SSL hostname verification.
+        """
+        self.tls_server_name = None
+        """SSL/TLS Server Name Indication (SNI)
+           Set this to the SNI value expected by the server.
+        """
+
+
+        self.proxy = None
+        """Proxy URL
+        """
+        self.proxy_headers = None
+        """Proxy headers
+        """
+        self.safe_chars_for_path_param = ''
+        """Safe chars for path_param
+        """
+        self.retries = None
+        """Adding retries to override urllib3 default value 3
+        """
+        # Enable client side validation
+        self.client_side_validation = True
+
+        self.socket_options = None
+        """Options to pass down to the underlying urllib3 socket
+        """
+
+        self.datetime_format = "%Y-%m-%dT%H:%M:%S.%f%z"
+        """datetime format
+        """
+
+        self.date_format = "%Y-%m-%d"
+        """date format
+        """
+
+    def __deepcopy__(self, memo):
+        cls = self.__class__
+        result = cls.__new__(cls)
+        memo[id(self)] = result
+        for k, v in self.__dict__.items():
+            if k not in ('logger', 'logger_file_handler'):
+                setattr(result, k, copy.deepcopy(v, memo))
+        # shallow copy of loggers
+        result.logger = copy.copy(self.logger)
+        # use setters to configure loggers
+        result.logger_file = self.logger_file
+        result.debug = self.debug
+        return result
+
+    def __setattr__(self, name, value):
+        object.__setattr__(self, name, value)
+
+    @classmethod
+    def set_default(cls, default):
+        """Set default instance of configuration.
+
+        It stores default configuration, which can be
+        returned by get_default_copy method.
+
+        :param default: object of Configuration
+        """
+        cls._default = default
+
+    @classmethod
+    def get_default_copy(cls):
+        """Deprecated. Please use \`get_default\` instead.
+
+        Deprecated. Please use \`get_default\` instead.
+
+        :return: The configuration object.
+        """
+        return cls.get_default()
+
+    @classmethod
+    def get_default(cls):
+        """Return the default configuration.
+
+        This method returns newly created, based on default constructor,
+        object of Configuration class or returns a copy of default
+        configuration.
+
+        :return: The configuration object.
+        """
+        if cls._default is None:
+            cls._default = Configuration()
+        return cls._default
+
+    @property
+    def logger_file(self):
+        """The logger file.
+
+        If the logger_file is None, then add stream handler and remove file
+        handler. Otherwise, add file handler and remove stream handler.
+
+        :param value: The logger_file path.
+        :type: str
+        """
+        return self.__logger_file
+
+    @logger_file.setter
+    def logger_file(self, value):
+        """The logger file.
+
+        If the logger_file is None, then add stream handler and remove file
+        handler. Otherwise, add file handler and remove stream handler.
+
+        :param value: The logger_file path.
+        :type: str
+        """
+        self.__logger_file = value
+        if self.__logger_file:
+            # If set logging file,
+            # then add file handler and remove stream handler.
+            self.logger_file_handler = logging.FileHandler(self.__logger_file)
+            self.logger_file_handler.setFormatter(self.logger_formatter)
+            for _, logger in self.logger.items():
+                logger.addHandler(self.logger_file_handler)
+
+    @property
+    def debug(self):
+        """Debug status
+
+        :param value: The debug status, True or False.
+        :type: bool
+        """
+        return self.__debug
+
+    @debug.setter
+    def debug(self, value):
+        """Debug status
+
+        :param value: The debug status, True or False.
+        :type: bool
+        """
+        self.__debug = value
+        if self.__debug:
+            # if debug status is True, turn on debug logging
+            for _, logger in self.logger.items():
+                logger.setLevel(logging.DEBUG)
+            # turn on httplib debug
+            httplib.HTTPConnection.debuglevel = 1
+        else:
+            # if debug status is False, turn off debug logging,
+            # setting log level to default \`logging.WARNING\`
+            for _, logger in self.logger.items():
+                logger.setLevel(logging.WARNING)
+            # turn off httplib debug
+            httplib.HTTPConnection.debuglevel = 0
+
+    @property
+    def logger_format(self):
+        """The logger format.
+
+        The logger_formatter will be updated when sets logger_format.
+
+        :param value: The format string.
+        :type: str
+        """
+        return self.__logger_format
+
+    @logger_format.setter
+    def logger_format(self, value):
+        """The logger format.
+
+        The logger_formatter will be updated when sets logger_format.
+
+        :param value: The format string.
+        :type: str
+        """
+        self.__logger_format = value
+        self.logger_formatter = logging.Formatter(self.__logger_format)
+
+    def get_api_key_with_prefix(self, identifier, alias=None):
+        """Gets API key (with prefix if set).
+
+        :param identifier: The identifier of apiKey.
+        :param alias: The alternative identifier of apiKey.
+        :return: The token for api key authentication.
+        """
+        if self.refresh_api_key_hook is not None:
+            self.refresh_api_key_hook(self)
+        key = self.api_key.get(identifier, self.api_key.get(alias) if alias is not None else None)
+        if key:
+            prefix = self.api_key_prefix.get(identifier)
+            if prefix:
+                return "%s %s" % (prefix, key)
+            else:
+                return key
+
+    def get_basic_auth_token(self):
+        """Gets HTTP basic authentication header (string).
+
+        :return: The token for basic HTTP authentication.
+        """
+        username = ""
+        if self.username is not None:
+            username = self.username
+        password = ""
+        if self.password is not None:
+            password = self.password
+        return urllib3.util.make_headers(
+            basic_auth=username + ':' + password
+        ).get('authorization')
+
+    def auth_settings(self):
+        """Gets Auth Settings dict for api client.
+
+        :return: The Auth Settings information dict.
+        """
+        auth = {}
+        return auth
+
+    def to_debug_report(self):
+        """Gets the essential information for debugging.
+
+        :return: The report for debugging.
+        """
+        return "Python SDK Debug Report:\\n"\\
+               "OS: {env}\\n"\\
+               "Python Version: {pyversion}\\n"\\
+               "Version of the API: 1.0.0\\n"\\
+               "SDK Package Version: 1.0.0".\\
+               format(env=sys.platform, pyversion=sys.version)
+
+    def get_host_settings(self):
+        """Gets an array of host settings
+
+        :return: An array of host settings
+        """
+        return [
+            {
+                'url': "",
+                'description': "No description provided",
+            }
+        ]
+
+    def get_host_from_settings(self, index, variables=None, servers=None):
+        """Gets host URL based on the index and variables
+        :param index: array index of the host settings
+        :param variables: hash of variable and the corresponding value
+        :param servers: an array of host settings or None
+        :return: URL based on host settings
+        """
+        if index is None:
+            return self._base_path
+
+        variables = {} if variables is None else variables
+        servers = self.get_host_settings() if servers is None else servers
+
+        try:
+            server = servers[index]
+        except IndexError:
+            raise ValueError(
+                "Invalid index {0} when selecting the host settings. "
+                "Must be less than {1}".format(index, len(servers)))
+
+        url = server['url']
+
+        # go through variables and replace placeholders
+        for variable_name, variable in server.get('variables', {}).items():
+            used_value = variables.get(
+                variable_name, variable['default_value'])
+
+            if 'enum_values' in variable \\
+                    and used_value not in variable['enum_values']:
+                raise ValueError(
+                    "The variable \`{0}\` in the host URL has invalid value "
+                    "{1}. Must be {2}.".format(
+                        variable_name, variables[variable_name],
+                        variable['enum_values']))
+
+            url = url.replace("{" + variable_name + "}", used_value)
+
+        return url
+
+    @property
+    def host(self):
+        """Return generated host."""
+        return self.get_host_from_settings(self.server_index, variables=self.server_variables)
+
+    @host.setter
+    def host(self, value):
+        """Fix base path."""
+        self._base_path = value
+        self.server_index = None
+",
+  "test_project/exceptions.py": "# coding: utf-8
+
+"""
+    Recursive schema
+
+    No description provided
+
+    The version of the OpenAPI document: 1.0.0
+
+    NOTE: This class is auto generated.
+    Do not edit the class manually.
+"""  # noqa: E501
+
+class OpenApiException(Exception):
+    """The base exception class for all OpenAPIExceptions"""
+
+
+class ApiTypeError(OpenApiException, TypeError):
+    def __init__(self, msg, path_to_item=None, valid_classes=None,
+                 key_type=None) -> None:
+        """ Raises an exception for TypeErrors
+
+        Args:
+            msg (str): the exception message
+
+        Keyword Args:
+            path_to_item (list): a list of keys an indices to get to the
+                                 current_item
+                                 None if unset
+            valid_classes (tuple): the primitive classes that current item
+                                   should be an instance of
+                                   None if unset
+            key_type (bool): False if our value is a value in a dict
+                             True if it is a key in a dict
+                             False if our item is an item in a list
+                             None if unset
+        """
+        self.path_to_item = path_to_item
+        self.valid_classes = valid_classes
+        self.key_type = key_type
+        full_msg = msg
+        if path_to_item:
+            full_msg = "{0} at {1}".format(msg, render_path(path_to_item))
+        super(ApiTypeError, self).__init__(full_msg)
+
+
+class ApiValueError(OpenApiException, ValueError):
+    def __init__(self, msg, path_to_item=None) -> None:
+        """
+        Args:
+            msg (str): the exception message
+
+        Keyword Args:
+            path_to_item (list) the path to the exception in the
+                received_data dict. None if unset
+        """
+
+        self.path_to_item = path_to_item
+        full_msg = msg
+        if path_to_item:
+            full_msg = "{0} at {1}".format(msg, render_path(path_to_item))
+        super(ApiValueError, self).__init__(full_msg)
+
+
+class ApiAttributeError(OpenApiException, AttributeError):
+    def __init__(self, msg, path_to_item=None) -> None:
+        """
+        Raised when an attribute reference or assignment fails.
+
+        Args:
+            msg (str): the exception message
+
+        Keyword Args:
+            path_to_item (None/list) the path to the exception in the
+                received_data dict
+        """
+        self.path_to_item = path_to_item
+        full_msg = msg
+        if path_to_item:
+            full_msg = "{0} at {1}".format(msg, render_path(path_to_item))
+        super(ApiAttributeError, self).__init__(full_msg)
+
+
+class ApiKeyError(OpenApiException, KeyError):
+    def __init__(self, msg, path_to_item=None) -> None:
+        """
+        Args:
+            msg (str): the exception message
+
+        Keyword Args:
+            path_to_item (None/list) the path to the exception in the
+                received_data dict
+        """
+        self.path_to_item = path_to_item
+        full_msg = msg
+        if path_to_item:
+            full_msg = "{0} at {1}".format(msg, render_path(path_to_item))
+        super(ApiKeyError, self).__init__(full_msg)
+
+
+class ApiException(OpenApiException):
+
+    def __init__(self, status=None, reason=None, http_resp=None) -> None:
+        if http_resp:
+            self.status = http_resp.status
+            self.reason = http_resp.reason
+            self.body = http_resp.data.decode('utf-8')
+            self.headers = http_resp.getheaders()
+        else:
+            self.status = status
+            self.reason = reason
+            self.body = None
+            self.headers = None
+
+    def __str__(self):
+        """Custom error messages for exception"""
+        error_message = "({0})\\n"\\
+                        "Reason: {1}\\n".format(self.status, self.reason)
+        if self.headers:
+            error_message += "HTTP response headers: {0}\\n".format(
+                self.headers)
+
+        if self.body:
+            error_message += "HTTP response body: {0}\\n".format(self.body)
+
+        return error_message
+
+class BadRequestException(ApiException):
+
+    def __init__(self, status=None, reason=None, http_resp=None) -> None:
+        super(BadRequestException, self).__init__(status, reason, http_resp)
+
+class NotFoundException(ApiException):
+
+    def __init__(self, status=None, reason=None, http_resp=None) -> None:
+        super(NotFoundException, self).__init__(status, reason, http_resp)
+
+
+class UnauthorizedException(ApiException):
+
+    def __init__(self, status=None, reason=None, http_resp=None) -> None:
+        super(UnauthorizedException, self).__init__(status, reason, http_resp)
+
+
+class ForbiddenException(ApiException):
+
+    def __init__(self, status=None, reason=None, http_resp=None) -> None:
+        super(ForbiddenException, self).__init__(status, reason, http_resp)
+
+
+class ServiceException(ApiException):
+
+    def __init__(self, status=None, reason=None, http_resp=None) -> None:
+        super(ServiceException, self).__init__(status, reason, http_resp)
+
+
+def render_path(path_to_item):
+    """Returns a string representation of a path"""
+    result = ""
+    for pth in path_to_item:
+        if isinstance(pth, int):
+            result += "[{0}]".format(pth)
+        else:
+            result += "['{0}']".format(pth)
+    return result
+",
+  "test_project/interceptors/__init__.py": "from test_project.interceptors.response_headers import cors_interceptor
+from test_project.interceptors.try_catch import try_catch_interceptor
+from test_project.interceptors.powertools.logger import LoggingInterceptor
+from test_project.interceptors.powertools.tracer import TracingInterceptor
+from test_project.interceptors.powertools.metrics import MetricsInterceptor
+
+# All default interceptors, for logging, tracing, metrics, cors headers and error handling
+INTERCEPTORS = [
+    cors_interceptor,
+    LoggingInterceptor().intercept,
+    try_catch_interceptor,
+    TracingInterceptor().intercept,
+    MetricsInterceptor().intercept,
+]
+",
+  "test_project/interceptors/powertools/logger.py": "from aws_lambda_powertools import Logger
+from aws_lambda_powertools.logging.logger import _is_cold_start
+from test_project.api.operation_config import ApiResponse, ChainedApiRequest
+
+logger = Logger()
+
+class LoggingInterceptor:
+
+    def intercept(self, request: ChainedApiRequest) -> ApiResponse:
+        """
+        An interceptor for adding an aws powertools logger to the interceptor context
+        See: https://docs.powertools.aws.dev/lambda/python/latest/core/logger/
+        """
+        request.interceptor_context["logger"] = logger
+
+        # Add the operation id, lambda context and cold start
+        logger.append_keys(
+            operationId=request.interceptor_context["operationId"],
+            **request.context.__dict__,
+            cold_start=_is_cold_start()
+        )
+        response = request.chain.next(request)
+        logger.remove_keys(["operationId"])
+
+        return response
+
+    @staticmethod
+    def get_logger(request: ChainedApiRequest) -> Logger:
+        if request.interceptor_context.get("logger") is None:
+            raise Exception("No logger found. Did you configure the LoggingInterceptor?")
+        return request.interceptor_context["logger"]
+",
+  "test_project/interceptors/powertools/metrics.py": "from aws_lambda_powertools import Metrics
+from test_project.api.operation_config import ApiResponse, ChainedApiRequest
+
+metrics = Metrics()
+
+class MetricsInterceptor:
+
+    def intercept(self, request: ChainedApiRequest) -> ApiResponse:
+        """
+        An interceptor for adding an aws powertools metrics instance to the interceptor context
+        See: https://docs.powertools.aws.dev/lambda/python/latest/core/metrics/
+        """
+        operation_id = request.interceptor_context["operationId"]
+
+        # Set the namespace if not set via environment variables
+        if metrics.namespace is None:
+            metrics.namespace = operation_id
+
+        request.interceptor_context["metrics"] = metrics
+
+        try:
+            metrics.add_dimension(name="operationId", value=operation_id)
+            return request.chain.next(request)
+        finally:
+            metrics.flush_metrics()
+
+    @staticmethod
+    def get_metrics(request: ChainedApiRequest) -> Metrics:
+        """
+        Retrieve the metrics logger from the request
+        """
+        if request.interceptor_context.get("metrics") is None:
+            raise Exception("No metrics found. Did you configure the MetricsInterceptor?")
+        return request.interceptor_context["metrics"]
+",
+  "test_project/interceptors/powertools/tracer.py": "from aws_lambda_powertools import Tracer
+from test_project.api.operation_config import ApiResponse, ChainedApiRequest
+
+tracer = Tracer()
+is_cold_start = True
+
+class TracingInterceptor:
+    def __init__(self, add_response_as_metadata: bool = False):
+        self._add_response_as_metadata = add_response_as_metadata
+
+    def intercept(self, request: ChainedApiRequest) -> ApiResponse:
+        """
+        An interceptor for adding an aws powertools tracer to the interceptor context
+        See: https://docs.powertools.aws.dev/lambda/python/latest/core/tracer/
+        """
+        request.interceptor_context["tracer"] = tracer
+
+        operation_id = request.interceptor_context["operationId"]
+
+        with tracer.provider.in_subsegment(name=f"## {operation_id}") as subsegment:
+            try:
+                result = request.chain.next(request)
+                tracer._add_response_as_metadata(
+                    method_name=operation_id,
+                    data=result,
+                    subsegment=subsegment,
+                    capture_response=self._add_response_as_metadata
+                )
+                return result
+            except Exception as e:
+                tracer._add_full_exception_as_metadata(
+                    method_name=operation_id,
+                    error=e,
+                    subsegment=subsegment,
+                    capture_error=True
+                )
+                raise
+            finally:
+                global is_cold_start
+                subsegment.put_annotation(key="ColdStart", value=is_cold_start)
+                is_cold_start = False
+
+    @staticmethod
+    def get_tracer(request: ChainedApiRequest) -> Tracer:
+        """
+        Retrieve the metrics logger from the request
+        """
+        if request.interceptor_context.get("tracer") is None:
+            raise Exception("No tracer found. Did you configure the TracingInterceptor?")
+        return request.interceptor_context["tracer"]
+",
+  "test_project/interceptors/response_headers.py": "from test_project.api.operation_config import ApiResponse, ChainedApiRequest
+from typing import Dict
+
+CORS_HEADERS = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "*",
+}
+
+def build_response_headers_interceptor(headers: Dict[str, str]):
+    """
+    Build an interceptor for adding headers to the response.
+    """
+    def response_headers_interceptor(request: ChainedApiRequest) -> ApiResponse:
+        result = request.chain.next(request)
+        result.headers = { **headers, **(result.headers or {}) }
+        return result
+
+    # Any error responses returned during request validation will include the headers
+    response_headers_interceptor.__type_safe_api_response_headers = headers
+
+    return response_headers_interceptor
+
+# Cors interceptor allows all origins and headers. Use build_response_headers_interceptors to customise
+cors_interceptor = build_response_headers_interceptor(CORS_HEADERS)
+
+",
+  "test_project/interceptors/try_catch.py": "from test_project.api.operation_config import ApiResponse, ChainedApiRequest
+from test_project.response import Response
+
+
+def try_catch_interceptor(request: ChainedApiRequest) -> ApiResponse:
+    """
+    Interceptor for catching unhandled exceptions and returning a 500 error.
+    Uncaught exceptions which are ApiResponses will be returned, such that deeply nested code may return error
+    responses, eg: \`throw Response.not_found(...)\`
+    """
+    try:
+        return request.chain.next(request)
+    except ApiResponse as response:
+        # If the error is a response, return it as the response
+        return response
+    except Exception as e:
+        if request.interceptor_context.get("logger") is not None:
+            request.interceptor_context.get("logger").exception("Interceptor caught exception")
+        else:
+            print("Interceptor caught exception")
+            print(e)
+
+        return Response.internal_failure({ "message": "Internal Error" })
+",
+  "test_project/models/__init__.py": "# coding: utf-8
+
+# flake8: noqa
+"""
+    Recursive schema
+
+    No description provided
+
+    The version of the OpenAPI document: 1.0.0
+
+    NOTE: This class is auto generated.
+    Do not edit the class manually.
+"""  # noqa: E501
+
+# import models into model package
+from test_project.models.tree_node import TreeNode
+",
+  "test_project/models/tree_node.py": "# coding: utf-8
+
+"""
+    Recursive schema
+
+    No description provided
+
+    The version of the OpenAPI document: 1.0.0
+
+    NOTE: This class is auto generated.
+    Do not edit the class manually.
+"""  # noqa: E501
+
+from __future__ import annotations
+import pprint
+import re  # noqa: F401
+import json
+from enum import Enum
+from datetime import date, datetime
+from typing import Any, List, Union, ClassVar, Dict, Optional, TYPE_CHECKING
+from pydantic import Field, StrictStr, ValidationError, field_validator, BaseModel, SecretStr, StrictFloat, StrictInt, StrictBytes, StrictBool
+from decimal import Decimal
+from typing_extensions import Annotated, Literal
+try:
+    from typing import Self
+except ImportError:
+    from typing_extensions import Self
+
+class TreeNode(BaseModel):
+    """
+    TreeNode
+    """ # noqa: E501
+    left: Optional[TreeNode] = None
+    right: Optional[TreeNode] = None
+    __properties: ClassVar[List[str]] = ["left", "right"]
+
+
+    model_config = {
+        "populate_by_name": True,
+        "validate_assignment": True
+    }
+
+    def to_str(self) -> str:
+        """Returns the string representation of the model using alias"""
+        return pprint.pformat(self.model_dump(by_alias=True))
+
+    def to_json(self) -> str:
+        """Returns the JSON representation of the model using alias"""
+        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
+        return json.dumps(self.to_dict())
+
+    @classmethod
+    def from_json(cls, json_str: str) -> Self:
+        """Create an instance of TreeNode from a JSON string"""
+        return cls.from_dict(json.loads(json_str))
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Return the dictionary representation of the model using alias.
+
+        This has the following differences from calling pydantic's
+        \`self.model_dump(by_alias=True)\`:
+
+        * \`None\` is only added to the output dict for nullable fields that
+          were set at model initialization. Other fields with value \`None\`
+          are ignored.
+        """
+        _dict = self.model_dump(
+            by_alias=True,
+            exclude={
+            },
+            exclude_none=True,
+        )
+        # override the default output from pydantic by calling \`to_dict()\` of left
+        if self.left:
+            _dict['left'] = self.left.to_dict()
+        # override the default output from pydantic by calling \`to_dict()\` of right
+        if self.right:
+            _dict['right'] = self.right.to_dict()
+        return _dict
+
+    @classmethod
+    def from_dict(cls, obj: Dict) -> Self:
+        """Create an instance of TreeNode from a dict"""
+
+        if obj is None:
+            return None
+
+        if not isinstance(obj, dict):
+            return cls.model_validate(obj)
+
+        _obj = cls.model_validate({
+            "left": TreeNode.from_dict(obj.get("left")) if obj.get("left") is not None else None,
+            "right": TreeNode.from_dict(obj.get("right")) if obj.get("right") is not None else None
+        })
+        return _obj
+
+",
+  "test_project/py.typed": "",
+  "test_project/response.py": "from typing import TypeVar, Generic, Dict, List
+from test_project.api.operation_config import ApiResponse
+
+ResponseBody = TypeVar("ResponseBody")
+
+class Response(Generic[ResponseBody]):
+  """
+  Helpers for constructing api responses
+  """
+
+  @staticmethod
+  def success(body: ResponseBody, headers: Dict[str, str] = {}, multi_value_headers: Dict[str, List[str]] = {}) -> ApiResponse[200, ResponseBody]:
+    """
+    A successful response
+    """
+    return ApiResponse(status_code=200, body=body, headers={**headers}, multi_value_headers={**multi_value_headers})
+
+  @staticmethod
+  def bad_request(body: ResponseBody, headers: Dict[str, str] = {}, multi_value_headers: Dict[str, List[str]] = {}) -> ApiResponse[400, ResponseBody]:
+    """
+    A response which indicates a client error
+    """
+    return ApiResponse(status_code=400, body=body, headers={**headers}, multi_value_headers={**multi_value_headers})
+
+  @staticmethod
+  def not_found(body: ResponseBody, headers: Dict[str, str] = {}, multi_value_headers: Dict[str, List[str]] = {}) -> ApiResponse[404, ResponseBody]:
+    """
+    A response which indicates the requested resource was not found
+    """
+    return ApiResponse(status_code=404, body=body, headers={**headers}, multi_value_headers={**multi_value_headers})
+
+  @staticmethod
+  def not_authorized(body: ResponseBody, headers: Dict[str, str] = {}, multi_value_headers: Dict[str, List[str]] = {}) -> ApiResponse[403, ResponseBody]:
+    """
+    A response which indicates the caller is not authorised to perform the operation or access the resource
+    """
+    return ApiResponse(status_code=403, body=body, headers={**headers}, multi_value_headers={**multi_value_headers})
+
+  @staticmethod
+  def internal_failure(body: ResponseBody, headers: Dict[str, str] = {}, multi_value_headers: Dict[str, List[str]] = {}) -> ApiResponse[500, ResponseBody]:
+    """
+    A response to indicate a server error
+    """
+    return ApiResponse(status_code=500, body=body, headers={**headers}, multi_value_headers={**multi_value_headers})
+",
+  "test_project/rest.py": "# coding: utf-8
+
+"""
+    Recursive schema
 
     No description provided
 

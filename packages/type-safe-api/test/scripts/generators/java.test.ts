@@ -16,6 +16,7 @@ describe("Java Client Code Generation Script Unit Tests", () => {
     "default-response.yaml",
     "allof-model.yaml",
     "composite-models.yaml",
+    "recursive.yaml",
   ])("Generates With %s", (spec) => {
     const specPath = path.resolve(__dirname, `../../resources/specs/${spec}`);
 

@@ -958,7 +958,7 @@ const buildData = async (inSpec: OpenAPIV3.Document, metadata: any) => {
         ...model.imports,
         // Include property imports, if any
         ...model.properties.filter(p => p.export === "reference").map(p => p.type),
-      ]));
+      ])).filter(modelImport => modelImport !== model.name); // Filter out self for recursive model references
 
       // Add deprecated flag if present
       (model as any).deprecated = specModel.deprecated || false;

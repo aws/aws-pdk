@@ -10,9 +10,9 @@ import { OpenApiAsyncModelProject } from "./model/openapi/open-api-async-model-p
 import { OpenApiModelProject } from "./model/openapi/open-api-model-project";
 import { SmithyAsyncModelProject } from "./model/smithy/smithy-async-model-project";
 import { SmithyModelProject } from "./model/smithy/smithy-model-project";
+import { SmithyProjectDefinitionOptions } from "./model/smithy/smithy-project-definition";
 import { TypeSpecAsyncModelProject } from "./model/type-spec/type-spec-async-model-project";
 import { TypeSpecModelProject } from "./model/type-spec/type-spec-model-project";
-import { SmithyProjectDefinitionOptions } from "./model/smithy/smithy-project-definition";
 import { PythonProjectOptions } from "./python-project-options";
 import { TypeScriptProjectOptions } from "./typescript-project-options";
 

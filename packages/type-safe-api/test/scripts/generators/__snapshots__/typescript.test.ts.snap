@@ -12705,13 +12705,6 @@ export const tryCatchInterceptor = buildTryCatchInterceptor(500, { message: 'Int
  * Do not edit the class manually.
  */
 import { exists, mapValues } from './model-utils';
-import type { HelloResponse } from './HelloResponse';
-import {
-    HelloResponseFromJSON,
-    HelloResponseFromJSONTyped,
-    HelloResponseToJSON,
-    instanceOfHelloResponse,
-} from './HelloResponse';
 
 /**
  * 
@@ -12854,6 +12847,1319 @@ export class Response {
 /* eslint-disable */
 /**
  * Example API
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+export const BASE_PATH = "http://localhost".replace(/\\/+$/, "");
+
+export interface ConfigurationParameters {
+    basePath?: string; // override base path
+    fetchApi?: FetchAPI; // override for fetch implementation
+    middleware?: Middleware[]; // middleware to apply before/after fetch requests
+    queryParamsStringify?: (params: HTTPQuery) => string; // stringify function for query strings
+    username?: string; // parameter for basic security
+    password?: string; // parameter for basic security
+    apiKey?: string | ((name: string) => string); // parameter for apiKey security
+    accessToken?: string | Promise<string> | ((name?: string, scopes?: string[]) => string | Promise<string>); // parameter for oauth2 security
+    headers?: HTTPHeaders; //header params we want to use on every request
+    credentials?: RequestCredentials; //value for the credentials param we want to use on each request
+}
+
+export class Configuration {
+    constructor(private configuration: ConfigurationParameters = {}) {}
+
+    set config(configuration: Configuration) {
+        this.configuration = configuration;
+    }
+
+    get basePath(): string {
+        return this.configuration.basePath != null ? this.configuration.basePath : BASE_PATH;
+    }
+
+    get fetchApi(): FetchAPI | undefined {
+        return this.configuration.fetchApi;
+    }
+
+    get middleware(): Middleware[] {
+        return this.configuration.middleware || [];
+    }
+
+    get queryParamsStringify(): (params: HTTPQuery) => string {
+        return this.configuration.queryParamsStringify || querystring;
+    }
+
+    get username(): string | undefined {
+        return this.configuration.username;
+    }
+
+    get password(): string | undefined {
+        return this.configuration.password;
+    }
+
+    get apiKey(): ((name: string) => string) | undefined {
+        const apiKey = this.configuration.apiKey;
+        if (apiKey) {
+            return typeof apiKey === 'function' ? apiKey : () => apiKey;
+        }
+        return undefined;
+    }
+
+    get accessToken(): ((name?: string, scopes?: string[]) => string | Promise<string>) | undefined {
+        const accessToken = this.configuration.accessToken;
+        if (accessToken) {
+            return typeof accessToken === 'function' ? accessToken : async () => accessToken;
+        }
+        return undefined;
+    }
+
+    get headers(): HTTPHeaders | undefined {
+        return this.configuration.headers;
+    }
+
+    get credentials(): RequestCredentials | undefined {
+        return this.configuration.credentials;
+    }
+}
+
+export const DefaultConfig = new Configuration();
+
+/**
+ * This is the base class for all generated API classes.
+ */
+export class BaseAPI {
+
+    private middleware: Middleware[];
+
+    constructor(protected configuration = DefaultConfig) {
+        this.middleware = configuration.middleware;
+    }
+
+    withMiddleware<T extends BaseAPI>(this: T, ...middlewares: Middleware[]) {
+        const next = this.clone<T>();
+        next.middleware = next.middleware.concat(...middlewares);
+        return next;
+    }
+
+    withPreMiddleware<T extends BaseAPI>(this: T, ...preMiddlewares: Array<Middleware['pre']>) {
+        const middlewares = preMiddlewares.map((pre) => ({ pre }));
+        return this.withMiddleware<T>(...middlewares);
+    }
+
+    withPostMiddleware<T extends BaseAPI>(this: T, ...postMiddlewares: Array<Middleware['post']>) {
+        const middlewares = postMiddlewares.map((post) => ({ post }));
+        return this.withMiddleware<T>(...middlewares);
+    }
+
+    protected async request(context: RequestOpts, initOverrides?: RequestInit | InitOverrideFunction): Promise<Response> {
+        const { url, init } = await this.createFetchParams(context, initOverrides);
+        const response = await this.fetchApi(url, init);
+        if (response && (response.status >= 200 && response.status < 300)) {
+            return response;
+        }
+        throw new ResponseError(response, 'Response returned an error code');
+    }
+
+    private async createFetchParams(context: RequestOpts, initOverrides?: RequestInit | InitOverrideFunction) {
+        let url = this.configuration.basePath + context.path;
+        if (context.query !== undefined && Object.keys(context.query).length !== 0) {
+            // only add the querystring to the URL if there are query parameters.
+            // this is done to avoid urls ending with a "?" character which buggy webservers
+            // do not handle correctly sometimes.
+            url += '?' + this.configuration.queryParamsStringify(context.query);
+        }
+
+        const headers = Object.assign({}, this.configuration.headers, context.headers);
+        Object.keys(headers).forEach(key => headers[key] === undefined ? delete headers[key] : {});
+
+        const initOverrideFn =
+            typeof initOverrides === "function"
+                ? initOverrides
+                : async () => initOverrides;
+
+        const initParams = {
+            method: context.method,
+            headers,
+            body: context.body,
+            credentials: this.configuration.credentials,
+        };
+
+        const overriddenInit: RequestInit = {
+            ...initParams,
+            ...(await initOverrideFn({
+                init: initParams,
+                context,
+            }))
+        };
+
+        const init: RequestInit = {
+            ...overriddenInit,
+            body:
+                isFormData(overriddenInit.body) ||
+                overriddenInit.body instanceof URLSearchParams ||
+                isBlob(overriddenInit.body)
+                    ? overriddenInit.body
+                    : JSON.stringify(overriddenInit.body),
+        };
+
+        return { url, init };
+    }
+
+    private fetchApi = async (url: string, init: RequestInit) => {
+        let fetchParams = { url, init };
+        for (const middleware of this.middleware) {
+            if (middleware.pre) {
+                fetchParams = await middleware.pre({
+                    fetch: this.fetchApi,
+                    ...fetchParams,
+                }) || fetchParams;
+            }
+        }
+        let response: Response | undefined = undefined;
+        try {
+            response = await (this.configuration.fetchApi || fetch)(fetchParams.url, fetchParams.init);
+        } catch (e) {
+            for (const middleware of this.middleware) {
+                if (middleware.onError) {
+                    response = await middleware.onError({
+                        fetch: this.fetchApi,
+                        url: fetchParams.url,
+                        init: fetchParams.init,
+                        error: e,
+                        response: response ? response.clone() : undefined,
+                    }) || response;
+                }
+            }
+            if (response === undefined) {
+              if (e instanceof Error) {
+                throw new FetchError(e, 'The request failed and the interceptors did not return an alternative response');
+              } else {
+                throw e;
+              }
+            }
+        }
+        for (const middleware of this.middleware) {
+            if (middleware.post) {
+                response = await middleware.post({
+                    fetch: this.fetchApi,
+                    url: fetchParams.url,
+                    init: fetchParams.init,
+                    response: response.clone(),
+                }) || response;
+            }
+        }
+        return response;
+    }
+
+    /**
+     * Create a shallow clone of \`this\` by constructing a new instance
+     * and then shallow cloning data members.
+     */
+    private clone<T extends BaseAPI>(this: T): T {
+        const constructor = this.constructor as any;
+        const next = new constructor(this.configuration);
+        next.middleware = this.middleware.slice();
+        return next;
+    }
+};
+
+function isBlob(value: any): value is Blob {
+    return typeof Blob !== 'undefined' && value instanceof Blob;
+}
+
+function isFormData(value: any): value is FormData {
+    return typeof FormData !== "undefined" && value instanceof FormData;
+}
+
+export class ResponseError extends Error {
+    override name: "ResponseError" = "ResponseError";
+    constructor(public response: Response, msg?: string) {
+        super(msg);
+    }
+}
+
+export class FetchError extends Error {
+    override name: "FetchError" = "FetchError";
+    constructor(public cause: Error, msg?: string) {
+        super(msg);
+    }
+}
+
+export class RequiredError extends Error {
+    override name: "RequiredError" = "RequiredError";
+    constructor(public field: string, msg?: string) {
+        super(msg);
+    }
+}
+
+export const COLLECTION_FORMATS = {
+    csv: ",",
+    ssv: " ",
+    tsv: "\\t",
+    pipes: "|",
+};
+
+export type FetchAPI = WindowOrWorkerGlobalScope['fetch'];
+
+export type Json = any;
+export type HTTPMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS' | 'HEAD';
+export type HTTPHeaders = { [key: string]: string };
+export type HTTPQuery = { [key: string]: string | number | null | boolean | Array<string | number | null | boolean> | Set<string | number | null | boolean> | HTTPQuery };
+export type HTTPBody = Json | FormData | URLSearchParams;
+export type HTTPRequestInit = { headers?: HTTPHeaders; method: HTTPMethod; credentials?: RequestCredentials; body?: HTTPBody };
+export type ModelPropertyNaming = 'camelCase' | 'snake_case' | 'PascalCase' | 'original';
+
+export type InitOverrideFunction = (requestContext: { init: HTTPRequestInit, context: RequestOpts }) => Promise<RequestInit>
+
+export interface FetchParams {
+    url: string;
+    init: RequestInit;
+}
+
+export interface RequestOpts {
+    path: string;
+    method: HTTPMethod;
+    headers: HTTPHeaders;
+    query?: HTTPQuery;
+    body?: HTTPBody;
+}
+
+export function exists(json: any, key: string) {
+    const value = json[key];
+    return value !== null && value !== undefined;
+}
+
+export function querystring(params: HTTPQuery, prefix: string = ''): string {
+    return Object.keys(params)
+        .map(key => querystringSingleKey(key, params[key], prefix))
+        .filter(part => part.length > 0)
+        .join('&');
+}
+
+function querystringSingleKey(key: string, value: string | number | null | undefined | boolean | Array<string | number | null | boolean> | Set<string | number | null | boolean> | HTTPQuery, keyPrefix: string = ''): string {
+    const fullKey = keyPrefix + (keyPrefix.length ? \`[\${key}]\` : key);
+    if (value instanceof Array) {
+        const multiValue = value.map(singleValue => encodeURIComponent(String(singleValue)))
+            .join(\`&\${encodeURIComponent(fullKey)}=\`);
+        return \`\${encodeURIComponent(fullKey)}=\${multiValue}\`;
+    }
+    if (value instanceof Set) {
+        const valueAsArray = Array.from(value);
+        return querystringSingleKey(key, valueAsArray, keyPrefix);
+    }
+    if (value instanceof Date) {
+        return \`\${encodeURIComponent(fullKey)}=\${encodeURIComponent(value.toISOString())}\`;
+    }
+    if (value instanceof Object) {
+        return querystring(value as HTTPQuery, fullKey);
+    }
+    return \`\${encodeURIComponent(fullKey)}=\${encodeURIComponent(String(value))}\`;
+}
+
+export function mapValues(data: any, fn: (item: any) => any) {
+  return Object.keys(data).reduce(
+    (acc, key) => ({ ...acc, [key]: fn(data[key]) }),
+    {}
+  );
+}
+
+export function canConsumeForm(consumes: Consume[]): boolean {
+    for (const consume of consumes) {
+        if ('multipart/form-data' === consume.contentType) {
+            return true;
+        }
+    }
+    return false;
+}
+
+export interface Consume {
+    contentType: string;
+}
+
+export interface RequestContext {
+    fetch: FetchAPI;
+    url: string;
+    init: RequestInit;
+}
+
+export interface ResponseContext {
+    fetch: FetchAPI;
+    url: string;
+    init: RequestInit;
+    response: Response;
+}
+
+export interface ErrorContext {
+    fetch: FetchAPI;
+    url: string;
+    init: RequestInit;
+    error: unknown;
+    response?: Response;
+}
+
+export interface Middleware {
+    pre?(context: RequestContext): Promise<FetchParams | void>;
+    post?(context: ResponseContext): Promise<Response | void>;
+    onError?(context: ErrorContext): Promise<Response | void>;
+}
+
+export interface ApiResponse<T> {
+    raw: Response;
+    value(): Promise<T>;
+}
+
+export interface ResponseTransformer<T> {
+    (json: any): T;
+}
+
+export class JSONApiResponse<T> {
+    constructor(public raw: Response, private transformer: ResponseTransformer<T> = (jsonValue: any) => jsonValue) {}
+
+    async value(): Promise<T> {
+        return this.transformer(await this.raw.json());
+    }
+}
+
+export class VoidApiResponse {
+    constructor(public raw: Response) {}
+
+    async value(): Promise<void> {
+        return undefined;
+    }
+}
+
+export class BlobApiResponse {
+    constructor(public raw: Response) {}
+
+    async value(): Promise<Blob> {
+        return await this.raw.blob();
+    };
+}
+
+export class TextApiResponse {
+    constructor(public raw: Response) {}
+
+    async value(): Promise<string> {
+        return await this.raw.text();
+    };
+}
+",
+}
+`;
+
+exports[`Typescript Client Code Generation Script Unit Tests Generates With recursive.yaml 1`] = `
+{
+  ".tsapi-manifest": "src/index.ts
+src/runtime.ts
+src/interceptors/try-catch.ts
+src/interceptors/cors.ts
+src/interceptors/powertools/logger.ts
+src/interceptors/powertools/tracer.ts
+src/interceptors/powertools/metrics.ts
+src/interceptors/index.ts
+src/apis/DefaultApi/OperationConfig.ts
+src/response/response.ts
+src/apis/DefaultApi.ts
+src/apis/index.ts
+src/models/index.ts
+src/models/model-utils.ts
+src/models/TreeNode.ts",
+  "src/apis/DefaultApi.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Recursive schema
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+import * as runtime from '../runtime';
+import type {
+  TreeNode,
+} from '../models';
+import {
+    TreeNodeFromJSON,
+    TreeNodeToJSON,
+} from '../models';
+
+
+/**
+ * 
+ */
+export class DefaultApi extends runtime.BaseAPI {
+    /**
+     * 
+     */
+    async getTreeRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<TreeNode>> {
+        const queryParameters: any = {};
+
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+
+        const response = await this.request({
+            path: \`/tree\`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => TreeNodeFromJSON(jsonValue));
+    }
+
+    /**
+     * 
+     */
+    async getTree(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TreeNode> {
+        const response = await this.getTreeRaw(initOverrides);
+        return await response.value();
+    }
+
+}
+
+",
+  "src/apis/DefaultApi/OperationConfig.ts": "// Import models
+import {
+    TreeNode,
+    TreeNodeFromJSON,
+    TreeNodeToJSON,
+} from '../../models';
+// Import request parameter interfaces
+import {
+} from '..';
+
+// API Gateway Types
+import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda";
+
+// Generic type for object keyed by operation names
+export interface OperationConfig<T> {
+    getTree: T;
+}
+
+// Look up path and http method for a given operation name
+export const OperationLookup = {
+    getTree: {
+        path: '/tree',
+        method: 'GET',
+        contentTypes: ['application/json'],
+    },
+};
+
+export class Operations {
+  /**
+   * Return an OperationConfig with the same value for every operation
+   */
+  public static all = <T>(value: T): OperationConfig<T> => Object.fromEntries(
+    Object.keys(OperationLookup).map((operationId) => [operationId, value])
+  ) as unknown as OperationConfig<T>;
+}
+
+// Standard apigateway request parameters (query parameters or path parameters, multi or single value)
+type ApiGatewayRequestParameters = { [key: string]: string | string[] | undefined };
+
+/**
+ * URI decode for a string or array of strings
+ */
+const uriDecode = (value: string | string[]): string | string[] =>
+    typeof value === 'string' ? decodeURIComponent(value) : value.map((v) => decodeURIComponent(v));
+
+/**
+ * URI decodes apigateway request parameters (query or path parameters)
+ */
+const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGatewayRequestParameters => {
+    const decodedParameters = {};
+    Object.keys(parameters || {}).forEach((key) => {
+        decodedParameters[key] = parameters[key] ? uriDecode(parameters[key]) : parameters[key];
+    });
+    return decodedParameters;
+};
+
+/**
+ * Parse the body if the content type is json, otherwise leave as a raw string
+ */
+const parseBody = (body: string, demarshal: (body: string) => any, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? demarshal(body || '{}') : body;
+
+const assertRequired = (required: boolean, baseName: string, parameters: any) => {
+    if(required && parameters[baseName] === undefined) {
+        throw new Error(\`Missing required request parameter '\${baseName}'\`);
+    }
+};
+
+const coerceNumber = (baseName: string, s: string, isInteger: boolean): number => {
+    const n = Number(s);
+    if (isNaN(n)) {
+        throw new Error(\`Expected a number for request parameter '\${baseName}'\`);
+    }
+    if (isInteger && !Number.isInteger(n)) {
+        throw new Error(\`Expected an integer for request parameter '\${baseName}'\`);
+    }
+    return n;
+};
+
+const coerceBoolean = (baseName: string, s: string): boolean => {
+    switch (s) {
+        case "true":
+          return true;
+        case "false":
+          return false;
+        default:
+          throw new Error(\`Expected a boolean (true or false) for request parameter '\${baseName}'\`);
+    }
+};
+
+const coerceDate = (baseName: string, s: string): Date => {
+    const d = new Date(s);
+    if (isNaN(d as any)) {
+        throw new Error(\`Expected a valid date (iso format) for request parameter '\${baseName}'\`);
+    }
+    return d;
+};
+
+const coerceParameter = (
+    baseName: string,
+    dataType: string,
+    isInteger: boolean,
+    rawStringParameters: { [key: string]: string | undefined },
+    rawStringArrayParameters: { [key: string]: string[] | undefined },
+    required: boolean,
+) => {
+    switch (dataType) {
+      case "number":
+        assertRequired(required, baseName, rawStringParameters);
+        return rawStringParameters[baseName] !== undefined ? coerceNumber(baseName, rawStringParameters[baseName], isInteger) : undefined;
+      case "boolean":
+        assertRequired(required, baseName, rawStringParameters);
+        return rawStringParameters[baseName] !== undefined ? coerceBoolean(baseName, rawStringParameters[baseName]) : undefined;
+      case "Date":
+        assertRequired(required, baseName, rawStringParameters);
+        return rawStringParameters[baseName] !== undefined ? coerceDate(baseName, rawStringParameters[baseName]) : undefined;
+      case "Array<number>":
+        assertRequired(required, baseName, rawStringArrayParameters);
+        return rawStringArrayParameters[baseName] !== undefined ? rawStringArrayParameters[baseName].map(n => coerceNumber(baseName, n, isInteger)) : undefined;
+      case "Array<boolean>":
+        assertRequired(required, baseName, rawStringArrayParameters);
+        return rawStringArrayParameters[baseName] !== undefined ? rawStringArrayParameters[baseName].map(n => coerceBoolean(baseName, n)) : undefined;
+      case "Array<Date>":
+        assertRequired(required, baseName, rawStringArrayParameters);
+        return rawStringArrayParameters[baseName] !== undefined ? rawStringArrayParameters[baseName].map(n => coerceDate(baseName, n)) : undefined;
+      case "Array<string>":
+        assertRequired(required, baseName, rawStringArrayParameters);
+        return rawStringArrayParameters[baseName];
+      case "string":
+      default:
+        assertRequired(required, baseName, rawStringParameters);
+        return rawStringParameters[baseName];
+    }
+};
+
+const extractResponseHeadersFromInterceptors = (interceptors: any[]): { [key: string]: string } => {
+  return (interceptors ?? []).reduce((interceptor: any, headers: { [key: string]: string }) => ({
+    ...headers,
+    ...(interceptor?.__type_safe_api_response_headers ?? {}),
+  }), {} as { [key: string]: string });
+};
+
+export type OperationIds = | 'getTree';
+export type OperationApiGatewayProxyResult<T extends OperationIds> = APIGatewayProxyResult & { __operationId?: T };
+
+// Api gateway lambda handler type
+export type OperationApiGatewayLambdaHandler<T extends OperationIds> = (event: APIGatewayProxyEvent, context: Context) => Promise<OperationApiGatewayProxyResult<T>>;
+
+// Type of the response to be returned by an operation lambda handler
+export interface OperationResponse<StatusCode extends number, Body> {
+    statusCode: StatusCode;
+    headers?: { [key: string]: string };
+    multiValueHeaders?: { [key: string]: string[] };
+    body: Body;
+}
+
+// Input for a lambda handler for an operation
+export type LambdaRequestParameters<RequestParameters, RequestBody> = {
+    requestParameters: RequestParameters,
+    body: RequestBody,
+};
+
+export type InterceptorContext = { [key: string]: any };
+
+export interface RequestInput<RequestParameters, RequestBody> {
+    input: LambdaRequestParameters<RequestParameters, RequestBody>;
+    event: APIGatewayProxyEvent;
+    context: Context;
+    interceptorContext: InterceptorContext;
+}
+
+export interface ChainedRequestInput<RequestParameters, RequestBody, Response> extends RequestInput<RequestParameters, RequestBody> {
+    chain: LambdaHandlerChain<RequestParameters, RequestBody, Response>;
+}
+
+/**
+ * A lambda handler function which is part of a chain. It may invoke the remainder of the chain via the given chain input
+ */
+export type ChainedLambdaHandlerFunction<RequestParameters, RequestBody, Response> = (
+  input: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+) => Promise<Response>;
+
+// Type for a lambda handler function to be wrapped
+export type LambdaHandlerFunction<RequestParameters, RequestBody, Response> = (
+  input: RequestInput<RequestParameters, RequestBody>,
+) => Promise<Response>;
+
+export interface LambdaHandlerChain<RequestParameters, RequestBody, Response> {
+  next: LambdaHandlerFunction<RequestParameters, RequestBody, Response>;
+}
+
+// Interceptor is a type alias for ChainedLambdaHandlerFunction
+export type Interceptor<RequestParameters, RequestBody, Response> = ChainedLambdaHandlerFunction<RequestParameters, RequestBody, Response>;
+
+/**
+ * Build a chain from the given array of chained lambda handlers
+ */
+const buildHandlerChain = <RequestParameters, RequestBody, Response>(
+  ...handlers: ChainedLambdaHandlerFunction<RequestParameters, RequestBody, Response>[]
+): LambdaHandlerChain<RequestParameters, RequestBody, Response> => {
+  if (handlers.length === 0) {
+    return {
+      next: () => {
+        throw new Error("No more handlers remain in the chain! The last handler should not call next.");
+      }
+    };
+  }
+  const [currentHandler, ...remainingHandlers] = handlers;
+  return {
+    next: (input) => {
+      return currentHandler({
+        ...input,
+        chain: buildHandlerChain(...remainingHandlers),
+      });
+    },
+  };
+};
+
+/**
+ * Path, Query and Header parameters for GetTree
+ */
+export interface GetTreeRequestParameters {
+}
+
+/**
+ * Request body parameter for GetTree
+ */
+export type GetTreeRequestBody = never;
+
+export type GetTree200OperationResponse = OperationResponse<200, TreeNode>;
+
+export type GetTreeOperationResponses = | GetTree200OperationResponse ;
+
+// Type that the handler function provided to the wrapper must conform to
+export type GetTreeHandlerFunction = LambdaHandlerFunction<GetTreeRequestParameters, GetTreeRequestBody, GetTreeOperationResponses>;
+export type GetTreeChainedHandlerFunction = ChainedLambdaHandlerFunction<GetTreeRequestParameters, GetTreeRequestBody, GetTreeOperationResponses>;
+export type GetTreeChainedRequestInput = ChainedRequestInput<GetTreeRequestParameters, GetTreeRequestBody, GetTreeOperationResponses>;
+
+/**
+ * Lambda handler wrapper to provide typed interface for the implementation of getTree
+ */
+export const getTreeHandler = (
+    ...handlers: [GetTreeChainedHandlerFunction, ...GetTreeChainedHandlerFunction[]]
+): OperationApiGatewayLambdaHandler<'getTree'> => async (event: any, context: any, _callback?: any, additionalInterceptors: GetTreeChainedHandlerFunction[] = []): Promise<any> => {
+    const operationId = "getTree";
+
+    const rawSingleValueParameters = decodeRequestParameters({
+      ...(event.pathParameters || {}),
+      ...(event.queryStringParameters || {}),
+      ...(event.headers || {}),
+    }) as { [key: string]: string | undefined };
+    const rawMultiValueParameters = decodeRequestParameters({
+      ...(event.multiValueQueryStringParameters || {}),
+      ...(event.multiValueHeaders || {}),
+    }) as { [key: string]: string[] | undefined };
+
+    const marshal = (statusCode: number, responseBody: any): string => {
+        let marshalledBody = responseBody;
+        switch(statusCode) {
+            case 200:
+                marshalledBody = JSON.stringify(TreeNodeToJSON(marshalledBody));
+                break;
+            default:
+                break;
+        }
+
+        return marshalledBody;
+    };
+
+    const errorHeaders = (statusCode: number): { [key: string]: string } => {
+        let headers = {};
+
+        switch(statusCode) {
+            default:
+                break;
+        }
+
+        return headers;
+    };
+
+    let requestParameters: GetTreeRequestParameters | undefined = undefined;
+
+    try {
+      requestParameters = {
+
+      };
+    } catch (e: any) {
+      const res = {
+        statusCode: 400,
+        body: { message: e.message },
+        headers: extractResponseHeadersFromInterceptors(handlers),
+      };
+      return {
+        ...res,
+        headers: {
+          ...errorHeaders(res.statusCode),
+          ...res.headers,
+        },
+        body: res.body ? marshal(res.statusCode, res.body) : '',
+      };
+    }
+
+    const demarshal = (bodyString: string): any => {
+        return {};
+    };
+    const body = parseBody(event.body, demarshal, ['application/json']) as GetTreeRequestBody;
+
+    const chain = buildHandlerChain(...additionalInterceptors, ...handlers);
+    const response = await chain.next({
+        input: {
+            requestParameters,
+            body,
+        },
+        event,
+        context,
+        interceptorContext: { operationId },
+    });
+
+    return {
+        ...response,
+        headers: {
+          ...errorHeaders(response.statusCode),
+          ...response.headers,
+        },
+        body: response.body ? marshal(response.statusCode, response.body) : '',
+    };
+};
+
+export interface HandlerRouterHandlers {
+  readonly getTree: OperationApiGatewayLambdaHandler<'getTree'>;
+}
+
+export type AnyOperationRequestParameters = | GetTreeRequestParameters;
+export type AnyOperationRequestBodies = | GetTreeRequestBody;
+export type AnyOperationResponses = | GetTreeOperationResponses;
+
+export interface HandlerRouterProps<
+  RequestParameters,
+  RequestBody,
+  Response extends AnyOperationResponses
+> {
+  /**
+   * Interceptors to apply to all handlers
+   */
+  readonly interceptors?: ChainedLambdaHandlerFunction<
+    RequestParameters,
+    RequestBody,
+    Response
+  >[];
+
+  /**
+   * Handlers to register for each operation
+   */
+  readonly handlers: HandlerRouterHandlers;
+}
+
+const concatMethodAndPath = (method: string, path: string) => \`\${method.toLowerCase()}||\${path}\`;
+
+const OperationIdByMethodAndPath = Object.fromEntries(Object.entries(OperationLookup).map(
+  ([operationId, methodAndPath]) => [concatMethodAndPath(methodAndPath.method, methodAndPath.path), operationId]
+));
+
+/**
+ * Returns a lambda handler which can be used to route requests to the appropriate typed lambda handler function.
+ */
+export const handlerRouter = (props: HandlerRouterProps<
+  AnyOperationRequestParameters,
+  AnyOperationRequestBodies,
+  AnyOperationResponses
+>): OperationApiGatewayLambdaHandler<OperationIds> => async (event, context) => {
+  const operationId = OperationIdByMethodAndPath[concatMethodAndPath(event.requestContext.httpMethod, event.requestContext.resourcePath)];
+  const handler = props.handlers[operationId];
+  return handler(event, context, undefined, props.interceptors);
+};
+",
+  "src/apis/index.ts": "/* tslint:disable */
+/* eslint-disable */
+export * from './DefaultApi';
+",
+  "src/index.ts": "/* tslint:disable */
+/* eslint-disable */
+export * from './runtime';
+export * from './apis';
+export * from './models';
+export * from './apis/DefaultApi/OperationConfig';
+export * from './response/response';
+export * from './interceptors'
+",
+  "src/interceptors/cors.ts": "import { ChainedRequestInput, OperationResponse } from '..';
+
+// By default, allow all origins and headers
+const DEFAULT_CORS_HEADERS: { [key: string]: string } = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': '*',
+};
+
+/**
+ * Create an interceptor for adding headers to the response
+ * @param additionalHeaders headers to add to the response
+ */
+export const buildResponseHeaderInterceptor = (additionalHeaders: { [key: string]: string }) => {
+  const interceptor = async <
+    RequestParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(
+    request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+  ): Promise<Response> => {
+    const result = await request.chain.next(request);
+    return {
+      ...result,
+      headers: {
+        ...additionalHeaders,
+        ...result.headers,
+      },
+    };
+  };
+
+  // Any error responses returned during request validation will include the headers
+  (interceptor as any).__type_safe_api_response_headers = additionalHeaders;
+
+  return interceptor;
+};
+
+/**
+ * An interceptor for adding cross-origin resource sharing (CORS) headers to the response.
+ * Allows all origins and headers. Use buildResponseHeaderInterceptor to customise.
+ */
+export const corsInterceptor = buildResponseHeaderInterceptor(DEFAULT_CORS_HEADERS);
+",
+  "src/interceptors/index.ts": "import { corsInterceptor } from './cors';
+import { LoggingInterceptor } from './powertools/logger';
+import { MetricsInterceptor } from './powertools/metrics';
+import { TracingInterceptor } from './powertools/tracer';
+import { tryCatchInterceptor } from './try-catch';
+
+export * from './cors';
+export * from './try-catch';
+export * from './powertools/tracer';
+export * from './powertools/metrics';
+export * from './powertools/logger';
+
+/**
+ * All default interceptors, for logging, tracing, metrics, cors headers and error handling
+ */
+export const INTERCEPTORS = [
+  corsInterceptor,
+  LoggingInterceptor.intercept,
+  tryCatchInterceptor,
+  TracingInterceptor.intercept,
+  MetricsInterceptor.intercept,
+] as const;
+",
+  "src/interceptors/powertools/logger.ts": "import { Logger } from '@aws-lambda-powertools/logger';
+import { ChainedRequestInput, OperationResponse } from '../..';
+
+const logger = new Logger();
+
+export class LoggingInterceptor {
+  /**
+   * Interceptor which adds an aws lambda powertools logger to the interceptor context,
+   * and adds the lambda context
+   * @see https://docs.powertools.aws.dev/lambda/typescript/latest/core/logger/
+   */
+  public static intercept = async <
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(
+    request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+  ): Promise<Response> => {
+    logger.addContext(request.context);
+    logger.appendKeys({ operationId: request.interceptorContext.operationId });
+    request.interceptorContext.logger = logger;
+    const response = await request.chain.next(request);
+    logger.removeKeys(['operationId']);
+    return response;
+  };
+
+  /**
+   * Retrieve the logger from the interceptor context
+   */
+  public static getLogger = <
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(request: ChainedRequestInput<RequestParameters, RequestBody, Response>): Logger => {
+    if (!request.interceptorContext.logger) {
+      throw new Error('No logger found, did you configure the LoggingInterceptor?');
+    }
+    return request.interceptorContext.logger;
+  };
+}
+",
+  "src/interceptors/powertools/metrics.ts": "import { Metrics } from '@aws-lambda-powertools/metrics';
+import { ChainedRequestInput, OperationResponse } from '../..';
+
+const metrics = new Metrics();
+
+export class MetricsInterceptor {
+  /**
+   * Interceptor which adds an instance of aws lambda powertools metrics to the interceptor context,
+   * and ensures metrics are flushed prior to finishing the lambda execution
+   * @see https://docs.powertools.aws.dev/lambda/typescript/latest/core/metrics/
+   */
+  public static intercept = async <
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(
+    request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+  ): Promise<Response> => {
+    metrics.addDimension("operationId", request.interceptorContext.operationId);
+    request.interceptorContext.metrics = metrics;
+    try {
+      return await request.chain.next(request);
+    } finally {
+      // Flush metrics
+      metrics.publishStoredMetrics();
+    }
+  };
+
+  /**
+   * Retrieve the metrics logger from the request
+   */
+  public static getMetrics = <
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(
+    request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+  ): Metrics => {
+    if (!request.interceptorContext.metrics) {
+      throw new Error('No metrics logger found, did you configure the MetricsInterceptor?');
+    }
+    return request.interceptorContext.metrics;
+  };
+}
+",
+  "src/interceptors/powertools/tracer.ts": "import { Tracer } from '@aws-lambda-powertools/tracer';
+import { ChainedRequestInput, OperationResponse } from '../..';
+
+const tracer = new Tracer();
+
+export interface TracingInterceptorOptions {
+  /**
+   * Whether to add the response as metadata to the trace
+   */
+  readonly addResponseAsMetadata?: boolean;
+}
+
+/**
+ * Create an interceptor which adds an aws lambda powertools tracer to the interceptor context,
+ * creating the appropriate segment for the handler execution and annotating with recommended
+ * details.
+ * @see https://docs.powertools.aws.dev/lambda/typescript/latest/core/tracer/#lambda-handler
+ */
+export const buildTracingInterceptor = (options?: TracingInterceptorOptions) => async <
+  RequestParameters,
+  RequestBody,
+  Response extends OperationResponse<number, any>
+>(
+  request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+): Promise<Response> => {
+  const handler = request.interceptorContext.operationId ?? process.env._HANDLER ?? 'index.handler';
+  const segment = tracer.getSegment();
+  let subsegment;
+  if (segment) {
+    subsegment = segment.addNewSubsegment(handler);
+    tracer.setSegment(subsegment);
+  }
+
+  tracer.annotateColdStart();
+  tracer.addServiceNameAnnotation();
+
+  if (request.interceptorContext.logger) {
+    tracer.provider.setLogger(request.interceptorContext.logger);
+  }
+
+  request.interceptorContext.tracer = tracer;
+
+  try {
+    const result = await request.chain.next(request);
+    if (options?.addResponseAsMetadata) {
+      tracer.addResponseAsMetadata(result, handler);
+    }
+    return result;
+  } catch (e) {
+    tracer.addErrorAsMetadata(e as Error);
+    throw e;
+  } finally {
+    if (segment && subsegment) {
+      subsegment.close();
+      tracer.setSegment(segment);
+    }
+  }
+};
+
+export class TracingInterceptor {
+  /**
+   * Interceptor which adds an aws lambda powertools tracer to the interceptor context,
+   * creating the appropriate segment for the handler execution and annotating with recommended
+   * details.
+   */
+  public static intercept = buildTracingInterceptor();
+
+  /**
+   * Get the tracer from the interceptor context
+   */
+  public static getTracer = <
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(
+    request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+  ): Tracer => {
+    if (!request.interceptorContext.tracer) {
+      throw new Error('No tracer found, did you configure the TracingInterceptor?');
+    }
+    return request.interceptorContext.tracer;
+  };
+}
+",
+  "src/interceptors/try-catch.ts": "import {
+  ChainedRequestInput,
+  OperationResponse,
+} from '..';
+
+/**
+ * Create an interceptor which returns the given error response and status should an error occur
+ * @param statusCode the status code to return when an error is thrown
+ * @param errorResponseBody the body to return when an error occurs
+ */
+export const buildTryCatchInterceptor = <TStatus extends number, ErrorResponseBody>(
+  statusCode: TStatus,
+  errorResponseBody: ErrorResponseBody,
+) => async <
+  RequestParameters,
+  RequestBody,
+  Response extends OperationResponse<number, any>,
+>(
+  request: ChainedRequestInput<
+  RequestParameters,
+  RequestBody,
+  Response
+  >,
+): Promise<Response | OperationResponse<TStatus, ErrorResponseBody>> => {
+  try {
+    return await request.chain.next(request);
+  } catch (e: any) {
+    // If the error looks like a response, return it as the response
+    if ('statusCode' in e) {
+      return e;
+    }
+
+    // Log the error if the logger is present
+    if (request.interceptorContext.logger && request.interceptorContext.logger.error) {
+      request.interceptorContext.logger.error('Interceptor caught exception', e as Error);
+    } else {
+      console.error('Interceptor caught exception', e);
+    }
+
+    // Return the default error message
+    return { statusCode, body: errorResponseBody };
+  }
+};
+
+/**
+ * Interceptor for catching unhandled exceptions and returning a 500 error.
+ * Uncaught exceptions which look like OperationResponses will be returned, such that deeply nested code may return error
+ * responses, eg: \`throw ApiResponse.notFound({ message: 'Not found!' })\`
+ */
+export const tryCatchInterceptor = buildTryCatchInterceptor(500, { message: 'Internal Error' });
+",
+  "src/models/TreeNode.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Recursive schema
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * 
+ * @export
+ * @interface TreeNode
+ */
+export interface TreeNode {
+    /**
+     * 
+     * @type {TreeNode}
+     * @memberof TreeNode
+     */
+    left?: TreeNode;
+    /**
+     * 
+     * @type {TreeNode}
+     * @memberof TreeNode
+     */
+    right?: TreeNode;
+}
+
+
+/**
+ * Check if a given object implements the TreeNode interface.
+ */
+export function instanceOfTreeNode(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function TreeNodeFromJSON(json: any): TreeNode {
+    return TreeNodeFromJSONTyped(json, false);
+}
+
+export function TreeNodeFromJSONTyped(json: any, ignoreDiscriminator: boolean): TreeNode {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'left': !exists(json, 'left') ? undefined : TreeNodeFromJSON(json['left']),
+        'right': !exists(json, 'right') ? undefined : TreeNodeFromJSON(json['right']),
+    };
+}
+
+export function TreeNodeToJSON(value?: TreeNode | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'left': TreeNodeToJSON(value.left),
+        'right': TreeNodeToJSON(value.right),
+    };
+}
+
+",
+  "src/models/index.ts": "/* tslint:disable */
+/* eslint-disable */
+export * from './TreeNode';
+",
+  "src/models/model-utils.ts": "/* tslint:disable */
+/* eslint-disable */
+
+export function mapValues(data: any, fn: (item: any) => any) {
+  return Object.keys(data).reduce(
+    (acc, key) => ({ ...acc, [key]: fn(data[key]) }),
+    {}
+  );
+}
+
+export function exists(json: any, key: string) {
+  const value = json[key];
+  return value !== null && value !== undefined;
+}
+",
+  "src/response/response.ts": "import { OperationResponse } from '..';
+
+
+/**
+ * Helpers for constructing api responses
+ */
+export class Response {
+  /**
+   * A successful response
+   */
+  public static success = <T>(
+    body: T
+  ): OperationResponse<200, T> => ({
+    statusCode: 200,
+    body,
+  });
+
+  /**
+   * A response which indicates a client error
+   */
+  public static badRequest = <T>(
+    body: T
+  ): OperationResponse<400, T> => ({
+    statusCode: 400,
+    body,
+  });
+
+  /**
+   * A response which indicates the requested resource was not found
+   */
+  public static notFound = <T>(
+    body: T
+  ): OperationResponse<404, T> => ({
+    statusCode: 404,
+    body,
+  });
+
+  /**
+   * A response which indicates the caller is not authorised to perform the operation or access the resource
+   */
+  public static notAuthorized = <T>(
+    body: T
+  ): OperationResponse<403, T> => ({
+    statusCode: 403,
+    body,
+  });
+
+  /**
+   * A response to indicate a server error
+   */
+  public static internalFailure = <T>(
+    body: T
+  ): OperationResponse<500, T> => ({
+    statusCode: 500,
+    body,
+  });
+}
+",
+  "src/runtime.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Recursive schema
  * 
  *
  * The version of the OpenAPI document: 1.0.0

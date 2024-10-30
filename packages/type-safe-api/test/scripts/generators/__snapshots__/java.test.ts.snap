@@ -49842,7 +49842,6 @@ package test.test.runtime.model;
 
 import java.util.Objects;
 import java.util.Arrays;
-import test.test.runtime.model.HelloResponse;
 import com.google.gson.TypeAdapter;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
@@ -50083,6 +50082,5247 @@ public class HelloResponse {
 
  /**
   * Convert an instance of HelloResponse to an JSON string
+  *
+  * @return JSON string
+  */
+  public String toJson() {
+    return JSON.getGson().toJson(this);
+  }
+}
+",
+}
+`;
+
+exports[`Java Client Code Generation Script Unit Tests Generates With recursive.yaml 1`] = `
+{
+  ".tsapi-manifest": "src/main/java/test/test/runtime/api/handlers/Handlers.java
+src/main/java/test/test/runtime/api/handlers/Response.java
+src/main/java/test/test/runtime/api/handlers/ApiResponse.java
+src/main/java/test/test/runtime/api/handlers/Interceptor.java
+src/main/java/test/test/runtime/api/handlers/Interceptors.java
+src/main/java/test/test/runtime/api/handlers/HandlerChain.java
+src/main/java/test/test/runtime/api/handlers/RequestInput.java
+src/main/java/test/test/runtime/api/handlers/ChainedRequestInput.java
+src/main/java/test/test/runtime/api/handlers/InterceptorWarmupChainedRequestInput.java
+src/main/java/test/test/runtime/api/handlers/InterceptorWithWarmup.java
+src/main/java/test/test/runtime/api/handlers/get_tree/GetTreeResponse.java
+src/main/java/test/test/runtime/api/handlers/get_tree/GetTree200Response.java
+src/main/java/test/test/runtime/api/handlers/get_tree/GetTreeRequestParameters.java
+src/main/java/test/test/runtime/api/handlers/get_tree/GetTreeInput.java
+src/main/java/test/test/runtime/api/handlers/get_tree/GetTreeRequestInput.java
+src/main/java/test/test/runtime/api/handlers/get_tree/GetTree.java
+src/main/java/test/test/runtime/api/handlers/HandlerRouter.java
+src/main/java/test/test/runtime/api/interceptors/TryCatchInterceptor.java
+src/main/java/test/test/runtime/api/interceptors/ResponseHeadersInterceptor.java
+src/main/java/test/test/runtime/api/interceptors/powertools/LoggingInterceptor.java
+src/main/java/test/test/runtime/api/interceptors/powertools/TracingInterceptor.java
+src/main/java/test/test/runtime/api/interceptors/powertools/MetricsInterceptor.java
+src/main/java/test/test/runtime/api/interceptors/DefaultInterceptors.java
+src/main/java/test/test/runtime/api/operation_config/OperationConfig.java
+src/main/java/test/test/runtime/api/operation_config/OperationLookup.java
+src/main/java/test/test/runtime/api/operation_config/Operations.java
+src/main/java/test/test/runtime/api/DefaultApi.java
+src/main/java/test/test/runtime/auth/ApiKeyAuth.java
+src/main/java/test/test/runtime/auth/Authentication.java
+src/main/java/test/test/runtime/auth/HttpBasicAuth.java
+src/main/java/test/test/runtime/auth/HttpBearerAuth.java
+src/main/java/test/test/runtime/ApiCallback.java
+src/main/java/test/test/runtime/ApiClient.java
+src/main/java/test/test/runtime/ApiException.java
+src/main/java/test/test/runtime/ApiResponse.java
+src/main/java/test/test/runtime/Configuration.java
+src/main/java/test/test/runtime/GzipRequestInterceptor.java
+src/main/java/test/test/runtime/JSON.java
+src/main/java/test/test/runtime/Pair.java
+src/main/java/test/test/runtime/ProgressRequestBody.java
+src/main/java/test/test/runtime/ProgressResponseBody.java
+src/main/java/test/test/runtime/ServerConfiguration.java
+src/main/java/test/test/runtime/ServerVariable.java
+src/main/java/test/test/runtime/StringUtil.java
+src/main/java/test/test/runtime/model/AbstractOpenApiSchema.java
+src/main/java/test/test/runtime/model/TreeNode.java",
+  "src/main/java/test/test/runtime/ApiCallback.java": "/*
+ * Recursive schema
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime;
+
+import java.io.IOException;
+
+import java.util.Map;
+import java.util.List;
+
+/**
+ * Callback for asynchronous API call.
+ *
+ * @param <T> The return type
+ */
+public interface ApiCallback<T> {
+    /**
+     * This is called when the API call fails.
+     *
+     * @param e The exception causing the failure
+     * @param statusCode Status code of the response if available, otherwise it would be 0
+     * @param responseHeaders Headers of the response if available, otherwise it would be null
+     */
+    void onFailure(ApiException e, int statusCode, Map<String, List<String>> responseHeaders);
+
+    /**
+     * This is called when the API call succeeded.
+     *
+     * @param result The result deserialized from response
+     * @param statusCode Status code of the response
+     * @param responseHeaders Headers of the response
+     */
+    void onSuccess(T result, int statusCode, Map<String, List<String>> responseHeaders);
+
+    /**
+     * This is called when the API upload processing.
+     *
+     * @param bytesWritten bytes Written
+     * @param contentLength content length of request body
+     * @param done write end
+     */
+    void onUploadProgress(long bytesWritten, long contentLength, boolean done);
+
+    /**
+     * This is called when the API download processing.
+     *
+     * @param bytesRead bytes Read
+     * @param contentLength content length of the response
+     * @param done Read end
+     */
+    void onDownloadProgress(long bytesRead, long contentLength, boolean done);
+}
+",
+  "src/main/java/test/test/runtime/ApiClient.java": "/*
+ * Recursive schema
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime;
+
+import okhttp3.*;
+import okhttp3.internal.http.HttpMethod;
+import okhttp3.internal.tls.OkHostnameVerifier;
+import okhttp3.logging.HttpLoggingInterceptor;
+import okhttp3.logging.HttpLoggingInterceptor.Level;
+import okio.Buffer;
+import okio.BufferedSink;
+import okio.Okio;
+
+import javax.net.ssl.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
+import java.security.SecureRandom;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.text.DateFormat;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import test.test.runtime.auth.Authentication;
+import test.test.runtime.auth.HttpBasicAuth;
+import test.test.runtime.auth.HttpBearerAuth;
+import test.test.runtime.auth.ApiKeyAuth;
+
+/**
+ * <p>ApiClient class.</p>
+ */
+public class ApiClient {
+
+    private String basePath = "http://localhost";
+    protected List<ServerConfiguration> servers = new ArrayList<ServerConfiguration>(Arrays.asList(
+    new ServerConfiguration(
+      "",
+      "No description provided",
+      new HashMap<String, ServerVariable>()
+    )
+  ));
+    protected Integer serverIndex = 0;
+    protected Map<String, String> serverVariables = null;
+    private boolean debugging = false;
+    private Map<String, String> defaultHeaderMap = new HashMap<String, String>();
+    private Map<String, String> defaultCookieMap = new HashMap<String, String>();
+    private String tempFolderPath = null;
+
+    private Map<String, Authentication> authentications;
+
+    private DateFormat dateFormat;
+    private DateFormat datetimeFormat;
+    private boolean lenientDatetimeFormat;
+    private int dateLength;
+
+    private InputStream sslCaCert;
+    private boolean verifyingSsl;
+    private KeyManager[] keyManagers;
+
+    private OkHttpClient httpClient;
+    private JSON json;
+
+    private HttpLoggingInterceptor loggingInterceptor;
+
+    /**
+     * Basic constructor for ApiClient
+     */
+    public ApiClient() {
+        init();
+        initHttpClient();
+
+        // Setup authentications (key: authentication name, value: authentication).
+        // Prevent the authentications from being modified.
+        authentications = Collections.unmodifiableMap(authentications);
+    }
+
+    /**
+     * Basic constructor with custom OkHttpClient
+     *
+     * @param client a {@link okhttp3.OkHttpClient} object
+     */
+    public ApiClient(OkHttpClient client) {
+        init();
+
+        httpClient = client;
+
+        // Setup authentications (key: authentication name, value: authentication).
+        // Prevent the authentications from being modified.
+        authentications = Collections.unmodifiableMap(authentications);
+    }
+
+    private void initHttpClient() {
+        initHttpClient(Collections.<Interceptor>emptyList());
+    }
+
+    private void initHttpClient(List<Interceptor> interceptors) {
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        builder.addNetworkInterceptor(getProgressInterceptor());
+        for (Interceptor interceptor: interceptors) {
+            builder.addInterceptor(interceptor);
+        }
+
+        httpClient = builder.build();
+    }
+
+    private void init() {
+        verifyingSsl = true;
+
+        json = new JSON();
+
+        // Set default User-Agent.
+        setUserAgent("OpenAPI-Generator/0.0.0/java");
+
+        authentications = new HashMap<String, Authentication>();
+    }
+
+    /**
+     * Get base path
+     *
+     * @return Base path
+     */
+    public String getBasePath() {
+        return basePath;
+    }
+
+    /**
+     * Set base path
+     *
+     * @param basePath Base path of the URL (e.g http://localhost
+     * @return An instance of OkHttpClient
+     */
+    public ApiClient setBasePath(String basePath) {
+        this.basePath = basePath;
+        return this;
+    }
+
+    public List<ServerConfiguration> getServers() {
+        return servers;
+    }
+
+    public ApiClient setServers(List<ServerConfiguration> servers) {
+        this.servers = servers;
+        return this;
+    }
+
+    public Integer getServerIndex() {
+        return serverIndex;
+    }
+
+    public ApiClient setServerIndex(Integer serverIndex) {
+        this.serverIndex = serverIndex;
+        return this;
+    }
+
+    public Map<String, String> getServerVariables() {
+        return serverVariables;
+    }
+
+    public ApiClient setServerVariables(Map<String, String> serverVariables) {
+        this.serverVariables = serverVariables;
+        return this;
+    }
+
+    /**
+     * Get HTTP client
+     *
+     * @return An instance of OkHttpClient
+     */
+    public OkHttpClient getHttpClient() {
+        return httpClient;
+    }
+
+    /**
+     * Set HTTP client, which must never be null.
+     *
+     * @param newHttpClient An instance of OkHttpClient
+     * @return Api Client
+     * @throws java.lang.NullPointerException when newHttpClient is null
+     */
+    public ApiClient setHttpClient(OkHttpClient newHttpClient) {
+        this.httpClient = Objects.requireNonNull(newHttpClient, "HttpClient must not be null!");
+        return this;
+    }
+
+    /**
+     * Get JSON
+     *
+     * @return JSON object
+     */
+    public JSON getJSON() {
+        return json;
+    }
+
+    /**
+     * Set JSON
+     *
+     * @param json JSON object
+     * @return Api client
+     */
+    public ApiClient setJSON(JSON json) {
+        this.json = json;
+        return this;
+    }
+
+    /**
+     * True if isVerifyingSsl flag is on
+     *
+     * @return True if isVerifySsl flag is on
+     */
+    public boolean isVerifyingSsl() {
+        return verifyingSsl;
+    }
+
+    /**
+     * Configure whether to verify certificate and hostname when making https requests.
+     * Default to true.
+     * NOTE: Do NOT set to false in production code, otherwise you would face multiple types of cryptographic attacks.
+     *
+     * @param verifyingSsl True to verify TLS/SSL connection
+     * @return ApiClient
+     */
+    public ApiClient setVerifyingSsl(boolean verifyingSsl) {
+        this.verifyingSsl = verifyingSsl;
+        applySslSettings();
+        return this;
+    }
+
+    /**
+     * Get SSL CA cert.
+     *
+     * @return Input stream to the SSL CA cert
+     */
+    public InputStream getSslCaCert() {
+        return sslCaCert;
+    }
+
+    /**
+     * Configure the CA certificate to be trusted when making https requests.
+     * Use null to reset to default.
+     *
+     * @param sslCaCert input stream for SSL CA cert
+     * @return ApiClient
+     */
+    public ApiClient setSslCaCert(InputStream sslCaCert) {
+        this.sslCaCert = sslCaCert;
+        applySslSettings();
+        return this;
+    }
+
+    /**
+     * <p>Getter for the field <code>keyManagers</code>.</p>
+     *
+     * @return an array of {@link javax.net.ssl.KeyManager} objects
+     */
+    public KeyManager[] getKeyManagers() {
+        return keyManagers;
+    }
+
+    /**
+     * Configure client keys to use for authorization in an SSL session.
+     * Use null to reset to default.
+     *
+     * @param managers The KeyManagers to use
+     * @return ApiClient
+     */
+    public ApiClient setKeyManagers(KeyManager[] managers) {
+        this.keyManagers = managers;
+        applySslSettings();
+        return this;
+    }
+
+    /**
+     * <p>Getter for the field <code>dateFormat</code>.</p>
+     *
+     * @return a {@link java.text.DateFormat} object
+     */
+    public DateFormat getDateFormat() {
+        return dateFormat;
+    }
+
+    /**
+     * <p>Setter for the field <code>dateFormat</code>.</p>
+     *
+     * @param dateFormat a {@link java.text.DateFormat} object
+     * @return a {@link test.test.runtime.ApiClient} object
+     */
+    public ApiClient setDateFormat(DateFormat dateFormat) {
+        JSON.setDateFormat(dateFormat);
+        return this;
+    }
+
+    /**
+     * <p>Set SqlDateFormat.</p>
+     *
+     * @param dateFormat a {@link java.text.DateFormat} object
+     * @return a {@link test.test.runtime.ApiClient} object
+     */
+    public ApiClient setSqlDateFormat(DateFormat dateFormat) {
+        JSON.setSqlDateFormat(dateFormat);
+        return this;
+    }
+
+    /**
+     * <p>Set OffsetDateTimeFormat.</p>
+     *
+     * @param dateFormat a {@link java.time.format.DateTimeFormatter} object
+     * @return a {@link test.test.runtime.ApiClient} object
+     */
+    public ApiClient setOffsetDateTimeFormat(DateTimeFormatter dateFormat) {
+        JSON.setOffsetDateTimeFormat(dateFormat);
+        return this;
+    }
+
+    /**
+     * <p>Set LocalDateFormat.</p>
+     *
+     * @param dateFormat a {@link java.time.format.DateTimeFormatter} object
+     * @return a {@link test.test.runtime.ApiClient} object
+     */
+    public ApiClient setLocalDateFormat(DateTimeFormatter dateFormat) {
+        JSON.setLocalDateFormat(dateFormat);
+        return this;
+    }
+
+    /**
+     * <p>Set LenientOnJson.</p>
+     *
+     * @param lenientOnJson a boolean
+     * @return a {@link test.test.runtime.ApiClient} object
+     */
+    public ApiClient setLenientOnJson(boolean lenientOnJson) {
+        JSON.setLenientOnJson(lenientOnJson);
+        return this;
+    }
+
+    /**
+     * Get authentications (key: authentication name, value: authentication).
+     *
+     * @return Map of authentication objects
+     */
+    public Map<String, Authentication> getAuthentications() {
+        return authentications;
+    }
+
+    /**
+     * Get authentication for the given name.
+     *
+     * @param authName The authentication name
+     * @return The authentication, null if not found
+     */
+    public Authentication getAuthentication(String authName) {
+        return authentications.get(authName);
+    }
+
+
+    /**
+     * Helper method to set username for the first HTTP basic authentication.
+     *
+     * @param username Username
+     */
+    public void setUsername(String username) {
+        for (Authentication auth : authentications.values()) {
+            if (auth instanceof HttpBasicAuth) {
+                ((HttpBasicAuth) auth).setUsername(username);
+                return;
+            }
+        }
+        throw new RuntimeException("No HTTP basic authentication configured!");
+    }
+
+    /**
+     * Helper method to set password for the first HTTP basic authentication.
+     *
+     * @param password Password
+     */
+    public void setPassword(String password) {
+        for (Authentication auth : authentications.values()) {
+            if (auth instanceof HttpBasicAuth) {
+                ((HttpBasicAuth) auth).setPassword(password);
+                return;
+            }
+        }
+        throw new RuntimeException("No HTTP basic authentication configured!");
+    }
+
+    /**
+     * Helper method to set API key value for the first API key authentication.
+     *
+     * @param apiKey API key
+     */
+    public void setApiKey(String apiKey) {
+        for (Authentication auth : authentications.values()) {
+            if (auth instanceof ApiKeyAuth) {
+                ((ApiKeyAuth) auth).setApiKey(apiKey);
+                return;
+            }
+        }
+        throw new RuntimeException("No API key authentication configured!");
+    }
+
+    /**
+     * Helper method to set API key prefix for the first API key authentication.
+     *
+     * @param apiKeyPrefix API key prefix
+     */
+    public void setApiKeyPrefix(String apiKeyPrefix) {
+        for (Authentication auth : authentications.values()) {
+            if (auth instanceof ApiKeyAuth) {
+                ((ApiKeyAuth) auth).setApiKeyPrefix(apiKeyPrefix);
+                return;
+            }
+        }
+        throw new RuntimeException("No API key authentication configured!");
+    }
+
+    /**
+     * Helper method to set access token for the first OAuth2 authentication.
+     *
+     * @param accessToken Access token
+     */
+    public void setAccessToken(String accessToken) {
+        throw new RuntimeException("No OAuth2 authentication configured!");
+    }
+
+    /**
+     * Helper method to set credentials for AWSV4 Signature
+     *
+     * @param accessKey Access Key
+     * @param secretKey Secret Key
+     * @param region Region
+     * @param service Service to access to
+     */
+    public void setAWS4Configuration(String accessKey, String secretKey, String region, String service) {
+        throw new RuntimeException("No AWS4 authentication configured!");
+    }
+
+    /**
+     * Set the User-Agent header's value (by adding to the default header map).
+     *
+     * @param userAgent HTTP request's user agent
+     * @return ApiClient
+     */
+    public ApiClient setUserAgent(String userAgent) {
+        addDefaultHeader("User-Agent", userAgent);
+        return this;
+    }
+
+    /**
+     * Add a default header.
+     *
+     * @param key The header's key
+     * @param value The header's value
+     * @return ApiClient
+     */
+    public ApiClient addDefaultHeader(String key, String value) {
+        defaultHeaderMap.put(key, value);
+        return this;
+    }
+
+    /**
+     * Add a default cookie.
+     *
+     * @param key The cookie's key
+     * @param value The cookie's value
+     * @return ApiClient
+     */
+    public ApiClient addDefaultCookie(String key, String value) {
+        defaultCookieMap.put(key, value);
+        return this;
+    }
+
+    /**
+     * Check that whether debugging is enabled for this API client.
+     *
+     * @return True if debugging is enabled, false otherwise.
+     */
+    public boolean isDebugging() {
+        return debugging;
+    }
+
+    /**
+     * Enable/disable debugging for this API client.
+     *
+     * @param debugging To enable (true) or disable (false) debugging
+     * @return ApiClient
+     */
+    public ApiClient setDebugging(boolean debugging) {
+        if (debugging != this.debugging) {
+            if (debugging) {
+                loggingInterceptor = new HttpLoggingInterceptor();
+                loggingInterceptor.setLevel(Level.BODY);
+                httpClient = httpClient.newBuilder().addInterceptor(loggingInterceptor).build();
+            } else {
+                final OkHttpClient.Builder builder = httpClient.newBuilder();
+                builder.interceptors().remove(loggingInterceptor);
+                httpClient = builder.build();
+                loggingInterceptor = null;
+            }
+        }
+        this.debugging = debugging;
+        return this;
+    }
+
+    /**
+     * The path of temporary folder used to store downloaded files from endpoints
+     * with file response. The default value is <code>null</code>, i.e. using
+     * the system's default temporary folder.
+     *
+     * @see <a href="https://docs.oracle.com/javase/7/docs/api/java/nio/file/Files.html#createTempFile(java.lang.String,%20java.lang.String,%20java.nio.file.attribute.FileAttribute...)">createTempFile</a>
+     * @return Temporary folder path
+     */
+    public String getTempFolderPath() {
+        return tempFolderPath;
+    }
+
+    /**
+     * Set the temporary folder path (for downloading files)
+     *
+     * @param tempFolderPath Temporary folder path
+     * @return ApiClient
+     */
+    public ApiClient setTempFolderPath(String tempFolderPath) {
+        this.tempFolderPath = tempFolderPath;
+        return this;
+    }
+
+    /**
+     * Get connection timeout (in milliseconds).
+     *
+     * @return Timeout in milliseconds
+     */
+    public int getConnectTimeout() {
+        return httpClient.connectTimeoutMillis();
+    }
+
+    /**
+     * Sets the connect timeout (in milliseconds).
+     * A value of 0 means no timeout, otherwise values must be between 1 and
+     * {@link java.lang.Integer#MAX_VALUE}.
+     *
+     * @param connectionTimeout connection timeout in milliseconds
+     * @return Api client
+     */
+    public ApiClient setConnectTimeout(int connectionTimeout) {
+        httpClient = httpClient.newBuilder().connectTimeout(connectionTimeout, TimeUnit.MILLISECONDS).build();
+        return this;
+    }
+
+    /**
+     * Get read timeout (in milliseconds).
+     *
+     * @return Timeout in milliseconds
+     */
+    public int getReadTimeout() {
+        return httpClient.readTimeoutMillis();
+    }
+
+    /**
+     * Sets the read timeout (in milliseconds).
+     * A value of 0 means no timeout, otherwise values must be between 1 and
+     * {@link java.lang.Integer#MAX_VALUE}.
+     *
+     * @param readTimeout read timeout in milliseconds
+     * @return Api client
+     */
+    public ApiClient setReadTimeout(int readTimeout) {
+        httpClient = httpClient.newBuilder().readTimeout(readTimeout, TimeUnit.MILLISECONDS).build();
+        return this;
+    }
+
+    /**
+     * Get write timeout (in milliseconds).
+     *
+     * @return Timeout in milliseconds
+     */
+    public int getWriteTimeout() {
+        return httpClient.writeTimeoutMillis();
+    }
+
+    /**
+     * Sets the write timeout (in milliseconds).
+     * A value of 0 means no timeout, otherwise values must be between 1 and
+     * {@link java.lang.Integer#MAX_VALUE}.
+     *
+     * @param writeTimeout connection timeout in milliseconds
+     * @return Api client
+     */
+    public ApiClient setWriteTimeout(int writeTimeout) {
+        httpClient = httpClient.newBuilder().writeTimeout(writeTimeout, TimeUnit.MILLISECONDS).build();
+        return this;
+    }
+
+
+    /**
+     * Format the given parameter object into string.
+     *
+     * @param param Parameter
+     * @return String representation of the parameter
+     */
+    public String parameterToString(Object param) {
+        if (param == null) {
+            return "";
+        } else if (param instanceof Date || param instanceof OffsetDateTime || param instanceof LocalDate) {
+            //Serialize to json string and remove the " enclosing characters
+            String jsonStr = JSON.serialize(param);
+            return jsonStr.substring(1, jsonStr.length() - 1);
+        } else if (param instanceof Collection) {
+            StringBuilder b = new StringBuilder();
+            for (Object o : (Collection) param) {
+                if (b.length() > 0) {
+                    b.append(",");
+                }
+                b.append(o);
+            }
+            return b.toString();
+        } else {
+            return String.valueOf(param);
+        }
+    }
+
+    /**
+     * Formats the specified query parameter to a list containing a single {@code Pair} object.
+     *
+     * Note that {@code value} must not be a collection.
+     *
+     * @param name The name of the parameter.
+     * @param value The value of the parameter.
+     * @return A list containing a single {@code Pair} object.
+     */
+    public List<Pair> parameterToPair(String name, Object value) {
+        List<Pair> params = new ArrayList<Pair>();
+
+        // preconditions
+        if (name == null || name.isEmpty() || value == null || value instanceof Collection) {
+            return params;
+        }
+
+        params.add(new Pair(name, parameterToString(value)));
+        return params;
+    }
+
+    /**
+     * Formats the specified collection query parameters to a list of {@code Pair} objects.
+     *
+     * Note that the values of each of the returned Pair objects are percent-encoded.
+     *
+     * @param collectionFormat The collection format of the parameter.
+     * @param name The name of the parameter.
+     * @param value The value of the parameter.
+     * @return A list of {@code Pair} objects.
+     */
+    public List<Pair> parameterToPairs(String collectionFormat, String name, Collection value) {
+        List<Pair> params = new ArrayList<Pair>();
+
+        // preconditions
+        if (name == null || name.isEmpty() || value == null || value.isEmpty()) {
+            return params;
+        }
+
+        // create the params based on the collection format
+        if ("multi".equals(collectionFormat)) {
+            for (Object item : value) {
+                params.add(new Pair(name, escapeString(parameterToString(item))));
+            }
+            return params;
+        }
+
+        // collectionFormat is assumed to be "csv" by default
+        String delimiter = ",";
+
+        // escape all delimiters except commas, which are URI reserved
+        // characters
+        if ("ssv".equals(collectionFormat)) {
+            delimiter = escapeString(" ");
+        } else if ("tsv".equals(collectionFormat)) {
+            delimiter = escapeString("\\t");
+        } else if ("pipes".equals(collectionFormat)) {
+            delimiter = escapeString("|");
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (Object item : value) {
+            sb.append(delimiter);
+            sb.append(escapeString(parameterToString(item)));
+        }
+
+        params.add(new Pair(name, sb.substring(delimiter.length())));
+
+        return params;
+    }
+
+    /**
+     * Formats the specified collection path parameter to a string value.
+     *
+     * @param collectionFormat The collection format of the parameter.
+     * @param value The value of the parameter.
+     * @return String representation of the parameter
+     */
+    public String collectionPathParameterToString(String collectionFormat, Collection value) {
+        // create the value based on the collection format
+        if ("multi".equals(collectionFormat)) {
+            // not valid for path params
+            return parameterToString(value);
+        }
+
+        // collectionFormat is assumed to be "csv" by default
+        String delimiter = ",";
+
+        if ("ssv".equals(collectionFormat)) {
+            delimiter = " ";
+        } else if ("tsv".equals(collectionFormat)) {
+            delimiter = "\\t";
+        } else if ("pipes".equals(collectionFormat)) {
+            delimiter = "|";
+        }
+
+        StringBuilder sb = new StringBuilder() ;
+        for (Object item : value) {
+            sb.append(delimiter);
+            sb.append(parameterToString(item));
+        }
+
+        return sb.substring(delimiter.length());
+    }
+
+    /**
+     * Sanitize filename by removing path.
+     * e.g. ../../sun.gif becomes sun.gif
+     *
+     * @param filename The filename to be sanitized
+     * @return The sanitized filename
+     */
+    public String sanitizeFilename(String filename) {
+        return filename.replaceAll(".*[/\\\\\\\\]", "");
+    }
+
+    /**
+     * Check if the given MIME is a JSON MIME.
+     * JSON MIME examples:
+     *   application/json
+     *   application/json; charset=UTF8
+     *   APPLICATION/JSON
+     *   application/vnd.company+json
+     * "* / *" is also default to JSON
+     * @param mime MIME (Multipurpose Internet Mail Extensions)
+     * @return True if the given MIME is JSON, false otherwise.
+     */
+    public boolean isJsonMime(String mime) {
+        String jsonMime = "(?i)^(application/json|[^;/ \\t]+/[^;/ \\t]+[+]json)[ \\t]*(;.*)?$";
+        return mime != null && (mime.matches(jsonMime) || mime.equals("*/*"));
+    }
+
+    /**
+     * Select the Accept header's value from the given accepts array:
+     *   if JSON exists in the given array, use it;
+     *   otherwise use all of them (joining into a string)
+     *
+     * @param accepts The accepts array to select from
+     * @return The Accept header to use. If the given array is empty,
+     *   null will be returned (not to set the Accept header explicitly).
+     */
+    public String selectHeaderAccept(String[] accepts) {
+        if (accepts.length == 0) {
+            return null;
+        }
+        for (String accept : accepts) {
+            if (isJsonMime(accept)) {
+                return accept;
+            }
+        }
+        return StringUtil.join(accepts, ",");
+    }
+
+    /**
+     * Select the Content-Type header's value from the given array:
+     *   if JSON exists in the given array, use it;
+     *   otherwise use the first one of the array.
+     *
+     * @param contentTypes The Content-Type array to select from
+     * @return The Content-Type header to use. If the given array is empty,
+     *   returns null. If it matches "any", JSON will be used.
+     */
+    public String selectHeaderContentType(String[] contentTypes) {
+        if (contentTypes.length == 0) {
+            return null;
+        }
+
+        if (contentTypes[0].equals("*/*")) {
+            return "application/json";
+        }
+
+        for (String contentType : contentTypes) {
+            if (isJsonMime(contentType)) {
+                return contentType;
+            }
+        }
+
+        return contentTypes[0];
+    }
+
+    /**
+     * Escape the given string to be used as URL query value.
+     *
+     * @param str String to be escaped
+     * @return Escaped string
+     */
+    public String escapeString(String str) {
+        try {
+            return URLEncoder.encode(str, "utf8").replaceAll("\\\\+", "%20");
+        } catch (UnsupportedEncodingException e) {
+            return str;
+        }
+    }
+
+    /**
+     * Deserialize response body to Java object, according to the return type and
+     * the Content-Type response header.
+     *
+     * @param <T> Type
+     * @param response HTTP response
+     * @param returnType The type of the Java object
+     * @return The deserialized Java object
+     * @throws test.test.runtime.ApiException If fail to deserialize response body, i.e. cannot read response body
+     *   or the Content-Type of the response is not supported.
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T deserialize(Response response, Type returnType) throws ApiException {
+        if (response == null || returnType == null) {
+            return null;
+        }
+
+        if ("byte[]".equals(returnType.toString())) {
+            // Handle binary response (byte array).
+            try {
+                return (T) response.body().bytes();
+            } catch (IOException e) {
+                throw new ApiException(e);
+            }
+        } else if (returnType.equals(File.class)) {
+            // Handle file downloading.
+            return (T) downloadFileFromResponse(response);
+        }
+
+        String respBody;
+        try {
+            if (response.body() != null)
+                respBody = response.body().string();
+            else
+                respBody = null;
+        } catch (IOException e) {
+            throw new ApiException(e);
+        }
+
+        if (respBody == null || "".equals(respBody)) {
+            return null;
+        }
+
+        String contentType = response.headers().get("Content-Type");
+        if (contentType == null) {
+            // ensuring a default content type
+            contentType = "application/json";
+        }
+        if (isJsonMime(contentType)) {
+            return JSON.deserialize(respBody, returnType);
+        } else if (returnType.equals(String.class)) {
+            // Expecting string, return the raw response body.
+            return (T) respBody;
+        } else {
+            throw new ApiException(
+                    "Content type \\"" + contentType + "\\" is not supported for type: " + returnType,
+                    response.code(),
+                    response.headers().toMultimap(),
+                    respBody);
+        }
+    }
+
+    /**
+     * Serialize the given Java object into request body according to the object's
+     * class and the request Content-Type.
+     *
+     * @param obj The Java object
+     * @param contentType The request Content-Type
+     * @return The serialized request body
+     * @throws test.test.runtime.ApiException If fail to serialize the given object
+     */
+    public RequestBody serialize(Object obj, String contentType) throws ApiException {
+        if (obj instanceof byte[]) {
+            // Binary (byte array) body parameter support.
+            return RequestBody.create((byte[]) obj, MediaType.parse(contentType));
+        } else if (obj instanceof File) {
+            // File body parameter support.
+            return RequestBody.create((File) obj, MediaType.parse(contentType));
+        } else if ("text/plain".equals(contentType) && obj instanceof String) {
+            return RequestBody.create((String) obj, MediaType.parse(contentType));
+        } else if (isJsonMime(contentType)) {
+            String content;
+            if (obj != null) {
+                content = JSON.serialize(obj);
+            } else {
+                content = null;
+            }
+            return RequestBody.create(content, MediaType.parse(contentType));
+        } else if (obj instanceof String) {
+            return RequestBody.create((String) obj, MediaType.parse(contentType));
+        } else {
+            throw new ApiException("Content type \\"" + contentType + "\\" is not supported");
+        }
+    }
+
+    /**
+     * Download file from the given response.
+     *
+     * @param response An instance of the Response object
+     * @throws test.test.runtime.ApiException If fail to read file content from response and write to disk
+     * @return Downloaded file
+     */
+    public File downloadFileFromResponse(Response response) throws ApiException {
+        try {
+            File file = prepareDownloadFile(response);
+            BufferedSink sink = Okio.buffer(Okio.sink(file));
+            sink.writeAll(response.body().source());
+            sink.close();
+            return file;
+        } catch (IOException e) {
+            throw new ApiException(e);
+        }
+    }
+
+    /**
+     * Prepare file for download
+     *
+     * @param response An instance of the Response object
+     * @return Prepared file for the download
+     * @throws java.io.IOException If fail to prepare file for download
+     */
+    public File prepareDownloadFile(Response response) throws IOException {
+        String filename = null;
+        String contentDisposition = response.header("Content-Disposition");
+        if (contentDisposition != null && !"".equals(contentDisposition)) {
+            // Get filename from the Content-Disposition header.
+            Pattern pattern = Pattern.compile("filename=['\\"]?([^'\\"\\\\s]+)['\\"]?");
+            Matcher matcher = pattern.matcher(contentDisposition);
+            if (matcher.find()) {
+                filename = sanitizeFilename(matcher.group(1));
+            }
+        }
+
+        String prefix = null;
+        String suffix = null;
+        if (filename == null) {
+            prefix = "download-";
+            suffix = "";
+        } else {
+            int pos = filename.lastIndexOf(".");
+            if (pos == -1) {
+                prefix = filename + "-";
+            } else {
+                prefix = filename.substring(0, pos) + "-";
+                suffix = filename.substring(pos);
+            }
+            // Files.createTempFile requires the prefix to be at least three characters long
+            if (prefix.length() < 3)
+                prefix = "download-";
+        }
+
+        if (tempFolderPath == null)
+            return Files.createTempFile(prefix, suffix).toFile();
+        else
+            return Files.createTempFile(Paths.get(tempFolderPath), prefix, suffix).toFile();
+    }
+
+    /**
+     * {@link #execute(Call, Type)}
+     *
+     * @param <T> Type
+     * @param call An instance of the Call object
+     * @return ApiResponse&lt;T&gt;
+     * @throws test.test.runtime.ApiException If fail to execute the call
+     */
+    public <T> ApiResponse<T> execute(Call call) throws ApiException {
+        return execute(call, null);
+    }
+
+    /**
+     * Execute HTTP call and deserialize the HTTP response body into the given return type.
+     *
+     * @param returnType The return type used to deserialize HTTP response body
+     * @param <T> The return type corresponding to (same with) returnType
+     * @param call Call
+     * @return ApiResponse object containing response status, headers and
+     *   data, which is a Java object deserialized from response body and would be null
+     *   when returnType is null.
+     * @throws test.test.runtime.ApiException If fail to execute the call
+     */
+    public <T> ApiResponse<T> execute(Call call, Type returnType) throws ApiException {
+        try {
+            Response response = call.execute();
+            T data = handleResponse(response, returnType);
+            return new ApiResponse<T>(response.code(), response.headers().toMultimap(), data);
+        } catch (IOException e) {
+            throw new ApiException(e);
+        }
+    }
+
+    /**
+     * {@link #executeAsync(Call, Type, ApiCallback)}
+     *
+     * @param <T> Type
+     * @param call An instance of the Call object
+     * @param callback ApiCallback&lt;T&gt;
+     */
+    public <T> void executeAsync(Call call, ApiCallback<T> callback) {
+        executeAsync(call, null, callback);
+    }
+
+    /**
+     * Execute HTTP call asynchronously.
+     *
+     * @param <T> Type
+     * @param call The callback to be executed when the API call finishes
+     * @param returnType Return type
+     * @param callback ApiCallback
+     * @see #execute(Call, Type)
+     */
+    @SuppressWarnings("unchecked")
+    public <T> void executeAsync(Call call, final Type returnType, final ApiCallback<T> callback) {
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onFailure(new ApiException(e), 0, null);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                T result;
+                try {
+                    result = (T) handleResponse(response, returnType);
+                } catch (ApiException e) {
+                    callback.onFailure(e, response.code(), response.headers().toMultimap());
+                    return;
+                } catch (Exception e) {
+                    callback.onFailure(new ApiException(e), response.code(), response.headers().toMultimap());
+                    return;
+                }
+                callback.onSuccess(result, response.code(), response.headers().toMultimap());
+            }
+        });
+    }
+
+    /**
+     * Handle the given response, return the deserialized object when the response is successful.
+     *
+     * @param <T> Type
+     * @param response Response
+     * @param returnType Return type
+     * @return Type
+     * @throws test.test.runtime.ApiException If the response has an unsuccessful status code or
+     *                      fail to deserialize the response body
+     */
+    public <T> T handleResponse(Response response, Type returnType) throws ApiException {
+        if (response.isSuccessful()) {
+            if (returnType == null || response.code() == 204) {
+                // returning null if the returnType is not defined,
+                // or the status code is 204 (No Content)
+                if (response.body() != null) {
+                    try {
+                        response.body().close();
+                    } catch (Exception e) {
+                        throw new ApiException(response.message(), e, response.code(), response.headers().toMultimap());
+                    }
+                }
+                return null;
+            } else {
+                return deserialize(response, returnType);
+            }
+        } else {
+            String respBody = null;
+            if (response.body() != null) {
+                try {
+                    respBody = response.body().string();
+                } catch (IOException e) {
+                    throw new ApiException(response.message(), e, response.code(), response.headers().toMultimap());
+                }
+            }
+            throw new ApiException(response.message(), response.code(), response.headers().toMultimap(), respBody);
+        }
+    }
+
+    /**
+     * Build HTTP call with the given options.
+     *
+     * @param baseUrl The base URL
+     * @param path The sub-path of the HTTP URL
+     * @param method The request method, one of "GET", "HEAD", "OPTIONS", "POST", "PUT", "PATCH" and "DELETE"
+     * @param queryParams The query parameters
+     * @param collectionQueryParams The collection query parameters
+     * @param body The request body object
+     * @param headerParams The header parameters
+     * @param cookieParams The cookie parameters
+     * @param formParams The form parameters
+     * @param authNames The authentications to apply
+     * @param callback Callback for upload/download progress
+     * @return The HTTP call
+     * @throws test.test.runtime.ApiException If fail to serialize the request body object
+     */
+    public Call buildCall(String baseUrl, String path, String method, List<Pair> queryParams, List<Pair> collectionQueryParams, Object body, Map<String, String> headerParams, Map<String, String> cookieParams, Map<String, Object> formParams, String[] authNames, ApiCallback callback) throws ApiException {
+        Request request = buildRequest(baseUrl, path, method, queryParams, collectionQueryParams, body, headerParams, cookieParams, formParams, authNames, callback);
+
+        return httpClient.newCall(request);
+    }
+
+    /**
+     * Build an HTTP request with the given options.
+     *
+     * @param baseUrl The base URL
+     * @param path The sub-path of the HTTP URL
+     * @param method The request method, one of "GET", "HEAD", "OPTIONS", "POST", "PUT", "PATCH" and "DELETE"
+     * @param queryParams The query parameters
+     * @param collectionQueryParams The collection query parameters
+     * @param body The request body object
+     * @param headerParams The header parameters
+     * @param cookieParams The cookie parameters
+     * @param formParams The form parameters
+     * @param authNames The authentications to apply
+     * @param callback Callback for upload/download progress
+     * @return The HTTP request
+     * @throws test.test.runtime.ApiException If fail to serialize the request body object
+     */
+    public Request buildRequest(String baseUrl, String path, String method, List<Pair> queryParams, List<Pair> collectionQueryParams, Object body, Map<String, String> headerParams, Map<String, String> cookieParams, Map<String, Object> formParams, String[] authNames, ApiCallback callback) throws ApiException {
+        // aggregate queryParams (non-collection) and collectionQueryParams into allQueryParams
+        List<Pair> allQueryParams = new ArrayList<Pair>(queryParams);
+        allQueryParams.addAll(collectionQueryParams);
+
+        final String url = buildUrl(baseUrl, path, queryParams, collectionQueryParams);
+
+        // prepare HTTP request body
+        RequestBody reqBody;
+        String contentType = headerParams.get("Content-Type");
+
+        if (!HttpMethod.permitsRequestBody(method)) {
+            reqBody = null;
+        } else if ("application/x-www-form-urlencoded".equals(contentType)) {
+            reqBody = buildRequestBodyFormEncoding(formParams);
+        } else if ("multipart/form-data".equals(contentType)) {
+            reqBody = buildRequestBodyMultipart(formParams);
+        } else if (body == null) {
+            if ("DELETE".equals(method)) {
+                // allow calling DELETE without sending a request body
+                reqBody = null;
+            } else {
+                // use an empty request body (for POST, PUT and PATCH)
+                reqBody = RequestBody.create("", contentType == null ? null : MediaType.parse(contentType));
+            }
+        } else {
+            reqBody = serialize(body, contentType);
+        }
+
+        // update parameters with authentication settings
+        updateParamsForAuth(authNames, allQueryParams, headerParams, cookieParams, requestBodyToString(reqBody), method, URI.create(url));
+
+        final Request.Builder reqBuilder = new Request.Builder().url(url);
+        processHeaderParams(headerParams, reqBuilder);
+        processCookieParams(cookieParams, reqBuilder);
+
+        // Associate callback with request (if not null) so interceptor can
+        // access it when creating ProgressResponseBody
+        reqBuilder.tag(callback);
+
+        Request request = null;
+
+        if (callback != null && reqBody != null) {
+            ProgressRequestBody progressRequestBody = new ProgressRequestBody(reqBody, callback);
+            request = reqBuilder.method(method, progressRequestBody).build();
+        } else {
+            request = reqBuilder.method(method, reqBody).build();
+        }
+
+        return request;
+    }
+
+    /**
+     * Build full URL by concatenating base path, the given sub path and query parameters.
+     *
+     * @param baseUrl The base URL
+     * @param path The sub path
+     * @param queryParams The query parameters
+     * @param collectionQueryParams The collection query parameters
+     * @return The full URL
+     */
+    public String buildUrl(String baseUrl, String path, List<Pair> queryParams, List<Pair> collectionQueryParams) {
+        final StringBuilder url = new StringBuilder();
+        if (baseUrl != null) {
+            url.append(baseUrl).append(path);
+        } else {
+            String baseURL;
+            if (serverIndex != null) {
+                if (serverIndex < 0 || serverIndex >= servers.size()) {
+                    throw new ArrayIndexOutOfBoundsException(String.format(
+                    "Invalid index %d when selecting the host settings. Must be less than %d", serverIndex, servers.size()
+                    ));
+                }
+                baseURL = servers.get(serverIndex).URL(serverVariables);
+            } else {
+                baseURL = basePath;
+            }
+            url.append(baseURL).append(path);
+        }
+
+        if (queryParams != null && !queryParams.isEmpty()) {
+            // support (constant) query string in \`path\`, e.g. "/posts?draft=1"
+            String prefix = path.contains("?") ? "&" : "?";
+            for (Pair param : queryParams) {
+                if (param.getValue() != null) {
+                    if (prefix != null) {
+                        url.append(prefix);
+                        prefix = null;
+                    } else {
+                        url.append("&");
+                    }
+                    String value = parameterToString(param.getValue());
+                    url.append(escapeString(param.getName())).append("=").append(escapeString(value));
+                }
+            }
+        }
+
+        if (collectionQueryParams != null && !collectionQueryParams.isEmpty()) {
+            String prefix = url.toString().contains("?") ? "&" : "?";
+            for (Pair param : collectionQueryParams) {
+                if (param.getValue() != null) {
+                    if (prefix != null) {
+                        url.append(prefix);
+                        prefix = null;
+                    } else {
+                        url.append("&");
+                    }
+                    String value = parameterToString(param.getValue());
+                    // collection query parameter value already escaped as part of parameterToPairs
+                    url.append(escapeString(param.getName())).append("=").append(value);
+                }
+            }
+        }
+
+        return url.toString();
+    }
+
+    /**
+     * Set header parameters to the request builder, including default headers.
+     *
+     * @param headerParams Header parameters in the form of Map
+     * @param reqBuilder Request.Builder
+     */
+    public void processHeaderParams(Map<String, String> headerParams, Request.Builder reqBuilder) {
+        for (Entry<String, String> param : headerParams.entrySet()) {
+            reqBuilder.header(param.getKey(), parameterToString(param.getValue()));
+        }
+        for (Entry<String, String> header : defaultHeaderMap.entrySet()) {
+            if (!headerParams.containsKey(header.getKey())) {
+                reqBuilder.header(header.getKey(), parameterToString(header.getValue()));
+            }
+        }
+    }
+
+    /**
+     * Set cookie parameters to the request builder, including default cookies.
+     *
+     * @param cookieParams Cookie parameters in the form of Map
+     * @param reqBuilder Request.Builder
+     */
+    public void processCookieParams(Map<String, String> cookieParams, Request.Builder reqBuilder) {
+        for (Entry<String, String> param : cookieParams.entrySet()) {
+            reqBuilder.addHeader("Cookie", String.format("%s=%s", param.getKey(), param.getValue()));
+        }
+        for (Entry<String, String> param : defaultCookieMap.entrySet()) {
+            if (!cookieParams.containsKey(param.getKey())) {
+                reqBuilder.addHeader("Cookie", String.format("%s=%s", param.getKey(), param.getValue()));
+            }
+        }
+    }
+
+    /**
+     * Update query and header parameters based on authentication settings.
+     *
+     * @param authNames The authentications to apply
+     * @param queryParams List of query parameters
+     * @param headerParams Map of header parameters
+     * @param cookieParams Map of cookie parameters
+     * @param payload HTTP request body
+     * @param method HTTP method
+     * @param uri URI
+     * @throws test.test.runtime.ApiException If fails to update the parameters
+     */
+    public void updateParamsForAuth(String[] authNames, List<Pair> queryParams, Map<String, String> headerParams,
+                                    Map<String, String> cookieParams, String payload, String method, URI uri) throws ApiException {
+        for (String authName : authNames) {
+            Authentication auth = authentications.get(authName);
+            if (auth == null) {
+                throw new RuntimeException("Authentication undefined: " + authName);
+            }
+            auth.applyToParams(queryParams, headerParams, cookieParams, payload, method, uri);
+        }
+    }
+
+    /**
+     * Build a form-encoding request body with the given form parameters.
+     *
+     * @param formParams Form parameters in the form of Map
+     * @return RequestBody
+     */
+    public RequestBody buildRequestBodyFormEncoding(Map<String, Object> formParams) {
+        okhttp3.FormBody.Builder formBuilder = new okhttp3.FormBody.Builder();
+        for (Entry<String, Object> param : formParams.entrySet()) {
+            formBuilder.add(param.getKey(), parameterToString(param.getValue()));
+        }
+        return formBuilder.build();
+    }
+
+    /**
+     * Build a multipart (file uploading) request body with the given form parameters,
+     * which could contain text fields and file fields.
+     *
+     * @param formParams Form parameters in the form of Map
+     * @return RequestBody
+     */
+    public RequestBody buildRequestBodyMultipart(Map<String, Object> formParams) {
+        MultipartBody.Builder mpBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+        for (Entry<String, Object> param : formParams.entrySet()) {
+            if (param.getValue() instanceof File) {
+                File file = (File) param.getValue();
+                addPartToMultiPartBuilder(mpBuilder, param.getKey(), file);
+            } else if (param.getValue() instanceof List) {
+                List list = (List) param.getValue();
+                for (Object item: list) {
+                    if (item instanceof File) {
+                        addPartToMultiPartBuilder(mpBuilder, param.getKey(), (File) item);
+                    } else {
+                        addPartToMultiPartBuilder(mpBuilder, param.getKey(), param.getValue());
+                    }
+                }
+            } else {
+                addPartToMultiPartBuilder(mpBuilder, param.getKey(), param.getValue());
+            }
+        }
+        return mpBuilder.build();
+    }
+
+    /**
+     * Guess Content-Type header from the given file (defaults to "application/octet-stream").
+     *
+     * @param file The given file
+     * @return The guessed Content-Type
+     */
+    public String guessContentTypeFromFile(File file) {
+        String contentType = URLConnection.guessContentTypeFromName(file.getName());
+        if (contentType == null) {
+            return "application/octet-stream";
+        } else {
+            return contentType;
+        }
+    }
+
+    /**
+     * Add a Content-Disposition Header for the given key and file to the MultipartBody Builder.
+     *
+     * @param mpBuilder MultipartBody.Builder
+     * @param key The key of the Header element
+     * @param file The file to add to the Header
+     */
+    private void addPartToMultiPartBuilder(MultipartBody.Builder mpBuilder, String key, File file) {
+        Headers partHeaders = Headers.of("Content-Disposition", "form-data; name=\\"" + key + "\\"; filename=\\"" + file.getName() + "\\"");
+        MediaType mediaType = MediaType.parse(guessContentTypeFromFile(file));
+        mpBuilder.addPart(partHeaders, RequestBody.create(file, mediaType));
+    }
+
+    /**
+     * Add a Content-Disposition Header for the given key and complex object to the MultipartBody Builder.
+     *
+     * @param mpBuilder MultipartBody.Builder
+     * @param key The key of the Header element
+     * @param obj The complex object to add to the Header
+     */
+    private void addPartToMultiPartBuilder(MultipartBody.Builder mpBuilder, String key, Object obj) {
+        RequestBody requestBody;
+        if (obj instanceof String) {
+            requestBody = RequestBody.create((String) obj, MediaType.parse("text/plain"));
+        } else {
+            String content;
+            if (obj != null) {
+                content = JSON.serialize(obj);
+            } else {
+                content = null;
+            }
+            requestBody = RequestBody.create(content, MediaType.parse("application/json"));
+        }
+
+        Headers partHeaders = Headers.of("Content-Disposition", "form-data; name=\\"" + key + "\\"");
+        mpBuilder.addPart(partHeaders, requestBody);
+    }
+
+    /**
+     * Get network interceptor to add it to the httpClient to track download progress for
+     * async requests.
+     */
+    private Interceptor getProgressInterceptor() {
+        return new Interceptor() {
+            @Override
+            public Response intercept(Interceptor.Chain chain) throws IOException {
+                final Request request = chain.request();
+                final Response originalResponse = chain.proceed(request);
+                if (request.tag() instanceof ApiCallback) {
+                    final ApiCallback callback = (ApiCallback) request.tag();
+                    return originalResponse.newBuilder()
+                        .body(new ProgressResponseBody(originalResponse.body(), callback))
+                        .build();
+                }
+                return originalResponse;
+            }
+        };
+    }
+
+    /**
+     * Apply SSL related settings to httpClient according to the current values of
+     * verifyingSsl and sslCaCert.
+     */
+    private void applySslSettings() {
+        try {
+            TrustManager[] trustManagers;
+            HostnameVerifier hostnameVerifier;
+            if (!verifyingSsl) {
+                trustManagers = new TrustManager[]{
+                        new X509TrustManager() {
+                            @Override
+                            public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
+                            }
+
+                            @Override
+                            public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
+                            }
+
+                            @Override
+                            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                                return new java.security.cert.X509Certificate[]{};
+                            }
+                        }
+                };
+                hostnameVerifier = new HostnameVerifier() {
+                    @Override
+                    public boolean verify(String hostname, SSLSession session) {
+                        return true;
+                    }
+                };
+            } else {
+                TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+
+                if (sslCaCert == null) {
+                    trustManagerFactory.init((KeyStore) null);
+                } else {
+                    char[] password = null; // Any password will work.
+                    CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+                    Collection<? extends Certificate> certificates = certificateFactory.generateCertificates(sslCaCert);
+                    if (certificates.isEmpty()) {
+                        throw new IllegalArgumentException("expected non-empty set of trusted certificates");
+                    }
+                    KeyStore caKeyStore = newEmptyKeyStore(password);
+                    int index = 0;
+                    for (Certificate certificate : certificates) {
+                        String certificateAlias = "ca" + (index++);
+                        caKeyStore.setCertificateEntry(certificateAlias, certificate);
+                    }
+                    trustManagerFactory.init(caKeyStore);
+                }
+                trustManagers = trustManagerFactory.getTrustManagers();
+                hostnameVerifier = OkHostnameVerifier.INSTANCE;
+            }
+
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(keyManagers, trustManagers, new SecureRandom());
+            httpClient = httpClient.newBuilder()
+                            .sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustManagers[0])
+                            .hostnameVerifier(hostnameVerifier)
+                            .build();
+        } catch (GeneralSecurityException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private KeyStore newEmptyKeyStore(char[] password) throws GeneralSecurityException {
+        try {
+            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            keyStore.load(null, password);
+            return keyStore;
+        } catch (IOException e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    /**
+     * Convert the HTTP request body to a string.
+     *
+     * @param requestBody The HTTP request object
+     * @return The string representation of the HTTP request body
+     * @throws test.test.runtime.ApiException If fail to serialize the request body object into a string
+     */
+    private String requestBodyToString(RequestBody requestBody) throws ApiException {
+        if (requestBody != null) {
+            try {
+                final Buffer buffer = new Buffer();
+                requestBody.writeTo(buffer);
+                return buffer.readUtf8();
+            } catch (final IOException e) {
+                throw new ApiException(e);
+            }
+        }
+
+        // empty http request body
+        return "";
+    }
+}
+",
+  "src/main/java/test/test/runtime/ApiException.java": "/*
+ * Recursive schema
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime;
+
+import java.util.Map;
+import java.util.List;
+
+import javax.ws.rs.core.GenericType;
+
+/**
+ * <p>ApiException class.</p>
+ */
+@SuppressWarnings("serial")
+public class ApiException extends Exception {
+    private int code = 0;
+    private Map<String, List<String>> responseHeaders = null;
+    private String responseBody = null;
+
+    /**
+     * <p>Constructor for ApiException.</p>
+     */
+    public ApiException() {}
+
+    /**
+     * <p>Constructor for ApiException.</p>
+     *
+     * @param throwable a {@link java.lang.Throwable} object
+     */
+    public ApiException(Throwable throwable) {
+        super(throwable);
+    }
+
+    /**
+     * <p>Constructor for ApiException.</p>
+     *
+     * @param message the error message
+     */
+    public ApiException(String message) {
+        super(message);
+    }
+
+    /**
+     * <p>Constructor for ApiException.</p>
+     *
+     * @param message the error message
+     * @param throwable a {@link java.lang.Throwable} object
+     * @param code HTTP status code
+     * @param responseHeaders a {@link java.util.Map} of HTTP response headers
+     * @param responseBody the response body
+     */
+    public ApiException(String message, Throwable throwable, int code, Map<String, List<String>> responseHeaders, String responseBody) {
+        super(message, throwable);
+        this.code = code;
+        this.responseHeaders = responseHeaders;
+        this.responseBody = responseBody;
+    }
+
+    /**
+     * <p>Constructor for ApiException.</p>
+     *
+     * @param message the error message
+     * @param code HTTP status code
+     * @param responseHeaders a {@link java.util.Map} of HTTP response headers
+     * @param responseBody the response body
+     */
+    public ApiException(String message, int code, Map<String, List<String>> responseHeaders, String responseBody) {
+        this(message, (Throwable) null, code, responseHeaders, responseBody);
+    }
+
+    /**
+     * <p>Constructor for ApiException.</p>
+     *
+     * @param message the error message
+     * @param throwable a {@link java.lang.Throwable} object
+     * @param code HTTP status code
+     * @param responseHeaders a {@link java.util.Map} of HTTP response headers
+     */
+    public ApiException(String message, Throwable throwable, int code, Map<String, List<String>> responseHeaders) {
+        this(message, throwable, code, responseHeaders, null);
+    }
+
+    /**
+     * <p>Constructor for ApiException.</p>
+     *
+     * @param code HTTP status code
+     * @param responseHeaders a {@link java.util.Map} of HTTP response headers
+     * @param responseBody the response body
+     */
+    public ApiException(int code, Map<String, List<String>> responseHeaders, String responseBody) {
+        this("Response Code: " + code + " Response Body: " + responseBody, (Throwable) null, code, responseHeaders, responseBody);
+    }
+
+    /**
+     * <p>Constructor for ApiException.</p>
+     *
+     * @param code HTTP status code
+     * @param message a {@link java.lang.String} object
+     */
+    public ApiException(int code, String message) {
+        super(message);
+        this.code = code;
+    }
+
+    /**
+     * <p>Constructor for ApiException.</p>
+     *
+     * @param code HTTP status code
+     * @param message the error message
+     * @param responseHeaders a {@link java.util.Map} of HTTP response headers
+     * @param responseBody the response body
+     */
+    public ApiException(int code, String message, Map<String, List<String>> responseHeaders, String responseBody) {
+        this(code, message);
+        this.responseHeaders = responseHeaders;
+        this.responseBody = responseBody;
+    }
+
+    /**
+     * Get the HTTP status code.
+     *
+     * @return HTTP status code
+     */
+    public int getCode() {
+        return code;
+    }
+
+    /**
+     * Get the HTTP response headers.
+     *
+     * @return A map of list of string
+     */
+    public Map<String, List<String>> getResponseHeaders() {
+        return responseHeaders;
+    }
+
+    /**
+     * Get the HTTP response body.
+     *
+     * @return Response body in the form of string
+     */
+    public String getResponseBody() {
+        return responseBody;
+    }
+
+    /**
+     * Get the exception message including HTTP response data.
+     *
+     * @return The exception message
+     */
+    public String getMessage() {
+        return String.format("Message: %s%nHTTP response code: %s%nHTTP response body: %s%nHTTP response headers: %s",
+                super.getMessage(), this.getCode(), this.getResponseBody(), this.getResponseHeaders());
+    }
+}
+",
+  "src/main/java/test/test/runtime/ApiResponse.java": "/*
+ * Recursive schema
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * API response returned by API call.
+ */
+public class ApiResponse<T> {
+    final private int statusCode;
+    final private Map<String, List<String>> headers;
+    final private T data;
+
+    /**
+     * <p>Constructor for ApiResponse.</p>
+     *
+     * @param statusCode The status code of HTTP response
+     * @param headers The headers of HTTP response
+     */
+    public ApiResponse(int statusCode, Map<String, List<String>> headers) {
+        this(statusCode, headers, null);
+    }
+
+    /**
+     * <p>Constructor for ApiResponse.</p>
+     *
+     * @param statusCode The status code of HTTP response
+     * @param headers The headers of HTTP response
+     * @param data The object deserialized from response bod
+     */
+    public ApiResponse(int statusCode, Map<String, List<String>> headers, T data) {
+        this.statusCode = statusCode;
+        this.headers = headers;
+        this.data = data;
+    }
+
+    /**
+     * <p>Get the <code>status code</code>.</p>
+     *
+     * @return the status code
+     */
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    /**
+     * <p>Get the <code>headers</code>.</p>
+     *
+     * @return a {@link java.util.Map} of headers
+     */
+    public Map<String, List<String>> getHeaders() {
+        return headers;
+    }
+
+    /**
+     * <p>Get the <code>data</code>.</p>
+     *
+     * @return the data
+     */
+    public T getData() {
+        return data;
+    }
+}
+",
+  "src/main/java/test/test/runtime/Configuration.java": "/*
+ * Recursive schema
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime;
+
+public class Configuration {
+    private static ApiClient defaultApiClient = new ApiClient();
+
+    /**
+     * Get the default API client, which would be used when creating API
+     * instances without providing an API client.
+     *
+     * @return Default API client
+     */
+    public static ApiClient getDefaultApiClient() {
+        return defaultApiClient;
+    }
+
+    /**
+     * Set the default API client, which would be used when creating API
+     * instances without providing an API client.
+     *
+     * @param apiClient API client
+     */
+    public static void setDefaultApiClient(ApiClient apiClient) {
+        defaultApiClient = apiClient;
+    }
+}
+",
+  "src/main/java/test/test/runtime/GzipRequestInterceptor.java": "/*
+ * Recursive schema
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime;
+
+import okhttp3.*;
+import okio.Buffer;
+import okio.BufferedSink;
+import okio.GzipSink;
+import okio.Okio;
+
+import java.io.IOException;
+
+/**
+ * Encodes request bodies using gzip.
+ *
+ * Taken from https://github.com/square/okhttp/issues/350
+ */
+class GzipRequestInterceptor implements Interceptor {
+    @Override
+    public Response intercept(Chain chain) throws IOException {
+        Request originalRequest = chain.request();
+        if (originalRequest.body() == null || originalRequest.header("Content-Encoding") != null) {
+            return chain.proceed(originalRequest);
+        }
+
+        Request compressedRequest = originalRequest.newBuilder()
+                                                   .header("Content-Encoding", "gzip")
+                                                   .method(originalRequest.method(), forceContentLength(gzip(originalRequest.body())))
+                                                   .build();
+        return chain.proceed(compressedRequest);
+    }
+
+    private RequestBody forceContentLength(final RequestBody requestBody) throws IOException {
+        final Buffer buffer = new Buffer();
+        requestBody.writeTo(buffer);
+        return new RequestBody() {
+            @Override
+            public MediaType contentType() {
+                return requestBody.contentType();
+            }
+
+            @Override
+            public long contentLength() {
+                return buffer.size();
+            }
+
+            @Override
+            public void writeTo(BufferedSink sink) throws IOException {
+                sink.write(buffer.snapshot());
+            }
+        };
+    }
+
+    private RequestBody gzip(final RequestBody body) {
+        return new RequestBody() {
+            @Override
+            public MediaType contentType() {
+                return body.contentType();
+            }
+
+            @Override
+            public long contentLength() {
+                return -1; // We don't know the compressed length in advance!
+            }
+
+            @Override
+            public void writeTo(BufferedSink sink) throws IOException {
+                BufferedSink gzipSink = Okio.buffer(new GzipSink(sink));
+                body.writeTo(gzipSink);
+                gzipSink.close();
+            }
+        };
+    }
+}
+",
+  "src/main/java/test/test/runtime/JSON.java": "/*
+ * Recursive schema
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.internal.bind.util.ISO8601Utils;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import com.google.gson.JsonElement;
+import io.gsonfire.GsonFireBuilder;
+import io.gsonfire.TypeSelector;
+
+import okio.ByteString;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.lang.reflect.Type;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.ParsePosition;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
+import java.util.HashMap;
+
+/*
+ * A JSON utility class
+ *
+ * NOTE: in the future, this class may be converted to static, which may break
+ *       backward-compatibility
+ */
+public class JSON {
+    private static Gson gson;
+    private static boolean isLenientOnJson = false;
+    private static DateTypeAdapter dateTypeAdapter = new DateTypeAdapter();
+    private static SqlDateTypeAdapter sqlDateTypeAdapter = new SqlDateTypeAdapter();
+    private static OffsetDateTimeTypeAdapter offsetDateTimeTypeAdapter = new OffsetDateTimeTypeAdapter();
+    private static LocalDateTypeAdapter localDateTypeAdapter = new LocalDateTypeAdapter();
+    private static ByteArrayAdapter byteArrayAdapter = new ByteArrayAdapter();
+
+    @SuppressWarnings("unchecked")
+    public static GsonBuilder createGson() {
+        GsonFireBuilder fireBuilder = new GsonFireBuilder()
+        ;
+        GsonBuilder builder = fireBuilder.createGsonBuilder();
+        return builder;
+    }
+
+    private static String getDiscriminatorValue(JsonElement readElement, String discriminatorField) {
+        JsonElement element = readElement.getAsJsonObject().get(discriminatorField);
+        if (null == element) {
+            throw new IllegalArgumentException("missing discriminator field: <" + discriminatorField + ">");
+        }
+        return element.getAsString();
+    }
+
+    /**
+     * Returns the Java class that implements the OpenAPI schema for the specified discriminator value.
+     *
+     * @param classByDiscriminatorValue The map of discriminator values to Java classes.
+     * @param discriminatorValue The value of the OpenAPI discriminator in the input data.
+     * @return The Java class that implements the OpenAPI schema
+     */
+    private static Class getClassByDiscriminator(Map classByDiscriminatorValue, String discriminatorValue) {
+        Class clazz = (Class) classByDiscriminatorValue.get(discriminatorValue);
+        if (null == clazz) {
+            throw new IllegalArgumentException("cannot determine model class of name: <" + discriminatorValue + ">");
+        }
+        return clazz;
+    }
+
+    {
+        GsonBuilder gsonBuilder = createGson();
+        gsonBuilder.registerTypeAdapter(Date.class, dateTypeAdapter);
+        gsonBuilder.registerTypeAdapter(java.sql.Date.class, sqlDateTypeAdapter);
+        gsonBuilder.registerTypeAdapter(OffsetDateTime.class, offsetDateTimeTypeAdapter);
+        gsonBuilder.registerTypeAdapter(LocalDate.class, localDateTypeAdapter);
+        gsonBuilder.registerTypeAdapter(byte[].class, byteArrayAdapter);
+        gsonBuilder.registerTypeAdapterFactory(new test.test.runtime.model.TreeNode.CustomTypeAdapterFactory());
+        gson = gsonBuilder.create();
+    }
+
+    /**
+     * Get Gson.
+     *
+     * @return Gson
+     */
+    public static Gson getGson() {
+        return gson;
+    }
+
+    /**
+     * Set Gson.
+     *
+     * @param gson Gson
+     */
+    public static void setGson(Gson gson) {
+        JSON.gson = gson;
+    }
+
+    public static void setLenientOnJson(boolean lenientOnJson) {
+        isLenientOnJson = lenientOnJson;
+    }
+
+    /**
+     * Serialize the given Java object into JSON string.
+     *
+     * @param obj Object
+     * @return String representation of the JSON
+     */
+    public static String serialize(Object obj) {
+        return gson.toJson(obj);
+    }
+
+    /**
+     * Deserialize the given JSON string to Java object.
+     *
+     * @param <T>        Type
+     * @param body       The JSON string
+     * @param returnType The type to deserialize into
+     * @return The deserialized Java object
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T deserialize(String body, Type returnType) {
+        try {
+            if (isLenientOnJson) {
+                JsonReader jsonReader = new JsonReader(new StringReader(body));
+                // see https://google-gson.googlecode.com/svn/trunk/gson/docs/javadocs/com/google/gson/stream/JsonReader.html#setLenient(boolean)
+                jsonReader.setLenient(true);
+                return gson.fromJson(jsonReader, returnType);
+            } else {
+                return gson.fromJson(body, returnType);
+            }
+        } catch (JsonParseException e) {
+            // Fallback processing when failed to parse JSON form response body:
+            // return the response body string directly for the String return type;
+            if (returnType.equals(String.class)) {
+                return (T) body;
+            } else {
+                throw (e);
+            }
+        }
+    }
+
+    /**
+     * Gson TypeAdapter for Byte Array type
+     */
+    public static class ByteArrayAdapter extends TypeAdapter<byte[]> {
+
+        @Override
+        public void write(JsonWriter out, byte[] value) throws IOException {
+            if (value == null) {
+                out.nullValue();
+            } else {
+                out.value(ByteString.of(value).base64());
+            }
+        }
+
+        @Override
+        public byte[] read(JsonReader in) throws IOException {
+            switch (in.peek()) {
+                case NULL:
+                    in.nextNull();
+                    return null;
+                default:
+                    String bytesAsBase64 = in.nextString();
+                    ByteString byteString = ByteString.decodeBase64(bytesAsBase64);
+                    return byteString.toByteArray();
+            }
+        }
+    }
+
+    /**
+     * Gson TypeAdapter for JSR310 OffsetDateTime type
+     */
+    public static class OffsetDateTimeTypeAdapter extends TypeAdapter<OffsetDateTime> {
+
+        private DateTimeFormatter formatter;
+
+        public OffsetDateTimeTypeAdapter() {
+            this(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+        }
+
+        public OffsetDateTimeTypeAdapter(DateTimeFormatter formatter) {
+            this.formatter = formatter;
+        }
+
+        public void setFormat(DateTimeFormatter dateFormat) {
+            this.formatter = dateFormat;
+        }
+
+        @Override
+        public void write(JsonWriter out, OffsetDateTime date) throws IOException {
+            if (date == null) {
+                out.nullValue();
+            } else {
+                out.value(formatter.format(date));
+            }
+        }
+
+        @Override
+        public OffsetDateTime read(JsonReader in) throws IOException {
+            switch (in.peek()) {
+                case NULL:
+                    in.nextNull();
+                    return null;
+                default:
+                    String date = in.nextString();
+                    if (date.endsWith("+0000")) {
+                        date = date.substring(0, date.length()-5) + "Z";
+                    }
+                    return OffsetDateTime.parse(date, formatter);
+            }
+        }
+    }
+
+    /**
+     * Gson TypeAdapter for JSR310 LocalDate type
+     */
+    public static class LocalDateTypeAdapter extends TypeAdapter<LocalDate> {
+
+        private DateTimeFormatter formatter;
+
+        public LocalDateTypeAdapter() {
+            this(DateTimeFormatter.ISO_LOCAL_DATE);
+        }
+
+        public LocalDateTypeAdapter(DateTimeFormatter formatter) {
+            this.formatter = formatter;
+        }
+
+        public void setFormat(DateTimeFormatter dateFormat) {
+            this.formatter = dateFormat;
+        }
+
+        @Override
+        public void write(JsonWriter out, LocalDate date) throws IOException {
+            if (date == null) {
+                out.nullValue();
+            } else {
+                out.value(formatter.format(date));
+            }
+        }
+
+        @Override
+        public LocalDate read(JsonReader in) throws IOException {
+            switch (in.peek()) {
+                case NULL:
+                    in.nextNull();
+                    return null;
+                default:
+                    String date = in.nextString();
+                    return LocalDate.parse(date, formatter);
+            }
+        }
+    }
+
+    public static void setOffsetDateTimeFormat(DateTimeFormatter dateFormat) {
+        offsetDateTimeTypeAdapter.setFormat(dateFormat);
+    }
+
+    public static void setLocalDateFormat(DateTimeFormatter dateFormat) {
+        localDateTypeAdapter.setFormat(dateFormat);
+    }
+
+    /**
+     * Gson TypeAdapter for java.sql.Date type
+     * If the dateFormat is null, a simple "yyyy-MM-dd" format will be used
+     * (more efficient than SimpleDateFormat).
+     */
+    public static class SqlDateTypeAdapter extends TypeAdapter<java.sql.Date> {
+
+        private DateFormat dateFormat;
+
+        public SqlDateTypeAdapter() {}
+
+        public SqlDateTypeAdapter(DateFormat dateFormat) {
+            this.dateFormat = dateFormat;
+        }
+
+        public void setFormat(DateFormat dateFormat) {
+            this.dateFormat = dateFormat;
+        }
+
+        @Override
+        public void write(JsonWriter out, java.sql.Date date) throws IOException {
+            if (date == null) {
+                out.nullValue();
+            } else {
+                String value;
+                if (dateFormat != null) {
+                    value = dateFormat.format(date);
+                } else {
+                    value = date.toString();
+                }
+                out.value(value);
+            }
+        }
+
+        @Override
+        public java.sql.Date read(JsonReader in) throws IOException {
+            switch (in.peek()) {
+                case NULL:
+                    in.nextNull();
+                    return null;
+                default:
+                    String date = in.nextString();
+                    try {
+                        if (dateFormat != null) {
+                            return new java.sql.Date(dateFormat.parse(date).getTime());
+                        }
+                        return new java.sql.Date(ISO8601Utils.parse(date, new ParsePosition(0)).getTime());
+                    } catch (ParseException e) {
+                        throw new JsonParseException(e);
+                    }
+            }
+        }
+    }
+
+    /**
+     * Gson TypeAdapter for java.util.Date type
+     * If the dateFormat is null, ISO8601Utils will be used.
+     */
+    public static class DateTypeAdapter extends TypeAdapter<Date> {
+
+        private DateFormat dateFormat;
+
+        public DateTypeAdapter() {}
+
+        public DateTypeAdapter(DateFormat dateFormat) {
+            this.dateFormat = dateFormat;
+        }
+
+        public void setFormat(DateFormat dateFormat) {
+            this.dateFormat = dateFormat;
+        }
+
+        @Override
+        public void write(JsonWriter out, Date date) throws IOException {
+            if (date == null) {
+                out.nullValue();
+            } else {
+                String value;
+                if (dateFormat != null) {
+                    value = dateFormat.format(date);
+                } else {
+                    value = ISO8601Utils.format(date, true);
+                }
+                out.value(value);
+            }
+        }
+
+        @Override
+        public Date read(JsonReader in) throws IOException {
+            try {
+                switch (in.peek()) {
+                    case NULL:
+                        in.nextNull();
+                        return null;
+                    default:
+                        String date = in.nextString();
+                        try {
+                            if (dateFormat != null) {
+                                return dateFormat.parse(date);
+                            }
+                            return ISO8601Utils.parse(date, new ParsePosition(0));
+                        } catch (ParseException e) {
+                            throw new JsonParseException(e);
+                        }
+                }
+            } catch (IllegalArgumentException e) {
+                throw new JsonParseException(e);
+            }
+        }
+    }
+
+    public static void setDateFormat(DateFormat dateFormat) {
+        dateTypeAdapter.setFormat(dateFormat);
+    }
+
+    public static void setSqlDateFormat(DateFormat dateFormat) {
+        sqlDateTypeAdapter.setFormat(dateFormat);
+    }
+}
+",
+  "src/main/java/test/test/runtime/Pair.java": "/*
+ * Recursive schema
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime;
+
+public class Pair {
+    private String name = "";
+    private String value = "";
+
+    public Pair (String name, String value) {
+        setName(name);
+        setValue(value);
+    }
+
+    private void setName(String name) {
+        if (!isValidString(name)) {
+            return;
+        }
+
+        this.name = name;
+    }
+
+    private void setValue(String value) {
+        if (!isValidString(value)) {
+            return;
+        }
+
+        this.value = value;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public String getValue() {
+        return this.value;
+    }
+
+    private boolean isValidString(String arg) {
+        if (arg == null) {
+            return false;
+        }
+
+        return true;
+    }
+}
+",
+  "src/main/java/test/test/runtime/ProgressRequestBody.java": "/*
+ * Recursive schema
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime;
+
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+
+import java.io.IOException;
+
+import okio.Buffer;
+import okio.BufferedSink;
+import okio.ForwardingSink;
+import okio.Okio;
+import okio.Sink;
+
+public class ProgressRequestBody extends RequestBody {
+
+    private final RequestBody requestBody;
+
+    private final ApiCallback callback;
+
+    public ProgressRequestBody(RequestBody requestBody, ApiCallback callback) {
+        this.requestBody = requestBody;
+        this.callback = callback;
+    }
+
+    @Override
+    public MediaType contentType() {
+        return requestBody.contentType();
+    }
+
+    @Override
+    public long contentLength() throws IOException {
+        return requestBody.contentLength();
+    }
+
+    @Override
+    public void writeTo(BufferedSink sink) throws IOException {
+        BufferedSink bufferedSink = Okio.buffer(sink(sink));
+        requestBody.writeTo(bufferedSink);
+        bufferedSink.flush();
+    }
+
+    private Sink sink(Sink sink) {
+        return new ForwardingSink(sink) {
+
+            long bytesWritten = 0L;
+            long contentLength = 0L;
+
+            @Override
+            public void write(Buffer source, long byteCount) throws IOException {
+                super.write(source, byteCount);
+                if (contentLength == 0) {
+                    contentLength = contentLength();
+                }
+
+                bytesWritten += byteCount;
+                callback.onUploadProgress(bytesWritten, contentLength, bytesWritten == contentLength);
+            }
+        };
+    }
+}
+",
+  "src/main/java/test/test/runtime/ProgressResponseBody.java": "/*
+ * Recursive schema
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime;
+
+import okhttp3.MediaType;
+import okhttp3.ResponseBody;
+
+import java.io.IOException;
+
+import okio.Buffer;
+import okio.BufferedSource;
+import okio.ForwardingSource;
+import okio.Okio;
+import okio.Source;
+
+public class ProgressResponseBody extends ResponseBody {
+
+    private final ResponseBody responseBody;
+    private final ApiCallback callback;
+    private BufferedSource bufferedSource;
+
+    public ProgressResponseBody(ResponseBody responseBody, ApiCallback callback) {
+        this.responseBody = responseBody;
+        this.callback = callback;
+    }
+
+    @Override
+    public MediaType contentType() {
+        return responseBody.contentType();
+    }
+
+    @Override
+    public long contentLength() {
+        return responseBody.contentLength();
+    }
+
+    @Override
+    public BufferedSource source() {
+        if (bufferedSource == null) {
+            bufferedSource = Okio.buffer(source(responseBody.source()));
+        }
+        return bufferedSource;
+    }
+
+    private Source source(Source source) {
+        return new ForwardingSource(source) {
+            long totalBytesRead = 0L;
+
+            @Override
+            public long read(Buffer sink, long byteCount) throws IOException {
+                long bytesRead = super.read(sink, byteCount);
+                // read() returns the number of bytes read, or -1 if this source is exhausted.
+                totalBytesRead += bytesRead != -1 ? bytesRead : 0;
+                callback.onDownloadProgress(totalBytesRead, responseBody.contentLength(), bytesRead == -1);
+                return bytesRead;
+            }
+        };
+    }
+}
+",
+  "src/main/java/test/test/runtime/ServerConfiguration.java": "package test.test.runtime;
+
+import java.util.Map;
+
+/**
+ * Representing a Server configuration.
+ */
+public class ServerConfiguration {
+    public String URL;
+    public String description;
+    public Map<String, ServerVariable> variables;
+
+    /**
+     * @param URL A URL to the target host.
+     * @param description A description of the host designated by the URL.
+     * @param variables A map between a variable name and its value. The value is used for substitution in the server's URL template.
+     */
+    public ServerConfiguration(String URL, String description, Map<String, ServerVariable> variables) {
+        this.URL = URL;
+        this.description = description;
+        this.variables = variables;
+    }
+
+    /**
+     * Format URL template using given variables.
+     *
+     * @param variables A map between a variable name and its value.
+     * @return Formatted URL.
+     */
+    public String URL(Map<String, String> variables) {
+        String url = this.URL;
+
+        // go through variables and replace placeholders
+        for (Map.Entry<String, ServerVariable> variable: this.variables.entrySet()) {
+            String name = variable.getKey();
+            ServerVariable serverVariable = variable.getValue();
+            String value = serverVariable.defaultValue;
+
+            if (variables != null && variables.containsKey(name)) {
+                value = variables.get(name);
+                if (serverVariable.enumValues.size() > 0 && !serverVariable.enumValues.contains(value)) {
+                    throw new IllegalArgumentException("The variable " + name + " in the server URL has invalid value " + value + ".");
+                }
+            }
+            url = url.replace("{" + name + "}", value);
+        }
+        return url;
+    }
+
+    /**
+     * Format URL template using default server variables.
+     *
+     * @return Formatted URL.
+     */
+    public String URL() {
+        return URL(null);
+    }
+}
+",
+  "src/main/java/test/test/runtime/ServerVariable.java": "package test.test.runtime;
+
+import java.util.HashSet;
+
+/**
+ * Representing a Server Variable for server URL template substitution.
+ */
+public class ServerVariable {
+    public String description;
+    public String defaultValue;
+    public HashSet<String> enumValues = null;
+
+    /**
+     * @param description A description for the server variable.
+     * @param defaultValue The default value to use for substitution.
+     * @param enumValues An enumeration of string values to be used if the substitution options are from a limited set.
+     */
+    public ServerVariable(String description, String defaultValue, HashSet<String> enumValues) {
+        this.description = description;
+        this.defaultValue = defaultValue;
+        this.enumValues = enumValues;
+    }
+}
+",
+  "src/main/java/test/test/runtime/StringUtil.java": "/*
+ * Recursive schema
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime;
+
+import java.util.Collection;
+import java.util.Iterator;
+
+public class StringUtil {
+  /**
+   * Check if the given array contains the given value (with case-insensitive comparison).
+   *
+   * @param array The array
+   * @param value The value to search
+   * @return true if the array contains the value
+   */
+  public static boolean containsIgnoreCase(String[] array, String value) {
+    for (String str : array) {
+      if (value == null && str == null) {
+        return true;
+      }
+      if (value != null && value.equalsIgnoreCase(str)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Join an array of strings with the given separator.
+   * <p>
+   * Note: This might be replaced by utility method from commons-lang or guava someday
+   * if one of those libraries is added as dependency.
+   * </p>
+   *
+   * @param array     The array of strings
+   * @param separator The separator
+   * @return the resulting string
+   */
+  public static String join(String[] array, String separator) {
+    int len = array.length;
+    if (len == 0) {
+      return "";
+    }
+
+    StringBuilder out = new StringBuilder();
+    out.append(array[0]);
+    for (int i = 1; i < len; i++) {
+      out.append(separator).append(array[i]);
+    }
+    return out.toString();
+  }
+
+  /**
+   * Join a list of strings with the given separator.
+   *
+   * @param list      The list of strings
+   * @param separator The separator
+   * @return the resulting string
+   */
+  public static String join(Collection<String> list, String separator) {
+    Iterator<String> iterator = list.iterator();
+    StringBuilder out = new StringBuilder();
+    if (iterator.hasNext()) {
+      out.append(iterator.next());
+    }
+    while (iterator.hasNext()) {
+      out.append(separator).append(iterator.next());
+    }
+    return out.toString();
+  }
+}
+",
+  "src/main/java/test/test/runtime/api/DefaultApi.java": "/*
+ * Recursive schema
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime.api;
+
+import test.test.runtime.ApiCallback;
+import test.test.runtime.ApiClient;
+import test.test.runtime.ApiException;
+import test.test.runtime.ApiResponse;
+import test.test.runtime.Configuration;
+import test.test.runtime.Pair;
+import test.test.runtime.ProgressRequestBody;
+import test.test.runtime.ProgressResponseBody;
+
+import com.google.gson.reflect.TypeToken;
+
+import java.io.IOException;
+
+
+import java.math.BigDecimal;
+import java.io.File;
+import test.test.runtime.model.TreeNode;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.ws.rs.core.GenericType;
+
+public class DefaultApi {
+    private ApiClient localVarApiClient;
+    private int localHostIndex;
+    private String localCustomBaseUrl;
+
+    public DefaultApi() {
+        this(Configuration.getDefaultApiClient());
+    }
+
+    public DefaultApi(ApiClient apiClient) {
+        this.localVarApiClient = apiClient;
+    }
+
+    public ApiClient getApiClient() {
+        return localVarApiClient;
+    }
+
+    public void setApiClient(ApiClient apiClient) {
+        this.localVarApiClient = apiClient;
+    }
+
+    public int getHostIndex() {
+        return localHostIndex;
+    }
+
+    public void setHostIndex(int hostIndex) {
+        this.localHostIndex = hostIndex;
+    }
+
+    public String getCustomBaseUrl() {
+        return localCustomBaseUrl;
+    }
+
+    public void setCustomBaseUrl(String customBaseUrl) {
+        this.localCustomBaseUrl = customBaseUrl;
+    }
+
+    private okhttp3.Call getTreeCall(final ApiCallback _callback) throws ApiException {
+        String basePath = null;
+        // Operation Servers
+        String[] localBasePaths = new String[] {  };
+
+        // Determine Base Path to Use
+        if (localCustomBaseUrl != null){
+            basePath = localCustomBaseUrl;
+        } else if ( localBasePaths.length > 0 ) {
+            basePath = localBasePaths[localHostIndex];
+        } else {
+            basePath = null;
+        }
+
+        Object localVarPostBody = null;
+
+        // create path and map variables
+        String localVarPath = "/tree";
+
+        List<Pair> localVarQueryParams = new ArrayList<Pair>();
+        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
+        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+        Map<String, String> localVarCookieParams = new HashMap<String, String>();
+        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+
+        final String[] localVarAccepts = {
+            "application/json"
+        };
+        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
+        if (localVarAccept != null) {
+            localVarHeaderParams.put("Accept", localVarAccept);
+        }
+
+        final String[] localVarContentTypes = {
+        };
+        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
+        if (localVarContentType != null) {
+            localVarHeaderParams.put("Content-Type", localVarContentType);
+        }
+
+        String[] localVarAuthNames = new String[] {  };
+        return localVarApiClient.buildCall(basePath, localVarPath, "GET", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
+    }
+
+    
+    @SuppressWarnings("rawtypes")
+    private okhttp3.Call getTreeValidateBeforeCall(final ApiCallback _callback) throws ApiException {
+        return getTreeCall(_callback);
+
+    }
+
+    private ApiResponse<TreeNode> getTreeWithHttpInfo() throws ApiException {
+        okhttp3.Call localVarCall = getTreeValidateBeforeCall(null);
+        Type localVarReturnType = new TypeToken<TreeNode>(){}.getType();
+        return localVarApiClient.execute(localVarCall, localVarReturnType);
+    }
+
+
+    private okhttp3.Call getTreeAsync(final ApiCallback<TreeNode> _callback) throws ApiException {
+
+        okhttp3.Call localVarCall = getTreeValidateBeforeCall(_callback);
+        Type localVarReturnType = new TypeToken<TreeNode>(){}.getType();
+        localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
+        return localVarCall;
+    }
+
+    public class APIgetTreeRequest {
+
+        private APIgetTreeRequest() {
+        }
+
+        /**
+         * Build call for getTree
+         * @param _callback ApiCallback API callback
+         * @return Call to execute
+         * @throws ApiException If fail to serialize the request body object
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 200 </td><td> Ok </td><td>  -  </td></tr>
+         </table>
+         */
+        public okhttp3.Call buildCall(final ApiCallback _callback) throws ApiException {
+            return getTreeCall(_callback);
+        }
+
+        /**
+         * Execute getTree request
+         * @return TreeNode
+         * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 200 </td><td> Ok </td><td>  -  </td></tr>
+         </table>
+         */
+        public TreeNode execute() throws ApiException {
+            ApiResponse<TreeNode> localVarResp = getTreeWithHttpInfo();
+            return localVarResp.getData();
+        }
+
+        /**
+         * Execute getTree request with HTTP info returned
+         * @return ApiResponse&lt;TreeNode&gt;
+         * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 200 </td><td> Ok </td><td>  -  </td></tr>
+         </table>
+         */
+        public ApiResponse<TreeNode> executeWithHttpInfo() throws ApiException {
+            return getTreeWithHttpInfo();
+        }
+
+        /**
+         * Execute getTree request (asynchronously)
+         * @param _callback The callback to be executed when the API call finishes
+         * @return The request call
+         * @throws ApiException If fail to process the API call, e.g. serializing the request body object
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 200 </td><td> Ok </td><td>  -  </td></tr>
+         </table>
+         */
+        public okhttp3.Call executeAsync(final ApiCallback<TreeNode> _callback) throws ApiException {
+            return getTreeAsync(_callback);
+        }
+    }
+
+    /**
+     * 
+     * 
+     * @return APIgetTreeRequest
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> Ok </td><td>  -  </td></tr>
+     </table>
+     */
+    
+    public APIgetTreeRequest getTree() {
+        return new APIgetTreeRequest();
+    }
+}
+
+",
+  "src/main/java/test/test/runtime/api/handlers/ApiResponse.java": "
+package test.test.runtime.api.handlers;
+
+import java.util.Map;
+import java.util.List;
+
+@lombok.experimental.SuperBuilder
+@lombok.AllArgsConstructor
+@lombok.Getter
+public class ApiResponse implements Response {
+    private String body;
+    private int statusCode;
+    private Map<String, String> headers;
+    private Map<String, List<String>> multiValueHeaders;
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/ChainedRequestInput.java": "
+package test.test.runtime.api.handlers;
+
+/**
+ * Reqeust input with a handler chain
+ */
+public interface ChainedRequestInput<TInput> extends RequestInput<TInput> {
+    /**
+     * The chain for handling requests
+     */
+    HandlerChain<TInput> getChain();
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/HandlerChain.java": "
+package test.test.runtime.api.handlers;
+/**
+ * A handler chain represents a series of interceptors, which may or may not delegate to following interceptors.
+ * The lambda handler is always the last method in the chain.
+ */
+public interface HandlerChain<TInput> {
+    /**
+     * Delegate to the remainder of the handler chain
+     */
+    Response next(ChainedRequestInput<TInput> input);
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/HandlerRouter.java": "
+package test.test.runtime.api.handlers;
+
+import test.test.runtime.api.handlers.get_tree.*;
+
+import test.test.runtime.api.handlers.Handlers;
+import test.test.runtime.api.handlers.*;
+
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+
+
+public abstract class HandlerRouter implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+    private static final String getTreeMethodAndPath = Handlers.concatMethodAndPath("GET", "/tree");
+
+    private final GetTree constructedGetTree;
+
+    /**
+     * This method must return your implementation of the GetTree operation
+     */
+    public abstract GetTree getTree();
+
+    private static enum Route {
+        getTreeRoute,
+    }
+
+    /**
+     * Map of method and path to the route to map to
+     */
+    private final Map<String, Route> routes = new HashMap<>();
+
+    public HandlerRouter() {
+        this.routes.put(getTreeMethodAndPath, Route.getTreeRoute);
+        // Handlers are all constructed in the router's constructor such that lambda behaviour remains consistent;
+        // ie resources created in the constructor remain in memory between invocations.
+        // https://docs.aws.amazon.com/lambda/latest/dg/java-handler.html
+        this.constructedGetTree = this.getTree();
+    }
+
+    /**
+     * For more complex interceptors that require instantiation with parameters, you may override this method to
+     * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
+     * prefer the @Interceptors annotation.
+     */
+    public <T> List<Interceptor<T>> getInterceptors() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent event, final Context context) {
+        String method = event.getRequestContext().getHttpMethod();
+        String path = event.getRequestContext().getResourcePath();
+        String methodAndPath = Handlers.concatMethodAndPath(method, path);
+        Route route = this.routes.get(methodAndPath);
+
+        switch (route) {
+            case getTreeRoute:
+                List<Interceptor<GetTreeInput>> getTreeInterceptors = Handlers.getAnnotationInterceptors(this.getClass());
+                getTreeInterceptors.addAll(this.getInterceptors());
+                return this.constructedGetTree.handleRequestWithAdditionalInterceptors(event, context, getTreeInterceptors);
+            default:
+                throw new RuntimeException(String.format("No registered handler for method {} and path {}", method, path));
+        }
+    }
+}",
+  "src/main/java/test/test/runtime/api/handlers/Handlers.java": "
+package test.test.runtime.api.handlers;
+
+import test.test.runtime.model.*;
+import test.test.runtime.api.interceptors.ResponseHeadersInterceptor;
+
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.stream.Collectors;
+import java.io.UnsupportedEncodingException;
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.time.OffsetDateTime;
+import java.time.DateTimeException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+
+import test.test.runtime.JSON;
+
+public class Handlers {
+
+    static {
+        // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
+        // Create an instance here if required to ensure that the static Gson instance is always available.
+        if (JSON.getGson() == null) {
+            new JSON();
+        }
+    }
+
+    private static String decodeParameter(final String parameter) {
+        try {
+            return URLDecoder.decode(parameter, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Map<String, String> decodeRequestParameters(Map<String, String> parameters) {
+        Map<String, String> decodedParameters = new HashMap<>();
+        for(Map.Entry<String, String> parameter : parameters.entrySet()) {
+            decodedParameters.put(parameter.getKey(), decodeParameter(parameter.getValue()));
+        }
+        return decodedParameters;
+    }
+
+    public static Map<String, List<String>> decodeRequestArrayParameters(Map<String, List<String>> parameters) {
+        Map<String, List<String>> decodedParameters = new HashMap<>();
+        for(Map.Entry<String, List<String>> parameter : parameters.entrySet()) {
+            decodedParameters.put(parameter.getKey(), parameter.getValue().stream().map(Handlers::decodeParameter).collect(Collectors.toList()));
+        }
+        return decodedParameters;
+    }
+
+    public static <T> void assertRequired(final Boolean required, final String baseName, final Map<String, T> parameters) {
+        if (required && parameters.get(baseName) == null) {
+            throw new RuntimeException("Missing required request parameter '" + baseName + "'");
+        }
+    }
+
+    public static String coerceStringParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        return parameters.get(baseName);
+    }
+
+    public static List<String> coerceStringArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        return parameters.get(baseName);
+    }
+
+    public static Double coerceDouble(final String baseName, final String s) {
+        try {
+            return Double.valueOf(s);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Expected a number for request parameter '" + baseName + "'");
+        }
+    }
+
+    public static Double coerceDoubleParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceDouble(baseName, s);
+    }
+
+    public static List<Double> coerceDoubleArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<Double> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceDouble(baseName, s));
+        }
+        return res;
+    }
+
+    public static BigDecimal coerceBigDecimal(final String baseName, final String s) {
+        try {
+            return new BigDecimal(s);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Expected a number for request parameter '" + baseName + "'");
+        }
+    }
+
+    public static BigDecimal coerceBigDecimalParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceBigDecimal(baseName, s);
+    }
+
+    public static List<BigDecimal> coerceBigDecimalArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<BigDecimal> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceBigDecimal(baseName, s));
+        }
+        return res;
+    }
+
+    public static BigInteger coerceBigInteger(final String baseName, final String s) {
+        try {
+            return new BigInteger(s);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Expected a number for request parameter '" + baseName + "'");
+        }
+    }
+
+    public static BigInteger coerceBigIntegerParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceBigInteger(baseName, s);
+    }
+
+    public static List<BigInteger> coerceBigIntegerArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<BigInteger> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceBigInteger(baseName, s));
+        }
+        return res;
+    }
+
+    public static Float coerceFloat(final String baseName, final String s) {
+        try {
+            return Float.valueOf(s);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Expected a float for request parameter '" + baseName + "'");
+        }
+    }
+
+    public static Float coerceFloatParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceFloat(baseName, s);
+    }
+
+    public static List<Float> coerceFloatArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<Float> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceFloat(baseName, s));
+        }
+        return res;
+    }
+
+    public static Integer coerceInteger(final String baseName, final String s) {
+        try {
+            return Integer.valueOf(s);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Expected an integer for request parameter '" + baseName + "'");
+        }
+    }
+
+    public static Integer coerceIntegerParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceInteger(baseName, s);
+    }
+
+    public static List<Integer> coerceIntegerArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<Integer> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceInteger(baseName, s));
+        }
+        return res;
+    }
+
+    public static Long coerceLong(final String baseName, final String s) {
+        try {
+            return Long.valueOf(s);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Expected a long for request parameter '" + baseName + "'");
+        }
+    }
+
+    public static Long coerceLongParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceLong(baseName, s);
+    }
+
+    public static List<Long> coerceLongArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<Long> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceLong(baseName, s));
+        }
+        return res;
+    }
+
+    public static Short coerceShort(final String baseName, final String s) {
+        try {
+            return Short.valueOf(s);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Expected a short for request parameter '" + baseName + "'");
+        }
+    }
+
+    public static Short coerceShortParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceShort(baseName, s);
+    }
+
+    public static List<Short> coerceShortArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<Short> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceShort(baseName, s));
+        }
+        return res;
+    }
+
+    public static Boolean coerceBoolean(final String baseName, final String s) {
+        if ("true".equals(s)) {
+            return true;
+        } else if ("false".equals(s)) {
+            return false;
+        }
+        throw new RuntimeException("Expected a boolean (true or false) for request parameter '" + baseName + "'");
+    }
+
+    public static Boolean coerceBooleanParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceBoolean(baseName, s);
+    }
+
+    public static List<Boolean> coerceBooleanArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<Boolean> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceBoolean(baseName, s));
+        }
+        return res;
+    }
+
+    public static OffsetDateTime coerceOffsetDateTime(final String baseName, final String s) {
+        try {
+            return OffsetDateTime.parse(s);
+        } catch (DateTimeException e) {
+            throw new RuntimeException("Expected a valid date (iso format) for request parameter '" + baseName + "'");
+        }
+    }
+
+    public static OffsetDateTime coerceOffsetDateTimeParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceOffsetDateTime(baseName, s);
+    }
+
+    public static List<OffsetDateTime> coerceOffsetDateTimeArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<OffsetDateTime> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceOffsetDateTime(baseName, s));
+        }
+        return res;
+    }
+
+    public static <K, V> void putAllFromNullableMap(Map<K, V> source, Map<K, V> destination) {
+        if (source != null) {
+            destination.putAll(source);
+        }
+    }
+
+    public static String concatMethodAndPath(final String method, final String path) {
+        return String.format("%s||%s", method.toLowerCase(), path);
+    }
+
+    public static <T> Map<String, String> extractResponseHeadersFromInterceptors(final List<Interceptor<T>> interceptors) {
+        Map<String, String> headers = new HashMap<>();
+        for (Interceptor<T> interceptor : interceptors) {
+            if (interceptor instanceof ResponseHeadersInterceptor) {
+                headers.putAll(((ResponseHeadersInterceptor) interceptor).getAdditionalHeaders());
+            }
+        }
+        return headers;
+    }
+
+    public static <T, I> List<Interceptor<I>> getAnnotationInterceptors(Class<T> clazz) {
+        // Support specifying simple interceptors via the @Interceptors({ MyInterceptor.class, MyOtherInterceptor.class }) format
+        return clazz.isAnnotationPresent(Interceptors.class)
+                ? Arrays.stream(clazz.getAnnotation(Interceptors.class).value()).map(c -> {
+            try {
+                return (Interceptor<I>) c.getDeclaredConstructor().newInstance();
+            } catch (Exception e) {
+                throw new RuntimeException(String.format(
+                        "Cannot create instance of interceptor %s. Please ensure it has a public constructor " +
+                                "with no arguments, or override the getInterceptors method instead of using the annotation", c.getSimpleName()), e);
+            }
+        }).collect(Collectors.toList())
+                : new ArrayList<>();
+    }
+
+    public static <TInput> HandlerChain<TInput> buildHandlerChain(final List<Interceptor<TInput>> interceptors, final HandlerChain<TInput> baseChain) {
+        if (interceptors.isEmpty()) {
+            return baseChain;
+        } else {
+            Interceptor<TInput> interceptor = interceptors.get(0);
+            HandlerChain<TInput> remainingChain = buildHandlerChain(interceptors.subList(1, interceptors.size()), baseChain);
+            return new HandlerChain<TInput>() {
+                @Override
+                public Response next(ChainedRequestInput<TInput> input) {
+                    return interceptor.handle(new ChainedRequestInput<TInput>() {
+                        @Override
+                        public APIGatewayProxyRequestEvent getEvent() {
+                            return input.getEvent();
+                        }
+
+                        @Override
+                        public Context getContext() {
+                            return input.getContext();
+                        }
+
+                        @Override
+                        public TInput getInput() {
+                            return input.getInput();
+                        }
+
+                        @Override
+                        public HandlerChain<TInput> getChain() {
+                            return remainingChain;
+                        }
+
+                        @Override
+                        public Map<String, Object> getInterceptorContext() {
+                            return input.getInterceptorContext();
+                        }
+                    });
+                }
+            };
+        }
+    }
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/Interceptor.java": "
+package test.test.runtime.api.handlers;
+
+/**
+ * Interceptors can perform generic operations on requests and/or responses, optionally delegating to the remainder
+ * of the request chain.
+ */
+public interface Interceptor<TInput> {
+    /**
+     * Handle a request. Usually the response from \`input.getChain().next(input)\` is returned to delegate to the
+     * remainder of the chain, however you may wish to return an alternative Response.
+     */
+    Response handle(ChainedRequestInput<TInput> input);
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/InterceptorWarmupChainedRequestInput.java": "
+package test.test.runtime.api.handlers;
+
+import com.amazonaws.services.lambda.runtime.ClientContext;
+import com.amazonaws.services.lambda.runtime.CognitoIdentity;
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.LambdaLogger;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
+
+/**
+ * An "empty" chained request input used to warm up interceptors which extend the InterceptorWithWarmup
+ */
+public class InterceptorWarmupChainedRequestInput<T> implements ChainedRequestInput<T> {
+
+  @Override
+  public HandlerChain<T> getChain() {
+    return new HandlerChain<T>() {
+      @Override
+      public Response next(ChainedRequestInput<T> input) {
+        return new Response() {
+          @Override
+          public String getBody() {
+            return "";
+          }
+
+          @Override
+          public int getStatusCode() {
+            return 0;
+          }
+
+          @Override
+          public Map<String, String> getHeaders() {
+            return new HashMap<>();
+          }
+
+          @Override
+          public Map<String, List<String>> getMultiValueHeaders() {
+            return new HashMap<>();
+          }
+        };
+      }
+    };
+  }
+
+  @Override
+  public Context getContext() {
+    return new Context() {
+      @Override
+      public String getAwsRequestId() {
+        return "";
+      }
+
+      @Override
+      public String getLogGroupName() {
+        return "";
+      }
+
+      @Override
+      public String getLogStreamName() {
+        return "";
+      }
+
+      @Override
+      public String getFunctionName() {
+        return "";
+      }
+
+      @Override
+      public String getFunctionVersion() {
+        return "";
+      }
+
+      @Override
+      public String getInvokedFunctionArn() {
+        return "";
+      }
+
+      @Override
+      public CognitoIdentity getIdentity() {
+        return null;
+      }
+
+      @Override
+      public ClientContext getClientContext() {
+        return null;
+      }
+
+      @Override
+      public int getRemainingTimeInMillis() {
+        return 0;
+      }
+
+      @Override
+      public int getMemoryLimitInMB() {
+        return 0;
+      }
+
+      @Override
+      public LambdaLogger getLogger() {
+        return null;
+      }
+    };
+  }
+
+  @Override
+  public APIGatewayProxyRequestEvent getEvent() {
+    return new APIGatewayProxyRequestEvent();
+  }
+
+  @Override
+  public T getInput() {
+    return null;
+  }
+
+  @Override
+  public Map<String, Object> getInterceptorContext() {
+    Map<String, Object> context = new HashMap<>();
+    context.put("operationId", "__tsapi_interceptor_warmup");
+    return context;
+  }
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/InterceptorWithWarmup.java": "
+package test.test.runtime.api.handlers;
+
+import org.crac.Resource;
+import org.crac.Core;
+import org.crac.Context;
+
+/**
+ * An interceptor with a "warmUp" method with default snap-start warmup behaviour, which can be overridden if desired.
+ */
+public abstract class InterceptorWithWarmup<TInput> implements Interceptor<TInput>, Resource {
+    {
+        Core.getGlobalContext().register(this);
+    }
+
+    @Override
+    public void beforeCheckpoint(Context<? extends Resource> context) {
+        this.warmUp();
+    }
+
+    @Override
+    public void afterRestore(Context<? extends Resource> context) {
+
+    }
+
+    /**
+     * Called prior to the lambda snap-start snapshot.
+     * Override this to change the default behaviour, which is to call the interceptor's handle method with an empty
+     * chained request.
+     */
+    public void warmUp() {
+        this.handle(new InterceptorWarmupChainedRequestInput<>());
+    }
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/Interceptors.java": "
+package test.test.runtime.api.handlers;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+/**
+ * Use this annotation to add interceptors to the request handler. Interceptors used in the annotation must have a
+ * constructor with no arguments.
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface Interceptors {
+    public Class<? extends Interceptor>[] value() default {};
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/RequestInput.java": "
+package test.test.runtime.api.handlers;
+
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.Context;
+import java.util.Map;
+
+/**
+ * Defines the input for a request.
+ */
+public interface RequestInput<TInput> {
+    /**
+     * The raw event from API Gateway
+     */
+    APIGatewayProxyRequestEvent getEvent();
+    /**
+     * Lambda execution context
+     */
+    Context getContext();
+    /**
+     * Demarshalled request input
+     */
+    TInput getInput();
+    /**
+     * Storage for arbitrary interceptor context for the lifetime of the request. Set and get values to pass state
+     * between interceptors or to the final handler.
+     */
+    Map<String, Object> getInterceptorContext();
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/Response.java": "
+package test.test.runtime.api.handlers;
+
+import java.util.Map;
+import java.util.List;
+
+/**
+ * Represents an HTTP response from an api operation
+ */
+public interface Response {
+    /**
+     * Returns the response body
+     */
+    String getBody();
+    /**
+     * Returns the response status code
+     */
+    int getStatusCode();
+    /**
+     * Returns the response headers
+     */
+    Map<String, String> getHeaders();
+    /**
+     * Returns the multi-value response headers
+     */
+    Map<String, List<String>> getMultiValueHeaders();
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/get_tree/GetTree.java": "
+package test.test.runtime.api.handlers.get_tree;
+
+import test.test.runtime.model.*;
+import test.test.runtime.JSON;
+import test.test.runtime.api.handlers.Interceptor;
+import test.test.runtime.api.handlers.Handlers;
+import test.test.runtime.api.handlers.*;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Collections;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+import java.io.IOException;
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.RequestHandler;
+import org.crac.Core;
+import org.crac.Resource;
+
+
+/**
+ * Lambda handler wrapper for the getTree operation
+ */
+public abstract class GetTree implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent>, Resource {
+    {
+        Core.getGlobalContext().register(this);
+    }
+
+    /**
+     * Handle the request for the getTree operation
+     */
+    public abstract GetTreeResponse handle(final GetTreeRequestInput request);
+
+    /**
+     * Interceptors that the handler class has been decorated with
+     */
+    private List<Interceptor<GetTreeInput>> annotationInterceptors = Handlers.getAnnotationInterceptors(GetTree.class);
+
+    /**
+     * For more complex interceptors that require instantiation with parameters, you may override this method to
+     * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
+     * prefer the @Interceptors annotation.
+     */
+    public List<Interceptor<GetTreeInput>> getInterceptors() {
+        return Collections.emptyList();
+    }
+
+    private List<Interceptor<GetTreeInput>> getHandlerInterceptors() {
+        List<Interceptor<GetTreeInput>> interceptors = new ArrayList<>();
+        interceptors.addAll(annotationInterceptors);
+        interceptors.addAll(this.getInterceptors());
+        return interceptors;
+    }
+
+    private HandlerChain<GetTreeInput> buildChain(List<Interceptor<GetTreeInput>> interceptors) {
+        return Handlers.buildHandlerChain(interceptors, new HandlerChain<GetTreeInput>() {
+            @Override
+            public Response next(ChainedRequestInput<GetTreeInput> input) {
+                return handle(new GetTreeRequestInput(input.getEvent(), input.getContext(), input.getInterceptorContext(), input.getInput()));
+            }
+        });
+    }
+
+    private ChainedRequestInput<GetTreeInput> buildChainedRequestInput(final APIGatewayProxyRequestEvent event, final Context context, final GetTreeInput input, final Map<String, Object> interceptorContext) {
+        return new ChainedRequestInput<GetTreeInput>() {
+            @Override
+            public HandlerChain getChain() {
+                // The chain's next method ignores the chain given as input, and is pre-built to follow the remaining
+                // chain.
+                return null;
+            }
+
+            @Override
+            public APIGatewayProxyRequestEvent getEvent() {
+                return event;
+            }
+
+            @Override
+            public Context getContext() {
+                return context;
+            }
+
+            @Override
+            public GetTreeInput getInput() {
+                return input;
+            }
+
+            @Override
+            public Map<String, Object> getInterceptorContext() {
+                return interceptorContext;
+            }
+        };
+    }
+
+    @Override
+    public void beforeCheckpoint(org.crac.Context<? extends Resource> context) {
+        // Prime building the handler chain which can take a few 100ms to JIT.
+        this.buildChain(this.getHandlerInterceptors());
+        this.buildChainedRequestInput(null, null, null, null);
+
+        // Initialise instance of Gson and prime serialisation and deserialisation
+        new JSON();
+        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>(), new HashMap<>())), ApiResponse.class);
+
+        try {
+            // Prime input validation - this will likely fail for the fake event but ensures the code path is optimised
+            // ready for a real invocation
+            new GetTreeInput(new APIGatewayProxyRequestEvent()
+                    .withBody("{}")
+                    .withPathParameters(new HashMap<>())
+                    .withQueryStringParameters(new HashMap<>())
+                    .withMultiValueQueryStringParameters(new HashMap<>())
+                    .withHeaders(new HashMap<>())
+                    .withMultiValueHeaders(new HashMap<>())
+            );
+        } catch (Exception e) {
+
+        }
+
+        this.warmUp();
+    }
+
+    @Override
+    public void afterRestore(org.crac.Context<? extends Resource> context) {
+
+    }
+
+    /**
+     * Override this method to perform any warmup activities which will be executed prior to the snap-start snapshot.
+     */
+    public void warmUp() {
+
+    }
+
+    @Override
+    public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent event, final Context context) {
+        return this.handleRequestWithAdditionalInterceptors(event, context, new ArrayList<>());
+    }
+
+    private Map<String, String> getErrorResponseHeaders(final int statusCode) {
+        Map<String, String> headers = new HashMap<>();
+        return headers;
+    }
+
+    public APIGatewayProxyResponseEvent handleRequestWithAdditionalInterceptors(final APIGatewayProxyRequestEvent event, final Context context, final List<Interceptor<GetTreeInput>> additionalInterceptors) {
+        final Map<String, Object> interceptorContext = new HashMap<>();
+        interceptorContext.put("operationId", "getTree");
+
+        List<Interceptor<GetTreeInput>> interceptors = new ArrayList<>();
+        interceptors.addAll(additionalInterceptors);
+        interceptors.addAll(this.getHandlerInterceptors());
+
+        final HandlerChain chain = this.buildChain(interceptors);
+
+        GetTreeInput input;
+
+        try {
+            input = new GetTreeInput(event);
+        } catch (RuntimeException e) {
+            Map<String, String> headers = new HashMap<>();
+            headers.putAll(Handlers.extractResponseHeadersFromInterceptors(interceptors));
+            headers.putAll(this.getErrorResponseHeaders(400));
+            return new APIGatewayProxyResponseEvent()
+                .withStatusCode(400)
+                .withHeaders(headers)
+                .withBody("{\\"message\\": \\"" + e.getMessage() + "\\"}");
+        }
+
+        final Response response = chain.next(this.buildChainedRequestInput(event, context, input, interceptorContext));
+
+        Map<String, String> responseHeaders = new HashMap<>();
+        responseHeaders.putAll(this.getErrorResponseHeaders(response.getStatusCode()));
+        responseHeaders.putAll(response.getHeaders());
+
+        return new APIGatewayProxyResponseEvent()
+                .withStatusCode(response.getStatusCode())
+                .withHeaders(responseHeaders)
+                .withMultiValueHeaders(response.getMultiValueHeaders())
+                .withBody(response.getBody());
+    }
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/get_tree/GetTree200Response.java": "
+package test.test.runtime.api.handlers.get_tree;
+
+import test.test.runtime.model.*;
+import test.test.runtime.JSON;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+
+/**
+ * Response with status code 200 for the getTree operation
+ */
+public class GetTree200Response extends RuntimeException implements GetTreeResponse {
+    static {
+        // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
+        // Create an instance here if required to ensure that the static Gson instance is always available.
+        if (JSON.getGson() == null) {
+            new JSON();
+        }
+    }
+
+    private final String body;
+    private final TreeNode typedBody;
+    private final Map<String, String> headers;
+    private final Map<String, List<String>> multiValueHeaders;
+
+    private GetTree200Response(final TreeNode body, final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
+        this.typedBody = body;
+        this.body = body.toJson();
+        this.headers = headers;
+        this.multiValueHeaders = multiValueHeaders;
+    }
+
+    @Override
+    public int getStatusCode() {
+        return 200;
+    }
+
+    @Override
+    public String getBody() {
+        return this.body;
+    }
+
+    public TreeNode getTypedBody() {
+        return this.typedBody;
+    }
+
+    @Override
+    public Map<String, String> getHeaders() {
+        return this.headers;
+    }
+
+    @Override
+    public Map<String, List<String>> getMultiValueHeaders() {
+        return this.multiValueHeaders;
+    }
+
+    /**
+     * Create a GetTree200Response with a body
+     */
+    public static GetTree200Response of(final TreeNode body) {
+        return new GetTree200Response(body, new HashMap<>(), new HashMap<>());
+    }
+
+    /**
+     * Create a GetTree200Response with a body and headers
+     */
+    public static GetTree200Response of(final TreeNode body, final Map<String, String> headers) {
+        return new GetTree200Response(body, headers, new HashMap<>());
+    }
+
+    /**
+     * Create a GetTree200Response with a body, headers and multi-value headers
+     */
+    public static GetTree200Response of(final TreeNode body, final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
+        return new GetTree200Response(body, headers, multiValueHeaders);
+    }
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/get_tree/GetTreeInput.java": "
+package test.test.runtime.api.handlers.get_tree;
+
+import test.test.runtime.model.*;
+import test.test.runtime.JSON;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import java.io.IOException;
+
+/**
+ * Input for the getTree operation
+ */
+@lombok.Builder
+@lombok.AllArgsConstructor
+public class GetTreeInput {
+    static {
+        // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
+        // Create an instance here if required to ensure that the static Gson instance is always available.
+        if (JSON.getGson() == null) {
+            new JSON();
+        }
+    }
+
+    private final GetTreeRequestParameters requestParameters;
+
+    public GetTreeInput(final APIGatewayProxyRequestEvent event) {
+        this.requestParameters = new GetTreeRequestParameters(event);
+    }
+
+    public GetTreeRequestParameters getRequestParameters() {
+        return this.requestParameters;
+    }
+
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/get_tree/GetTreeRequestInput.java": "
+package test.test.runtime.api.handlers.get_tree;
+
+import test.test.runtime.model.*;
+import test.test.runtime.api.handlers.RequestInput;
+import java.util.List;
+import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import java.io.IOException;
+import com.amazonaws.services.lambda.runtime.Context;
+
+/**
+ * Full request input for the getTree operation, including the raw API Gateway event
+ */
+@lombok.Builder
+@lombok.AllArgsConstructor
+public class GetTreeRequestInput implements RequestInput<GetTreeInput> {
+    private final APIGatewayProxyRequestEvent event;
+    private final Context context;
+    private final Map<String, Object> interceptorContext;
+    private final GetTreeInput input;
+
+    /**
+     * Returns the typed request input, with path, query and body parameters
+     */
+    public GetTreeInput getInput() {
+        return this.input;
+    }
+
+    /**
+     * Returns the raw API Gateway event
+     */
+    public APIGatewayProxyRequestEvent getEvent() {
+        return this.event;
+    }
+
+    /**
+     * Returns the lambda context
+     */
+    public Context getContext() {
+        return this.context;
+    }
+
+    /**
+     * Returns the interceptor context, which may contain values set by request interceptors
+     */
+    public Map<String, Object> getInterceptorContext() {
+        return this.interceptorContext;
+    }
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/get_tree/GetTreeRequestParameters.java": "
+package test.test.runtime.api.handlers.get_tree;
+
+import test.test.runtime.api.handlers.Handlers;
+import java.util.Optional;
+import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.time.OffsetDateTime;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.stream.Collectors;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+
+import test.test.runtime.model.*;
+
+/**
+ * Query, path and header parameters for the GetTree operation
+ */
+@lombok.Builder
+@lombok.AllArgsConstructor
+public class GetTreeRequestParameters {
+
+    public GetTreeRequestParameters(final APIGatewayProxyRequestEvent event) {
+        Map<String, String> rawStringParameters = new HashMap<>();
+        Handlers.putAllFromNullableMap(event.getPathParameters(), rawStringParameters);
+        Handlers.putAllFromNullableMap(event.getQueryStringParameters(), rawStringParameters);
+        Handlers.putAllFromNullableMap(event.getHeaders(), rawStringParameters);
+        Map<String, String> decodedStringParameters = Handlers.decodeRequestParameters(rawStringParameters);
+
+        Map<String, List<String>> rawStringArrayParameters = new HashMap<>();
+        Handlers.putAllFromNullableMap(event.getMultiValueQueryStringParameters(), rawStringArrayParameters);
+        Handlers.putAllFromNullableMap(event.getMultiValueHeaders(), rawStringArrayParameters);
+        Map<String, List<String>> decodedStringArrayParameters = Handlers.decodeRequestArrayParameters(rawStringArrayParameters);
+
+    }
+
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/get_tree/GetTreeResponse.java": "
+package test.test.runtime.api.handlers.get_tree;
+
+import test.test.runtime.api.handlers.Response;
+
+/**
+ * Response for the getTree operation
+ */
+public interface GetTreeResponse extends Response {}
+",
+  "src/main/java/test/test/runtime/api/interceptors/DefaultInterceptors.java": "package test.test.runtime.api.interceptors;
+
+import test.test.runtime.api.interceptors.powertools.LoggingInterceptor;
+import test.test.runtime.api.interceptors.powertools.MetricsInterceptor;
+import test.test.runtime.api.interceptors.powertools.TracingInterceptor;
+import test.test.runtime.api.handlers.Interceptor;
+
+import java.util.Arrays;
+import java.util.List;
+
+public class DefaultInterceptors {
+    public static <T> List<Interceptor<T>> all() {
+        return Arrays.asList(
+            new ResponseHeadersInterceptor<>(),
+            new LoggingInterceptor<>(),
+            new TryCatchInterceptor<>(),
+            new TracingInterceptor<>(),
+            new MetricsInterceptor<>()
+        );
+    }
+}",
+  "src/main/java/test/test/runtime/api/interceptors/ResponseHeadersInterceptor.java": "package test.test.runtime.api.interceptors;
+
+import test.test.runtime.api.handlers.ChainedRequestInput;
+import test.test.runtime.api.handlers.Response;
+import test.test.runtime.api.handlers.Interceptor;
+import test.test.runtime.api.handlers.InterceptorWithWarmup;
+import java.util.Map;
+import java.util.HashMap;
+
+/**
+ * An interceptor for adding cross-origin resource sharing (CORS) headers to the response.
+ * Allows all origins and headers.
+ */
+public class ResponseHeadersInterceptor<Input> extends InterceptorWithWarmup<Input> {
+    private final Map<String, String> additionalHeaders;
+
+    public ResponseHeadersInterceptor() {
+        this.additionalHeaders = new HashMap<>();
+        this.additionalHeaders.put("Access-Control-Allow-Origin", "*");
+        this.additionalHeaders.put("Access-Control-Allow-Headers", "*");
+    }
+
+    public ResponseHeadersInterceptor(final Map<String, String> headers) {
+        this.additionalHeaders = headers;
+    }
+
+    @Override
+    public Response handle(ChainedRequestInput<Input> input) {
+        Response res = input.getChain().next(input);
+        res.getHeaders().putAll(this.additionalHeaders);
+        return res;
+    }
+
+    public Map<String, String> getAdditionalHeaders() {
+        return this.additionalHeaders;
+    }
+}
+",
+  "src/main/java/test/test/runtime/api/interceptors/TryCatchInterceptor.java": "package test.test.runtime.api.interceptors;
+
+import test.test.runtime.api.handlers.ApiResponse;
+import test.test.runtime.api.handlers.ChainedRequestInput;
+import test.test.runtime.api.handlers.Response;
+import test.test.runtime.api.handlers.Interceptor;
+import test.test.runtime.api.handlers.InterceptorWithWarmup;
+import org.apache.logging.log4j.Logger;
+
+/**
+ * Interceptor for handling uncaught exceptions and responding with a default error response
+ */
+public class TryCatchInterceptor<Input> extends InterceptorWithWarmup<Input> {
+    private final int statusCode;
+    private final String errorResponseBody;
+
+    public TryCatchInterceptor() {
+        this(500, "{\\"message\\": \\"Internal Error\\"}");
+    }
+
+    public TryCatchInterceptor(final int statusCode, final String errorResponseBody) {
+        this.statusCode = statusCode;
+        this.errorResponseBody = errorResponseBody;
+    }
+
+    @Override
+    public Response handle(final ChainedRequestInput<Input> input) {
+        try {
+            return input.getChain().next(input);
+        } catch (Throwable e) {
+            if (e instanceof Response) {
+                return (Response) e;
+            }
+
+            Object logger = input.getInterceptorContext().get("logger");
+            if (logger instanceof Logger) {
+                ((Logger) logger).error("Interceptor caught exception", e);
+            } else {
+                System.err.println("Interceptor caught exception");
+                e.printStackTrace();
+            }
+
+            return ApiResponse.builder()
+                    .statusCode(this.statusCode)
+                    .body(this.errorResponseBody)
+                    .build();
+        }
+    }
+}
+",
+  "src/main/java/test/test/runtime/api/interceptors/powertools/LoggingInterceptor.java": "package test.test.runtime.api.interceptors.powertools;
+
+import test.test.runtime.api.handlers.ChainedRequestInput;
+import test.test.runtime.api.handlers.RequestInput;
+import test.test.runtime.api.handlers.Response;
+import test.test.runtime.api.handlers.Interceptor;
+import test.test.runtime.api.handlers.InterceptorWithWarmup;
+import com.amazonaws.services.lambda.runtime.Context;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
+import software.amazon.lambda.powertools.core.internal.LambdaHandlerProcessor;
+import software.amazon.lambda.powertools.logging.LoggingUtils;
+
+/**
+ * An interceptor which adds an aws lambda powertools logger to the interceptor context,
+ * and adds the lambda context.
+ * See https://docs.powertools.aws.dev/lambda/java/latest/core/logging/
+ */
+public class LoggingInterceptor<Input> extends InterceptorWithWarmup<Input> {
+    private Logger logger = LogManager.getLogger(LoggingInterceptor.class);
+
+    @Override
+    public void warmUp() {
+        super.warmUp();
+        logger.info("LoggingInterceptor: init");
+    }
+
+    /**
+     * Return the instance of the logger from the interceptor context
+     */
+    public static <T> Logger getLogger(final RequestInput<T> request) {
+        Object logger = request.getInterceptorContext().get("logger");
+        if (logger == null) {
+            throw new RuntimeException("No logger found. Did you configure the LoggingInterceptor?");
+        }
+        return (Logger) logger;
+    }
+
+    private void addContext(final Context context) {
+        LoggingUtils.appendKey("functionName", context.getFunctionName());
+        LoggingUtils.appendKey("functionVersion", context.getFunctionVersion());
+        LoggingUtils.appendKey("functionArn", context.getInvokedFunctionArn());
+        LoggingUtils.appendKey("functionMemorySize", String.valueOf(context.getMemoryLimitInMB()));
+        // Same casing as powertools aspect implementation
+        LoggingUtils.appendKey("function_request_id", String.valueOf(context.getAwsRequestId()));
+    }
+
+    @Override
+    public Response handle(final ChainedRequestInput<Input> input) {
+        // Add lambda context fields
+        this.addContext(input.getContext());
+
+        // Add service, cold start and tracing
+        LoggingUtils.appendKey("service", LambdaHandlerProcessor.serviceName());
+        LoggingUtils.appendKey("coldStart", LambdaHandlerProcessor.isColdStart() ? "true" : "false");
+        LambdaHandlerProcessor.getXrayTraceId().ifPresent((xRayTraceId) -> {
+            LoggingUtils.appendKey("xray_trace_id", xRayTraceId);
+        });
+
+        // Add the operation id
+        String operationId = (String) input.getInterceptorContext().get("operationId");
+        LoggingUtils.appendKey("operationId", operationId);
+
+        // Add the logger to the interceptor context
+        input.getInterceptorContext().put("logger", logger);
+
+        Response response = input.getChain().next(input);
+
+        // Mark cold start done
+        LambdaHandlerProcessor.coldStartDone();
+
+        // Clear the logger keys
+        ThreadContext.clearMap();
+
+        return response;
+    }
+}
+",
+  "src/main/java/test/test/runtime/api/interceptors/powertools/MetricsInterceptor.java": "package test.test.runtime.api.interceptors.powertools;
+
+import test.test.runtime.api.handlers.ChainedRequestInput;
+import test.test.runtime.api.handlers.RequestInput;
+import test.test.runtime.api.handlers.Response;
+import test.test.runtime.api.handlers.Interceptor;
+import test.test.runtime.api.handlers.InterceptorWithWarmup;
+import software.amazon.cloudwatchlogs.emf.logger.MetricsLogger;
+import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
+import software.amazon.lambda.powertools.core.internal.LambdaHandlerProcessor;
+import software.amazon.lambda.powertools.metrics.MetricsUtils;
+
+/**
+ * Interceptor which adds an instance of aws lambda powertools metrics to the interceptor context (under the key "metrics"),
+ * and ensures metrics are flushed prior to finishing the lambda execution
+ * See: https://docs.powertools.aws.dev/lambda/typescript/latest/core/metrics
+ */
+public class MetricsInterceptor<Input> extends InterceptorWithWarmup<Input> {
+    private MetricsLogger metrics = MetricsUtils.metricsLogger();
+
+    /**
+     * Return the instance of the metrics logger from the interceptor context
+     */
+    public static <T> MetricsLogger getMetrics(final RequestInput<T> request) {
+        Object metrics = request.getInterceptorContext().get("metrics");
+        if (metrics == null) {
+            throw new RuntimeException("No metrics logger found. Did you configure the MetricsInterceptor?");
+        }
+        return (MetricsLogger) metrics;
+    }
+
+    @Override
+    public Response handle(final ChainedRequestInput<Input> input) {
+        metrics.putDimensions(DimensionSet.of("operationId", (String) input.getInterceptorContext().get("operationId")));
+
+        input.getInterceptorContext().put("metrics", metrics);
+
+        metrics.putProperty("function_request_id", input.getContext().getAwsRequestId());
+        LambdaHandlerProcessor.getXrayTraceId().ifPresent((traceId) -> {
+            metrics.putProperty("xray_trace_id", traceId);
+        });
+
+        try {
+            Response response = input.getChain().next(input);
+
+            // Mark cold start done
+            LambdaHandlerProcessor.coldStartDone();
+
+            return response;
+        } finally {
+            metrics.flush();
+        }
+    }
+}
+",
+  "src/main/java/test/test/runtime/api/interceptors/powertools/TracingInterceptor.java": "package test.test.runtime.api.interceptors.powertools;
+
+import test.test.runtime.api.handlers.ChainedRequestInput;
+import test.test.runtime.api.handlers.Response;
+import test.test.runtime.api.handlers.Interceptor;
+import test.test.runtime.api.handlers.InterceptorWithWarmup;
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.AWSXRayRecorderBuilder;
+import com.amazonaws.xray.entities.Subsegment;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.logging.log4j.Logger;
+import software.amazon.lambda.powertools.core.internal.LambdaHandlerProcessor;
+import software.amazon.lambda.powertools.tracing.TracingUtils;
+
+/**
+ * Interceptor which adds an aws lambda powertools tracer to the interceptor context,
+ * creating the appropriate segment for the handler execution and annotating with recommended
+ * details.
+ * See: https://docs.powertools.aws.dev/lambda/java/latest/core/tracing/
+ */
+public class TracingInterceptor<Input> extends InterceptorWithWarmup<Input> {
+
+    static {
+        AWSXRayRecorderBuilder builder = AWSXRayRecorderBuilder.standard();
+        AWSXRay.setGlobalRecorder(builder.build());
+    }
+
+    private final boolean captureResponse;
+
+    public TracingInterceptor(final boolean captureResponse) {
+        this.captureResponse = captureResponse;
+    }
+
+    public TracingInterceptor() {
+        this(false);
+    }
+
+    @Override
+    public void warmUp() {
+        try {
+            // Set a dummy trace header to ensure the regular subsegment code path is followed and warmed.
+            // The segment is not actually recorded by xray.
+            System.setProperty("com.amazonaws.xray.traceHeader", "Root=1-xxx;Parent=yyy;Sampled=1");
+            super.warmUp();
+        } finally {
+            System.clearProperty("com.amazonaws.xray.traceHeader");
+        }
+    }
+
+    private void logError(final String message, final ChainedRequestInput<Input> input, final Throwable e) {
+        Object logger = input.getInterceptorContext().get("logger");
+        if (logger instanceof Logger) {
+            ((Logger) logger).error(message, e);
+        } else {
+            System.err.println(message);
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public Response handle(final ChainedRequestInput<Input> input) {
+        String operationId = (String) input.getInterceptorContext().get("operationId");
+        Subsegment segment = AWSXRay.beginSubsegment("## " + operationId);
+
+        segment.setNamespace(operationId);
+        segment.putAnnotation("ColdStart", LambdaHandlerProcessor.isColdStart());
+        segment.putAnnotation("Service", LambdaHandlerProcessor.serviceName());
+
+        try {
+            Response response = input.getChain().next(input);
+
+            try {
+                if (this.captureResponse) {
+                    segment.putMetadata(operationId + " response", TracingUtils.objectMapper() != null ? TracingUtils.objectMapper().writeValueAsString(response) : response);
+                }
+            } catch (JsonProcessingException e) {
+                this.logError("Failed to add response to trace", input, e);
+            }
+
+            // Mark cold start done
+            LambdaHandlerProcessor.coldStartDone();
+
+            return response;
+        } catch (Throwable e) {
+            try {
+                segment.putMetadata(operationId + " error", TracingUtils.objectMapper() != null ? TracingUtils.objectMapper().writeValueAsString(e) : e);
+            } catch (JsonProcessingException ex) {
+                this.logError("Failed to add error to trace", input, e);
+            }
+            throw e;
+        } finally {
+            if (!LambdaHandlerProcessor.isSamLocal()) {
+                AWSXRay.endSubsegment();
+            }
+        }
+    }
+}
+",
+  "src/main/java/test/test/runtime/api/operation_config/OperationConfig.java": "package test.test.runtime.api.operation_config;
+
+import test.test.runtime.model.*;
+
+import java.util.HashMap;
+import java.util.Map;
+
+// Generic type for object "keyed" by operation names
+@lombok.Builder @lombok.Getter
+public class OperationConfig<T> {
+    private T getTree;
+
+    public Map<String, T> asMap() {
+        Map<String, T> map = new HashMap<>();
+        map.put("getTree", this.getTree);
+        return map;
+    }
+}
+",
+  "src/main/java/test/test/runtime/api/operation_config/OperationLookup.java": "package test.test.runtime.api.operation_config;
+
+import test.test.runtime.model.*;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
+import java.util.Arrays;
+
+
+// Look up path and http method for a given operation name
+public class OperationLookup {
+    @lombok.Builder @lombok.Getter
+    public static class OperationLookupEntry {
+        private String method;
+        private String path;
+        private List<String> contentTypes;
+    }
+
+    /**
+     * Returns the operation lookup information for the TypeSafeRestApi construct
+     */
+    public static Map<String, OperationLookupEntry> getOperationLookup() {
+        final Map<String, OperationLookupEntry> config = new HashMap<>();
+
+        config.put("getTree", OperationLookupEntry.builder()
+            .path("/tree")
+            .method("GET")
+            .contentTypes(Arrays.asList("application/json"))
+            .build());
+
+        return config;
+    }
+}
+",
+  "src/main/java/test/test/runtime/api/operation_config/Operations.java": "package test.test.runtime.api.operation_config;
+
+public class Operations {
+    /**
+     * Returns an OperationConfig Builder with all values populated with the given value.
+     * You can override specific values on the builder if you like.
+     * Make sure you call \`.build()\` at the end to construct the OperationConfig.
+     */
+    public static <T> OperationConfig.OperationConfigBuilder<T> all(final T value) {
+        return OperationConfig.<T>builder()
+                .getTree(value)
+                ;
+    }
+}
+",
+  "src/main/java/test/test/runtime/auth/ApiKeyAuth.java": "/*
+ * Recursive schema
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime.auth;
+
+import test.test.runtime.ApiException;
+import test.test.runtime.Pair;
+
+import java.net.URI;
+import java.util.Map;
+import java.util.List;
+
+public class ApiKeyAuth implements Authentication {
+  private final String location;
+  private final String paramName;
+
+  private String apiKey;
+  private String apiKeyPrefix;
+
+  public ApiKeyAuth(String location, String paramName) {
+    this.location = location;
+    this.paramName = paramName;
+  }
+
+  public String getLocation() {
+    return location;
+  }
+
+  public String getParamName() {
+    return paramName;
+  }
+
+  public String getApiKey() {
+    return apiKey;
+  }
+
+  public void setApiKey(String apiKey) {
+    this.apiKey = apiKey;
+  }
+
+  public String getApiKeyPrefix() {
+    return apiKeyPrefix;
+  }
+
+  public void setApiKeyPrefix(String apiKeyPrefix) {
+    this.apiKeyPrefix = apiKeyPrefix;
+  }
+
+  @Override
+  public void applyToParams(List<Pair> queryParams, Map<String, String> headerParams, Map<String, String> cookieParams,
+                           String payload, String method, URI uri) throws ApiException {
+    if (apiKey == null) {
+      return;
+    }
+    String value;
+    if (apiKeyPrefix != null) {
+      value = apiKeyPrefix + " " + apiKey;
+    } else {
+      value = apiKey;
+    }
+    if ("query".equals(location)) {
+      queryParams.add(new Pair(paramName, value));
+    } else if ("header".equals(location)) {
+      headerParams.put(paramName, value);
+    } else if ("cookie".equals(location)) {
+      cookieParams.put(paramName, value);
+    }
+  }
+}
+",
+  "src/main/java/test/test/runtime/auth/Authentication.java": "/*
+ * Recursive schema
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime.auth;
+
+import test.test.runtime.Pair;
+import test.test.runtime.ApiException;
+
+import java.net.URI;
+import java.util.Map;
+import java.util.List;
+
+public interface Authentication {
+    /**
+     * Apply authentication settings to header and query params.
+     *
+     * @param queryParams List of query parameters
+     * @param headerParams Map of header parameters
+     * @param cookieParams Map of cookie parameters
+     * @param payload HTTP request body
+     * @param method HTTP method
+     * @param uri URI
+     * @throws ApiException if failed to update the parameters
+     */
+    void applyToParams(List<Pair> queryParams, Map<String, String> headerParams, Map<String, String> cookieParams, String payload, String method, URI uri) throws ApiException;
+}
+",
+  "src/main/java/test/test/runtime/auth/HttpBasicAuth.java": "/*
+ * Recursive schema
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime.auth;
+
+import test.test.runtime.Pair;
+import test.test.runtime.ApiException;
+
+import okhttp3.Credentials;
+
+import java.net.URI;
+import java.util.Map;
+import java.util.List;
+
+import java.io.UnsupportedEncodingException;
+
+public class HttpBasicAuth implements Authentication {
+    private String username;
+    private String password;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @Override
+    public void applyToParams(List<Pair> queryParams, Map<String, String> headerParams, Map<String, String> cookieParams,
+                              String payload, String method, URI uri) throws ApiException {
+        if (username == null && password == null) {
+            return;
+        }
+        headerParams.put("Authorization", Credentials.basic(
+            username == null ? "" : username,
+            password == null ? "" : password));
+    }
+}
+",
+  "src/main/java/test/test/runtime/auth/HttpBearerAuth.java": "/*
+ * Recursive schema
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime.auth;
+
+import test.test.runtime.ApiException;
+import test.test.runtime.Pair;
+
+import java.net.URI;
+import java.util.Map;
+import java.util.List;
+
+public class HttpBearerAuth implements Authentication {
+  private final String scheme;
+  private String bearerToken;
+
+  public HttpBearerAuth(String scheme) {
+    this.scheme = scheme;
+  }
+
+  /**
+   * Gets the token, which together with the scheme, will be sent as the value of the Authorization header.
+   *
+   * @return The bearer token
+   */
+  public String getBearerToken() {
+    return bearerToken;
+  }
+
+  /**
+   * Sets the token, which together with the scheme, will be sent as the value of the Authorization header.
+   *
+   * @param bearerToken The bearer token to send in the Authorization header
+   */
+  public void setBearerToken(String bearerToken) {
+    this.bearerToken = bearerToken;
+  }
+
+  @Override
+  public void applyToParams(List<Pair> queryParams, Map<String, String> headerParams, Map<String, String> cookieParams,
+                            String payload, String method, URI uri) throws ApiException {
+    if (bearerToken == null) {
+      return;
+    }
+
+    headerParams.put("Authorization", (scheme != null ? upperCaseBearer(scheme) + " " : "") + bearerToken);
+  }
+
+  private static String upperCaseBearer(String scheme) {
+    return ("bearer".equalsIgnoreCase(scheme)) ? "Bearer" : scheme;
+  }
+}
+",
+  "src/main/java/test/test/runtime/model/AbstractOpenApiSchema.java": "/*
+ * Recursive schema
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime.model;
+
+import test.test.runtime.ApiException;
+import java.util.Objects;
+import java.lang.reflect.Type;
+import java.util.Map;
+import javax.ws.rs.core.GenericType;
+
+//import com.fasterxml.jackson.annotation.JsonValue;
+
+/**
+ * Abstract class for oneOf,anyOf schemas defined in OpenAPI spec
+ */
+@lombok.AllArgsConstructor @lombok.experimental.SuperBuilder
+public abstract class AbstractOpenApiSchema {
+
+    // store the actual instance of the schema/object
+    private Object instance;
+
+    // is nullable
+    private Boolean isNullable;
+
+    // schema type (e.g. oneOf, anyOf)
+    private final String schemaType;
+
+    public AbstractOpenApiSchema(String schemaType, Boolean isNullable) {
+        this.schemaType = schemaType;
+        this.isNullable = isNullable;
+    }
+
+    /**
+     * Get the list of oneOf/anyOf composed schemas allowed to be stored in this object
+     *
+     * @return an instance of the actual schema/object
+     */
+    public abstract Map<String, GenericType> getSchemas();
+
+    /**
+     * Get the actual instance
+     *
+     * @return an instance of the actual schema/object
+     */
+    //@JsonValue
+    public Object getActualInstance() {return instance;}
+
+    /**
+     * Set the actual instance
+     *
+     * @param instance the actual instance of the schema/object
+     */
+    public void setActualInstance(Object instance) {this.instance = instance;}
+
+    /**
+     * Get the instant recursively when the schemas defined in oneOf/anyof happen to be oneOf/anyOf schema as well
+     *
+     * @return an instance of the actual schema/object
+     */
+    public Object getActualInstanceRecursively() {
+        return getActualInstanceRecursively(this);
+    }
+
+    private Object getActualInstanceRecursively(AbstractOpenApiSchema object) {
+        if (object.getActualInstance() == null) {
+            return null;
+        } else if (object.getActualInstance() instanceof AbstractOpenApiSchema) {
+            return getActualInstanceRecursively((AbstractOpenApiSchema)object.getActualInstance());
+        } else {
+            return object.getActualInstance();
+        }
+    }
+
+    /**
+     * Get the schema type (e.g. anyOf, oneOf)
+     *
+     * @return the schema type
+     */
+    public String getSchemaType() {
+        return schemaType;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class ").append(getClass()).append(" {\\n");
+        sb.append("    instance: ").append(toIndentedString(instance)).append("\\n");
+        sb.append("    isNullable: ").append(toIndentedString(isNullable)).append("\\n");
+        sb.append("    schemaType: ").append(toIndentedString(schemaType)).append("\\n");
+        sb.append("}");
+        return sb.toString();
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private String toIndentedString(Object o) {
+        if (o == null) {
+            return "null";
+        }
+        return o.toString().replace("\\n", "\\n    ");
+    }
+
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AbstractOpenApiSchema a = (AbstractOpenApiSchema) o;
+        return Objects.equals(this.instance, a.instance) &&
+            Objects.equals(this.isNullable, a.isNullable) &&
+            Objects.equals(this.schemaType, a.schemaType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(instance, isNullable, schemaType);
+    }
+
+    /**
+     * Is nullable
+     *
+     * @return true if it's nullable
+     */
+    public Boolean isNullable() {
+        if (Boolean.TRUE.equals(isNullable)) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
+    }
+
+
+
+}
+",
+  "src/main/java/test/test/runtime/model/TreeNode.java": "/*
+ * Recursive schema
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime.model;
+
+import java.util.Objects;
+import java.util.Arrays;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+
+import javax.ws.rs.core.GenericType;
+
+import java.io.IOException;
+import java.io.File;
+import java.math.BigDecimal;
+import java.net.URI;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.util.UUID;
+import java.lang.reflect.Type;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.List;
+import java.util.Set;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+
+import test.test.runtime.JSON;
+
+/**
+ * TreeNode
+ */
+@lombok.AllArgsConstructor @lombok.experimental.SuperBuilder
+public class TreeNode {
+  public static final String SERIALIZED_NAME_LEFT = "left";
+  @SerializedName(SERIALIZED_NAME_LEFT)
+  private TreeNode left;
+
+  public static final String SERIALIZED_NAME_RIGHT = "right";
+  @SerializedName(SERIALIZED_NAME_RIGHT)
+  private TreeNode right;
+
+  public TreeNode() {
+  }
+
+  public TreeNode left(TreeNode left) {
+
+    this.left = left;
+    return this;
+  }
+
+   /**
+   * Get left
+   * @return left
+  **/
+  @javax.annotation.Nullable
+  public TreeNode getLeft() {
+    return left;
+  }
+
+
+  public void setLeft(TreeNode left) {
+    this.left = left;
+  }
+
+  public TreeNode right(TreeNode right) {
+
+    this.right = right;
+    return this;
+  }
+
+   /**
+   * Get right
+   * @return right
+  **/
+  @javax.annotation.Nullable
+  public TreeNode getRight() {
+    return right;
+  }
+
+
+  public void setRight(TreeNode right) {
+    this.right = right;
+  }
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    TreeNode treeNode = (TreeNode) o;
+    return Objects.equals(this.left, treeNode.left) &&
+        Objects.equals(this.right, treeNode.right);
+        
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(left, right);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("class TreeNode {\\n");
+    sb.append("    left: ").append(toIndentedString(left)).append("\\n");
+    sb.append("    right: ").append(toIndentedString(right)).append("\\n");
+    sb.append("}");
+    return sb.toString();
+  }
+
+  /**
+   * Convert the given object to string with each line indented by 4 spaces
+   * (except the first line).
+   */
+  private String toIndentedString(Object o) {
+    if (o == null) {
+      return "null";
+    }
+    return o.toString().replace("\\n", "\\n    ");
+  }
+
+
+  public static HashSet<String> openapiFields;
+  public static HashSet<String> openapiRequiredFields;
+
+  static {
+    // a set of all properties/fields (JSON key names)
+    openapiFields = new HashSet<String>();
+    openapiFields.add("left");
+    openapiFields.add("right");
+
+    // a set of required properties/fields (JSON key names)
+    openapiRequiredFields = new HashSet<String>();
+  }
+
+ /**
+  * Validates the JSON Object and throws an exception if issues found
+  *
+  * @param jsonObj JSON Object
+  * @throws IOException if the JSON Object is invalid with respect to TreeNode
+  */
+  public static void validateJsonObject(JsonObject jsonObj) throws IOException {
+      if (jsonObj == null) {
+        if (!TreeNode.openapiRequiredFields.isEmpty()) { // has required fields but JSON object is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in TreeNode is not found in the empty JSON string", TreeNode.openapiRequiredFields.toString()));
+        }
+      }
+
+      Set<Entry<String, JsonElement>> entries = jsonObj.entrySet();
+      // check to see if the JSON string contains additional fields
+      for (Entry<String, JsonElement> entry : entries) {
+        if (!TreeNode.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field \`%s\` in the JSON string is not defined in the \`TreeNode\` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
+        }
+      }
+      // validate the optional field \`left\`
+      if (jsonObj.get("left") != null && !jsonObj.get("left").isJsonNull()) {
+        TreeNode.validateJsonObject(jsonObj.getAsJsonObject("left"));
+      }
+      // validate the optional field \`right\`
+      if (jsonObj.get("right") != null && !jsonObj.get("right").isJsonNull()) {
+        TreeNode.validateJsonObject(jsonObj.getAsJsonObject("right"));
+      }
+  }
+
+  public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+       if (!TreeNode.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'TreeNode' and its subtypes
+       }
+       final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
+       final TypeAdapter<TreeNode> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(TreeNode.class));
+
+       return (TypeAdapter<T>) new TypeAdapter<TreeNode>() {
+           @Override
+           public void write(JsonWriter out, TreeNode value) throws IOException {
+             JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
+             elementAdapter.write(out, obj);
+           }
+
+           @Override
+           public TreeNode read(JsonReader in) throws IOException {
+             JsonObject jsonObj = elementAdapter.read(in).getAsJsonObject();
+             validateJsonObject(jsonObj);
+             return thisAdapter.fromJsonTree(jsonObj);
+           }
+
+       }.nullSafe();
+    }
+  }
+
+ /**
+  * Create an instance of TreeNode given an JSON string
+  *
+  * @param jsonString JSON string
+  * @return An instance of TreeNode
+  * @throws IOException if the JSON string is invalid with respect to TreeNode
+  */
+  public static TreeNode fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, TreeNode.class);
+  }
+
+ /**
+  * Convert an instance of TreeNode to an JSON string
   *
   * @return JSON string
   */
