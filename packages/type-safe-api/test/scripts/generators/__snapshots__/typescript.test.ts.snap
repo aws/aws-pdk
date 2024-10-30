@@ -8237,14 +8237,17 @@ src/apis/DefaultApi.ts
 src/apis/index.ts
 src/models/index.ts
 src/models/model-utils.ts
+src/models/AdditionalPropertiesResponse.ts
 src/models/AnotherNamedOneOf.ts
 src/models/ArrayOfOneOfs.ts
+src/models/Dictionary.ts
 src/models/InlineEnum200Response.ts
 src/models/InlineEnum200ResponseCategoryEnum.ts
 src/models/InlineRequestBodyRequestContent.ts
 src/models/MyEnum.ts
 src/models/NamedOneOf.ts
-src/models/NamedOneOfUnion.ts",
+src/models/NamedOneOfUnion.ts
+src/models/SomeObject.ts",
   "src/apis/DefaultApi.ts": "/* tslint:disable */
 /* eslint-disable */
 /**
@@ -8260,6 +8263,7 @@ src/models/NamedOneOfUnion.ts",
 
 import * as runtime from '../runtime';
 import type {
+  AdditionalPropertiesResponse,
   ArrayOfOneOfs,
   InlineEnum200Response,
   InlineRequestBodyRequestContent,
@@ -8267,6 +8271,8 @@ import type {
   NamedOneOfUnion,
 } from '../models';
 import {
+    AdditionalPropertiesResponseFromJSON,
+    AdditionalPropertiesResponseToJSON,
     ArrayOfOneOfsFromJSON,
     ArrayOfOneOfsToJSON,
     InlineEnum200ResponseFromJSON,
@@ -8291,6 +8297,7 @@ export interface ArrayRequestParametersRequest {
     myDoubleArrayRequestParams?: Array<number>;
     myEnumRequestParam?: MyEnum;
 }
+
 
 
 export interface InlineRequestBodyRequest {
@@ -8399,6 +8406,35 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async arrayRequestParameters(requestParameters: ArrayRequestParametersRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.arrayRequestParametersRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     * 
+     */
+    async dictionaryRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AdditionalPropertiesResponse>> {
+        const queryParameters: any = {};
+
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+
+        const response = await this.request({
+            path: \`/additional-properties\`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => AdditionalPropertiesResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * 
+     */
+    async dictionary(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AdditionalPropertiesResponse> {
+        const response = await this.dictionaryRaw(initOverrides);
+        return await response.value();
     }
 
     /**
@@ -8534,12 +8570,18 @@ export class DefaultApi extends runtime.BaseAPI {
 ",
   "src/apis/DefaultApi/OperationConfig.ts": "// Import models
 import {
+    AdditionalPropertiesResponse,
+    AdditionalPropertiesResponseFromJSON,
+    AdditionalPropertiesResponseToJSON,
     AnotherNamedOneOf,
     AnotherNamedOneOfFromJSON,
     AnotherNamedOneOfToJSON,
     ArrayOfOneOfs,
     ArrayOfOneOfsFromJSON,
     ArrayOfOneOfsToJSON,
+    Dictionary,
+    DictionaryFromJSON,
+    DictionaryToJSON,
     InlineEnum200Response,
     InlineEnum200ResponseFromJSON,
     InlineEnum200ResponseToJSON,
@@ -8558,6 +8600,9 @@ import {
     NamedOneOfUnion,
     NamedOneOfUnionFromJSON,
     NamedOneOfUnionToJSON,
+    SomeObject,
+    SomeObjectFromJSON,
+    SomeObjectToJSON,
 } from '../../models';
 // Import request parameter interfaces
 import {
@@ -8573,6 +8618,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda
 export interface OperationConfig<T> {
     arrayOfOneOfs: T;
     arrayRequestParameters: T;
+    dictionary: T;
     inlineEnum: T;
     inlineRequestBody: T;
     namedOneOf: T;
@@ -8589,6 +8635,11 @@ export const OperationLookup = {
     arrayRequestParameters: {
         path: '/array-request-parameters',
         method: 'GET',
+        contentTypes: ['application/json'],
+    },
+    dictionary: {
+        path: '/additional-properties',
+        method: 'POST',
         contentTypes: ['application/json'],
     },
     inlineEnum: {
@@ -8727,7 +8778,7 @@ const extractResponseHeadersFromInterceptors = (interceptors: any[]): { [key: st
   }), {} as { [key: string]: string });
 };
 
-export type OperationIds = | 'arrayOfOneOfs' | 'arrayRequestParameters' | 'inlineEnum' | 'inlineRequestBody' | 'namedOneOf' | 'reservedKeywords';
+export type OperationIds = | 'arrayOfOneOfs' | 'arrayRequestParameters' | 'dictionary' | 'inlineEnum' | 'inlineRequestBody' | 'namedOneOf' | 'reservedKeywords';
 export type OperationApiGatewayProxyResult<T extends OperationIds> = APIGatewayProxyResult & { __operationId?: T };
 
 // Api gateway lambda handler type
@@ -9017,6 +9068,115 @@ export const arrayRequestParametersHandler = (
         return {};
     };
     const body = parseBody(event.body, demarshal, ['application/json']) as ArrayRequestParametersRequestBody;
+
+    const chain = buildHandlerChain(...additionalInterceptors, ...handlers);
+    const response = await chain.next({
+        input: {
+            requestParameters,
+            body,
+        },
+        event,
+        context,
+        interceptorContext: { operationId },
+    });
+
+    return {
+        ...response,
+        headers: {
+          ...errorHeaders(response.statusCode),
+          ...response.headers,
+        },
+        body: response.body ? marshal(response.statusCode, response.body) : '',
+    };
+};
+/**
+ * Path, Query and Header parameters for Dictionary
+ */
+export interface DictionaryRequestParameters {
+}
+
+/**
+ * Request body parameter for Dictionary
+ */
+export type DictionaryRequestBody = never;
+
+export type Dictionary200OperationResponse = OperationResponse<200, AdditionalPropertiesResponse>;
+
+export type DictionaryOperationResponses = | Dictionary200OperationResponse ;
+
+// Type that the handler function provided to the wrapper must conform to
+export type DictionaryHandlerFunction = LambdaHandlerFunction<DictionaryRequestParameters, DictionaryRequestBody, DictionaryOperationResponses>;
+export type DictionaryChainedHandlerFunction = ChainedLambdaHandlerFunction<DictionaryRequestParameters, DictionaryRequestBody, DictionaryOperationResponses>;
+export type DictionaryChainedRequestInput = ChainedRequestInput<DictionaryRequestParameters, DictionaryRequestBody, DictionaryOperationResponses>;
+
+/**
+ * Lambda handler wrapper to provide typed interface for the implementation of dictionary
+ */
+export const dictionaryHandler = (
+    ...handlers: [DictionaryChainedHandlerFunction, ...DictionaryChainedHandlerFunction[]]
+): OperationApiGatewayLambdaHandler<'dictionary'> => async (event: any, context: any, _callback?: any, additionalInterceptors: DictionaryChainedHandlerFunction[] = []): Promise<any> => {
+    const operationId = "dictionary";
+
+    const rawSingleValueParameters = decodeRequestParameters({
+      ...(event.pathParameters || {}),
+      ...(event.queryStringParameters || {}),
+      ...(event.headers || {}),
+    }) as { [key: string]: string | undefined };
+    const rawMultiValueParameters = decodeRequestParameters({
+      ...(event.multiValueQueryStringParameters || {}),
+      ...(event.multiValueHeaders || {}),
+    }) as { [key: string]: string[] | undefined };
+
+    const marshal = (statusCode: number, responseBody: any): string => {
+        let marshalledBody = responseBody;
+        switch(statusCode) {
+            case 200:
+                marshalledBody = JSON.stringify(AdditionalPropertiesResponseToJSON(marshalledBody));
+                break;
+            default:
+                break;
+        }
+
+        return marshalledBody;
+    };
+
+    const errorHeaders = (statusCode: number): { [key: string]: string } => {
+        let headers = {};
+
+        switch(statusCode) {
+            default:
+                break;
+        }
+
+        return headers;
+    };
+
+    let requestParameters: DictionaryRequestParameters | undefined = undefined;
+
+    try {
+      requestParameters = {
+
+      };
+    } catch (e: any) {
+      const res = {
+        statusCode: 400,
+        body: { message: e.message },
+        headers: extractResponseHeadersFromInterceptors(handlers),
+      };
+      return {
+        ...res,
+        headers: {
+          ...errorHeaders(res.statusCode),
+          ...res.headers,
+        },
+        body: res.body ? marshal(res.statusCode, res.body) : '',
+      };
+    }
+
+    const demarshal = (bodyString: string): any => {
+        return {};
+    };
+    const body = parseBody(event.body, demarshal, ['application/json']) as DictionaryRequestBody;
 
     const chain = buildHandlerChain(...additionalInterceptors, ...handlers);
     const response = await chain.next({
@@ -9482,15 +9642,16 @@ export const reservedKeywordsHandler = (
 export interface HandlerRouterHandlers {
   readonly arrayOfOneOfs: OperationApiGatewayLambdaHandler<'arrayOfOneOfs'>;
   readonly arrayRequestParameters: OperationApiGatewayLambdaHandler<'arrayRequestParameters'>;
+  readonly dictionary: OperationApiGatewayLambdaHandler<'dictionary'>;
   readonly inlineEnum: OperationApiGatewayLambdaHandler<'inlineEnum'>;
   readonly inlineRequestBody: OperationApiGatewayLambdaHandler<'inlineRequestBody'>;
   readonly namedOneOf: OperationApiGatewayLambdaHandler<'namedOneOf'>;
   readonly reservedKeywords: OperationApiGatewayLambdaHandler<'reservedKeywords'>;
 }
 
-export type AnyOperationRequestParameters = | ArrayOfOneOfsRequestParameters| ArrayRequestParametersRequestParameters| InlineEnumRequestParameters| InlineRequestBodyRequestParameters| NamedOneOfRequestParameters| ReservedKeywordsRequestParameters;
-export type AnyOperationRequestBodies = | ArrayOfOneOfsRequestBody| ArrayRequestParametersRequestBody| InlineEnumRequestBody| InlineRequestBodyRequestBody| NamedOneOfRequestBody| ReservedKeywordsRequestBody;
-export type AnyOperationResponses = | ArrayOfOneOfsOperationResponses| ArrayRequestParametersOperationResponses| InlineEnumOperationResponses| InlineRequestBodyOperationResponses| NamedOneOfOperationResponses| ReservedKeywordsOperationResponses;
+export type AnyOperationRequestParameters = | ArrayOfOneOfsRequestParameters| ArrayRequestParametersRequestParameters| DictionaryRequestParameters| InlineEnumRequestParameters| InlineRequestBodyRequestParameters| NamedOneOfRequestParameters| ReservedKeywordsRequestParameters;
+export type AnyOperationRequestBodies = | ArrayOfOneOfsRequestBody| ArrayRequestParametersRequestBody| DictionaryRequestBody| InlineEnumRequestBody| InlineRequestBodyRequestBody| NamedOneOfRequestBody| ReservedKeywordsRequestBody;
+export type AnyOperationResponses = | ArrayOfOneOfsOperationResponses| ArrayRequestParametersOperationResponses| DictionaryOperationResponses| InlineEnumOperationResponses| InlineRequestBodyOperationResponses| NamedOneOfOperationResponses| ReservedKeywordsOperationResponses;
 
 export interface HandlerRouterProps<
   RequestParameters,
@@ -9835,6 +9996,86 @@ export const buildTryCatchInterceptor = <TStatus extends number, ErrorResponseBo
  */
 export const tryCatchInterceptor = buildTryCatchInterceptor(500, { message: 'Internal Error' });
 ",
+  "src/models/AdditionalPropertiesResponse.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Edge Cases
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+import type { Dictionary } from './Dictionary';
+import {
+    DictionaryFromJSON,
+    DictionaryFromJSONTyped,
+    DictionaryToJSON,
+    instanceOfDictionary,
+} from './Dictionary';
+
+/**
+ * 
+ * @export
+ * @interface AdditionalPropertiesResponse
+ */
+export interface AdditionalPropertiesResponse {
+    /**
+     * 
+     * @type {Dictionary}
+     * @memberof AdditionalPropertiesResponse
+     */
+    dictionaryOfObjects?: Dictionary;
+    /**
+     * 
+     * @type {{ [key: string]: string; }}
+     * @memberof AdditionalPropertiesResponse
+     */
+    dictionaryOfPrimitives?: { [key: string]: string; };
+}
+
+
+/**
+ * Check if a given object implements the AdditionalPropertiesResponse interface.
+ */
+export function instanceOfAdditionalPropertiesResponse(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function AdditionalPropertiesResponseFromJSON(json: any): AdditionalPropertiesResponse {
+    return AdditionalPropertiesResponseFromJSONTyped(json, false);
+}
+
+export function AdditionalPropertiesResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): AdditionalPropertiesResponse {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'dictionaryOfObjects': !exists(json, 'dictionaryOfObjects') ? undefined : DictionaryFromJSON(json['dictionaryOfObjects']),
+        'dictionaryOfPrimitives': !exists(json, 'dictionaryOfPrimitives') ? undefined : json['dictionaryOfPrimitives'],
+    };
+}
+
+export function AdditionalPropertiesResponseToJSON(value?: AdditionalPropertiesResponse | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'dictionaryOfObjects': DictionaryToJSON(value.dictionaryOfObjects),
+        'dictionaryOfPrimitives': value.dictionaryOfPrimitives,
+    };
+}
+
+",
   "src/models/AnotherNamedOneOf.ts": "/* tslint:disable */
 /* eslint-disable */
 /**
@@ -9969,6 +10210,58 @@ export function ArrayOfOneOfsToJSON(value?: ArrayOfOneOfs | null): any {
 
         'oneOfs': value.oneOfs === undefined ? undefined : ((value.oneOfs as Array<any>).map(NamedOneOfUnionToJSON)),
     };
+}
+
+",
+  "src/models/Dictionary.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Edge Cases
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+import type { SomeObject } from './SomeObject';
+import {
+    SomeObjectFromJSON,
+    SomeObjectFromJSONTyped,
+    SomeObjectToJSON,
+    instanceOfSomeObject,
+} from './SomeObject';
+
+/**
+ * 
+ * @export
+ * @interface Dictionary
+ */
+export interface Dictionary {
+    [key: string]: Array<SomeObject>;
+}
+
+
+/**
+ * Check if a given object implements the Dictionary interface.
+ */
+export function instanceOfDictionary(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function DictionaryFromJSON(json: any): Dictionary {
+    return DictionaryFromJSONTyped(json, false);
+}
+
+export function DictionaryFromJSONTyped(json: any, ignoreDiscriminator: boolean): Dictionary {
+    return json;
+}
+
+export function DictionaryToJSON(value?: Dictionary | null): any {
+    return value;
 }
 
 ",
@@ -10324,16 +10617,84 @@ export function NamedOneOfUnionToJSON(value?: NamedOneOfUnion | null): any {
 }
 
 ",
+  "src/models/SomeObject.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Edge Cases
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * 
+ * @export
+ * @interface SomeObject
+ */
+export interface SomeObject {
+    /**
+     * 
+     * @type {string}
+     * @memberof SomeObject
+     */
+    a?: string;
+}
+
+
+/**
+ * Check if a given object implements the SomeObject interface.
+ */
+export function instanceOfSomeObject(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function SomeObjectFromJSON(json: any): SomeObject {
+    return SomeObjectFromJSONTyped(json, false);
+}
+
+export function SomeObjectFromJSONTyped(json: any, ignoreDiscriminator: boolean): SomeObject {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'a': !exists(json, 'a') ? undefined : json['a'],
+    };
+}
+
+export function SomeObjectToJSON(value?: SomeObject | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'a': value.a,
+    };
+}
+
+",
   "src/models/index.ts": "/* tslint:disable */
 /* eslint-disable */
+export * from './AdditionalPropertiesResponse';
 export * from './AnotherNamedOneOf';
 export * from './ArrayOfOneOfs';
+export * from './Dictionary';
 export * from './InlineEnum200Response';
 export * from './InlineEnum200ResponseCategoryEnum';
 export * from './InlineRequestBodyRequestContent';
 export * from './MyEnum';
 export * from './NamedOneOf';
 export * from './NamedOneOfUnion';
+export * from './SomeObject';
 ",
   "src/models/model-utils.ts": "/* tslint:disable */
 /* eslint-disable */

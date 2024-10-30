@@ -138,6 +138,16 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ArrayOfOneOfs"
+  /additional-properties:
+    post:
+      operationId: dictionary
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdditionalPropertiesResponse"
 components:
   schemas:
     MyEnum:
@@ -165,3 +175,23 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/NamedOneOfUnion"
+    AdditionalPropertiesResponse:
+      type: object
+      properties:
+        dictionaryOfObjects:
+          $ref: "#/components/schemas/Dictionary"
+        dictionaryOfPrimitives:
+          type: object
+          additionalProperties:
+            type: string
+    Dictionary:
+      type: object
+      additionalProperties:
+        type: array
+        items:
+          $ref: "#/components/schemas/SomeObject"
+    SomeObject:
+      type: object
+      properties:
+        a:
+          type: string

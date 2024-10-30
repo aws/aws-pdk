@@ -62,8 +62,8 @@ export type <%- model.name %> =<% model.properties.forEach((composedType, i) => 
  <%_ } _%>
  */
 export interface <%= model.name %> {
-<%_ if (model.additionalProperties) { _%>
-    [key: string]: <%- model.additionalProperties.typescriptType %>;
+<%_ if (model.export === "dictionary" && model.link) { _%>
+    [key: string]: <%- model.link.typescriptType %>;
 <%_ } _%>
 <%_ model.properties.forEach((property) => { _%>
     /**
@@ -126,7 +126,7 @@ export function <%= model.name %>FromJSONTyped(json: any, ignoreDiscriminator: b
 <%_ } else { _%>
     return {
 
-<%_ if (model.additionalProperties) { _%>
+<%_ if (model.export === "dictionary") { _%>
             ...json,
 <%_ } _%>
 <%_ model.properties.forEach((property) => { _%>
@@ -173,7 +173,7 @@ export function <%= model.name %>ToJSON(value?: <%= model.name %> | null): any {
 <%_ } else { _%>
     return {
 
-<%_ if (model.additionalProperties) { _%>
+<%_ if (model.export === "dictionary") { _%>
             ...value,
 <%_ } _%>
 <%_ model.properties.forEach((property) => { _%>
