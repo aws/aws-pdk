@@ -118,6 +118,26 @@ paths:
                     string
               required:
                 - someProperty
+  /named-one-of:
+    post:
+      operationId: namedOneOf
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NamedOneOfUnion"
+  /array-of-one-ofs:
+    post:
+      operationId: arrayOfOneOfs
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArrayOfOneOfs"
 components:
   schemas:
     MyEnum:
@@ -126,3 +146,22 @@ components:
         - one
         - two
         - three
+    NamedOneOfUnion:
+      oneOf:
+        - type: object
+          title: namedOneOf
+          properties:
+            foo:
+              type: string
+        - type: object
+          title: anotherNamedOneOf
+          properties:
+            bar:
+              type: string
+    ArrayOfOneOfs:
+      type: object
+      properties:
+        oneOfs:
+          type: array
+          items:
+            $ref: "#/components/schemas/NamedOneOfUnion"

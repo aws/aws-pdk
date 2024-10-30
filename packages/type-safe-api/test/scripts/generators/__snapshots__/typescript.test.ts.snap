@@ -8237,10 +8237,14 @@ src/apis/DefaultApi.ts
 src/apis/index.ts
 src/models/index.ts
 src/models/model-utils.ts
+src/models/AnotherNamedOneOf.ts
+src/models/ArrayOfOneOfs.ts
 src/models/InlineEnum200Response.ts
 src/models/InlineEnum200ResponseCategoryEnum.ts
 src/models/InlineRequestBodyRequestContent.ts
-src/models/MyEnum.ts",
+src/models/MyEnum.ts
+src/models/NamedOneOf.ts
+src/models/NamedOneOfUnion.ts",
   "src/apis/DefaultApi.ts": "/* tslint:disable */
 /* eslint-disable */
 /**
@@ -8256,18 +8260,25 @@ src/models/MyEnum.ts",
 
 import * as runtime from '../runtime';
 import type {
+  ArrayOfOneOfs,
   InlineEnum200Response,
   InlineRequestBodyRequestContent,
   MyEnum,
+  NamedOneOfUnion,
 } from '../models';
 import {
+    ArrayOfOneOfsFromJSON,
+    ArrayOfOneOfsToJSON,
     InlineEnum200ResponseFromJSON,
     InlineEnum200ResponseToJSON,
     InlineRequestBodyRequestContentFromJSON,
     InlineRequestBodyRequestContentToJSON,
     MyEnumFromJSON,
     MyEnumToJSON,
+    NamedOneOfUnionFromJSON,
+    NamedOneOfUnionToJSON,
 } from '../models';
+
 
 export interface ArrayRequestParametersRequest {
     myStringArrayRequestParams?: Array<string>;
@@ -8286,6 +8297,7 @@ export interface InlineRequestBodyRequest {
     inlineRequestBodyRequestContent?: InlineRequestBodyRequestContent;
 }
 
+
 export interface ReservedKeywordsRequest {
     _with?: string;
     _if?: string;
@@ -8296,6 +8308,35 @@ export interface ReservedKeywordsRequest {
  * 
  */
 export class DefaultApi extends runtime.BaseAPI {
+    /**
+     * 
+     */
+    async arrayOfOneOfsRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ArrayOfOneOfs>> {
+        const queryParameters: any = {};
+
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+
+        const response = await this.request({
+            path: \`/array-of-one-ofs\`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ArrayOfOneOfsFromJSON(jsonValue));
+    }
+
+    /**
+     * 
+     */
+    async arrayOfOneOfs(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ArrayOfOneOfs> {
+        const response = await this.arrayOfOneOfsRaw(initOverrides);
+        return await response.value();
+    }
+
     /**
      * 
      */
@@ -8422,6 +8463,35 @@ export class DefaultApi extends runtime.BaseAPI {
     /**
      * 
      */
+    async namedOneOfRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<NamedOneOfUnion>> {
+        const queryParameters: any = {};
+
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+
+        const response = await this.request({
+            path: \`/named-one-of\`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => NamedOneOfUnionFromJSON(jsonValue));
+    }
+
+    /**
+     * 
+     */
+    async namedOneOf(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<NamedOneOfUnion> {
+        const response = await this.namedOneOfRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * 
+     */
     async reservedKeywordsRaw(requestParameters: ReservedKeywordsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         const queryParameters: any = {};
 
@@ -8464,6 +8534,12 @@ export class DefaultApi extends runtime.BaseAPI {
 ",
   "src/apis/DefaultApi/OperationConfig.ts": "// Import models
 import {
+    AnotherNamedOneOf,
+    AnotherNamedOneOfFromJSON,
+    AnotherNamedOneOfToJSON,
+    ArrayOfOneOfs,
+    ArrayOfOneOfsFromJSON,
+    ArrayOfOneOfsToJSON,
     InlineEnum200Response,
     InlineEnum200ResponseFromJSON,
     InlineEnum200ResponseToJSON,
@@ -8476,6 +8552,12 @@ import {
     MyEnum,
     MyEnumFromJSON,
     MyEnumToJSON,
+    NamedOneOf,
+    NamedOneOfFromJSON,
+    NamedOneOfToJSON,
+    NamedOneOfUnion,
+    NamedOneOfUnionFromJSON,
+    NamedOneOfUnionToJSON,
 } from '../../models';
 // Import request parameter interfaces
 import {
@@ -8489,14 +8571,21 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda
 
 // Generic type for object keyed by operation names
 export interface OperationConfig<T> {
+    arrayOfOneOfs: T;
     arrayRequestParameters: T;
     inlineEnum: T;
     inlineRequestBody: T;
+    namedOneOf: T;
     reservedKeywords: T;
 }
 
 // Look up path and http method for a given operation name
 export const OperationLookup = {
+    arrayOfOneOfs: {
+        path: '/array-of-one-ofs',
+        method: 'POST',
+        contentTypes: ['application/json'],
+    },
     arrayRequestParameters: {
         path: '/array-request-parameters',
         method: 'GET',
@@ -8509,6 +8598,11 @@ export const OperationLookup = {
     },
     inlineRequestBody: {
         path: '/inline-request-body',
+        method: 'POST',
+        contentTypes: ['application/json'],
+    },
+    namedOneOf: {
+        path: '/named-one-of',
         method: 'POST',
         contentTypes: ['application/json'],
     },
@@ -8633,7 +8727,7 @@ const extractResponseHeadersFromInterceptors = (interceptors: any[]): { [key: st
   }), {} as { [key: string]: string });
 };
 
-export type OperationIds = | 'arrayRequestParameters' | 'inlineEnum' | 'inlineRequestBody' | 'reservedKeywords';
+export type OperationIds = | 'arrayOfOneOfs' | 'arrayRequestParameters' | 'inlineEnum' | 'inlineRequestBody' | 'namedOneOf' | 'reservedKeywords';
 export type OperationApiGatewayProxyResult<T extends OperationIds> = APIGatewayProxyResult & { __operationId?: T };
 
 // Api gateway lambda handler type
@@ -8709,6 +8803,115 @@ const buildHandlerChain = <RequestParameters, RequestBody, Response>(
   };
 };
 
+/**
+ * Path, Query and Header parameters for ArrayOfOneOfs
+ */
+export interface ArrayOfOneOfsRequestParameters {
+}
+
+/**
+ * Request body parameter for ArrayOfOneOfs
+ */
+export type ArrayOfOneOfsRequestBody = never;
+
+export type ArrayOfOneOfs200OperationResponse = OperationResponse<200, ArrayOfOneOfs>;
+
+export type ArrayOfOneOfsOperationResponses = | ArrayOfOneOfs200OperationResponse ;
+
+// Type that the handler function provided to the wrapper must conform to
+export type ArrayOfOneOfsHandlerFunction = LambdaHandlerFunction<ArrayOfOneOfsRequestParameters, ArrayOfOneOfsRequestBody, ArrayOfOneOfsOperationResponses>;
+export type ArrayOfOneOfsChainedHandlerFunction = ChainedLambdaHandlerFunction<ArrayOfOneOfsRequestParameters, ArrayOfOneOfsRequestBody, ArrayOfOneOfsOperationResponses>;
+export type ArrayOfOneOfsChainedRequestInput = ChainedRequestInput<ArrayOfOneOfsRequestParameters, ArrayOfOneOfsRequestBody, ArrayOfOneOfsOperationResponses>;
+
+/**
+ * Lambda handler wrapper to provide typed interface for the implementation of arrayOfOneOfs
+ */
+export const arrayOfOneOfsHandler = (
+    ...handlers: [ArrayOfOneOfsChainedHandlerFunction, ...ArrayOfOneOfsChainedHandlerFunction[]]
+): OperationApiGatewayLambdaHandler<'arrayOfOneOfs'> => async (event: any, context: any, _callback?: any, additionalInterceptors: ArrayOfOneOfsChainedHandlerFunction[] = []): Promise<any> => {
+    const operationId = "arrayOfOneOfs";
+
+    const rawSingleValueParameters = decodeRequestParameters({
+      ...(event.pathParameters || {}),
+      ...(event.queryStringParameters || {}),
+      ...(event.headers || {}),
+    }) as { [key: string]: string | undefined };
+    const rawMultiValueParameters = decodeRequestParameters({
+      ...(event.multiValueQueryStringParameters || {}),
+      ...(event.multiValueHeaders || {}),
+    }) as { [key: string]: string[] | undefined };
+
+    const marshal = (statusCode: number, responseBody: any): string => {
+        let marshalledBody = responseBody;
+        switch(statusCode) {
+            case 200:
+                marshalledBody = JSON.stringify(ArrayOfOneOfsToJSON(marshalledBody));
+                break;
+            default:
+                break;
+        }
+
+        return marshalledBody;
+    };
+
+    const errorHeaders = (statusCode: number): { [key: string]: string } => {
+        let headers = {};
+
+        switch(statusCode) {
+            default:
+                break;
+        }
+
+        return headers;
+    };
+
+    let requestParameters: ArrayOfOneOfsRequestParameters | undefined = undefined;
+
+    try {
+      requestParameters = {
+
+      };
+    } catch (e: any) {
+      const res = {
+        statusCode: 400,
+        body: { message: e.message },
+        headers: extractResponseHeadersFromInterceptors(handlers),
+      };
+      return {
+        ...res,
+        headers: {
+          ...errorHeaders(res.statusCode),
+          ...res.headers,
+        },
+        body: res.body ? marshal(res.statusCode, res.body) : '',
+      };
+    }
+
+    const demarshal = (bodyString: string): any => {
+        return {};
+    };
+    const body = parseBody(event.body, demarshal, ['application/json']) as ArrayOfOneOfsRequestBody;
+
+    const chain = buildHandlerChain(...additionalInterceptors, ...handlers);
+    const response = await chain.next({
+        input: {
+            requestParameters,
+            body,
+        },
+        event,
+        context,
+        interceptorContext: { operationId },
+    });
+
+    return {
+        ...response,
+        headers: {
+          ...errorHeaders(response.statusCode),
+          ...response.headers,
+        },
+        body: response.body ? marshal(response.statusCode, response.body) : '',
+    };
+};
 /**
  * Path, Query and Header parameters for ArrayRequestParameters
  */
@@ -9053,6 +9256,115 @@ export const inlineRequestBodyHandler = (
     };
 };
 /**
+ * Path, Query and Header parameters for NamedOneOf
+ */
+export interface NamedOneOfRequestParameters {
+}
+
+/**
+ * Request body parameter for NamedOneOf
+ */
+export type NamedOneOfRequestBody = never;
+
+export type NamedOneOf200OperationResponse = OperationResponse<200, NamedOneOfUnion>;
+
+export type NamedOneOfOperationResponses = | NamedOneOf200OperationResponse ;
+
+// Type that the handler function provided to the wrapper must conform to
+export type NamedOneOfHandlerFunction = LambdaHandlerFunction<NamedOneOfRequestParameters, NamedOneOfRequestBody, NamedOneOfOperationResponses>;
+export type NamedOneOfChainedHandlerFunction = ChainedLambdaHandlerFunction<NamedOneOfRequestParameters, NamedOneOfRequestBody, NamedOneOfOperationResponses>;
+export type NamedOneOfChainedRequestInput = ChainedRequestInput<NamedOneOfRequestParameters, NamedOneOfRequestBody, NamedOneOfOperationResponses>;
+
+/**
+ * Lambda handler wrapper to provide typed interface for the implementation of namedOneOf
+ */
+export const namedOneOfHandler = (
+    ...handlers: [NamedOneOfChainedHandlerFunction, ...NamedOneOfChainedHandlerFunction[]]
+): OperationApiGatewayLambdaHandler<'namedOneOf'> => async (event: any, context: any, _callback?: any, additionalInterceptors: NamedOneOfChainedHandlerFunction[] = []): Promise<any> => {
+    const operationId = "namedOneOf";
+
+    const rawSingleValueParameters = decodeRequestParameters({
+      ...(event.pathParameters || {}),
+      ...(event.queryStringParameters || {}),
+      ...(event.headers || {}),
+    }) as { [key: string]: string | undefined };
+    const rawMultiValueParameters = decodeRequestParameters({
+      ...(event.multiValueQueryStringParameters || {}),
+      ...(event.multiValueHeaders || {}),
+    }) as { [key: string]: string[] | undefined };
+
+    const marshal = (statusCode: number, responseBody: any): string => {
+        let marshalledBody = responseBody;
+        switch(statusCode) {
+            case 200:
+                marshalledBody = JSON.stringify(NamedOneOfUnionToJSON(marshalledBody));
+                break;
+            default:
+                break;
+        }
+
+        return marshalledBody;
+    };
+
+    const errorHeaders = (statusCode: number): { [key: string]: string } => {
+        let headers = {};
+
+        switch(statusCode) {
+            default:
+                break;
+        }
+
+        return headers;
+    };
+
+    let requestParameters: NamedOneOfRequestParameters | undefined = undefined;
+
+    try {
+      requestParameters = {
+
+      };
+    } catch (e: any) {
+      const res = {
+        statusCode: 400,
+        body: { message: e.message },
+        headers: extractResponseHeadersFromInterceptors(handlers),
+      };
+      return {
+        ...res,
+        headers: {
+          ...errorHeaders(res.statusCode),
+          ...res.headers,
+        },
+        body: res.body ? marshal(res.statusCode, res.body) : '',
+      };
+    }
+
+    const demarshal = (bodyString: string): any => {
+        return {};
+    };
+    const body = parseBody(event.body, demarshal, ['application/json']) as NamedOneOfRequestBody;
+
+    const chain = buildHandlerChain(...additionalInterceptors, ...handlers);
+    const response = await chain.next({
+        input: {
+            requestParameters,
+            body,
+        },
+        event,
+        context,
+        interceptorContext: { operationId },
+    });
+
+    return {
+        ...response,
+        headers: {
+          ...errorHeaders(response.statusCode),
+          ...response.headers,
+        },
+        body: response.body ? marshal(response.statusCode, response.body) : '',
+    };
+};
+/**
  * Path, Query and Header parameters for ReservedKeywords
  */
 export interface ReservedKeywordsRequestParameters {
@@ -9168,15 +9480,17 @@ export const reservedKeywordsHandler = (
 };
 
 export interface HandlerRouterHandlers {
+  readonly arrayOfOneOfs: OperationApiGatewayLambdaHandler<'arrayOfOneOfs'>;
   readonly arrayRequestParameters: OperationApiGatewayLambdaHandler<'arrayRequestParameters'>;
   readonly inlineEnum: OperationApiGatewayLambdaHandler<'inlineEnum'>;
   readonly inlineRequestBody: OperationApiGatewayLambdaHandler<'inlineRequestBody'>;
+  readonly namedOneOf: OperationApiGatewayLambdaHandler<'namedOneOf'>;
   readonly reservedKeywords: OperationApiGatewayLambdaHandler<'reservedKeywords'>;
 }
 
-export type AnyOperationRequestParameters = | ArrayRequestParametersRequestParameters| InlineEnumRequestParameters| InlineRequestBodyRequestParameters| ReservedKeywordsRequestParameters;
-export type AnyOperationRequestBodies = | ArrayRequestParametersRequestBody| InlineEnumRequestBody| InlineRequestBodyRequestBody| ReservedKeywordsRequestBody;
-export type AnyOperationResponses = | ArrayRequestParametersOperationResponses| InlineEnumOperationResponses| InlineRequestBodyOperationResponses| ReservedKeywordsOperationResponses;
+export type AnyOperationRequestParameters = | ArrayOfOneOfsRequestParameters| ArrayRequestParametersRequestParameters| InlineEnumRequestParameters| InlineRequestBodyRequestParameters| NamedOneOfRequestParameters| ReservedKeywordsRequestParameters;
+export type AnyOperationRequestBodies = | ArrayOfOneOfsRequestBody| ArrayRequestParametersRequestBody| InlineEnumRequestBody| InlineRequestBodyRequestBody| NamedOneOfRequestBody| ReservedKeywordsRequestBody;
+export type AnyOperationResponses = | ArrayOfOneOfsOperationResponses| ArrayRequestParametersOperationResponses| InlineEnumOperationResponses| InlineRequestBodyOperationResponses| NamedOneOfOperationResponses| ReservedKeywordsOperationResponses;
 
 export interface HandlerRouterProps<
   RequestParameters,
@@ -9521,6 +9835,143 @@ export const buildTryCatchInterceptor = <TStatus extends number, ErrorResponseBo
  */
 export const tryCatchInterceptor = buildTryCatchInterceptor(500, { message: 'Internal Error' });
 ",
+  "src/models/AnotherNamedOneOf.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Edge Cases
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * 
+ * @export
+ * @interface AnotherNamedOneOf
+ */
+export interface AnotherNamedOneOf {
+    /**
+     * 
+     * @type {string}
+     * @memberof AnotherNamedOneOf
+     */
+    bar?: string;
+}
+
+
+/**
+ * Check if a given object implements the AnotherNamedOneOf interface.
+ */
+export function instanceOfAnotherNamedOneOf(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function AnotherNamedOneOfFromJSON(json: any): AnotherNamedOneOf {
+    return AnotherNamedOneOfFromJSONTyped(json, false);
+}
+
+export function AnotherNamedOneOfFromJSONTyped(json: any, ignoreDiscriminator: boolean): AnotherNamedOneOf {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'bar': !exists(json, 'bar') ? undefined : json['bar'],
+    };
+}
+
+export function AnotherNamedOneOfToJSON(value?: AnotherNamedOneOf | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'bar': value.bar,
+    };
+}
+
+",
+  "src/models/ArrayOfOneOfs.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Edge Cases
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+import type { NamedOneOfUnion } from './NamedOneOfUnion';
+import {
+    NamedOneOfUnionFromJSON,
+    NamedOneOfUnionFromJSONTyped,
+    NamedOneOfUnionToJSON,
+    instanceOfNamedOneOfUnion,
+} from './NamedOneOfUnion';
+
+/**
+ * 
+ * @export
+ * @interface ArrayOfOneOfs
+ */
+export interface ArrayOfOneOfs {
+    /**
+     * 
+     * @type {Array<NamedOneOfUnion>}
+     * @memberof ArrayOfOneOfs
+     */
+    oneOfs?: Array<NamedOneOfUnion>;
+}
+
+
+/**
+ * Check if a given object implements the ArrayOfOneOfs interface.
+ */
+export function instanceOfArrayOfOneOfs(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function ArrayOfOneOfsFromJSON(json: any): ArrayOfOneOfs {
+    return ArrayOfOneOfsFromJSONTyped(json, false);
+}
+
+export function ArrayOfOneOfsFromJSONTyped(json: any, ignoreDiscriminator: boolean): ArrayOfOneOfs {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'oneOfs': !exists(json, 'oneOfs') ? undefined : ((json['oneOfs'] as Array<any>).map(NamedOneOfUnionFromJSON)),
+    };
+}
+
+export function ArrayOfOneOfsToJSON(value?: ArrayOfOneOfs | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'oneOfs': value.oneOfs === undefined ? undefined : ((value.oneOfs as Array<any>).map(NamedOneOfUnionToJSON)),
+    };
+}
+
+",
   "src/models/InlineEnum200Response.ts": "/* tslint:disable */
 /* eslint-disable */
 /**
@@ -9737,12 +10188,152 @@ export function MyEnumToJSON(value?: MyEnum | null): any {
 }
 
 ",
+  "src/models/NamedOneOf.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Edge Cases
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * 
+ * @export
+ * @interface NamedOneOf
+ */
+export interface NamedOneOf {
+    /**
+     * 
+     * @type {string}
+     * @memberof NamedOneOf
+     */
+    foo?: string;
+}
+
+
+/**
+ * Check if a given object implements the NamedOneOf interface.
+ */
+export function instanceOfNamedOneOf(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function NamedOneOfFromJSON(json: any): NamedOneOf {
+    return NamedOneOfFromJSONTyped(json, false);
+}
+
+export function NamedOneOfFromJSONTyped(json: any, ignoreDiscriminator: boolean): NamedOneOf {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'foo': !exists(json, 'foo') ? undefined : json['foo'],
+    };
+}
+
+export function NamedOneOfToJSON(value?: NamedOneOf | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'foo': value.foo,
+    };
+}
+
+",
+  "src/models/NamedOneOfUnion.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Edge Cases
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+import type { AnotherNamedOneOf } from './AnotherNamedOneOf';
+import {
+    AnotherNamedOneOfFromJSON,
+    AnotherNamedOneOfFromJSONTyped,
+    AnotherNamedOneOfToJSON,
+    instanceOfAnotherNamedOneOf,
+} from './AnotherNamedOneOf';
+import type { NamedOneOf } from './NamedOneOf';
+import {
+    NamedOneOfFromJSON,
+    NamedOneOfFromJSONTyped,
+    NamedOneOfToJSON,
+    instanceOfNamedOneOf,
+} from './NamedOneOf';
+
+/**
+ * @type NamedOneOfUnion
+ * 
+ * @export
+ */
+export type NamedOneOfUnion = NamedOneOf | AnotherNamedOneOf;
+
+
+/**
+ * Check if a given object implements the NamedOneOfUnion interface.
+ */
+export function instanceOfNamedOneOfUnion(value: object): boolean {
+    return instanceOfNamedOneOf(value) || instanceOfAnotherNamedOneOf(value)
+}
+
+export function NamedOneOfUnionFromJSON(json: any): NamedOneOfUnion {
+    return NamedOneOfUnionFromJSONTyped(json, false);
+}
+
+export function NamedOneOfUnionFromJSONTyped(json: any, ignoreDiscriminator: boolean): NamedOneOfUnion {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+        ...NamedOneOfFromJSONTyped(json, true),
+        ...AnotherNamedOneOfFromJSONTyped(json, true),
+    };
+}
+
+export function NamedOneOfUnionToJSON(value?: NamedOneOfUnion | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+        ...NamedOneOfToJSON(value as any),
+        ...AnotherNamedOneOfToJSON(value as any),
+    };
+}
+
+",
   "src/models/index.ts": "/* tslint:disable */
 /* eslint-disable */
+export * from './AnotherNamedOneOf';
+export * from './ArrayOfOneOfs';
 export * from './InlineEnum200Response';
 export * from './InlineEnum200ResponseCategoryEnum';
 export * from './InlineRequestBodyRequestContent';
 export * from './MyEnum';
+export * from './NamedOneOf';
+export * from './NamedOneOfUnion';
 ",
   "src/models/model-utils.ts": "/* tslint:disable */
 /* eslint-disable */

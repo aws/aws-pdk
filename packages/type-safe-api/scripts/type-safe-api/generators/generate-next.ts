@@ -1,6 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
+import * as util from "util";
 import SwaggerParser from "@apidevtools/swagger-parser";
 import { parse } from "ts-command-line-args";
 import * as ejs from "ejs";
@@ -359,6 +360,10 @@ const toTypeScriptType = (property: parseOpenapi.Model): string => {
       return `Array<${property.link && property.link.export !== "enum" ? toTypeScriptType(property.link) : property.type}>`;
     case "dictionary":
       return `{ [key: string]: ${property.link && property.link.export !== "enum" ? toTypeScriptType(property.link) : property.type}; }`;
+    case "one-of":
+    case "any-of":
+    case "all-of":
+      return property.name;
     default:
       return property.type;
   }
@@ -412,6 +417,10 @@ const toJavaType = (property: parseOpenapi.Model): string => {
       return `${property.uniqueItems ? 'Set' : 'List'}<${property.link && property.link.export !== "enum" ? toJavaType(property.link) : property.type}>`;
     case "dictionary":
       return `Map<String, ${property.link && property.link.export !== "enum" ? toJavaType(property.link) : property.type}>`;
+    case "one-of":
+    case "any-of":
+    case "all-of":
+      return property.name;
     default:
       // "any" has export = interface
       if (PRIMITIVE_TYPES.has(property.type)) {
@@ -461,6 +470,10 @@ const toPythonType = (property: parseOpenapi.Model): string => {
       return `List[${property.link && property.link.export !== "enum" ? toPythonType(property.link) : property.type}]`;
     case "dictionary":
       return `Dict[str, ${property.link && property.link.export !== "enum" ? toPythonType(property.link) : property.type}]`;
+    case "one-of":
+    case "any-of":
+    case "all-of":
+      return property.name;
     default:
       // "any" has export = interface
       if (PRIMITIVE_TYPES.has(property.type)) {
@@ -649,7 +662,7 @@ const filterInlineCompositeSchemas = (schemas: (OpenAPIV3.SchemaObject | OpenAPI
   let inlineSchemaIndex = 0;
   return schemas.flatMap((s, i) => {
     if (hasSubSchemasToVisit(s)) {
-      const subSchema: SubSchema = { nameParts: [...nameParts, `${namePartPrefix}${inlineSchemaIndex === 0 ? '' : inlineSchemaIndex}`], schema: s, prop: `${prop}.[${i}]` };
+      const subSchema: SubSchema = { nameParts: s.title ? [_upperFirst(_camelCase(s.title))] : [...nameParts, `${namePartPrefix}${inlineSchemaIndex === 0 ? '' : inlineSchemaIndex}`], schema: s, prop: `${prop}.[${i}]` };
       inlineSchemaIndex++;
       return [subSchema];
     }
@@ -1034,7 +1047,7 @@ export default async (argv: string[], rootScriptDir: string) => {
   const data = await buildData(spec, JSON.parse(args.metadata ?? '{}'));
 
   if (args.printData) {
-    console.log(JSON.stringify(data, null, 2));
+    console.log(util.inspect(data, { depth: 100 }));
   }
 
   // Read all .ejs files in each template directory
