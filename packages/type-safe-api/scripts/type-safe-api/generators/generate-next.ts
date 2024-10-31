@@ -1032,6 +1032,14 @@ const resolveTemplateDir = (rootScriptDir: string, templateDir: string) => {
   throw new Error(`Template directory ${templateDir} does not exist!`);
 };
 
+export const listFilesInDirRecursive = (dir: string): string[] => {
+  if ((fs.lstatSync(dir)).isDirectory()) {
+    return fs.readdirSync(dir).map((f) => listFilesInDirRecursive(path.join(dir, f))).flatMap(x => x);
+  } else {
+    return [dir];
+  }
+};
+
 export default async (argv: string[], rootScriptDir: string) => {
   const args = parse<Arguments>({
     specPath: { type: String },
@@ -1051,10 +1059,8 @@ export default async (argv: string[], rootScriptDir: string) => {
   }
 
   // Read all .ejs files in each template directory
-  const templates = args.templateDirs.flatMap(t => fs.readdirSync(resolveTemplateDir(rootScriptDir, t), {
-    recursive: true,
-    withFileTypes: true
-  }).filter(f => f.isFile() && f.name.endsWith('.ejs') && !f.name.endsWith('.partial.ejs')).map(f => path.join(f.parentPath ?? f.path, f.name)));
+  const templates = args.templateDirs.flatMap(t => listFilesInDirRecursive(resolveTemplateDir(rootScriptDir, t))
+    .filter(f => f.endsWith('.ejs') && !f.endsWith('.partial.ejs')));
 
   // Render the templates with the data from the spec
   const renderedFiles = await Promise.all(templates.map(async (template) => {
