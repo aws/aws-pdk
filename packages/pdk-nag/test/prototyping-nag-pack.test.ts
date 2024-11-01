@@ -113,7 +113,6 @@ const expectedWarnings = [
   "AwsPrototyping-SageMakerNotebookInVPC",
   "AwsPrototyping-SageMakerNotebookNoDirectInternetAccess",
   "AwsPrototyping-SecretsManagerRotationEnabled",
-  "AwsPrototyping-SNSEncryptedKMS",
   "AwsPrototyping-SNSTopicSSLPublishOnly",
   "AwsPrototyping-SQSQueueSSE",
   "AwsPrototyping-SQSQueueSSLRequestsOnly",

@@ -111,7 +111,7 @@ Total: `35`
 
 ### Warnings
 
-Total: `74`
+Total: `73`
 
 | Rule ID | Cause | Explanation |
 | ------------------ | ------------------ | ------------------ |
@@ -183,7 +183,6 @@ Total: `74`
 | SageMakerNotebookInVPC | The SageMaker notebook instance is not provisioned inside a VPC. | Provisioning the notebook instances inside a VPC enables the notebook to access VPC-only resources such as EFS file systems. |
 | SageMakerNotebookNoDirectInternetAccess | The SageMaker notebook does not disable direct internet access. | By preventing direct internet access, you can keep sensitive data from being accessed by unauthorized users. |
 | SecretsManagerRotationEnabled | The secret does not have automatic rotation scheduled. | Rotating secrets on a regular schedule can shorten the period a secret is active, and potentially reduce the business impact if the secret is compromised. |
-| SNSEncryptedKMS | The SNS topic does not have KMS encryption enabled. | To help protect data at rest, ensure that your Amazon Simple Notification Service (Amazon SNS) topics require encryption using AWS Key Management Service (AWS KMS). Because sensitive data can exist at rest in published messages, enable encryption at rest to help protect that data. |
 | SNSTopicSSLPublishOnly | The SNS Topic does not require publishers to use SSL. | Without HTTPS (TLS), a network-based attacker can eavesdrop on network traffic or manipulate it, using an attack such as man-in-the-middle. Allow only encrypted connections over HTTPS (TLS) using the aws:SecureTransport condition and the 'sns:Publish' action in the topic policy to force publishers to use SSL. If SSE is already enabled then this control is auto enforced. |
 | SQSQueueSSE | The SQS Queue does not have server-side encryption enabled. | Server side encryption adds additional protection of sensitive data delivered as messages to subscribers. |
 | SQSQueueSSLRequestsOnly | The SQS queue does not require requests to use SSL. | Without HTTPS (TLS), a network-based attacker can eavesdrop on network traffic or manipulate it, using an attack such as man-in-the-middle. Allow only encrypted connections over HTTPS (TLS) using the aws:SecureTransport condition in the queue policy to force requests to use SSL. |

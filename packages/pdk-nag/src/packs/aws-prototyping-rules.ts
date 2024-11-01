@@ -727,13 +727,6 @@ export let RuleMetadata = [
     rule: rules.secretsmanager.SecretsManagerRotationEnabled,
   },
   {
-    info: "The SNS topic does not have KMS encryption enabled.",
-    explanation:
-      "To help protect data at rest, ensure that your Amazon Simple Notification Service (Amazon SNS) topics require encryption using AWS Key Management Service (AWS KMS). Because sensitive data can exist at rest in published messages, enable encryption at rest to help protect that data.",
-    level: NagMessageLevel.WARN,
-    rule: rules.sns.SNSEncryptedKMS,
-  },
-  {
     info: "The SNS Topic does not require publishers to use SSL.",
     explanation:
       "Without HTTPS (TLS), a network-based attacker can eavesdrop on network traffic or manipulate it, using an attack such as man-in-the-middle. Allow only encrypted connections over HTTPS (TLS) using the aws:SecureTransport condition and the 'sns:Publish' action in the topic policy to force publishers to use SSL. If SSE is already enabled then this control is auto enforced.",
