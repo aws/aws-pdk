@@ -5638,7 +5638,7 @@ export function DataTypes200ResponseFromJSONTyped(json: any, ignoreDiscriminator
         'myLongMinStringLength': !exists(json, 'myLongMinStringLength') ? undefined : json['myLongMinStringLength'],
         'myBool': !exists(json, 'myBool') ? undefined : json['myBool'],
         'myNumber': !exists(json, 'myNumber') ? undefined : json['myNumber'],
-        'myDateArray': !exists(json, 'myDateArray') ? undefined : json['myDateArray'],
+        'myDateArray': !exists(json, 'myDateArray') ? undefined : ((json['myDateArray'] as Array<any>).map((item0) => new Date(item0))),
         'myEmail': !exists(json, 'myEmail') ? undefined : json['myEmail'],
         'myUrl': !exists(json, 'myUrl') ? undefined : json['myUrl'],
         'myHostname': !exists(json, 'myHostname') ? undefined : json['myHostname'],
@@ -5675,7 +5675,7 @@ export function DataTypes200ResponseToJSON(value?: DataTypes200Response | null):
         'myLongMinStringLength': value.myLongMinStringLength,
         'myBool': value.myBool,
         'myNumber': value.myNumber,
-        'myDateArray': value.myDateArray,
+        'myDateArray': value.myDateArray === undefined ? undefined : ((value.myDateArray as Array<any>).map((item0) => item0.toISOString().substr(0,10))),
         'myEmail': value.myEmail,
         'myUrl': value.myUrl,
         'myHostname': value.myHostname,
@@ -5691,7 +5691,7 @@ export function DataTypes200ResponseToJSON(value?: DataTypes200Response | null):
         'myAllOf': DataTypes200ResponseMyAllOfToJSON(value.myAllOf),
         'myNot': value.myNot,
         'myNotString': value.myNotString,
-        'myAdditionalProperties': value.myAdditionalProperties,
+        'myAdditionalProperties': value.myAdditionalProperties === undefined ? undefined : value.myAdditionalProperties,
         'myObject': DataTypes200ResponseMyObjectToJSON(value.myObject),
     };
 }
@@ -8230,6 +8230,9 @@ src/models/model-utils.ts
 src/models/AdditionalPropertiesResponse.ts
 src/models/AnotherNamedOneOf.ts
 src/models/ArrayOfOneOfs.ts
+src/models/CycleArrayNode.ts
+src/models/CycleDictionary.ts
+src/models/CycleDictionaryNode.ts
 src/models/Dictionary.ts
 src/models/InlineEnum200Response.ts
 src/models/InlineEnum200ResponseCategoryEnum.ts
@@ -8237,6 +8240,7 @@ src/models/InlineRequestBodyRequestContent.ts
 src/models/MyEnum.ts
 src/models/NamedOneOf.ts
 src/models/NamedOneOfUnion.ts
+src/models/NestedCollections.ts
 src/models/SomeObject.ts
 src/runtime.ts
 src/index.ts
@@ -8269,6 +8273,7 @@ import type {
   InlineRequestBodyRequestContent,
   MyEnum,
   NamedOneOfUnion,
+  NestedCollections,
 } from '../models';
 import {
     AdditionalPropertiesResponseFromJSON,
@@ -8283,6 +8288,8 @@ import {
     MyEnumToJSON,
     NamedOneOfUnionFromJSON,
     NamedOneOfUnionToJSON,
+    NestedCollectionsFromJSON,
+    NestedCollectionsToJSON,
 } from '../models';
 
 
@@ -8303,6 +8310,7 @@ export interface ArrayRequestParametersRequest {
 export interface InlineRequestBodyRequest {
     inlineRequestBodyRequestContent?: InlineRequestBodyRequestContent;
 }
+
 
 
 export interface ReservedKeywordsRequest {
@@ -8528,6 +8536,35 @@ export class DefaultApi extends runtime.BaseAPI {
     /**
      * 
      */
+    async nestedCollectionsRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<NestedCollections>> {
+        const queryParameters: any = {};
+
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+
+        const response = await this.request({
+            path: \`/nested-collections\`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => NestedCollectionsFromJSON(jsonValue));
+    }
+
+    /**
+     * 
+     */
+    async nestedCollections(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<NestedCollections> {
+        const response = await this.nestedCollectionsRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * 
+     */
     async reservedKeywordsRaw(requestParameters: ReservedKeywordsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         const queryParameters: any = {};
 
@@ -8579,6 +8616,15 @@ import {
     ArrayOfOneOfs,
     ArrayOfOneOfsFromJSON,
     ArrayOfOneOfsToJSON,
+    CycleArrayNode,
+    CycleArrayNodeFromJSON,
+    CycleArrayNodeToJSON,
+    CycleDictionary,
+    CycleDictionaryFromJSON,
+    CycleDictionaryToJSON,
+    CycleDictionaryNode,
+    CycleDictionaryNodeFromJSON,
+    CycleDictionaryNodeToJSON,
     Dictionary,
     DictionaryFromJSON,
     DictionaryToJSON,
@@ -8600,6 +8646,9 @@ import {
     NamedOneOfUnion,
     NamedOneOfUnionFromJSON,
     NamedOneOfUnionToJSON,
+    NestedCollections,
+    NestedCollectionsFromJSON,
+    NestedCollectionsToJSON,
     SomeObject,
     SomeObjectFromJSON,
     SomeObjectToJSON,
@@ -8622,6 +8671,7 @@ export interface OperationConfig<T> {
     inlineEnum: T;
     inlineRequestBody: T;
     namedOneOf: T;
+    nestedCollections: T;
     reservedKeywords: T;
 }
 
@@ -8654,6 +8704,11 @@ export const OperationLookup = {
     },
     namedOneOf: {
         path: '/named-one-of',
+        method: 'POST',
+        contentTypes: ['application/json'],
+    },
+    nestedCollections: {
+        path: '/nested-collections',
         method: 'POST',
         contentTypes: ['application/json'],
     },
@@ -8778,7 +8833,7 @@ const extractResponseHeadersFromInterceptors = (interceptors: any[]): { [key: st
   }), {} as { [key: string]: string });
 };
 
-export type OperationIds = | 'arrayOfOneOfs' | 'arrayRequestParameters' | 'dictionary' | 'inlineEnum' | 'inlineRequestBody' | 'namedOneOf' | 'reservedKeywords';
+export type OperationIds = | 'arrayOfOneOfs' | 'arrayRequestParameters' | 'dictionary' | 'inlineEnum' | 'inlineRequestBody' | 'namedOneOf' | 'nestedCollections' | 'reservedKeywords';
 export type OperationApiGatewayProxyResult<T extends OperationIds> = APIGatewayProxyResult & { __operationId?: T };
 
 // Api gateway lambda handler type
@@ -9525,6 +9580,115 @@ export const namedOneOfHandler = (
     };
 };
 /**
+ * Path, Query and Header parameters for NestedCollections
+ */
+export interface NestedCollectionsRequestParameters {
+}
+
+/**
+ * Request body parameter for NestedCollections
+ */
+export type NestedCollectionsRequestBody = never;
+
+export type NestedCollections200OperationResponse = OperationResponse<200, NestedCollections>;
+
+export type NestedCollectionsOperationResponses = | NestedCollections200OperationResponse ;
+
+// Type that the handler function provided to the wrapper must conform to
+export type NestedCollectionsHandlerFunction = LambdaHandlerFunction<NestedCollectionsRequestParameters, NestedCollectionsRequestBody, NestedCollectionsOperationResponses>;
+export type NestedCollectionsChainedHandlerFunction = ChainedLambdaHandlerFunction<NestedCollectionsRequestParameters, NestedCollectionsRequestBody, NestedCollectionsOperationResponses>;
+export type NestedCollectionsChainedRequestInput = ChainedRequestInput<NestedCollectionsRequestParameters, NestedCollectionsRequestBody, NestedCollectionsOperationResponses>;
+
+/**
+ * Lambda handler wrapper to provide typed interface for the implementation of nestedCollections
+ */
+export const nestedCollectionsHandler = (
+    ...handlers: [NestedCollectionsChainedHandlerFunction, ...NestedCollectionsChainedHandlerFunction[]]
+): OperationApiGatewayLambdaHandler<'nestedCollections'> => async (event: any, context: any, _callback?: any, additionalInterceptors: NestedCollectionsChainedHandlerFunction[] = []): Promise<any> => {
+    const operationId = "nestedCollections";
+
+    const rawSingleValueParameters = decodeRequestParameters({
+      ...(event.pathParameters || {}),
+      ...(event.queryStringParameters || {}),
+      ...(event.headers || {}),
+    }) as { [key: string]: string | undefined };
+    const rawMultiValueParameters = decodeRequestParameters({
+      ...(event.multiValueQueryStringParameters || {}),
+      ...(event.multiValueHeaders || {}),
+    }) as { [key: string]: string[] | undefined };
+
+    const marshal = (statusCode: number, responseBody: any): string => {
+        let marshalledBody = responseBody;
+        switch(statusCode) {
+            case 200:
+                marshalledBody = JSON.stringify(NestedCollectionsToJSON(marshalledBody));
+                break;
+            default:
+                break;
+        }
+
+        return marshalledBody;
+    };
+
+    const errorHeaders = (statusCode: number): { [key: string]: string } => {
+        let headers = {};
+
+        switch(statusCode) {
+            default:
+                break;
+        }
+
+        return headers;
+    };
+
+    let requestParameters: NestedCollectionsRequestParameters | undefined = undefined;
+
+    try {
+      requestParameters = {
+
+      };
+    } catch (e: any) {
+      const res = {
+        statusCode: 400,
+        body: { message: e.message },
+        headers: extractResponseHeadersFromInterceptors(handlers),
+      };
+      return {
+        ...res,
+        headers: {
+          ...errorHeaders(res.statusCode),
+          ...res.headers,
+        },
+        body: res.body ? marshal(res.statusCode, res.body) : '',
+      };
+    }
+
+    const demarshal = (bodyString: string): any => {
+        return {};
+    };
+    const body = parseBody(event.body, demarshal, ['application/json']) as NestedCollectionsRequestBody;
+
+    const chain = buildHandlerChain(...additionalInterceptors, ...handlers);
+    const response = await chain.next({
+        input: {
+            requestParameters,
+            body,
+        },
+        event,
+        context,
+        interceptorContext: { operationId },
+    });
+
+    return {
+        ...response,
+        headers: {
+          ...errorHeaders(response.statusCode),
+          ...response.headers,
+        },
+        body: response.body ? marshal(response.statusCode, response.body) : '',
+    };
+};
+/**
  * Path, Query and Header parameters for ReservedKeywords
  */
 export interface ReservedKeywordsRequestParameters {
@@ -9646,12 +9810,13 @@ export interface HandlerRouterHandlers {
   readonly inlineEnum: OperationApiGatewayLambdaHandler<'inlineEnum'>;
   readonly inlineRequestBody: OperationApiGatewayLambdaHandler<'inlineRequestBody'>;
   readonly namedOneOf: OperationApiGatewayLambdaHandler<'namedOneOf'>;
+  readonly nestedCollections: OperationApiGatewayLambdaHandler<'nestedCollections'>;
   readonly reservedKeywords: OperationApiGatewayLambdaHandler<'reservedKeywords'>;
 }
 
-export type AnyOperationRequestParameters = | ArrayOfOneOfsRequestParameters| ArrayRequestParametersRequestParameters| DictionaryRequestParameters| InlineEnumRequestParameters| InlineRequestBodyRequestParameters| NamedOneOfRequestParameters| ReservedKeywordsRequestParameters;
-export type AnyOperationRequestBodies = | ArrayOfOneOfsRequestBody| ArrayRequestParametersRequestBody| DictionaryRequestBody| InlineEnumRequestBody| InlineRequestBodyRequestBody| NamedOneOfRequestBody| ReservedKeywordsRequestBody;
-export type AnyOperationResponses = | ArrayOfOneOfsOperationResponses| ArrayRequestParametersOperationResponses| DictionaryOperationResponses| InlineEnumOperationResponses| InlineRequestBodyOperationResponses| NamedOneOfOperationResponses| ReservedKeywordsOperationResponses;
+export type AnyOperationRequestParameters = | ArrayOfOneOfsRequestParameters| ArrayRequestParametersRequestParameters| DictionaryRequestParameters| InlineEnumRequestParameters| InlineRequestBodyRequestParameters| NamedOneOfRequestParameters| NestedCollectionsRequestParameters| ReservedKeywordsRequestParameters;
+export type AnyOperationRequestBodies = | ArrayOfOneOfsRequestBody| ArrayRequestParametersRequestBody| DictionaryRequestBody| InlineEnumRequestBody| InlineRequestBodyRequestBody| NamedOneOfRequestBody| NestedCollectionsRequestBody| ReservedKeywordsRequestBody;
+export type AnyOperationResponses = | ArrayOfOneOfsOperationResponses| ArrayRequestParametersOperationResponses| DictionaryOperationResponses| InlineEnumOperationResponses| InlineRequestBodyOperationResponses| NamedOneOfOperationResponses| NestedCollectionsOperationResponses| ReservedKeywordsOperationResponses;
 
 export interface HandlerRouterProps<
   RequestParameters,
@@ -10071,7 +10236,7 @@ export function AdditionalPropertiesResponseToJSON(value?: AdditionalPropertiesR
     return {
 
         'dictionaryOfObjects': DictionaryToJSON(value.dictionaryOfObjects),
-        'dictionaryOfPrimitives': value.dictionaryOfPrimitives,
+        'dictionaryOfPrimitives': value.dictionaryOfPrimitives === undefined ? undefined : value.dictionaryOfPrimitives,
     };
 }
 
@@ -10209,6 +10374,195 @@ export function ArrayOfOneOfsToJSON(value?: ArrayOfOneOfs | null): any {
     return {
 
         'oneOfs': value.oneOfs === undefined ? undefined : ((value.oneOfs as Array<any>).map(NamedOneOfUnionToJSON)),
+    };
+}
+
+",
+  "src/models/CycleArrayNode.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Edge Cases
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * 
+ * @export
+ * @interface CycleArrayNode
+ */
+export interface CycleArrayNode {
+    /**
+     * 
+     * @type {Array<CycleArrayNode>}
+     * @memberof CycleArrayNode
+     */
+    nodes?: Array<CycleArrayNode>;
+}
+
+
+/**
+ * Check if a given object implements the CycleArrayNode interface.
+ */
+export function instanceOfCycleArrayNode(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function CycleArrayNodeFromJSON(json: any): CycleArrayNode {
+    return CycleArrayNodeFromJSONTyped(json, false);
+}
+
+export function CycleArrayNodeFromJSONTyped(json: any, ignoreDiscriminator: boolean): CycleArrayNode {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'nodes': !exists(json, 'nodes') ? undefined : ((json['nodes'] as Array<any>).map(CycleArrayNodeFromJSON)),
+    };
+}
+
+export function CycleArrayNodeToJSON(value?: CycleArrayNode | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'nodes': value.nodes === undefined ? undefined : ((value.nodes as Array<any>).map(CycleArrayNodeToJSON)),
+    };
+}
+
+",
+  "src/models/CycleDictionary.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Edge Cases
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+import type { CycleDictionaryNode } from './CycleDictionaryNode';
+import {
+    CycleDictionaryNodeFromJSON,
+    CycleDictionaryNodeFromJSONTyped,
+    CycleDictionaryNodeToJSON,
+    instanceOfCycleDictionaryNode,
+} from './CycleDictionaryNode';
+
+/**
+ * 
+ * @export
+ * @interface CycleDictionary
+ */
+export interface CycleDictionary {
+    [key: string]: CycleDictionaryNode;
+}
+
+
+/**
+ * Check if a given object implements the CycleDictionary interface.
+ */
+export function instanceOfCycleDictionary(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function CycleDictionaryFromJSON(json: any): CycleDictionary {
+    return CycleDictionaryFromJSONTyped(json, false);
+}
+
+export function CycleDictionaryFromJSONTyped(json: any, ignoreDiscriminator: boolean): CycleDictionary {
+    return json;
+}
+
+export function CycleDictionaryToJSON(value?: CycleDictionary | null): any {
+    return value;
+}
+
+",
+  "src/models/CycleDictionaryNode.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Edge Cases
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+import type { CycleDictionary } from './CycleDictionary';
+import {
+    CycleDictionaryFromJSON,
+    CycleDictionaryFromJSONTyped,
+    CycleDictionaryToJSON,
+    instanceOfCycleDictionary,
+} from './CycleDictionary';
+
+/**
+ * 
+ * @export
+ * @interface CycleDictionaryNode
+ */
+export interface CycleDictionaryNode {
+    /**
+     * 
+     * @type {CycleDictionary}
+     * @memberof CycleDictionaryNode
+     */
+    nodes?: CycleDictionary;
+}
+
+
+/**
+ * Check if a given object implements the CycleDictionaryNode interface.
+ */
+export function instanceOfCycleDictionaryNode(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function CycleDictionaryNodeFromJSON(json: any): CycleDictionaryNode {
+    return CycleDictionaryNodeFromJSONTyped(json, false);
+}
+
+export function CycleDictionaryNodeFromJSONTyped(json: any, ignoreDiscriminator: boolean): CycleDictionaryNode {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'nodes': !exists(json, 'nodes') ? undefined : CycleDictionaryFromJSON(json['nodes']),
+    };
+}
+
+export function CycleDictionaryNodeToJSON(value?: CycleDictionaryNode | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'nodes': CycleDictionaryToJSON(value.nodes),
     };
 }
 
@@ -10617,6 +10971,164 @@ export function NamedOneOfUnionToJSON(value?: NamedOneOfUnion | null): any {
 }
 
 ",
+  "src/models/NestedCollections.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Edge Cases
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+import type { CycleArrayNode } from './CycleArrayNode';
+import {
+    CycleArrayNodeFromJSON,
+    CycleArrayNodeFromJSONTyped,
+    CycleArrayNodeToJSON,
+    instanceOfCycleArrayNode,
+} from './CycleArrayNode';
+import type { CycleDictionary } from './CycleDictionary';
+import {
+    CycleDictionaryFromJSON,
+    CycleDictionaryFromJSONTyped,
+    CycleDictionaryToJSON,
+    instanceOfCycleDictionary,
+} from './CycleDictionary';
+import type { SomeObject } from './SomeObject';
+import {
+    SomeObjectFromJSON,
+    SomeObjectFromJSONTyped,
+    SomeObjectToJSON,
+    instanceOfSomeObject,
+} from './SomeObject';
+
+/**
+ * 
+ * @export
+ * @interface NestedCollections
+ */
+export interface NestedCollections {
+    /**
+     * 
+     * @type {Array<Array<string>>}
+     * @memberof NestedCollections
+     */
+    nestedArrayOfStrings?: Array<Array<string>>;
+    /**
+     * 
+     * @type {Array<Array<Date>>}
+     * @memberof NestedCollections
+     */
+    nestedArrayOfDates?: Array<Array<Date>>;
+    /**
+     * 
+     * @type {Array<Array<SomeObject>>}
+     * @memberof NestedCollections
+     */
+    nestedArrayOfObjects?: Array<Array<SomeObject>>;
+    /**
+     * 
+     * @type {Array<Array<Array<Array<SomeObject>>>>}
+     * @memberof NestedCollections
+     */
+    fourDimensionalNestedArrayOfObjects?: Array<Array<Array<Array<SomeObject>>>>;
+    /**
+     * 
+     * @type {{ [key: string]: { [key: string]: string; }; }}
+     * @memberof NestedCollections
+     */
+    nestedDictionaryOfStrings?: { [key: string]: { [key: string]: string; }; };
+    /**
+     * 
+     * @type {{ [key: string]: { [key: string]: SomeObject; }; }}
+     * @memberof NestedCollections
+     */
+    nestedDictionaryOfObjects?: { [key: string]: { [key: string]: SomeObject; }; };
+    /**
+     * 
+     * @type {{ [key: string]: { [key: string]: { [key: string]: { [key: string]: SomeObject; }; }; }; }}
+     * @memberof NestedCollections
+     */
+    fourDimensionalNestedDictionaryOfObjects?: { [key: string]: { [key: string]: { [key: string]: { [key: string]: SomeObject; }; }; }; };
+    /**
+     * 
+     * @type {Array<{ [key: string]: Array<Array<{ [key: string]: Array<SomeObject>; }>>; }>}
+     * @memberof NestedCollections
+     */
+    nestedMixOfDictionariesAndArrays?: Array<{ [key: string]: Array<Array<{ [key: string]: Array<SomeObject>; }>>; }>;
+    /**
+     * 
+     * @type {Array<CycleArrayNode>}
+     * @memberof NestedCollections
+     */
+    cycleArray?: Array<CycleArrayNode>;
+    /**
+     * 
+     * @type {CycleDictionary}
+     * @memberof NestedCollections
+     */
+    cycleDictionary?: CycleDictionary;
+}
+
+
+/**
+ * Check if a given object implements the NestedCollections interface.
+ */
+export function instanceOfNestedCollections(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function NestedCollectionsFromJSON(json: any): NestedCollections {
+    return NestedCollectionsFromJSONTyped(json, false);
+}
+
+export function NestedCollectionsFromJSONTyped(json: any, ignoreDiscriminator: boolean): NestedCollections {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'nestedArrayOfStrings': !exists(json, 'nestedArrayOfStrings') ? undefined : json['nestedArrayOfStrings'],
+        'nestedArrayOfDates': !exists(json, 'nestedArrayOfDates') ? undefined : ((json['nestedArrayOfDates'] as Array<any>).map((item0) => item0.map((item1) => new Date(item1)))),
+        'nestedArrayOfObjects': !exists(json, 'nestedArrayOfObjects') ? undefined : ((json['nestedArrayOfObjects'] as Array<any>).map((item0) => item0.map(SomeObjectFromJSON))),
+        'fourDimensionalNestedArrayOfObjects': !exists(json, 'fourDimensionalNestedArrayOfObjects') ? undefined : ((json['fourDimensionalNestedArrayOfObjects'] as Array<any>).map((item0) => item0.map((item1) => item1.map((item2) => item2.map(SomeObjectFromJSON))))),
+        'nestedDictionaryOfStrings': !exists(json, 'nestedDictionaryOfStrings') ? undefined : json['nestedDictionaryOfStrings'],
+        'nestedDictionaryOfObjects': !exists(json, 'nestedDictionaryOfObjects') ? undefined : (mapValues(json['nestedDictionaryOfObjects'], (item0) => mapValues(item0, SomeObjectFromJSON))),
+        'fourDimensionalNestedDictionaryOfObjects': !exists(json, 'fourDimensionalNestedDictionaryOfObjects') ? undefined : (mapValues(json['fourDimensionalNestedDictionaryOfObjects'], (item0) => mapValues(item0, (item1) => mapValues(item1, (item2) => mapValues(item2, SomeObjectFromJSON))))),
+        'nestedMixOfDictionariesAndArrays': !exists(json, 'nestedMixOfDictionariesAndArrays') ? undefined : ((json['nestedMixOfDictionariesAndArrays'] as Array<any>).map((item0) => mapValues(item0, (item1) => item1.map((item2) => item2.map((item3) => mapValues(item3, (item4) => item4.map(SomeObjectFromJSON))))))),
+        'cycleArray': !exists(json, 'cycleArray') ? undefined : ((json['cycleArray'] as Array<any>).map(CycleArrayNodeFromJSON)),
+        'cycleDictionary': !exists(json, 'cycleDictionary') ? undefined : CycleDictionaryFromJSON(json['cycleDictionary']),
+    };
+}
+
+export function NestedCollectionsToJSON(value?: NestedCollections | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'nestedArrayOfStrings': value.nestedArrayOfStrings === undefined ? undefined : value.nestedArrayOfStrings,
+        'nestedArrayOfDates': value.nestedArrayOfDates === undefined ? undefined : ((value.nestedArrayOfDates as Array<any>).map((item0) => item0.map((item1) => item1.toISOString().substr(0,10)))),
+        'nestedArrayOfObjects': value.nestedArrayOfObjects === undefined ? undefined : ((value.nestedArrayOfObjects as Array<any>).map((item0) => item0.map(SomeObjectToJSON))),
+        'fourDimensionalNestedArrayOfObjects': value.fourDimensionalNestedArrayOfObjects === undefined ? undefined : ((value.fourDimensionalNestedArrayOfObjects as Array<any>).map((item0) => item0.map((item1) => item1.map((item2) => item2.map(SomeObjectToJSON))))),
+        'nestedDictionaryOfStrings': value.nestedDictionaryOfStrings === undefined ? undefined : value.nestedDictionaryOfStrings,
+        'nestedDictionaryOfObjects': value.nestedDictionaryOfObjects === undefined ? undefined : (mapValues(value.nestedDictionaryOfObjects, (item0) => mapValues(item0, SomeObjectToJSON))),
+        'fourDimensionalNestedDictionaryOfObjects': value.fourDimensionalNestedDictionaryOfObjects === undefined ? undefined : (mapValues(value.fourDimensionalNestedDictionaryOfObjects, (item0) => mapValues(item0, (item1) => mapValues(item1, (item2) => mapValues(item2, SomeObjectToJSON))))),
+        'nestedMixOfDictionariesAndArrays': value.nestedMixOfDictionariesAndArrays === undefined ? undefined : ((value.nestedMixOfDictionariesAndArrays as Array<any>).map((item0) => mapValues(item0, (item1) => item1.map((item2) => item2.map((item3) => mapValues(item3, (item4) => item4.map(SomeObjectToJSON))))))),
+        'cycleArray': value.cycleArray === undefined ? undefined : ((value.cycleArray as Array<any>).map(CycleArrayNodeToJSON)),
+        'cycleDictionary': CycleDictionaryToJSON(value.cycleDictionary),
+    };
+}
+
+",
   "src/models/SomeObject.ts": "/* tslint:disable */
 /* eslint-disable */
 /**
@@ -10687,6 +11199,9 @@ export function SomeObjectToJSON(value?: SomeObject | null): any {
 export * from './AdditionalPropertiesResponse';
 export * from './AnotherNamedOneOf';
 export * from './ArrayOfOneOfs';
+export * from './CycleArrayNode';
+export * from './CycleDictionary';
+export * from './CycleDictionaryNode';
 export * from './Dictionary';
 export * from './InlineEnum200Response';
 export * from './InlineEnum200ResponseCategoryEnum';
@@ -10694,6 +11209,7 @@ export * from './InlineRequestBodyRequestContent';
 export * from './MyEnum';
 export * from './NamedOneOf';
 export * from './NamedOneOfUnion';
+export * from './NestedCollections';
 export * from './SomeObject';
 ",
   "src/models/model-utils.ts": "/* tslint:disable */

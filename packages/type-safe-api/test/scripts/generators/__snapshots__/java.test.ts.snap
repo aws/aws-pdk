@@ -22835,9 +22835,6 @@ public class DataTypes200Response {
       if (jsonObj.get("myDateArray") != null && !jsonObj.get("myDateArray").isJsonArray()) {
         throw new IllegalArgumentException(String.format("Expected the field \`myDateArray\` to be an array in the JSON string but got \`%s\`", jsonObj.get("myDateArray").toString()));
       }
-      if ((jsonObj.get("myDateArray") != null && !jsonObj.get("myDateArray").isJsonNull()) && !jsonObj.get("myDateArray").isJsonPrimitive()) {
-        throw new IllegalArgumentException(String.format("Expected the field \`myDateArray\` to be a primitive type in the JSON string but got \`%s\`", jsonObj.get("myDateArray").toString()));
-      }
       if ((jsonObj.get("myEmail") != null && !jsonObj.get("myEmail").isJsonNull()) && !jsonObj.get("myEmail").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field \`myEmail\` to be a primitive type in the JSON string but got \`%s\`", jsonObj.get("myEmail").toString()));
       }
@@ -30345,6 +30342,9 @@ src/main/java/test/test/runtime/model/AbstractOpenApiSchema.java
 src/main/java/test/test/runtime/model/AdditionalPropertiesResponse.java
 src/main/java/test/test/runtime/model/AnotherNamedOneOf.java
 src/main/java/test/test/runtime/model/ArrayOfOneOfs.java
+src/main/java/test/test/runtime/model/CycleArrayNode.java
+src/main/java/test/test/runtime/model/CycleDictionary.java
+src/main/java/test/test/runtime/model/CycleDictionaryNode.java
 src/main/java/test/test/runtime/model/Dictionary.java
 src/main/java/test/test/runtime/model/InlineEnum200Response.java
 src/main/java/test/test/runtime/model/InlineEnum200ResponseCategoryEnum.java
@@ -30352,6 +30352,7 @@ src/main/java/test/test/runtime/model/InlineRequestBodyRequestContent.java
 src/main/java/test/test/runtime/model/MyEnum.java
 src/main/java/test/test/runtime/model/NamedOneOf.java
 src/main/java/test/test/runtime/model/NamedOneOfUnion.java
+src/main/java/test/test/runtime/model/NestedCollections.java
 src/main/java/test/test/runtime/model/SomeObject.java
 src/main/java/test/test/runtime/api/handlers/Handlers.java
 src/main/java/test/test/runtime/api/handlers/Response.java
@@ -30369,6 +30370,7 @@ src/main/java/test/test/runtime/api/handlers/dictionary/DictionaryResponse.java
 src/main/java/test/test/runtime/api/handlers/inline_enum/InlineEnumResponse.java
 src/main/java/test/test/runtime/api/handlers/inline_request_body/InlineRequestBodyResponse.java
 src/main/java/test/test/runtime/api/handlers/named_one_of/NamedOneOfResponse.java
+src/main/java/test/test/runtime/api/handlers/nested_collections/NestedCollectionsResponse.java
 src/main/java/test/test/runtime/api/handlers/reserved_keywords/ReservedKeywordsResponse.java
 src/main/java/test/test/runtime/api/handlers/array_of_one_ofs/ArrayOfOneOfs200Response.java
 src/main/java/test/test/runtime/api/handlers/array_request_parameters/ArrayRequestParameters200Response.java
@@ -30376,6 +30378,7 @@ src/main/java/test/test/runtime/api/handlers/dictionary/Dictionary200Response.ja
 src/main/java/test/test/runtime/api/handlers/inline_enum/InlineEnum200Response.java
 src/main/java/test/test/runtime/api/handlers/inline_request_body/InlineRequestBody204Response.java
 src/main/java/test/test/runtime/api/handlers/named_one_of/NamedOneOf200Response.java
+src/main/java/test/test/runtime/api/handlers/nested_collections/NestedCollections200Response.java
 src/main/java/test/test/runtime/api/handlers/reserved_keywords/ReservedKeywords200Response.java
 src/main/java/test/test/runtime/api/handlers/array_of_one_ofs/ArrayOfOneOfsRequestParameters.java
 src/main/java/test/test/runtime/api/handlers/array_request_parameters/ArrayRequestParametersRequestParameters.java
@@ -30383,6 +30386,7 @@ src/main/java/test/test/runtime/api/handlers/dictionary/DictionaryRequestParamet
 src/main/java/test/test/runtime/api/handlers/inline_enum/InlineEnumRequestParameters.java
 src/main/java/test/test/runtime/api/handlers/inline_request_body/InlineRequestBodyRequestParameters.java
 src/main/java/test/test/runtime/api/handlers/named_one_of/NamedOneOfRequestParameters.java
+src/main/java/test/test/runtime/api/handlers/nested_collections/NestedCollectionsRequestParameters.java
 src/main/java/test/test/runtime/api/handlers/reserved_keywords/ReservedKeywordsRequestParameters.java
 src/main/java/test/test/runtime/api/handlers/array_of_one_ofs/ArrayOfOneOfsInput.java
 src/main/java/test/test/runtime/api/handlers/array_request_parameters/ArrayRequestParametersInput.java
@@ -30390,6 +30394,7 @@ src/main/java/test/test/runtime/api/handlers/dictionary/DictionaryInput.java
 src/main/java/test/test/runtime/api/handlers/inline_enum/InlineEnumInput.java
 src/main/java/test/test/runtime/api/handlers/inline_request_body/InlineRequestBodyInput.java
 src/main/java/test/test/runtime/api/handlers/named_one_of/NamedOneOfInput.java
+src/main/java/test/test/runtime/api/handlers/nested_collections/NestedCollectionsInput.java
 src/main/java/test/test/runtime/api/handlers/reserved_keywords/ReservedKeywordsInput.java
 src/main/java/test/test/runtime/api/handlers/array_of_one_ofs/ArrayOfOneOfsRequestInput.java
 src/main/java/test/test/runtime/api/handlers/array_request_parameters/ArrayRequestParametersRequestInput.java
@@ -30397,6 +30402,7 @@ src/main/java/test/test/runtime/api/handlers/dictionary/DictionaryRequestInput.j
 src/main/java/test/test/runtime/api/handlers/inline_enum/InlineEnumRequestInput.java
 src/main/java/test/test/runtime/api/handlers/inline_request_body/InlineRequestBodyRequestInput.java
 src/main/java/test/test/runtime/api/handlers/named_one_of/NamedOneOfRequestInput.java
+src/main/java/test/test/runtime/api/handlers/nested_collections/NestedCollectionsRequestInput.java
 src/main/java/test/test/runtime/api/handlers/reserved_keywords/ReservedKeywordsRequestInput.java
 src/main/java/test/test/runtime/api/handlers/array_of_one_ofs/ArrayOfOneOfs.java
 src/main/java/test/test/runtime/api/handlers/array_request_parameters/ArrayRequestParameters.java
@@ -30404,6 +30410,7 @@ src/main/java/test/test/runtime/api/handlers/dictionary/Dictionary.java
 src/main/java/test/test/runtime/api/handlers/inline_enum/InlineEnum.java
 src/main/java/test/test/runtime/api/handlers/inline_request_body/InlineRequestBody.java
 src/main/java/test/test/runtime/api/handlers/named_one_of/NamedOneOf.java
+src/main/java/test/test/runtime/api/handlers/nested_collections/NestedCollections.java
 src/main/java/test/test/runtime/api/handlers/reserved_keywords/ReservedKeywords.java
 src/main/java/test/test/runtime/api/handlers/HandlerRouter.java
 src/main/java/test/test/runtime/api/interceptors/TryCatchInterceptor.java
@@ -32484,11 +32491,15 @@ public class JSON {
         gsonBuilder.registerTypeAdapterFactory(new test.test.runtime.model.AdditionalPropertiesResponse.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new test.test.runtime.model.AnotherNamedOneOf.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new test.test.runtime.model.ArrayOfOneOfs.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new test.test.runtime.model.CycleArrayNode.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new test.test.runtime.model.CycleDictionary.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new test.test.runtime.model.CycleDictionaryNode.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new test.test.runtime.model.Dictionary.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new test.test.runtime.model.InlineEnum200Response.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new test.test.runtime.model.InlineRequestBodyRequestContent.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new test.test.runtime.model.NamedOneOf.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new test.test.runtime.model.NamedOneOfUnion.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new test.test.runtime.model.NestedCollections.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new test.test.runtime.model.SomeObject.CustomTypeAdapterFactory());
         gson = gsonBuilder.create();
     }
@@ -33196,6 +33207,7 @@ import test.test.runtime.model.InlineEnum200Response;
 import test.test.runtime.model.InlineRequestBodyRequestContent;
 import test.test.runtime.model.MyEnum;
 import test.test.runtime.model.NamedOneOfUnion;
+import test.test.runtime.model.NestedCollections;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -34248,6 +34260,151 @@ public class DefaultApi {
     public APInamedOneOfRequest namedOneOf() {
         return new APInamedOneOfRequest();
     }
+    private okhttp3.Call nestedCollectionsCall(final ApiCallback _callback) throws ApiException {
+        String basePath = null;
+        // Operation Servers
+        String[] localBasePaths = new String[] {  };
+
+        // Determine Base Path to Use
+        if (localCustomBaseUrl != null){
+            basePath = localCustomBaseUrl;
+        } else if ( localBasePaths.length > 0 ) {
+            basePath = localBasePaths[localHostIndex];
+        } else {
+            basePath = null;
+        }
+
+        Object localVarPostBody = null;
+
+        // create path and map variables
+        String localVarPath = "/nested-collections";
+
+        List<Pair> localVarQueryParams = new ArrayList<Pair>();
+        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
+        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+        Map<String, String> localVarCookieParams = new HashMap<String, String>();
+        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+
+        final String[] localVarAccepts = {
+            "application/json"
+        };
+        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
+        if (localVarAccept != null) {
+            localVarHeaderParams.put("Accept", localVarAccept);
+        }
+
+        final String[] localVarContentTypes = {
+        };
+        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
+        if (localVarContentType != null) {
+            localVarHeaderParams.put("Content-Type", localVarContentType);
+        }
+
+        String[] localVarAuthNames = new String[] {  };
+        return localVarApiClient.buildCall(basePath, localVarPath, "POST", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
+    }
+
+    
+    @SuppressWarnings("rawtypes")
+    private okhttp3.Call nestedCollectionsValidateBeforeCall(final ApiCallback _callback) throws ApiException {
+        return nestedCollectionsCall(_callback);
+
+    }
+
+    private ApiResponse<NestedCollections> nestedCollectionsWithHttpInfo() throws ApiException {
+        okhttp3.Call localVarCall = nestedCollectionsValidateBeforeCall(null);
+        Type localVarReturnType = new TypeToken<NestedCollections>(){}.getType();
+        return localVarApiClient.execute(localVarCall, localVarReturnType);
+    }
+
+
+    private okhttp3.Call nestedCollectionsAsync(final ApiCallback<NestedCollections> _callback) throws ApiException {
+
+        okhttp3.Call localVarCall = nestedCollectionsValidateBeforeCall(_callback);
+        Type localVarReturnType = new TypeToken<NestedCollections>(){}.getType();
+        localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
+        return localVarCall;
+    }
+
+    public class APInestedCollectionsRequest {
+
+        private APInestedCollectionsRequest() {
+        }
+
+        /**
+         * Build call for nestedCollections
+         * @param _callback ApiCallback API callback
+         * @return Call to execute
+         * @throws ApiException If fail to serialize the request body object
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 200 </td><td> ok </td><td>  -  </td></tr>
+         </table>
+         */
+        public okhttp3.Call buildCall(final ApiCallback _callback) throws ApiException {
+            return nestedCollectionsCall(_callback);
+        }
+
+        /**
+         * Execute nestedCollections request
+         * @return NestedCollections
+         * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 200 </td><td> ok </td><td>  -  </td></tr>
+         </table>
+         */
+        public NestedCollections execute() throws ApiException {
+            ApiResponse<NestedCollections> localVarResp = nestedCollectionsWithHttpInfo();
+            return localVarResp.getData();
+        }
+
+        /**
+         * Execute nestedCollections request with HTTP info returned
+         * @return ApiResponse&lt;NestedCollections&gt;
+         * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 200 </td><td> ok </td><td>  -  </td></tr>
+         </table>
+         */
+        public ApiResponse<NestedCollections> executeWithHttpInfo() throws ApiException {
+            return nestedCollectionsWithHttpInfo();
+        }
+
+        /**
+         * Execute nestedCollections request (asynchronously)
+         * @param _callback The callback to be executed when the API call finishes
+         * @return The request call
+         * @throws ApiException If fail to process the API call, e.g. serializing the request body object
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 200 </td><td> ok </td><td>  -  </td></tr>
+         </table>
+         */
+        public okhttp3.Call executeAsync(final ApiCallback<NestedCollections> _callback) throws ApiException {
+            return nestedCollectionsAsync(_callback);
+        }
+    }
+
+    /**
+     * 
+     * 
+     * @return APInestedCollectionsRequest
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> ok </td><td>  -  </td></tr>
+     </table>
+     */
+    
+    public APInestedCollectionsRequest nestedCollections() {
+        return new APInestedCollectionsRequest();
+    }
     private okhttp3.Call reservedKeywordsCall(String with, String _if, String propertyClass, final ApiCallback _callback) throws ApiException {
         String basePath = null;
         // Operation Servers
@@ -34487,6 +34644,7 @@ import test.test.runtime.api.handlers.dictionary.*;
 import test.test.runtime.api.handlers.inline_enum.*;
 import test.test.runtime.api.handlers.inline_request_body.*;
 import test.test.runtime.api.handlers.named_one_of.*;
+import test.test.runtime.api.handlers.nested_collections.*;
 import test.test.runtime.api.handlers.reserved_keywords.*;
 
 import test.test.runtime.api.handlers.Handlers;
@@ -34511,6 +34669,7 @@ public abstract class HandlerRouter implements RequestHandler<APIGatewayProxyReq
     private static final String inlineEnumMethodAndPath = Handlers.concatMethodAndPath("GET", "/inline-enum");
     private static final String inlineRequestBodyMethodAndPath = Handlers.concatMethodAndPath("POST", "/inline-request-body");
     private static final String namedOneOfMethodAndPath = Handlers.concatMethodAndPath("POST", "/named-one-of");
+    private static final String nestedCollectionsMethodAndPath = Handlers.concatMethodAndPath("POST", "/nested-collections");
     private static final String reservedKeywordsMethodAndPath = Handlers.concatMethodAndPath("GET", "/reserved-keywords");
 
     private final ArrayOfOneOfs constructedArrayOfOneOfs;
@@ -34519,6 +34678,7 @@ public abstract class HandlerRouter implements RequestHandler<APIGatewayProxyReq
     private final InlineEnum constructedInlineEnum;
     private final InlineRequestBody constructedInlineRequestBody;
     private final NamedOneOf constructedNamedOneOf;
+    private final NestedCollections constructedNestedCollections;
     private final ReservedKeywords constructedReservedKeywords;
 
     /**
@@ -34546,6 +34706,10 @@ public abstract class HandlerRouter implements RequestHandler<APIGatewayProxyReq
      */
     public abstract NamedOneOf namedOneOf();
     /**
+     * This method must return your implementation of the NestedCollections operation
+     */
+    public abstract NestedCollections nestedCollections();
+    /**
      * This method must return your implementation of the ReservedKeywords operation
      */
     public abstract ReservedKeywords reservedKeywords();
@@ -34557,6 +34721,7 @@ public abstract class HandlerRouter implements RequestHandler<APIGatewayProxyReq
         inlineEnumRoute,
         inlineRequestBodyRoute,
         namedOneOfRoute,
+        nestedCollectionsRoute,
         reservedKeywordsRoute,
     }
 
@@ -34572,6 +34737,7 @@ public abstract class HandlerRouter implements RequestHandler<APIGatewayProxyReq
         this.routes.put(inlineEnumMethodAndPath, Route.inlineEnumRoute);
         this.routes.put(inlineRequestBodyMethodAndPath, Route.inlineRequestBodyRoute);
         this.routes.put(namedOneOfMethodAndPath, Route.namedOneOfRoute);
+        this.routes.put(nestedCollectionsMethodAndPath, Route.nestedCollectionsRoute);
         this.routes.put(reservedKeywordsMethodAndPath, Route.reservedKeywordsRoute);
         // Handlers are all constructed in the router's constructor such that lambda behaviour remains consistent;
         // ie resources created in the constructor remain in memory between invocations.
@@ -34582,6 +34748,7 @@ public abstract class HandlerRouter implements RequestHandler<APIGatewayProxyReq
         this.constructedInlineEnum = this.inlineEnum();
         this.constructedInlineRequestBody = this.inlineRequestBody();
         this.constructedNamedOneOf = this.namedOneOf();
+        this.constructedNestedCollections = this.nestedCollections();
         this.constructedReservedKeywords = this.reservedKeywords();
     }
 
@@ -34626,6 +34793,10 @@ public abstract class HandlerRouter implements RequestHandler<APIGatewayProxyReq
                 List<Interceptor<NamedOneOfInput>> namedOneOfInterceptors = Handlers.getAnnotationInterceptors(this.getClass());
                 namedOneOfInterceptors.addAll(this.getInterceptors());
                 return this.constructedNamedOneOf.handleRequestWithAdditionalInterceptors(event, context, namedOneOfInterceptors);
+            case nestedCollectionsRoute:
+                List<Interceptor<NestedCollectionsInput>> nestedCollectionsInterceptors = Handlers.getAnnotationInterceptors(this.getClass());
+                nestedCollectionsInterceptors.addAll(this.getInterceptors());
+                return this.constructedNestedCollections.handleRequestWithAdditionalInterceptors(event, context, nestedCollectionsInterceptors);
             case reservedKeywordsRoute:
                 List<Interceptor<ReservedKeywordsInput>> reservedKeywordsInterceptors = Handlers.getAnnotationInterceptors(this.getClass());
                 reservedKeywordsInterceptors.addAll(this.getInterceptors());
@@ -37782,6 +37953,413 @@ import test.test.runtime.api.handlers.Response;
  */
 public interface NamedOneOfResponse extends Response {}
 ",
+  "src/main/java/test/test/runtime/api/handlers/nested_collections/NestedCollections.java": "
+package test.test.runtime.api.handlers.nested_collections;
+
+import test.test.runtime.model.*;
+import test.test.runtime.JSON;
+import test.test.runtime.api.handlers.Interceptor;
+import test.test.runtime.api.handlers.Handlers;
+import test.test.runtime.api.handlers.*;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Collections;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+import java.io.IOException;
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.RequestHandler;
+import org.crac.Core;
+import org.crac.Resource;
+
+
+/**
+ * Lambda handler wrapper for the nestedCollections operation
+ */
+public abstract class NestedCollections implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent>, Resource {
+    {
+        Core.getGlobalContext().register(this);
+    }
+
+    /**
+     * Handle the request for the nestedCollections operation
+     */
+    public abstract NestedCollectionsResponse handle(final NestedCollectionsRequestInput request);
+
+    /**
+     * Interceptors that the handler class has been decorated with
+     */
+    private List<Interceptor<NestedCollectionsInput>> annotationInterceptors = Handlers.getAnnotationInterceptors(NestedCollections.class);
+
+    /**
+     * For more complex interceptors that require instantiation with parameters, you may override this method to
+     * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
+     * prefer the @Interceptors annotation.
+     */
+    public List<Interceptor<NestedCollectionsInput>> getInterceptors() {
+        return Collections.emptyList();
+    }
+
+    private List<Interceptor<NestedCollectionsInput>> getHandlerInterceptors() {
+        List<Interceptor<NestedCollectionsInput>> interceptors = new ArrayList<>();
+        interceptors.addAll(annotationInterceptors);
+        interceptors.addAll(this.getInterceptors());
+        return interceptors;
+    }
+
+    private HandlerChain<NestedCollectionsInput> buildChain(List<Interceptor<NestedCollectionsInput>> interceptors) {
+        return Handlers.buildHandlerChain(interceptors, new HandlerChain<NestedCollectionsInput>() {
+            @Override
+            public Response next(ChainedRequestInput<NestedCollectionsInput> input) {
+                return handle(new NestedCollectionsRequestInput(input.getEvent(), input.getContext(), input.getInterceptorContext(), input.getInput()));
+            }
+        });
+    }
+
+    private ChainedRequestInput<NestedCollectionsInput> buildChainedRequestInput(final APIGatewayProxyRequestEvent event, final Context context, final NestedCollectionsInput input, final Map<String, Object> interceptorContext) {
+        return new ChainedRequestInput<NestedCollectionsInput>() {
+            @Override
+            public HandlerChain getChain() {
+                // The chain's next method ignores the chain given as input, and is pre-built to follow the remaining
+                // chain.
+                return null;
+            }
+
+            @Override
+            public APIGatewayProxyRequestEvent getEvent() {
+                return event;
+            }
+
+            @Override
+            public Context getContext() {
+                return context;
+            }
+
+            @Override
+            public NestedCollectionsInput getInput() {
+                return input;
+            }
+
+            @Override
+            public Map<String, Object> getInterceptorContext() {
+                return interceptorContext;
+            }
+        };
+    }
+
+    @Override
+    public void beforeCheckpoint(org.crac.Context<? extends Resource> context) {
+        // Prime building the handler chain which can take a few 100ms to JIT.
+        this.buildChain(this.getHandlerInterceptors());
+        this.buildChainedRequestInput(null, null, null, null);
+
+        // Initialise instance of Gson and prime serialisation and deserialisation
+        new JSON();
+        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>(), new HashMap<>())), ApiResponse.class);
+
+        try {
+            // Prime input validation - this will likely fail for the fake event but ensures the code path is optimised
+            // ready for a real invocation
+            new NestedCollectionsInput(new APIGatewayProxyRequestEvent()
+                    .withBody("{}")
+                    .withPathParameters(new HashMap<>())
+                    .withQueryStringParameters(new HashMap<>())
+                    .withMultiValueQueryStringParameters(new HashMap<>())
+                    .withHeaders(new HashMap<>())
+                    .withMultiValueHeaders(new HashMap<>())
+            );
+        } catch (Exception e) {
+
+        }
+
+        this.warmUp();
+    }
+
+    @Override
+    public void afterRestore(org.crac.Context<? extends Resource> context) {
+
+    }
+
+    /**
+     * Override this method to perform any warmup activities which will be executed prior to the snap-start snapshot.
+     */
+    public void warmUp() {
+
+    }
+
+    @Override
+    public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent event, final Context context) {
+        return this.handleRequestWithAdditionalInterceptors(event, context, new ArrayList<>());
+    }
+
+    private Map<String, String> getErrorResponseHeaders(final int statusCode) {
+        Map<String, String> headers = new HashMap<>();
+        return headers;
+    }
+
+    public APIGatewayProxyResponseEvent handleRequestWithAdditionalInterceptors(final APIGatewayProxyRequestEvent event, final Context context, final List<Interceptor<NestedCollectionsInput>> additionalInterceptors) {
+        final Map<String, Object> interceptorContext = new HashMap<>();
+        interceptorContext.put("operationId", "nestedCollections");
+
+        List<Interceptor<NestedCollectionsInput>> interceptors = new ArrayList<>();
+        interceptors.addAll(additionalInterceptors);
+        interceptors.addAll(this.getHandlerInterceptors());
+
+        final HandlerChain chain = this.buildChain(interceptors);
+
+        NestedCollectionsInput input;
+
+        try {
+            input = new NestedCollectionsInput(event);
+        } catch (RuntimeException e) {
+            Map<String, String> headers = new HashMap<>();
+            headers.putAll(Handlers.extractResponseHeadersFromInterceptors(interceptors));
+            headers.putAll(this.getErrorResponseHeaders(400));
+            return new APIGatewayProxyResponseEvent()
+                .withStatusCode(400)
+                .withHeaders(headers)
+                .withBody("{\\"message\\": \\"" + e.getMessage() + "\\"}");
+        }
+
+        final Response response = chain.next(this.buildChainedRequestInput(event, context, input, interceptorContext));
+
+        Map<String, String> responseHeaders = new HashMap<>();
+        responseHeaders.putAll(this.getErrorResponseHeaders(response.getStatusCode()));
+        responseHeaders.putAll(response.getHeaders());
+
+        return new APIGatewayProxyResponseEvent()
+                .withStatusCode(response.getStatusCode())
+                .withHeaders(responseHeaders)
+                .withMultiValueHeaders(response.getMultiValueHeaders())
+                .withBody(response.getBody());
+    }
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/nested_collections/NestedCollections200Response.java": "
+package test.test.runtime.api.handlers.nested_collections;
+
+import test.test.runtime.model.*;
+import test.test.runtime.JSON;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+
+/**
+ * Response with status code 200 for the nestedCollections operation
+ */
+public class NestedCollections200Response extends RuntimeException implements NestedCollectionsResponse {
+    static {
+        // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
+        // Create an instance here if required to ensure that the static Gson instance is always available.
+        if (JSON.getGson() == null) {
+            new JSON();
+        }
+    }
+
+    private final String body;
+    private final NestedCollections typedBody;
+    private final Map<String, String> headers;
+    private final Map<String, List<String>> multiValueHeaders;
+
+    private NestedCollections200Response(final NestedCollections body, final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
+        this.typedBody = body;
+        this.body = body.toJson();
+        this.headers = headers;
+        this.multiValueHeaders = multiValueHeaders;
+    }
+
+    @Override
+    public int getStatusCode() {
+        return 200;
+    }
+
+    @Override
+    public String getBody() {
+        return this.body;
+    }
+
+    public NestedCollections getTypedBody() {
+        return this.typedBody;
+    }
+
+    @Override
+    public Map<String, String> getHeaders() {
+        return this.headers;
+    }
+
+    @Override
+    public Map<String, List<String>> getMultiValueHeaders() {
+        return this.multiValueHeaders;
+    }
+
+    /**
+     * Create a NestedCollections200Response with a body
+     */
+    public static NestedCollections200Response of(final NestedCollections body) {
+        return new NestedCollections200Response(body, new HashMap<>(), new HashMap<>());
+    }
+
+    /**
+     * Create a NestedCollections200Response with a body and headers
+     */
+    public static NestedCollections200Response of(final NestedCollections body, final Map<String, String> headers) {
+        return new NestedCollections200Response(body, headers, new HashMap<>());
+    }
+
+    /**
+     * Create a NestedCollections200Response with a body, headers and multi-value headers
+     */
+    public static NestedCollections200Response of(final NestedCollections body, final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
+        return new NestedCollections200Response(body, headers, multiValueHeaders);
+    }
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/nested_collections/NestedCollectionsInput.java": "
+package test.test.runtime.api.handlers.nested_collections;
+
+import test.test.runtime.model.*;
+import test.test.runtime.JSON;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import java.io.IOException;
+
+/**
+ * Input for the nestedCollections operation
+ */
+@lombok.Builder
+@lombok.AllArgsConstructor
+public class NestedCollectionsInput {
+    static {
+        // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
+        // Create an instance here if required to ensure that the static Gson instance is always available.
+        if (JSON.getGson() == null) {
+            new JSON();
+        }
+    }
+
+    private final NestedCollectionsRequestParameters requestParameters;
+
+    public NestedCollectionsInput(final APIGatewayProxyRequestEvent event) {
+        this.requestParameters = new NestedCollectionsRequestParameters(event);
+    }
+
+    public NestedCollectionsRequestParameters getRequestParameters() {
+        return this.requestParameters;
+    }
+
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/nested_collections/NestedCollectionsRequestInput.java": "
+package test.test.runtime.api.handlers.nested_collections;
+
+import test.test.runtime.model.*;
+import test.test.runtime.api.handlers.RequestInput;
+import java.util.List;
+import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import java.io.IOException;
+import com.amazonaws.services.lambda.runtime.Context;
+
+/**
+ * Full request input for the nestedCollections operation, including the raw API Gateway event
+ */
+@lombok.Builder
+@lombok.AllArgsConstructor
+public class NestedCollectionsRequestInput implements RequestInput<NestedCollectionsInput> {
+    private final APIGatewayProxyRequestEvent event;
+    private final Context context;
+    private final Map<String, Object> interceptorContext;
+    private final NestedCollectionsInput input;
+
+    /**
+     * Returns the typed request input, with path, query and body parameters
+     */
+    public NestedCollectionsInput getInput() {
+        return this.input;
+    }
+
+    /**
+     * Returns the raw API Gateway event
+     */
+    public APIGatewayProxyRequestEvent getEvent() {
+        return this.event;
+    }
+
+    /**
+     * Returns the lambda context
+     */
+    public Context getContext() {
+        return this.context;
+    }
+
+    /**
+     * Returns the interceptor context, which may contain values set by request interceptors
+     */
+    public Map<String, Object> getInterceptorContext() {
+        return this.interceptorContext;
+    }
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/nested_collections/NestedCollectionsRequestParameters.java": "
+package test.test.runtime.api.handlers.nested_collections;
+
+import test.test.runtime.api.handlers.Handlers;
+import java.util.Optional;
+import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.time.OffsetDateTime;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.stream.Collectors;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+
+import test.test.runtime.model.*;
+
+/**
+ * Query, path and header parameters for the NestedCollections operation
+ */
+@lombok.Builder
+@lombok.AllArgsConstructor
+public class NestedCollectionsRequestParameters {
+
+    public NestedCollectionsRequestParameters(final APIGatewayProxyRequestEvent event) {
+        Map<String, String> rawStringParameters = new HashMap<>();
+        Handlers.putAllFromNullableMap(event.getPathParameters(), rawStringParameters);
+        Handlers.putAllFromNullableMap(event.getQueryStringParameters(), rawStringParameters);
+        Handlers.putAllFromNullableMap(event.getHeaders(), rawStringParameters);
+        Map<String, String> decodedStringParameters = Handlers.decodeRequestParameters(rawStringParameters);
+
+        Map<String, List<String>> rawStringArrayParameters = new HashMap<>();
+        Handlers.putAllFromNullableMap(event.getMultiValueQueryStringParameters(), rawStringArrayParameters);
+        Handlers.putAllFromNullableMap(event.getMultiValueHeaders(), rawStringArrayParameters);
+        Map<String, List<String>> decodedStringArrayParameters = Handlers.decodeRequestArrayParameters(rawStringArrayParameters);
+
+    }
+
+}
+",
+  "src/main/java/test/test/runtime/api/handlers/nested_collections/NestedCollectionsResponse.java": "
+package test.test.runtime.api.handlers.nested_collections;
+
+import test.test.runtime.api.handlers.Response;
+
+/**
+ * Response for the nestedCollections operation
+ */
+public interface NestedCollectionsResponse extends Response {}
+",
   "src/main/java/test/test/runtime/api/handlers/reserved_keywords/ReservedKeywords.java": "
 package test.test.runtime.api.handlers.reserved_keywords;
 
@@ -38558,6 +39136,7 @@ public class OperationConfig<T> {
     private T inlineEnum;
     private T inlineRequestBody;
     private T namedOneOf;
+    private T nestedCollections;
     private T reservedKeywords;
 
     public Map<String, T> asMap() {
@@ -38568,6 +39147,7 @@ public class OperationConfig<T> {
         map.put("inlineEnum", this.inlineEnum);
         map.put("inlineRequestBody", this.inlineRequestBody);
         map.put("namedOneOf", this.namedOneOf);
+        map.put("nestedCollections", this.nestedCollections);
         map.put("reservedKeywords", this.reservedKeywords);
         return map;
     }
@@ -38628,6 +39208,11 @@ public class OperationLookup {
             .method("POST")
             .contentTypes(Arrays.asList("application/json"))
             .build());
+        config.put("nestedCollections", OperationLookupEntry.builder()
+            .path("/nested-collections")
+            .method("POST")
+            .contentTypes(Arrays.asList("application/json"))
+            .build());
         config.put("reservedKeywords", OperationLookupEntry.builder()
             .path("/reserved-keywords")
             .method("GET")
@@ -38654,6 +39239,7 @@ public class Operations {
                 .inlineEnum(value)
                 .inlineRequestBody(value)
                 .namedOneOf(value)
+                .nestedCollections(value)
                 .reservedKeywords(value)
                 ;
     }
@@ -39252,9 +39838,6 @@ public class AdditionalPropertiesResponse {
       if (jsonObj.get("dictionaryOfObjects") != null && !jsonObj.get("dictionaryOfObjects").isJsonNull()) {
         Dictionary.validateJsonObject(jsonObj.getAsJsonObject("dictionaryOfObjects"));
       }
-      if ((jsonObj.get("dictionaryOfPrimitives") != null && !jsonObj.get("dictionaryOfPrimitives").isJsonNull()) && !jsonObj.get("dictionaryOfPrimitives").isJsonPrimitive()) {
-        throw new IllegalArgumentException(String.format("Expected the field \`dictionaryOfPrimitives\` to be a primitive type in the JSON string but got \`%s\`", jsonObj.get("dictionaryOfPrimitives").toString()));
-      }
   }
 
   public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
@@ -39711,9 +40294,19 @@ public class ArrayOfOneOfs {
           throw new IllegalArgumentException(String.format("The field \`%s\` in the JSON string is not defined in the \`ArrayOfOneOfs\` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
         }
       }
-      // ensure the optional json data is an array if present
-      if (jsonObj.get("oneOfs") != null && !jsonObj.get("oneOfs").isJsonArray()) {
-        throw new IllegalArgumentException(String.format("Expected the field \`oneOfs\` to be an array in the JSON string but got \`%s\`", jsonObj.get("oneOfs").toString()));
+      if (jsonObj.get("oneOfs") != null && !jsonObj.get("oneOfs").isJsonNull()) {
+        JsonArray jsonArrayoneOfs = jsonObj.getAsJsonArray("oneOfs");
+        if (jsonArrayoneOfs != null) {
+          // ensure the json data is an array
+          if (!jsonObj.get("oneOfs").isJsonArray()) {
+            throw new IllegalArgumentException(String.format("Expected the field \`oneOfs\` to be an array in the JSON string but got \`%s\`", jsonObj.get("oneOfs").toString()));
+          }
+
+          // validate the optional field \`oneOfs\` (array)
+          for (int i = 0; i < jsonArrayoneOfs.size(); i++) {
+            NamedOneOfUnion.validateJsonObject(jsonArrayoneOfs.get(i).getAsJsonObject());
+          };
+        }
       }
   }
 
@@ -39759,6 +40352,672 @@ public class ArrayOfOneOfs {
 
  /**
   * Convert an instance of ArrayOfOneOfs to an JSON string
+  *
+  * @return JSON string
+  */
+  public String toJson() {
+    return JSON.getGson().toJson(this);
+  }
+}
+",
+  "src/main/java/test/test/runtime/model/CycleArrayNode.java": "/*
+ * Edge Cases
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime.model;
+
+import java.util.Objects;
+import java.util.Arrays;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+
+import javax.ws.rs.core.GenericType;
+
+import java.io.IOException;
+import java.io.File;
+import java.math.BigDecimal;
+import java.net.URI;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.util.UUID;
+import java.lang.reflect.Type;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.List;
+import java.util.Set;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+
+import test.test.runtime.JSON;
+
+/**
+ * CycleArrayNode
+ */
+@lombok.AllArgsConstructor @lombok.experimental.SuperBuilder
+public class CycleArrayNode {
+  public static final String SERIALIZED_NAME_NODES = "nodes";
+  @SerializedName(SERIALIZED_NAME_NODES)
+  private List<CycleArrayNode> nodes = null;
+
+  public CycleArrayNode() {
+  }
+
+  public CycleArrayNode nodes(List<CycleArrayNode> nodes) {
+
+    this.nodes = nodes;
+    return this;
+  }
+
+  public CycleArrayNode addNodesItem(CycleArrayNode nodesItem) {
+    if (this.nodes == null) {
+      this.nodes = new ArrayList<>();
+    }
+    this.nodes.add(nodesItem);
+    return this;
+  }
+
+   /**
+   * Get nodes
+   * @return nodes
+  **/
+  @javax.annotation.Nullable
+  public List<CycleArrayNode> getNodes() {
+    return nodes;
+  }
+
+
+  public void setNodes(List<CycleArrayNode> nodes) {
+    this.nodes = nodes;
+  }
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    CycleArrayNode cycleArrayNode = (CycleArrayNode) o;
+    return Objects.equals(this.nodes, cycleArrayNode.nodes);
+        
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(nodes);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("class CycleArrayNode {\\n");
+    sb.append("    nodes: ").append(toIndentedString(nodes)).append("\\n");
+    sb.append("}");
+    return sb.toString();
+  }
+
+  /**
+   * Convert the given object to string with each line indented by 4 spaces
+   * (except the first line).
+   */
+  private String toIndentedString(Object o) {
+    if (o == null) {
+      return "null";
+    }
+    return o.toString().replace("\\n", "\\n    ");
+  }
+
+
+  public static HashSet<String> openapiFields;
+  public static HashSet<String> openapiRequiredFields;
+
+  static {
+    // a set of all properties/fields (JSON key names)
+    openapiFields = new HashSet<String>();
+    openapiFields.add("nodes");
+
+    // a set of required properties/fields (JSON key names)
+    openapiRequiredFields = new HashSet<String>();
+  }
+
+ /**
+  * Validates the JSON Object and throws an exception if issues found
+  *
+  * @param jsonObj JSON Object
+  * @throws IOException if the JSON Object is invalid with respect to CycleArrayNode
+  */
+  public static void validateJsonObject(JsonObject jsonObj) throws IOException {
+      if (jsonObj == null) {
+        if (!CycleArrayNode.openapiRequiredFields.isEmpty()) { // has required fields but JSON object is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in CycleArrayNode is not found in the empty JSON string", CycleArrayNode.openapiRequiredFields.toString()));
+        }
+      }
+
+      Set<Entry<String, JsonElement>> entries = jsonObj.entrySet();
+      // check to see if the JSON string contains additional fields
+      for (Entry<String, JsonElement> entry : entries) {
+        if (!CycleArrayNode.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field \`%s\` in the JSON string is not defined in the \`CycleArrayNode\` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
+        }
+      }
+      if (jsonObj.get("nodes") != null && !jsonObj.get("nodes").isJsonNull()) {
+        JsonArray jsonArraynodes = jsonObj.getAsJsonArray("nodes");
+        if (jsonArraynodes != null) {
+          // ensure the json data is an array
+          if (!jsonObj.get("nodes").isJsonArray()) {
+            throw new IllegalArgumentException(String.format("Expected the field \`nodes\` to be an array in the JSON string but got \`%s\`", jsonObj.get("nodes").toString()));
+          }
+
+          // validate the optional field \`nodes\` (array)
+          for (int i = 0; i < jsonArraynodes.size(); i++) {
+            CycleArrayNode.validateJsonObject(jsonArraynodes.get(i).getAsJsonObject());
+          };
+        }
+      }
+  }
+
+  public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+       if (!CycleArrayNode.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'CycleArrayNode' and its subtypes
+       }
+       final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
+       final TypeAdapter<CycleArrayNode> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(CycleArrayNode.class));
+
+       return (TypeAdapter<T>) new TypeAdapter<CycleArrayNode>() {
+           @Override
+           public void write(JsonWriter out, CycleArrayNode value) throws IOException {
+             JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
+             elementAdapter.write(out, obj);
+           }
+
+           @Override
+           public CycleArrayNode read(JsonReader in) throws IOException {
+             JsonObject jsonObj = elementAdapter.read(in).getAsJsonObject();
+             validateJsonObject(jsonObj);
+             return thisAdapter.fromJsonTree(jsonObj);
+           }
+
+       }.nullSafe();
+    }
+  }
+
+ /**
+  * Create an instance of CycleArrayNode given an JSON string
+  *
+  * @param jsonString JSON string
+  * @return An instance of CycleArrayNode
+  * @throws IOException if the JSON string is invalid with respect to CycleArrayNode
+  */
+  public static CycleArrayNode fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, CycleArrayNode.class);
+  }
+
+ /**
+  * Convert an instance of CycleArrayNode to an JSON string
+  *
+  * @return JSON string
+  */
+  public String toJson() {
+    return JSON.getGson().toJson(this);
+  }
+}
+",
+  "src/main/java/test/test/runtime/model/CycleDictionary.java": "/*
+ * Edge Cases
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime.model;
+
+import java.util.Objects;
+import java.util.Arrays;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+
+import javax.ws.rs.core.GenericType;
+
+import java.io.IOException;
+import java.io.File;
+import java.math.BigDecimal;
+import java.net.URI;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.util.UUID;
+import java.lang.reflect.Type;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.List;
+import java.util.Set;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+
+import test.test.runtime.JSON;
+
+/**
+ * CycleDictionary
+ */
+@lombok.AllArgsConstructor @lombok.experimental.SuperBuilder
+public class CycleDictionary {
+  public CycleDictionary() {
+  }
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    CycleDictionary cycleDictionary = (CycleDictionary) o;
+    return 
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("class CycleDictionary {\\n");
+    sb.append("}");
+    return sb.toString();
+  }
+
+  /**
+   * Convert the given object to string with each line indented by 4 spaces
+   * (except the first line).
+   */
+  private String toIndentedString(Object o) {
+    if (o == null) {
+      return "null";
+    }
+    return o.toString().replace("\\n", "\\n    ");
+  }
+
+
+  public static HashSet<String> openapiFields;
+  public static HashSet<String> openapiRequiredFields;
+
+  static {
+    // a set of all properties/fields (JSON key names)
+    openapiFields = new HashSet<String>();
+
+    // a set of required properties/fields (JSON key names)
+    openapiRequiredFields = new HashSet<String>();
+  }
+
+ /**
+  * Validates the JSON Object and throws an exception if issues found
+  *
+  * @param jsonObj JSON Object
+  * @throws IOException if the JSON Object is invalid with respect to CycleDictionary
+  */
+  public static void validateJsonObject(JsonObject jsonObj) throws IOException {
+      if (jsonObj == null) {
+        if (!CycleDictionary.openapiRequiredFields.isEmpty()) { // has required fields but JSON object is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in CycleDictionary is not found in the empty JSON string", CycleDictionary.openapiRequiredFields.toString()));
+        }
+      }
+
+      Set<Entry<String, JsonElement>> entries = jsonObj.entrySet();
+      // check to see if the JSON string contains additional fields
+      for (Entry<String, JsonElement> entry : entries) {
+        if (!CycleDictionary.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field \`%s\` in the JSON string is not defined in the \`CycleDictionary\` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
+        }
+      }
+  }
+
+  public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+       if (!CycleDictionary.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'CycleDictionary' and its subtypes
+       }
+       final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
+       final TypeAdapter<CycleDictionary> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(CycleDictionary.class));
+
+       return (TypeAdapter<T>) new TypeAdapter<CycleDictionary>() {
+           @Override
+           public void write(JsonWriter out, CycleDictionary value) throws IOException {
+             JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
+             elementAdapter.write(out, obj);
+           }
+
+           @Override
+           public CycleDictionary read(JsonReader in) throws IOException {
+             JsonObject jsonObj = elementAdapter.read(in).getAsJsonObject();
+             validateJsonObject(jsonObj);
+             return thisAdapter.fromJsonTree(jsonObj);
+           }
+
+       }.nullSafe();
+    }
+  }
+
+ /**
+  * Create an instance of CycleDictionary given an JSON string
+  *
+  * @param jsonString JSON string
+  * @return An instance of CycleDictionary
+  * @throws IOException if the JSON string is invalid with respect to CycleDictionary
+  */
+  public static CycleDictionary fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, CycleDictionary.class);
+  }
+
+ /**
+  * Convert an instance of CycleDictionary to an JSON string
+  *
+  * @return JSON string
+  */
+  public String toJson() {
+    return JSON.getGson().toJson(this);
+  }
+}
+",
+  "src/main/java/test/test/runtime/model/CycleDictionaryNode.java": "/*
+ * Edge Cases
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime.model;
+
+import java.util.Objects;
+import java.util.Arrays;
+import test.test.runtime.model.CycleDictionary;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+
+import javax.ws.rs.core.GenericType;
+
+import java.io.IOException;
+import java.io.File;
+import java.math.BigDecimal;
+import java.net.URI;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.util.UUID;
+import java.lang.reflect.Type;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.List;
+import java.util.Set;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+
+import test.test.runtime.JSON;
+
+/**
+ * CycleDictionaryNode
+ */
+@lombok.AllArgsConstructor @lombok.experimental.SuperBuilder
+public class CycleDictionaryNode {
+  public static final String SERIALIZED_NAME_NODES = "nodes";
+  @SerializedName(SERIALIZED_NAME_NODES)
+  private CycleDictionary nodes;
+
+  public CycleDictionaryNode() {
+  }
+
+  public CycleDictionaryNode nodes(CycleDictionary nodes) {
+
+    this.nodes = nodes;
+    return this;
+  }
+
+   /**
+   * Get nodes
+   * @return nodes
+  **/
+  @javax.annotation.Nullable
+  public CycleDictionary getNodes() {
+    return nodes;
+  }
+
+
+  public void setNodes(CycleDictionary nodes) {
+    this.nodes = nodes;
+  }
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    CycleDictionaryNode cycleDictionaryNode = (CycleDictionaryNode) o;
+    return Objects.equals(this.nodes, cycleDictionaryNode.nodes);
+        
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(nodes);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("class CycleDictionaryNode {\\n");
+    sb.append("    nodes: ").append(toIndentedString(nodes)).append("\\n");
+    sb.append("}");
+    return sb.toString();
+  }
+
+  /**
+   * Convert the given object to string with each line indented by 4 spaces
+   * (except the first line).
+   */
+  private String toIndentedString(Object o) {
+    if (o == null) {
+      return "null";
+    }
+    return o.toString().replace("\\n", "\\n    ");
+  }
+
+
+  public static HashSet<String> openapiFields;
+  public static HashSet<String> openapiRequiredFields;
+
+  static {
+    // a set of all properties/fields (JSON key names)
+    openapiFields = new HashSet<String>();
+    openapiFields.add("nodes");
+
+    // a set of required properties/fields (JSON key names)
+    openapiRequiredFields = new HashSet<String>();
+  }
+
+ /**
+  * Validates the JSON Object and throws an exception if issues found
+  *
+  * @param jsonObj JSON Object
+  * @throws IOException if the JSON Object is invalid with respect to CycleDictionaryNode
+  */
+  public static void validateJsonObject(JsonObject jsonObj) throws IOException {
+      if (jsonObj == null) {
+        if (!CycleDictionaryNode.openapiRequiredFields.isEmpty()) { // has required fields but JSON object is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in CycleDictionaryNode is not found in the empty JSON string", CycleDictionaryNode.openapiRequiredFields.toString()));
+        }
+      }
+
+      Set<Entry<String, JsonElement>> entries = jsonObj.entrySet();
+      // check to see if the JSON string contains additional fields
+      for (Entry<String, JsonElement> entry : entries) {
+        if (!CycleDictionaryNode.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field \`%s\` in the JSON string is not defined in the \`CycleDictionaryNode\` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
+        }
+      }
+      // validate the optional field \`nodes\`
+      if (jsonObj.get("nodes") != null && !jsonObj.get("nodes").isJsonNull()) {
+        CycleDictionary.validateJsonObject(jsonObj.getAsJsonObject("nodes"));
+      }
+  }
+
+  public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+       if (!CycleDictionaryNode.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'CycleDictionaryNode' and its subtypes
+       }
+       final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
+       final TypeAdapter<CycleDictionaryNode> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(CycleDictionaryNode.class));
+
+       return (TypeAdapter<T>) new TypeAdapter<CycleDictionaryNode>() {
+           @Override
+           public void write(JsonWriter out, CycleDictionaryNode value) throws IOException {
+             JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
+             elementAdapter.write(out, obj);
+           }
+
+           @Override
+           public CycleDictionaryNode read(JsonReader in) throws IOException {
+             JsonObject jsonObj = elementAdapter.read(in).getAsJsonObject();
+             validateJsonObject(jsonObj);
+             return thisAdapter.fromJsonTree(jsonObj);
+           }
+
+       }.nullSafe();
+    }
+  }
+
+ /**
+  * Create an instance of CycleDictionaryNode given an JSON string
+  *
+  * @param jsonString JSON string
+  * @return An instance of CycleDictionaryNode
+  * @throws IOException if the JSON string is invalid with respect to CycleDictionaryNode
+  */
+  public static CycleDictionaryNode fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, CycleDictionaryNode.class);
+  }
+
+ /**
+  * Convert an instance of CycleDictionaryNode to an JSON string
   *
   * @return JSON string
   */
@@ -41169,6 +42428,634 @@ public class NamedOneOfUnion extends AbstractOpenApiSchema {
     return JSON.getGson().toJson(this);
   }
 
+}
+",
+  "src/main/java/test/test/runtime/model/NestedCollections.java": "/*
+ * Edge Cases
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime.model;
+
+import java.util.Objects;
+import java.util.Arrays;
+import test.test.runtime.model.CycleArrayNode;
+import test.test.runtime.model.CycleDictionary;
+import test.test.runtime.model.SomeObject;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+
+import javax.ws.rs.core.GenericType;
+
+import java.io.IOException;
+import java.io.File;
+import java.math.BigDecimal;
+import java.net.URI;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.util.UUID;
+import java.lang.reflect.Type;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.List;
+import java.util.Set;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+
+import test.test.runtime.JSON;
+
+/**
+ * NestedCollections
+ */
+@lombok.AllArgsConstructor @lombok.experimental.SuperBuilder
+public class NestedCollections {
+  public static final String SERIALIZED_NAME_NESTED_ARRAY_OF_STRINGS = "nestedArrayOfStrings";
+  @SerializedName(SERIALIZED_NAME_NESTED_ARRAY_OF_STRINGS)
+  private List<List<String>> nestedArrayOfStrings = null;
+
+  public static final String SERIALIZED_NAME_NESTED_ARRAY_OF_DATES = "nestedArrayOfDates";
+  @SerializedName(SERIALIZED_NAME_NESTED_ARRAY_OF_DATES)
+  private List<List<LocalDate>> nestedArrayOfDates = null;
+
+  public static final String SERIALIZED_NAME_NESTED_ARRAY_OF_OBJECTS = "nestedArrayOfObjects";
+  @SerializedName(SERIALIZED_NAME_NESTED_ARRAY_OF_OBJECTS)
+  private List<List<SomeObject>> nestedArrayOfObjects = null;
+
+  public static final String SERIALIZED_NAME_FOUR_DIMENSIONAL_NESTED_ARRAY_OF_OBJECTS = "fourDimensionalNestedArrayOfObjects";
+  @SerializedName(SERIALIZED_NAME_FOUR_DIMENSIONAL_NESTED_ARRAY_OF_OBJECTS)
+  private List<List<List<List<SomeObject>>>> fourDimensionalNestedArrayOfObjects = null;
+
+  public static final String SERIALIZED_NAME_NESTED_DICTIONARY_OF_STRINGS = "nestedDictionaryOfStrings";
+  @SerializedName(SERIALIZED_NAME_NESTED_DICTIONARY_OF_STRINGS)
+  private Map<String, Map<String, String>> nestedDictionaryOfStrings = null;
+
+  public static final String SERIALIZED_NAME_NESTED_DICTIONARY_OF_OBJECTS = "nestedDictionaryOfObjects";
+  @SerializedName(SERIALIZED_NAME_NESTED_DICTIONARY_OF_OBJECTS)
+  private Map<String, Map<String, SomeObject>> nestedDictionaryOfObjects = null;
+
+  public static final String SERIALIZED_NAME_FOUR_DIMENSIONAL_NESTED_DICTIONARY_OF_OBJECTS = "fourDimensionalNestedDictionaryOfObjects";
+  @SerializedName(SERIALIZED_NAME_FOUR_DIMENSIONAL_NESTED_DICTIONARY_OF_OBJECTS)
+  private Map<String, Map<String, Map<String, Map<String, SomeObject>>>> fourDimensionalNestedDictionaryOfObjects = null;
+
+  public static final String SERIALIZED_NAME_NESTED_MIX_OF_DICTIONARIES_AND_ARRAYS = "nestedMixOfDictionariesAndArrays";
+  @SerializedName(SERIALIZED_NAME_NESTED_MIX_OF_DICTIONARIES_AND_ARRAYS)
+  private List<Map<String, List<List<Map<String, List<SomeObject>>>>>> nestedMixOfDictionariesAndArrays = null;
+
+  public static final String SERIALIZED_NAME_CYCLE_ARRAY = "cycleArray";
+  @SerializedName(SERIALIZED_NAME_CYCLE_ARRAY)
+  private List<CycleArrayNode> cycleArray = null;
+
+  public static final String SERIALIZED_NAME_CYCLE_DICTIONARY = "cycleDictionary";
+  @SerializedName(SERIALIZED_NAME_CYCLE_DICTIONARY)
+  private CycleDictionary cycleDictionary;
+
+  public NestedCollections() {
+  }
+
+  public NestedCollections nestedArrayOfStrings(List<List<String>> nestedArrayOfStrings) {
+
+    this.nestedArrayOfStrings = nestedArrayOfStrings;
+    return this;
+  }
+
+  public NestedCollections addNestedArrayOfStringsItem(List<String> nestedArrayOfStringsItem) {
+    if (this.nestedArrayOfStrings == null) {
+      this.nestedArrayOfStrings = new ArrayList<>();
+    }
+    this.nestedArrayOfStrings.add(nestedArrayOfStringsItem);
+    return this;
+  }
+
+   /**
+   * Get nestedArrayOfStrings
+   * @return nestedArrayOfStrings
+  **/
+  @javax.annotation.Nullable
+  public List<List<String>> getNestedArrayOfStrings() {
+    return nestedArrayOfStrings;
+  }
+
+
+  public void setNestedArrayOfStrings(List<List<String>> nestedArrayOfStrings) {
+    this.nestedArrayOfStrings = nestedArrayOfStrings;
+  }
+
+  public NestedCollections nestedArrayOfDates(List<List<LocalDate>> nestedArrayOfDates) {
+
+    this.nestedArrayOfDates = nestedArrayOfDates;
+    return this;
+  }
+
+  public NestedCollections addNestedArrayOfDatesItem(List<LocalDate> nestedArrayOfDatesItem) {
+    if (this.nestedArrayOfDates == null) {
+      this.nestedArrayOfDates = new ArrayList<>();
+    }
+    this.nestedArrayOfDates.add(nestedArrayOfDatesItem);
+    return this;
+  }
+
+   /**
+   * Get nestedArrayOfDates
+   * @return nestedArrayOfDates
+  **/
+  @javax.annotation.Nullable
+  public List<List<LocalDate>> getNestedArrayOfDates() {
+    return nestedArrayOfDates;
+  }
+
+
+  public void setNestedArrayOfDates(List<List<LocalDate>> nestedArrayOfDates) {
+    this.nestedArrayOfDates = nestedArrayOfDates;
+  }
+
+  public NestedCollections nestedArrayOfObjects(List<List<SomeObject>> nestedArrayOfObjects) {
+
+    this.nestedArrayOfObjects = nestedArrayOfObjects;
+    return this;
+  }
+
+  public NestedCollections addNestedArrayOfObjectsItem(List<SomeObject> nestedArrayOfObjectsItem) {
+    if (this.nestedArrayOfObjects == null) {
+      this.nestedArrayOfObjects = new ArrayList<>();
+    }
+    this.nestedArrayOfObjects.add(nestedArrayOfObjectsItem);
+    return this;
+  }
+
+   /**
+   * Get nestedArrayOfObjects
+   * @return nestedArrayOfObjects
+  **/
+  @javax.annotation.Nullable
+  public List<List<SomeObject>> getNestedArrayOfObjects() {
+    return nestedArrayOfObjects;
+  }
+
+
+  public void setNestedArrayOfObjects(List<List<SomeObject>> nestedArrayOfObjects) {
+    this.nestedArrayOfObjects = nestedArrayOfObjects;
+  }
+
+  public NestedCollections fourDimensionalNestedArrayOfObjects(List<List<List<List<SomeObject>>>> fourDimensionalNestedArrayOfObjects) {
+
+    this.fourDimensionalNestedArrayOfObjects = fourDimensionalNestedArrayOfObjects;
+    return this;
+  }
+
+  public NestedCollections addFourDimensionalNestedArrayOfObjectsItem(List<List<List<SomeObject>>> fourDimensionalNestedArrayOfObjectsItem) {
+    if (this.fourDimensionalNestedArrayOfObjects == null) {
+      this.fourDimensionalNestedArrayOfObjects = new ArrayList<>();
+    }
+    this.fourDimensionalNestedArrayOfObjects.add(fourDimensionalNestedArrayOfObjectsItem);
+    return this;
+  }
+
+   /**
+   * Get fourDimensionalNestedArrayOfObjects
+   * @return fourDimensionalNestedArrayOfObjects
+  **/
+  @javax.annotation.Nullable
+  public List<List<List<List<SomeObject>>>> getFourDimensionalNestedArrayOfObjects() {
+    return fourDimensionalNestedArrayOfObjects;
+  }
+
+
+  public void setFourDimensionalNestedArrayOfObjects(List<List<List<List<SomeObject>>>> fourDimensionalNestedArrayOfObjects) {
+    this.fourDimensionalNestedArrayOfObjects = fourDimensionalNestedArrayOfObjects;
+  }
+
+  public NestedCollections nestedDictionaryOfStrings(Map<String, Map<String, String>> nestedDictionaryOfStrings) {
+
+    this.nestedDictionaryOfStrings = nestedDictionaryOfStrings;
+    return this;
+  }
+
+  public NestedCollections putNestedDictionaryOfStringsItem(String key, Map<String, String> nestedDictionaryOfStringsItem) {
+    if (this.nestedDictionaryOfStrings == null) {
+      this.nestedDictionaryOfStrings = new HashMap<>();
+    }
+    this.nestedDictionaryOfStrings.put(key, nestedDictionaryOfStringsItem);
+    return this;
+  }
+
+   /**
+   * Get nestedDictionaryOfStrings
+   * @return nestedDictionaryOfStrings
+  **/
+  @javax.annotation.Nullable
+  public Map<String, Map<String, String>> getNestedDictionaryOfStrings() {
+    return nestedDictionaryOfStrings;
+  }
+
+
+  public void setNestedDictionaryOfStrings(Map<String, Map<String, String>> nestedDictionaryOfStrings) {
+    this.nestedDictionaryOfStrings = nestedDictionaryOfStrings;
+  }
+
+  public NestedCollections nestedDictionaryOfObjects(Map<String, Map<String, SomeObject>> nestedDictionaryOfObjects) {
+
+    this.nestedDictionaryOfObjects = nestedDictionaryOfObjects;
+    return this;
+  }
+
+  public NestedCollections putNestedDictionaryOfObjectsItem(String key, Map<String, SomeObject> nestedDictionaryOfObjectsItem) {
+    if (this.nestedDictionaryOfObjects == null) {
+      this.nestedDictionaryOfObjects = new HashMap<>();
+    }
+    this.nestedDictionaryOfObjects.put(key, nestedDictionaryOfObjectsItem);
+    return this;
+  }
+
+   /**
+   * Get nestedDictionaryOfObjects
+   * @return nestedDictionaryOfObjects
+  **/
+  @javax.annotation.Nullable
+  public Map<String, Map<String, SomeObject>> getNestedDictionaryOfObjects() {
+    return nestedDictionaryOfObjects;
+  }
+
+
+  public void setNestedDictionaryOfObjects(Map<String, Map<String, SomeObject>> nestedDictionaryOfObjects) {
+    this.nestedDictionaryOfObjects = nestedDictionaryOfObjects;
+  }
+
+  public NestedCollections fourDimensionalNestedDictionaryOfObjects(Map<String, Map<String, Map<String, Map<String, SomeObject>>>> fourDimensionalNestedDictionaryOfObjects) {
+
+    this.fourDimensionalNestedDictionaryOfObjects = fourDimensionalNestedDictionaryOfObjects;
+    return this;
+  }
+
+  public NestedCollections putFourDimensionalNestedDictionaryOfObjectsItem(String key, Map<String, Map<String, Map<String, SomeObject>>> fourDimensionalNestedDictionaryOfObjectsItem) {
+    if (this.fourDimensionalNestedDictionaryOfObjects == null) {
+      this.fourDimensionalNestedDictionaryOfObjects = new HashMap<>();
+    }
+    this.fourDimensionalNestedDictionaryOfObjects.put(key, fourDimensionalNestedDictionaryOfObjectsItem);
+    return this;
+  }
+
+   /**
+   * Get fourDimensionalNestedDictionaryOfObjects
+   * @return fourDimensionalNestedDictionaryOfObjects
+  **/
+  @javax.annotation.Nullable
+  public Map<String, Map<String, Map<String, Map<String, SomeObject>>>> getFourDimensionalNestedDictionaryOfObjects() {
+    return fourDimensionalNestedDictionaryOfObjects;
+  }
+
+
+  public void setFourDimensionalNestedDictionaryOfObjects(Map<String, Map<String, Map<String, Map<String, SomeObject>>>> fourDimensionalNestedDictionaryOfObjects) {
+    this.fourDimensionalNestedDictionaryOfObjects = fourDimensionalNestedDictionaryOfObjects;
+  }
+
+  public NestedCollections nestedMixOfDictionariesAndArrays(List<Map<String, List<List<Map<String, List<SomeObject>>>>>> nestedMixOfDictionariesAndArrays) {
+
+    this.nestedMixOfDictionariesAndArrays = nestedMixOfDictionariesAndArrays;
+    return this;
+  }
+
+  public NestedCollections addNestedMixOfDictionariesAndArraysItem(Map<String, List<List<Map<String, List<SomeObject>>>>> nestedMixOfDictionariesAndArraysItem) {
+    if (this.nestedMixOfDictionariesAndArrays == null) {
+      this.nestedMixOfDictionariesAndArrays = new ArrayList<>();
+    }
+    this.nestedMixOfDictionariesAndArrays.add(nestedMixOfDictionariesAndArraysItem);
+    return this;
+  }
+
+   /**
+   * Get nestedMixOfDictionariesAndArrays
+   * @return nestedMixOfDictionariesAndArrays
+  **/
+  @javax.annotation.Nullable
+  public List<Map<String, List<List<Map<String, List<SomeObject>>>>>> getNestedMixOfDictionariesAndArrays() {
+    return nestedMixOfDictionariesAndArrays;
+  }
+
+
+  public void setNestedMixOfDictionariesAndArrays(List<Map<String, List<List<Map<String, List<SomeObject>>>>>> nestedMixOfDictionariesAndArrays) {
+    this.nestedMixOfDictionariesAndArrays = nestedMixOfDictionariesAndArrays;
+  }
+
+  public NestedCollections cycleArray(List<CycleArrayNode> cycleArray) {
+
+    this.cycleArray = cycleArray;
+    return this;
+  }
+
+  public NestedCollections addCycleArrayItem(CycleArrayNode cycleArrayItem) {
+    if (this.cycleArray == null) {
+      this.cycleArray = new ArrayList<>();
+    }
+    this.cycleArray.add(cycleArrayItem);
+    return this;
+  }
+
+   /**
+   * Get cycleArray
+   * @return cycleArray
+  **/
+  @javax.annotation.Nullable
+  public List<CycleArrayNode> getCycleArray() {
+    return cycleArray;
+  }
+
+
+  public void setCycleArray(List<CycleArrayNode> cycleArray) {
+    this.cycleArray = cycleArray;
+  }
+
+  public NestedCollections cycleDictionary(CycleDictionary cycleDictionary) {
+
+    this.cycleDictionary = cycleDictionary;
+    return this;
+  }
+
+   /**
+   * Get cycleDictionary
+   * @return cycleDictionary
+  **/
+  @javax.annotation.Nullable
+  public CycleDictionary getCycleDictionary() {
+    return cycleDictionary;
+  }
+
+
+  public void setCycleDictionary(CycleDictionary cycleDictionary) {
+    this.cycleDictionary = cycleDictionary;
+  }
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    NestedCollections nestedCollections = (NestedCollections) o;
+    return Objects.equals(this.nestedArrayOfStrings, nestedCollections.nestedArrayOfStrings) &&
+        Objects.equals(this.nestedArrayOfDates, nestedCollections.nestedArrayOfDates) &&
+        Objects.equals(this.nestedArrayOfObjects, nestedCollections.nestedArrayOfObjects) &&
+        Objects.equals(this.fourDimensionalNestedArrayOfObjects, nestedCollections.fourDimensionalNestedArrayOfObjects) &&
+        Objects.equals(this.nestedDictionaryOfStrings, nestedCollections.nestedDictionaryOfStrings) &&
+        Objects.equals(this.nestedDictionaryOfObjects, nestedCollections.nestedDictionaryOfObjects) &&
+        Objects.equals(this.fourDimensionalNestedDictionaryOfObjects, nestedCollections.fourDimensionalNestedDictionaryOfObjects) &&
+        Objects.equals(this.nestedMixOfDictionariesAndArrays, nestedCollections.nestedMixOfDictionariesAndArrays) &&
+        Objects.equals(this.cycleArray, nestedCollections.cycleArray) &&
+        Objects.equals(this.cycleDictionary, nestedCollections.cycleDictionary);
+        
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(nestedArrayOfStrings, nestedArrayOfDates, nestedArrayOfObjects, fourDimensionalNestedArrayOfObjects, nestedDictionaryOfStrings, nestedDictionaryOfObjects, fourDimensionalNestedDictionaryOfObjects, nestedMixOfDictionariesAndArrays, cycleArray, cycleDictionary);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("class NestedCollections {\\n");
+    sb.append("    nestedArrayOfStrings: ").append(toIndentedString(nestedArrayOfStrings)).append("\\n");
+    sb.append("    nestedArrayOfDates: ").append(toIndentedString(nestedArrayOfDates)).append("\\n");
+    sb.append("    nestedArrayOfObjects: ").append(toIndentedString(nestedArrayOfObjects)).append("\\n");
+    sb.append("    fourDimensionalNestedArrayOfObjects: ").append(toIndentedString(fourDimensionalNestedArrayOfObjects)).append("\\n");
+    sb.append("    nestedDictionaryOfStrings: ").append(toIndentedString(nestedDictionaryOfStrings)).append("\\n");
+    sb.append("    nestedDictionaryOfObjects: ").append(toIndentedString(nestedDictionaryOfObjects)).append("\\n");
+    sb.append("    fourDimensionalNestedDictionaryOfObjects: ").append(toIndentedString(fourDimensionalNestedDictionaryOfObjects)).append("\\n");
+    sb.append("    nestedMixOfDictionariesAndArrays: ").append(toIndentedString(nestedMixOfDictionariesAndArrays)).append("\\n");
+    sb.append("    cycleArray: ").append(toIndentedString(cycleArray)).append("\\n");
+    sb.append("    cycleDictionary: ").append(toIndentedString(cycleDictionary)).append("\\n");
+    sb.append("}");
+    return sb.toString();
+  }
+
+  /**
+   * Convert the given object to string with each line indented by 4 spaces
+   * (except the first line).
+   */
+  private String toIndentedString(Object o) {
+    if (o == null) {
+      return "null";
+    }
+    return o.toString().replace("\\n", "\\n    ");
+  }
+
+
+  public static HashSet<String> openapiFields;
+  public static HashSet<String> openapiRequiredFields;
+
+  static {
+    // a set of all properties/fields (JSON key names)
+    openapiFields = new HashSet<String>();
+    openapiFields.add("nestedArrayOfStrings");
+    openapiFields.add("nestedArrayOfDates");
+    openapiFields.add("nestedArrayOfObjects");
+    openapiFields.add("fourDimensionalNestedArrayOfObjects");
+    openapiFields.add("nestedDictionaryOfStrings");
+    openapiFields.add("nestedDictionaryOfObjects");
+    openapiFields.add("fourDimensionalNestedDictionaryOfObjects");
+    openapiFields.add("nestedMixOfDictionariesAndArrays");
+    openapiFields.add("cycleArray");
+    openapiFields.add("cycleDictionary");
+
+    // a set of required properties/fields (JSON key names)
+    openapiRequiredFields = new HashSet<String>();
+  }
+
+ /**
+  * Validates the JSON Object and throws an exception if issues found
+  *
+  * @param jsonObj JSON Object
+  * @throws IOException if the JSON Object is invalid with respect to NestedCollections
+  */
+  public static void validateJsonObject(JsonObject jsonObj) throws IOException {
+      if (jsonObj == null) {
+        if (!NestedCollections.openapiRequiredFields.isEmpty()) { // has required fields but JSON object is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in NestedCollections is not found in the empty JSON string", NestedCollections.openapiRequiredFields.toString()));
+        }
+      }
+
+      Set<Entry<String, JsonElement>> entries = jsonObj.entrySet();
+      // check to see if the JSON string contains additional fields
+      for (Entry<String, JsonElement> entry : entries) {
+        if (!NestedCollections.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field \`%s\` in the JSON string is not defined in the \`NestedCollections\` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
+        }
+      }
+      if (jsonObj.get("nestedArrayOfStrings") != null && !jsonObj.get("nestedArrayOfStrings").isJsonNull()) {
+        JsonArray jsonArraynestedArrayOfStrings = jsonObj.getAsJsonArray("nestedArrayOfStrings");
+        if (jsonArraynestedArrayOfStrings != null) {
+          // ensure the json data is an array
+          if (!jsonObj.get("nestedArrayOfStrings").isJsonArray()) {
+            throw new IllegalArgumentException(String.format("Expected the field \`nestedArrayOfStrings\` to be an array in the JSON string but got \`%s\`", jsonObj.get("nestedArrayOfStrings").toString()));
+          }
+
+          // validate the optional field \`nestedArrayOfStrings\` (array)
+          for (int i = 0; i < jsonArraynestedArrayOfStrings.size(); i++) {
+            List<String>.validateJsonObject(jsonArraynestedArrayOfStrings.get(i).getAsJsonObject());
+          };
+        }
+      }
+      if (jsonObj.get("nestedArrayOfDates") != null && !jsonObj.get("nestedArrayOfDates").isJsonNull()) {
+        JsonArray jsonArraynestedArrayOfDates = jsonObj.getAsJsonArray("nestedArrayOfDates");
+        if (jsonArraynestedArrayOfDates != null) {
+          // ensure the json data is an array
+          if (!jsonObj.get("nestedArrayOfDates").isJsonArray()) {
+            throw new IllegalArgumentException(String.format("Expected the field \`nestedArrayOfDates\` to be an array in the JSON string but got \`%s\`", jsonObj.get("nestedArrayOfDates").toString()));
+          }
+
+          // validate the optional field \`nestedArrayOfDates\` (array)
+          for (int i = 0; i < jsonArraynestedArrayOfDates.size(); i++) {
+            List<LocalDate>.validateJsonObject(jsonArraynestedArrayOfDates.get(i).getAsJsonObject());
+          };
+        }
+      }
+      if (jsonObj.get("nestedArrayOfObjects") != null && !jsonObj.get("nestedArrayOfObjects").isJsonNull()) {
+        JsonArray jsonArraynestedArrayOfObjects = jsonObj.getAsJsonArray("nestedArrayOfObjects");
+        if (jsonArraynestedArrayOfObjects != null) {
+          // ensure the json data is an array
+          if (!jsonObj.get("nestedArrayOfObjects").isJsonArray()) {
+            throw new IllegalArgumentException(String.format("Expected the field \`nestedArrayOfObjects\` to be an array in the JSON string but got \`%s\`", jsonObj.get("nestedArrayOfObjects").toString()));
+          }
+
+          // validate the optional field \`nestedArrayOfObjects\` (array)
+          for (int i = 0; i < jsonArraynestedArrayOfObjects.size(); i++) {
+            List<SomeObject>.validateJsonObject(jsonArraynestedArrayOfObjects.get(i).getAsJsonObject());
+          };
+        }
+      }
+      if (jsonObj.get("fourDimensionalNestedArrayOfObjects") != null && !jsonObj.get("fourDimensionalNestedArrayOfObjects").isJsonNull()) {
+        JsonArray jsonArrayfourDimensionalNestedArrayOfObjects = jsonObj.getAsJsonArray("fourDimensionalNestedArrayOfObjects");
+        if (jsonArrayfourDimensionalNestedArrayOfObjects != null) {
+          // ensure the json data is an array
+          if (!jsonObj.get("fourDimensionalNestedArrayOfObjects").isJsonArray()) {
+            throw new IllegalArgumentException(String.format("Expected the field \`fourDimensionalNestedArrayOfObjects\` to be an array in the JSON string but got \`%s\`", jsonObj.get("fourDimensionalNestedArrayOfObjects").toString()));
+          }
+
+          // validate the optional field \`fourDimensionalNestedArrayOfObjects\` (array)
+          for (int i = 0; i < jsonArrayfourDimensionalNestedArrayOfObjects.size(); i++) {
+            List<List<List<SomeObject>>>.validateJsonObject(jsonArrayfourDimensionalNestedArrayOfObjects.get(i).getAsJsonObject());
+          };
+        }
+      }
+      if (jsonObj.get("nestedMixOfDictionariesAndArrays") != null && !jsonObj.get("nestedMixOfDictionariesAndArrays").isJsonNull()) {
+        JsonArray jsonArraynestedMixOfDictionariesAndArrays = jsonObj.getAsJsonArray("nestedMixOfDictionariesAndArrays");
+        if (jsonArraynestedMixOfDictionariesAndArrays != null) {
+          // ensure the json data is an array
+          if (!jsonObj.get("nestedMixOfDictionariesAndArrays").isJsonArray()) {
+            throw new IllegalArgumentException(String.format("Expected the field \`nestedMixOfDictionariesAndArrays\` to be an array in the JSON string but got \`%s\`", jsonObj.get("nestedMixOfDictionariesAndArrays").toString()));
+          }
+
+          // validate the optional field \`nestedMixOfDictionariesAndArrays\` (array)
+          for (int i = 0; i < jsonArraynestedMixOfDictionariesAndArrays.size(); i++) {
+            Map<String, List<List<Map<String, List<SomeObject>>>>>.validateJsonObject(jsonArraynestedMixOfDictionariesAndArrays.get(i).getAsJsonObject());
+          };
+        }
+      }
+      if (jsonObj.get("cycleArray") != null && !jsonObj.get("cycleArray").isJsonNull()) {
+        JsonArray jsonArraycycleArray = jsonObj.getAsJsonArray("cycleArray");
+        if (jsonArraycycleArray != null) {
+          // ensure the json data is an array
+          if (!jsonObj.get("cycleArray").isJsonArray()) {
+            throw new IllegalArgumentException(String.format("Expected the field \`cycleArray\` to be an array in the JSON string but got \`%s\`", jsonObj.get("cycleArray").toString()));
+          }
+
+          // validate the optional field \`cycleArray\` (array)
+          for (int i = 0; i < jsonArraycycleArray.size(); i++) {
+            CycleArrayNode.validateJsonObject(jsonArraycycleArray.get(i).getAsJsonObject());
+          };
+        }
+      }
+      // validate the optional field \`cycleDictionary\`
+      if (jsonObj.get("cycleDictionary") != null && !jsonObj.get("cycleDictionary").isJsonNull()) {
+        CycleDictionary.validateJsonObject(jsonObj.getAsJsonObject("cycleDictionary"));
+      }
+  }
+
+  public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+       if (!NestedCollections.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'NestedCollections' and its subtypes
+       }
+       final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
+       final TypeAdapter<NestedCollections> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(NestedCollections.class));
+
+       return (TypeAdapter<T>) new TypeAdapter<NestedCollections>() {
+           @Override
+           public void write(JsonWriter out, NestedCollections value) throws IOException {
+             JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
+             elementAdapter.write(out, obj);
+           }
+
+           @Override
+           public NestedCollections read(JsonReader in) throws IOException {
+             JsonObject jsonObj = elementAdapter.read(in).getAsJsonObject();
+             validateJsonObject(jsonObj);
+             return thisAdapter.fromJsonTree(jsonObj);
+           }
+
+       }.nullSafe();
+    }
+  }
+
+ /**
+  * Create an instance of NestedCollections given an JSON string
+  *
+  * @param jsonString JSON string
+  * @return An instance of NestedCollections
+  * @throws IOException if the JSON string is invalid with respect to NestedCollections
+  */
+  public static NestedCollections fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, NestedCollections.class);
+  }
+
+ /**
+  * Convert an instance of NestedCollections to an JSON string
+  *
+  * @return JSON string
+  */
+  public String toJson() {
+    return JSON.getGson().toJson(this);
+  }
 }
 ",
   "src/main/java/test/test/runtime/model/SomeObject.java": "/*

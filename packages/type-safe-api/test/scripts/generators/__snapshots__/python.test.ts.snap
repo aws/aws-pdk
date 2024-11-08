@@ -12705,6 +12705,9 @@ class DataTypes200Response(BaseModel):
             },
             exclude_none=True,
         )
+        # override the default output from pydantic by calling \`to_dict()\` of my_date_array
+        if self.my_date_array:
+            _dict['myDateArray'] = self.my_date_array.to_dict()
         # override the default output from pydantic by calling \`to_dict()\` of my_one_of
         if self.my_one_of:
             _dict['myOneOf'] = self.my_one_of.to_dict()
@@ -12714,6 +12717,13 @@ class DataTypes200Response(BaseModel):
         # override the default output from pydantic by calling \`to_dict()\` of my_all_of
         if self.my_all_of:
             _dict['myAllOf'] = self.my_all_of.to_dict()
+        # override the default output from pydantic by calling \`to_dict()\` of each value in my_additional_properties (dict)
+        _field_dict = {}
+        if self.my_additional_properties:
+            for _key in self.my_additional_properties:
+                if self.my_additional_properties[_key]:
+                    _field_dict[_key] = self.my_additional_properties[_key].to_dict()
+            _dict['myAdditionalProperties'] = _field_dict
         # override the default output from pydantic by calling \`to_dict()\` of my_object
         if self.my_object:
             _dict['myObject'] = self.my_object.to_dict()
@@ -12747,7 +12757,7 @@ class DataTypes200Response(BaseModel):
             "myLongMinStringLength": obj.get("myLongMinStringLength"),
             "myBool": obj.get("myBool"),
             "myNumber": obj.get("myNumber"),
-            "myDateArray": obj.get("myDateArray"),
+            "myDateArray": List[date].from_dict(obj.get("myDateArray")) if obj.get("myDateArray") is not None else None,
             "myEmail": obj.get("myEmail"),
             "myUrl": obj.get("myUrl"),
             "myHostname": obj.get("myHostname"),
@@ -12763,7 +12773,12 @@ class DataTypes200Response(BaseModel):
             "myAllOf": DataTypes200ResponseMyAllOf.from_dict(obj.get("myAllOf")) if obj.get("myAllOf") is not None else None,
             "myNot": obj.get("myNot"),
             "myNotString": obj.get("myNotString"),
-            "myAdditionalProperties": obj.get("myAdditionalProperties"),
+            "myAdditionalProperties": dict(
+                (_k, List[int].from_dict(_v))
+                for _k, _v in obj.get("myAdditionalProperties").items()
+            )
+            if obj.get("myAdditionalProperties") is not None
+            else None,
             "myObject": DataTypes200ResponseMyObject.from_dict(obj.get("myObject")) if obj.get("myObject") is not None else None
         })
         return _obj
@@ -17431,6 +17446,9 @@ test_project/models/__init__.py
 test_project/models/additional_properties_response.py
 test_project/models/another_named_one_of.py
 test_project/models/array_of_one_ofs.py
+test_project/models/cycle_array_node.py
+test_project/models/cycle_dictionary.py
+test_project/models/cycle_dictionary_node.py
 test_project/models/dictionary.py
 test_project/models/inline_enum200_response.py
 test_project/models/inline_enum200_response_category_enum.py
@@ -17438,6 +17456,7 @@ test_project/models/inline_request_body_request_content.py
 test_project/models/my_enum.py
 test_project/models/named_one_of.py
 test_project/models/named_one_of_union.py
+test_project/models/nested_collections.py
 test_project/models/some_object.py
 test_project/py.typed
 test_project/rest.py
@@ -17445,6 +17464,9 @@ docs/DefaultApi.md
 docs/AdditionalPropertiesResponse.md
 docs/AnotherNamedOneOf.md
 docs/ArrayOfOneOfs.md
+docs/CycleArrayNode.md
+docs/CycleDictionary.md
+docs/CycleDictionaryNode.md
 docs/Dictionary.md
 docs/InlineEnum200Response.md
 docs/InlineEnum200ResponseCategoryEnum.md
@@ -17452,6 +17474,7 @@ docs/InlineRequestBodyRequestContent.md
 docs/MyEnum.md
 docs/NamedOneOf.md
 docs/NamedOneOfUnion.md
+docs/NestedCollections.md
 docs/SomeObject.md
 README.md
 test_project/interceptors/try_catch.py
@@ -17512,6 +17535,7 @@ Class | Method | HTTP request | Description
 *DefaultApi* | [**inline_enum**](docs/DefaultApi.md#inline_enum) | **GET** /inline-enum | 
 *DefaultApi* | [**inline_request_body**](docs/DefaultApi.md#inline_request_body) | **POST** /inline-request-body | 
 *DefaultApi* | [**named_one_of**](docs/DefaultApi.md#named_one_of) | **POST** /named-one-of | 
+*DefaultApi* | [**nested_collections**](docs/DefaultApi.md#nested_collections) | **POST** /nested-collections | 
 *DefaultApi* | [**reserved_keywords**](docs/DefaultApi.md#reserved_keywords) | **GET** /reserved-keywords | 
 
 ## Documentation For Models
@@ -17519,6 +17543,9 @@ Class | Method | HTTP request | Description
  - [AdditionalPropertiesResponse](docs/AdditionalPropertiesResponse.md)
  - [AnotherNamedOneOf](docs/AnotherNamedOneOf.md)
  - [ArrayOfOneOfs](docs/ArrayOfOneOfs.md)
+ - [CycleArrayNode](docs/CycleArrayNode.md)
+ - [CycleDictionary](docs/CycleDictionary.md)
+ - [CycleDictionaryNode](docs/CycleDictionaryNode.md)
  - [Dictionary](docs/Dictionary.md)
  - [InlineEnum200Response](docs/InlineEnum200Response.md)
  - [InlineEnum200ResponseCategoryEnum](docs/InlineEnum200ResponseCategoryEnum.md)
@@ -17526,6 +17553,7 @@ Class | Method | HTTP request | Description
  - [MyEnum](docs/MyEnum.md)
  - [NamedOneOf](docs/NamedOneOf.md)
  - [NamedOneOfUnion](docs/NamedOneOfUnion.md)
+ - [NestedCollections](docs/NestedCollections.md)
  - [SomeObject](docs/SomeObject.md)
 ",
   "docs/AdditionalPropertiesResponse.md": "# AdditionalPropertiesResponse
@@ -17610,6 +17638,86 @@ array_of_one_ofs_form_dict = array_of_one_ofs.from_dict(array_of_one_ofs_dict)
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 
 ",
+  "docs/CycleArrayNode.md": "# CycleArrayNode
+
+## Properties
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**nodes** | **List[CycleArrayNode]** |  | [optional] 
+
+## Example
+
+\`\`\`python
+from test_project.models.cycle_array_node import CycleArrayNode
+
+# TODO update the JSON string below
+json = "{}"
+# create an instance of CycleArrayNode from a JSON string
+cycle_array_node_instance = CycleArrayNode.from_json(json)
+# print the JSON string representation of the object
+print(CycleArrayNode.to_json())
+
+# convert the object into a dict
+cycle_array_node_dict = cycle_array_node_instance.to_dict()
+# create an instance of CycleArrayNode from a dict
+cycle_array_node_form_dict = cycle_array_node.from_dict(cycle_array_node_dict)
+\`\`\`
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+",
+  "docs/CycleDictionary.md": "# CycleDictionary
+
+## Properties
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+
+## Example
+
+\`\`\`python
+from test_project.models.cycle_dictionary import CycleDictionary
+
+# TODO update the JSON string below
+json = "{}"
+# create an instance of CycleDictionary from a JSON string
+cycle_dictionary_instance = CycleDictionary.from_json(json)
+# print the JSON string representation of the object
+print(CycleDictionary.to_json())
+
+# convert the object into a dict
+cycle_dictionary_dict = cycle_dictionary_instance.to_dict()
+# create an instance of CycleDictionary from a dict
+cycle_dictionary_form_dict = cycle_dictionary.from_dict(cycle_dictionary_dict)
+\`\`\`
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+",
+  "docs/CycleDictionaryNode.md": "# CycleDictionaryNode
+
+## Properties
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**nodes** | [**CycleDictionary**](CycleDictionary.md) |  | [optional] 
+
+## Example
+
+\`\`\`python
+from test_project.models.cycle_dictionary_node import CycleDictionaryNode
+
+# TODO update the JSON string below
+json = "{}"
+# create an instance of CycleDictionaryNode from a JSON string
+cycle_dictionary_node_instance = CycleDictionaryNode.from_json(json)
+# print the JSON string representation of the object
+print(CycleDictionaryNode.to_json())
+
+# convert the object into a dict
+cycle_dictionary_node_dict = cycle_dictionary_node_instance.to_dict()
+# create an instance of CycleDictionaryNode from a dict
+cycle_dictionary_node_form_dict = cycle_dictionary_node.from_dict(cycle_dictionary_node_dict)
+\`\`\`
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+",
   "docs/DefaultApi.md": "# test_project.DefaultApi
 
 Method | HTTP request | Description
@@ -17620,6 +17728,7 @@ Method | HTTP request | Description
 [**inline_enum**](DefaultApi.md#inline_enum) | **GET** /inline-enum | 
 [**inline_request_body**](DefaultApi.md#inline_request_body) | **POST** /inline-request-body | 
 [**named_one_of**](DefaultApi.md#named_one_of) | **POST** /named-one-of | 
+[**nested_collections**](DefaultApi.md#nested_collections) | **POST** /nested-collections | 
 [**reserved_keywords**](DefaultApi.md#reserved_keywords) | **GET** /reserved-keywords | 
 
 # **array_of_one_ofs**
@@ -17940,6 +18049,56 @@ This endpoint does not need any parameters.
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **nested_collections**
+> NestedCollections nested_collections()
+
+
+### Example
+
+\`\`\`python
+import time
+import test_project
+from test_project.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = test_project.Configuration(
+    host = "http://localhost"
+)
+
+# Enter a context with an instance of the API client
+with test_project.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = test_project.DefaultApi(api_client)
+
+    try:
+        api_response = api_instance.nested_collections()
+        print("The response of DefaultApi->nested_collections:\\n")
+        pprint(api_response)
+    except ApiException as e:
+        print("Exception when calling DefaultApi->nested_collections: %s\\n" % e)
+\`\`\`
+
+### Parameters
+This endpoint does not need any parameters.
+
+### Return type
+
+[**NestedCollections**](NestedCollections.md)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | ok |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **reserved_keywords**
 > reserved_keywords(var_with=var_with, var_if=var_if, var_class=var_class)
 
@@ -18152,6 +18311,42 @@ named_one_of_union_form_dict = named_one_of_union.from_dict(named_one_of_union_d
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 
 ",
+  "docs/NestedCollections.md": "# NestedCollections
+
+## Properties
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**nested_array_of_strings** | **List[List[str]]** |  | [optional] 
+**nested_array_of_dates** | **List[List[date]]** |  | [optional] 
+**nested_array_of_objects** | **List[List[SomeObject]]** |  | [optional] 
+**four_dimensional_nested_array_of_objects** | **List[List[List[List[SomeObject]]]]** |  | [optional] 
+**nested_dictionary_of_strings** | **Dict[str, Dict[str, str]]** |  | [optional] 
+**nested_dictionary_of_objects** | **Dict[str, Dict[str, SomeObject]]** |  | [optional] 
+**four_dimensional_nested_dictionary_of_objects** | **Dict[str, Dict[str, Dict[str, Dict[str, SomeObject]]]]** |  | [optional] 
+**nested_mix_of_dictionaries_and_arrays** | **List[Dict[str, List[List[Dict[str, List[SomeObject]]]]]]** |  | [optional] 
+**cycle_array** | **List[CycleArrayNode]** |  | [optional] 
+**cycle_dictionary** | [**CycleDictionary**](CycleDictionary.md) |  | [optional] 
+
+## Example
+
+\`\`\`python
+from test_project.models.nested_collections import NestedCollections
+
+# TODO update the JSON string below
+json = "{}"
+# create an instance of NestedCollections from a JSON string
+nested_collections_instance = NestedCollections.from_json(json)
+# print the JSON string representation of the object
+print(NestedCollections.to_json())
+
+# convert the object into a dict
+nested_collections_dict = nested_collections_instance.to_dict()
+# create an instance of NestedCollections from a dict
+nested_collections_form_dict = nested_collections.from_dict(nested_collections_dict)
+\`\`\`
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+",
   "docs/SomeObject.md": "# SomeObject
 
 ## Properties
@@ -18250,6 +18445,9 @@ from test_project.exceptions import ApiException
 from test_project.models.additional_properties_response import AdditionalPropertiesResponse
 from test_project.models.another_named_one_of import AnotherNamedOneOf
 from test_project.models.array_of_one_ofs import ArrayOfOneOfs
+from test_project.models.cycle_array_node import CycleArrayNode
+from test_project.models.cycle_dictionary import CycleDictionary
+from test_project.models.cycle_dictionary_node import CycleDictionaryNode
 from test_project.models.dictionary import Dictionary
 from test_project.models.inline_enum200_response import InlineEnum200Response
 from test_project.models.inline_enum200_response_category_enum import InlineEnum200ResponseCategoryEnum
@@ -18257,6 +18455,7 @@ from test_project.models.inline_request_body_request_content import InlineReques
 from test_project.models.my_enum import MyEnum
 from test_project.models.named_one_of import NamedOneOf
 from test_project.models.named_one_of_union import NamedOneOfUnion
+from test_project.models.nested_collections import NestedCollections
 from test_project.models.some_object import SomeObject
 ",
   "test_project/api/__init__.py": "# flake8: noqa
@@ -18294,6 +18493,7 @@ from test_project.models.inline_enum200_response import InlineEnum200Response
 from test_project.models.inline_request_body_request_content import InlineRequestBodyRequestContent
 from test_project.models.my_enum import MyEnum
 from test_project.models.named_one_of_union import NamedOneOfUnion
+from test_project.models.nested_collections import NestedCollections
 
 from test_project.api_client import ApiClient
 from test_project.api_response import ApiResponse
@@ -19875,6 +20075,241 @@ class DefaultApi:
 
 
     @validate_call
+    def nested_collections(
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> NestedCollections:
+        """nested_collections
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._nested_collections_serialize(
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "NestedCollections"
+        }
+
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def nested_collections_with_http_info(
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[NestedCollections]:
+        """nested_collections
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._nested_collections_serialize(
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "NestedCollections"
+        }
+
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def nested_collections_without_preload_content(
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """nested_collections
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._nested_collections_serialize(
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "NestedCollections"
+        }
+
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _nested_collections_serialize(
+        self,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> Tuple:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[str, str] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header \`Accept\`
+        _header_params['Accept'] = self.api_client.select_header_accept(
+            [
+                'application/json'
+            ]
+        )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/nested-collections',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+    @validate_call
     def reserved_keywords(
         self,
         var_with: Optional[StrictStr] = None,
@@ -20168,6 +20603,7 @@ class OperationConfig(Generic[T]):
     inline_enum: T
     inline_request_body: T
     named_one_of: T
+    nested_collections: T
     reserved_keywords: T
     ...
 
@@ -20200,6 +20636,11 @@ OperationLookup = {
     },
     "named_one_of": {
         "path": "/named-one-of",
+        "method": "POST",
+        "contentTypes": ["application/json"]
+    },
+    "nested_collections": {
+        "path": "/nested-collections",
         "method": "POST",
         "contentTypes": ["application/json"]
     },
@@ -21082,6 +21523,121 @@ def named_one_of_handler(_handler: NamedOneOfHandlerFunction = None, interceptor
     else:
         raise Exception("Positional arguments are not supported by named_one_of_handler.")
 
+class NestedCollectionsRequestParameters(BaseModel):
+    """
+    Query, path and header parameters for the NestedCollections operation
+    """
+
+    class Config:
+        """Pydantic configuration"""
+        populate_by_name = True
+        validate_assignment = True
+
+    def to_json(self) -> str:
+        return json.dumps(self.to_dict())
+
+    @classmethod
+    def from_json(cls, json_str: str) -> NestedCollectionsRequestParameters:
+        return cls.from_dict(json.loads(json_str))
+
+    def to_dict(self):
+        return self.model_dump(exclude={}, exclude_none=True)
+
+    @classmethod
+    def from_dict(cls, obj: dict) -> NestedCollectionsRequestParameters:
+        if obj is None:
+            return None
+        return NestedCollectionsRequestParameters.model_validate(obj)
+
+
+# Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
+NestedCollectionsRequestBody = Any
+
+NestedCollections200OperationResponse = ApiResponse[Literal[200], NestedCollections]
+
+NestedCollectionsOperationResponses = Union[NestedCollections200OperationResponse, ]
+
+# Request type for nested_collections
+NestedCollectionsRequest = ApiRequest[NestedCollectionsRequestParameters, NestedCollectionsRequestBody]
+NestedCollectionsChainedRequest = ChainedApiRequest[NestedCollectionsRequestParameters, NestedCollectionsRequestBody]
+
+class NestedCollectionsHandlerFunction(Protocol):
+    def __call__(self, input: NestedCollectionsRequest, **kwargs) -> NestedCollectionsOperationResponses:
+        ...
+
+NestedCollectionsInterceptor = Callable[[NestedCollectionsChainedRequest], NestedCollectionsOperationResponses]
+
+def nested_collections_handler(_handler: NestedCollectionsHandlerFunction = None, interceptors: List[NestedCollectionsInterceptor] = []):
+    """
+    Decorator for an api handler for the nested_collections operation, providing a typed interface for inputs and outputs
+    """
+    def _handler_wrapper(handler: NestedCollectionsHandlerFunction):
+        @wraps(handler)
+        def wrapper(event, context, additional_interceptors = [], **kwargs):
+            all_interceptors = additional_interceptors + interceptors
+
+            raw_string_parameters = decode_request_parameters({
+                **(event.get('pathParameters', {}) or {}),
+                **(event.get('queryStringParameters', {}) or {}),
+                **(event.get('headers', {}) or {}),
+            })
+            raw_string_array_parameters = decode_request_parameters({
+                **(event.get('multiValueQueryStringParameters', {}) or {}),
+                **(event.get('multiValueHeaders', {}) or {}),
+            })
+
+            def response_headers_for_status_code(status_code):
+                headers_for_status = {}
+                return headers_for_status
+
+            request_parameters = None
+            try:
+                request_parameters = NestedCollectionsRequestParameters.from_dict({
+                })
+            except Exception as e:
+                return {
+                    'statusCode': 400,
+                    'headers': {**response_headers_for_status_code(400), **extract_response_headers_from_interceptors(all_interceptors)},
+                    'body': '{"message": "' + str(e) + '"}',
+                }
+
+            body = {}
+            interceptor_context = {
+                "operationId": "nested_collections",
+            }
+
+            chain = _build_handler_chain(all_interceptors, handler)
+            response = chain.next(ApiRequest(
+                request_parameters,
+                body,
+                event,
+                context,
+                interceptor_context,
+            ), **kwargs)
+
+            response_headers = {** (response.headers or {}), **response_headers_for_status_code(response.status_code)}
+            response_body = ''
+            if response.body is None:
+                pass
+            elif response.status_code == 200:
+                response_body = response.body.to_json()
+
+            return {
+                'statusCode': response.status_code,
+                'headers': response_headers,
+                'multiValueHeaders': response.multi_value_headers or {},
+                'body': response_body,
+            }
+        return wrapper
+
+    # Support use as a decorator with no arguments, or with interceptor arguments
+    if callable(_handler):
+        return _handler_wrapper(_handler)
+    elif _handler is None:
+        return _handler_wrapper
+    else:
+        raise Exception("Positional arguments are not supported by nested_collections_handler.")
+
 class ReservedKeywordsRequestParameters(BaseModel):
     """
     Query, path and header parameters for the ReservedKeywords operation
@@ -21218,6 +21774,7 @@ class HandlerRouterHandlers:
   inline_enum: Callable[[Dict, Any], Dict]
   inline_request_body: Callable[[Dict, Any], Dict]
   named_one_of: Callable[[Dict, Any], Dict]
+  nested_collections: Callable[[Dict, Any], Dict]
   reserved_keywords: Callable[[Dict, Any], Dict]
 
 def handler_router(handlers: HandlerRouterHandlers, interceptors: List[Interceptor] = []):
@@ -22790,6 +23347,9 @@ def try_catch_interceptor(request: ChainedApiRequest) -> ApiResponse:
 from test_project.models.additional_properties_response import AdditionalPropertiesResponse
 from test_project.models.another_named_one_of import AnotherNamedOneOf
 from test_project.models.array_of_one_ofs import ArrayOfOneOfs
+from test_project.models.cycle_array_node import CycleArrayNode
+from test_project.models.cycle_dictionary import CycleDictionary
+from test_project.models.cycle_dictionary_node import CycleDictionaryNode
 from test_project.models.dictionary import Dictionary
 from test_project.models.inline_enum200_response import InlineEnum200Response
 from test_project.models.inline_enum200_response_category_enum import InlineEnum200ResponseCategoryEnum
@@ -22797,6 +23357,7 @@ from test_project.models.inline_request_body_request_content import InlineReques
 from test_project.models.my_enum import MyEnum
 from test_project.models.named_one_of import NamedOneOf
 from test_project.models.named_one_of_union import NamedOneOfUnion
+from test_project.models.nested_collections import NestedCollections
 from test_project.models.some_object import SomeObject
 ",
   "test_project/models/additional_properties_response.py": "# coding: utf-8
@@ -22875,6 +23436,9 @@ class AdditionalPropertiesResponse(BaseModel):
         # override the default output from pydantic by calling \`to_dict()\` of dictionary_of_objects
         if self.dictionary_of_objects:
             _dict['dictionaryOfObjects'] = self.dictionary_of_objects.to_dict()
+        # override the default output from pydantic by calling \`to_dict()\` of dictionary_of_primitives
+        if self.dictionary_of_primitives:
+            _dict['dictionaryOfPrimitives'] = self.dictionary_of_primitives.to_dict()
         return _dict
 
     @classmethod
@@ -22889,7 +23453,7 @@ class AdditionalPropertiesResponse(BaseModel):
 
         _obj = cls.model_validate({
             "dictionaryOfObjects": Dictionary.from_dict(obj.get("dictionaryOfObjects")) if obj.get("dictionaryOfObjects") is not None else None,
-            "dictionaryOfPrimitives": obj.get("dictionaryOfPrimitives")
+            "dictionaryOfPrimitives": Dict[str, str].from_dict(obj.get("dictionaryOfPrimitives")) if obj.get("dictionaryOfPrimitives") is not None else None
         })
         return _obj
 
@@ -23016,7 +23580,7 @@ class ArrayOfOneOfs(BaseModel):
     """
     ArrayOfOneOfs
     """ # noqa: E501
-    one_ofs: Optional[List[Any]] = Field(default=None, alias="oneOfs")
+    one_ofs: Optional[List[any]] = Field(default=None, alias="oneOfs")
     __properties: ClassVar[List[str]] = ["oneOfs"]
 
 
@@ -23055,9 +23619,13 @@ class ArrayOfOneOfs(BaseModel):
             },
             exclude_none=True,
         )
-        # override the default output from pydantic by calling \`to_dict()\` of one_ofs
+        # override the default output from pydantic by calling \`to_dict()\` of each item in one_ofs (list)
+        _items = []
         if self.one_ofs:
-            _dict['oneOfs'] = self.one_ofs.to_dict()
+            for _item in self.one_ofs:
+                if _item:
+                    _items.append(_item.to_dict())
+            _dict['oneOfs'] = _items
         return _dict
 
     @classmethod
@@ -23071,7 +23639,296 @@ class ArrayOfOneOfs(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "oneOfs": List[NamedOneOfUnion].from_dict(obj.get("oneOfs")) if obj.get("oneOfs") is not None else None
+            "oneOfs": [NamedOneOfUnion.from_dict(_item) for _item in obj.get("oneOfs")] if obj.get("oneOfs") is not None else None
+        })
+        return _obj
+
+",
+  "test_project/models/cycle_array_node.py": "# coding: utf-8
+
+"""
+    Edge Cases
+
+    No description provided
+
+    The version of the OpenAPI document: 1.0.0
+
+    NOTE: This class is auto generated.
+    Do not edit the class manually.
+"""  # noqa: E501
+
+from __future__ import annotations
+import pprint
+import re  # noqa: F401
+import json
+from enum import Enum
+from datetime import date, datetime
+from typing import Any, List, Union, ClassVar, Dict, Optional, TYPE_CHECKING
+from pydantic import Field, StrictStr, ValidationError, field_validator, BaseModel, SecretStr, StrictFloat, StrictInt, StrictBytes, StrictBool
+from decimal import Decimal
+from typing_extensions import Annotated, Literal
+try:
+    from typing import Self
+except ImportError:
+    from typing_extensions import Self
+
+class CycleArrayNode(BaseModel):
+    """
+    CycleArrayNode
+    """ # noqa: E501
+    nodes: Optional[List[CycleArrayNode]] = None
+    __properties: ClassVar[List[str]] = ["nodes"]
+
+
+    model_config = {
+        "populate_by_name": True,
+        "validate_assignment": True
+    }
+
+    def to_str(self) -> str:
+        """Returns the string representation of the model using alias"""
+        return pprint.pformat(self.model_dump(by_alias=True))
+
+    def to_json(self) -> str:
+        """Returns the JSON representation of the model using alias"""
+        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
+        return json.dumps(self.to_dict())
+
+    @classmethod
+    def from_json(cls, json_str: str) -> Self:
+        """Create an instance of CycleArrayNode from a JSON string"""
+        return cls.from_dict(json.loads(json_str))
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Return the dictionary representation of the model using alias.
+
+        This has the following differences from calling pydantic's
+        \`self.model_dump(by_alias=True)\`:
+
+        * \`None\` is only added to the output dict for nullable fields that
+          were set at model initialization. Other fields with value \`None\`
+          are ignored.
+        """
+        _dict = self.model_dump(
+            by_alias=True,
+            exclude={
+            },
+            exclude_none=True,
+        )
+        # override the default output from pydantic by calling \`to_dict()\` of each item in nodes (list)
+        _items = []
+        if self.nodes:
+            for _item in self.nodes:
+                if _item:
+                    _items.append(_item.to_dict())
+            _dict['nodes'] = _items
+        return _dict
+
+    @classmethod
+    def from_dict(cls, obj: Dict) -> Self:
+        """Create an instance of CycleArrayNode from a dict"""
+
+        if obj is None:
+            return None
+
+        if not isinstance(obj, dict):
+            return cls.model_validate(obj)
+
+        _obj = cls.model_validate({
+            "nodes": [CycleArrayNode.from_dict(_item) for _item in obj.get("nodes")] if obj.get("nodes") is not None else None
+        })
+        return _obj
+
+",
+  "test_project/models/cycle_dictionary.py": "# coding: utf-8
+
+"""
+    Edge Cases
+
+    No description provided
+
+    The version of the OpenAPI document: 1.0.0
+
+    NOTE: This class is auto generated.
+    Do not edit the class manually.
+"""  # noqa: E501
+
+from __future__ import annotations
+import pprint
+import re  # noqa: F401
+import json
+from enum import Enum
+from datetime import date, datetime
+from typing import Any, List, Union, ClassVar, Dict, Optional, TYPE_CHECKING
+from pydantic import Field, StrictStr, ValidationError, field_validator, BaseModel, SecretStr, StrictFloat, StrictInt, StrictBytes, StrictBool
+from decimal import Decimal
+from typing_extensions import Annotated, Literal
+try:
+    from typing import Self
+except ImportError:
+    from typing_extensions import Self
+
+class CycleDictionary(BaseModel):
+    """
+    CycleDictionary
+    """ # noqa: E501
+    additional_properties: Dict[str, Any] = {}
+    __properties: ClassVar[List[str]] = []
+
+
+    model_config = {
+        "populate_by_name": True,
+        "validate_assignment": True
+    }
+
+    def to_str(self) -> str:
+        """Returns the string representation of the model using alias"""
+        return pprint.pformat(self.model_dump(by_alias=True))
+
+    def to_json(self) -> str:
+        """Returns the JSON representation of the model using alias"""
+        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
+        return json.dumps(self.to_dict())
+
+    @classmethod
+    def from_json(cls, json_str: str) -> Self:
+        """Create an instance of CycleDictionary from a JSON string"""
+        return cls.from_dict(json.loads(json_str))
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Return the dictionary representation of the model using alias.
+
+        This has the following differences from calling pydantic's
+        \`self.model_dump(by_alias=True)\`:
+
+        * \`None\` is only added to the output dict for nullable fields that
+          were set at model initialization. Other fields with value \`None\`
+          are ignored.
+        * Fields in \`self.additional_properties\` are added to the output dict.
+        """
+        _dict = self.model_dump(
+            by_alias=True,
+            exclude={
+                "additional_properties",
+            },
+            exclude_none=True,
+        )
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
+        return _dict
+
+    @classmethod
+    def from_dict(cls, obj: Dict) -> Self:
+        """Create an instance of CycleDictionary from a dict"""
+
+        if obj is None:
+            return None
+
+        if not isinstance(obj, dict):
+            return cls.model_validate(obj)
+
+        _obj = cls.model_validate({
+        })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
+        return _obj
+
+",
+  "test_project/models/cycle_dictionary_node.py": "# coding: utf-8
+
+"""
+    Edge Cases
+
+    No description provided
+
+    The version of the OpenAPI document: 1.0.0
+
+    NOTE: This class is auto generated.
+    Do not edit the class manually.
+"""  # noqa: E501
+
+from __future__ import annotations
+import pprint
+import re  # noqa: F401
+import json
+from enum import Enum
+from datetime import date, datetime
+from typing import Any, List, Union, ClassVar, Dict, Optional, TYPE_CHECKING
+from pydantic import Field, StrictStr, ValidationError, field_validator, BaseModel, SecretStr, StrictFloat, StrictInt, StrictBytes, StrictBool
+from decimal import Decimal
+from typing_extensions import Annotated, Literal
+from test_project.models.cycle_dictionary import CycleDictionary
+try:
+    from typing import Self
+except ImportError:
+    from typing_extensions import Self
+
+class CycleDictionaryNode(BaseModel):
+    """
+    CycleDictionaryNode
+    """ # noqa: E501
+    nodes: Optional[CycleDictionary] = None
+    __properties: ClassVar[List[str]] = ["nodes"]
+
+
+    model_config = {
+        "populate_by_name": True,
+        "validate_assignment": True
+    }
+
+    def to_str(self) -> str:
+        """Returns the string representation of the model using alias"""
+        return pprint.pformat(self.model_dump(by_alias=True))
+
+    def to_json(self) -> str:
+        """Returns the JSON representation of the model using alias"""
+        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
+        return json.dumps(self.to_dict())
+
+    @classmethod
+    def from_json(cls, json_str: str) -> Self:
+        """Create an instance of CycleDictionaryNode from a JSON string"""
+        return cls.from_dict(json.loads(json_str))
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Return the dictionary representation of the model using alias.
+
+        This has the following differences from calling pydantic's
+        \`self.model_dump(by_alias=True)\`:
+
+        * \`None\` is only added to the output dict for nullable fields that
+          were set at model initialization. Other fields with value \`None\`
+          are ignored.
+        """
+        _dict = self.model_dump(
+            by_alias=True,
+            exclude={
+            },
+            exclude_none=True,
+        )
+        # override the default output from pydantic by calling \`to_dict()\` of nodes
+        if self.nodes:
+            _dict['nodes'] = self.nodes.to_dict()
+        return _dict
+
+    @classmethod
+    def from_dict(cls, obj: Dict) -> Self:
+        """Create an instance of CycleDictionaryNode from a dict"""
+
+        if obj is None:
+            return None
+
+        if not isinstance(obj, dict):
+            return cls.model_validate(obj)
+
+        _obj = cls.model_validate({
+            "nodes": CycleDictionary.from_dict(obj.get("nodes")) if obj.get("nodes") is not None else None
         })
         return _obj
 
@@ -23682,6 +24539,219 @@ class NamedOneOfUnion(BaseModel):
     def to_str(self) -> str:
         """Returns the string representation of the actual instance"""
         return pprint.pformat(self.model_dump())
+
+",
+  "test_project/models/nested_collections.py": "# coding: utf-8
+
+"""
+    Edge Cases
+
+    No description provided
+
+    The version of the OpenAPI document: 1.0.0
+
+    NOTE: This class is auto generated.
+    Do not edit the class manually.
+"""  # noqa: E501
+
+from __future__ import annotations
+import pprint
+import re  # noqa: F401
+import json
+from enum import Enum
+from datetime import date, datetime
+from typing import Any, List, Union, ClassVar, Dict, Optional, TYPE_CHECKING
+from pydantic import Field, StrictStr, ValidationError, field_validator, BaseModel, SecretStr, StrictFloat, StrictInt, StrictBytes, StrictBool
+from decimal import Decimal
+from typing_extensions import Annotated, Literal
+from test_project.models.cycle_array_node import CycleArrayNode
+from test_project.models.cycle_dictionary import CycleDictionary
+from test_project.models.some_object import SomeObject
+try:
+    from typing import Self
+except ImportError:
+    from typing_extensions import Self
+
+class NestedCollections(BaseModel):
+    """
+    NestedCollections
+    """ # noqa: E501
+    nested_array_of_strings: Optional[List[List[StrictStr]]] = Field(default=None, alias="nestedArrayOfStrings")
+    nested_array_of_dates: Optional[List[List[date]]] = Field(default=None, alias="nestedArrayOfDates")
+    nested_array_of_objects: Optional[List[List[SomeObject]]] = Field(default=None, alias="nestedArrayOfObjects")
+    four_dimensional_nested_array_of_objects: Optional[List[List[List[List[SomeObject]]]]] = Field(default=None, alias="fourDimensionalNestedArrayOfObjects")
+    nested_dictionary_of_strings: Optional[Dict[str, Dict[str, StrictStr]]] = Field(default=None, alias="nestedDictionaryOfStrings")
+    nested_dictionary_of_objects: Optional[Dict[str, Dict[str, SomeObject]]] = Field(default=None, alias="nestedDictionaryOfObjects")
+    four_dimensional_nested_dictionary_of_objects: Optional[Dict[str, Dict[str, Dict[str, Dict[str, SomeObject]]]]] = Field(default=None, alias="fourDimensionalNestedDictionaryOfObjects")
+    nested_mix_of_dictionaries_and_arrays: Optional[List[Dict[str, List[List[Dict[str, List[SomeObject]]]]]]] = Field(default=None, alias="nestedMixOfDictionariesAndArrays")
+    cycle_array: Optional[List[CycleArrayNode]] = Field(default=None, alias="cycleArray")
+    cycle_dictionary: Optional[CycleDictionary] = Field(default=None, alias="cycleDictionary")
+    __properties: ClassVar[List[str]] = ["nestedArrayOfStrings", "nestedArrayOfDates", "nestedArrayOfObjects", "fourDimensionalNestedArrayOfObjects", "nestedDictionaryOfStrings", "nestedDictionaryOfObjects", "fourDimensionalNestedDictionaryOfObjects", "nestedMixOfDictionariesAndArrays", "cycleArray", "cycleDictionary"]
+
+
+    model_config = {
+        "populate_by_name": True,
+        "validate_assignment": True
+    }
+
+    def to_str(self) -> str:
+        """Returns the string representation of the model using alias"""
+        return pprint.pformat(self.model_dump(by_alias=True))
+
+    def to_json(self) -> str:
+        """Returns the JSON representation of the model using alias"""
+        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
+        return json.dumps(self.to_dict())
+
+    @classmethod
+    def from_json(cls, json_str: str) -> Self:
+        """Create an instance of NestedCollections from a JSON string"""
+        return cls.from_dict(json.loads(json_str))
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Return the dictionary representation of the model using alias.
+
+        This has the following differences from calling pydantic's
+        \`self.model_dump(by_alias=True)\`:
+
+        * \`None\` is only added to the output dict for nullable fields that
+          were set at model initialization. Other fields with value \`None\`
+          are ignored.
+        """
+        _dict = self.model_dump(
+            by_alias=True,
+            exclude={
+            },
+            exclude_none=True,
+        )
+        # override the default output from pydantic by calling \`to_dict()\` of each item in nested_array_of_strings (list)
+        _items = []
+        if self.nested_array_of_strings:
+            for _item in self.nested_array_of_strings:
+                if _item:
+                    _items.append(_item.to_dict())
+            _dict['nestedArrayOfStrings'] = _items
+        # override the default output from pydantic by calling \`to_dict()\` of each item in nested_array_of_dates (list)
+        _items = []
+        if self.nested_array_of_dates:
+            for _item in self.nested_array_of_dates:
+                if _item:
+                    _items.append(_item.to_dict())
+            _dict['nestedArrayOfDates'] = _items
+        # override the default output from pydantic by calling \`to_dict()\` of each item in nested_array_of_objects (list of list)
+        _items = []
+        if self.nested_array_of_objects:
+            for _item in self.nested_array_of_objects:
+                if _item:
+                    _items.append(
+                         [_inner_item.to_dict() for _inner_item in _item if _inner_item is not None]
+                    )
+            _dict['nestedArrayOfObjects'] = _items
+        # override the default output from pydantic by calling \`to_dict()\` of each item in four_dimensional_nested_array_of_objects (list of list)
+        _items = []
+        if self.four_dimensional_nested_array_of_objects:
+            for _item in self.four_dimensional_nested_array_of_objects:
+                if _item:
+                    _items.append(
+                         [_inner_item.to_dict() for _inner_item in _item if _inner_item is not None]
+                    )
+            _dict['fourDimensionalNestedArrayOfObjects'] = _items
+        # override the default output from pydantic by calling \`to_dict()\` of each value in nested_dictionary_of_strings (dict)
+        _field_dict = {}
+        if self.nested_dictionary_of_strings:
+            for _key in self.nested_dictionary_of_strings:
+                if self.nested_dictionary_of_strings[_key]:
+                    _field_dict[_key] = self.nested_dictionary_of_strings[_key].to_dict()
+            _dict['nestedDictionaryOfStrings'] = _field_dict
+        # override the default output from pydantic by calling \`to_dict()\` of each value in nested_dictionary_of_objects (dict)
+        _field_dict = {}
+        if self.nested_dictionary_of_objects:
+            for _key in self.nested_dictionary_of_objects:
+                if self.nested_dictionary_of_objects[_key]:
+                    _field_dict[_key] = self.nested_dictionary_of_objects[_key].to_dict()
+            _dict['nestedDictionaryOfObjects'] = _field_dict
+        # override the default output from pydantic by calling \`to_dict()\` of each value in four_dimensional_nested_dictionary_of_objects (dict)
+        _field_dict = {}
+        if self.four_dimensional_nested_dictionary_of_objects:
+            for _key in self.four_dimensional_nested_dictionary_of_objects:
+                if self.four_dimensional_nested_dictionary_of_objects[_key]:
+                    _field_dict[_key] = self.four_dimensional_nested_dictionary_of_objects[_key].to_dict()
+            _dict['fourDimensionalNestedDictionaryOfObjects'] = _field_dict
+        # override the default output from pydantic by calling \`to_dict()\` of each item in nested_mix_of_dictionaries_and_arrays (list)
+        _items = []
+        if self.nested_mix_of_dictionaries_and_arrays:
+            for _item in self.nested_mix_of_dictionaries_and_arrays:
+                if _item:
+                    _items.append(_item.to_dict())
+            _dict['nestedMixOfDictionariesAndArrays'] = _items
+        # override the default output from pydantic by calling \`to_dict()\` of each item in cycle_array (list)
+        _items = []
+        if self.cycle_array:
+            for _item in self.cycle_array:
+                if _item:
+                    _items.append(_item.to_dict())
+            _dict['cycleArray'] = _items
+        # override the default output from pydantic by calling \`to_dict()\` of cycle_dictionary
+        if self.cycle_dictionary:
+            _dict['cycleDictionary'] = self.cycle_dictionary.to_dict()
+        return _dict
+
+    @classmethod
+    def from_dict(cls, obj: Dict) -> Self:
+        """Create an instance of NestedCollections from a dict"""
+
+        if obj is None:
+            return None
+
+        if not isinstance(obj, dict):
+            return cls.model_validate(obj)
+
+        _obj = cls.model_validate({
+            "nestedArrayOfStrings": obj.get("nestedArrayOfStrings"),
+            "nestedArrayOfDates": obj.get("nestedArrayOfDates"),
+            "nestedArrayOfObjects": [
+                    [SomeObject.from_dict(_inner_item) for _inner_item in _item]
+                    for _item in obj.get("nestedArrayOfObjects")
+                ] if obj.get("nestedArrayOfObjects") is not None else None,
+            "fourDimensionalNestedArrayOfObjects": [
+                    [List[List[SomeObject]].from_dict(_inner_item) for _inner_item in _item]
+                    for _item in obj.get("fourDimensionalNestedArrayOfObjects")
+                ] if obj.get("fourDimensionalNestedArrayOfObjects") is not None else None,
+            "nestedDictionaryOfStrings": dict(
+                (_k, Dict[str, str].from_dict(_v))
+                for _k, _v in obj.get("nestedDictionaryOfStrings").items()
+            )
+            if obj.get("nestedDictionaryOfStrings") is not None
+            else None,
+            "nestedDictionaryOfObjects": dict(
+                (_k, dict(
+                    (_ik, SomeObject.from_dict(_iv))
+                        for _ik, _iv in _v.items()
+                    )
+                    if _v is not None
+                    else None
+                )
+                for _k, _v in obj.get("nestedDictionaryOfObjects").items()
+            )
+            if obj.get("nestedDictionaryOfObjects") is not None
+            else None,
+            "fourDimensionalNestedDictionaryOfObjects": dict(
+                (_k, dict(
+                    (_ik, Dict[str, Dict[str, SomeObject]].from_dict(_iv))
+                        for _ik, _iv in _v.items()
+                    )
+                    if _v is not None
+                    else None
+                )
+                for _k, _v in obj.get("fourDimensionalNestedDictionaryOfObjects").items()
+            )
+            if obj.get("fourDimensionalNestedDictionaryOfObjects") is not None
+            else None,
+            "nestedMixOfDictionariesAndArrays": [Dict[str, List[List[Dict[str, List[SomeObject]]]]].from_dict(_item) for _item in obj.get("nestedMixOfDictionariesAndArrays")] if obj.get("nestedMixOfDictionariesAndArrays") is not None else None,
+            "cycleArray": [CycleArrayNode.from_dict(_item) for _item in obj.get("cycleArray")] if obj.get("cycleArray") is not None else None,
+            "cycleDictionary": CycleDictionary.from_dict(obj.get("cycleDictionary")) if obj.get("cycleDictionary") is not None else None
+        })
+        return _obj
 
 ",
   "test_project/models/some_object.py": "# coding: utf-8

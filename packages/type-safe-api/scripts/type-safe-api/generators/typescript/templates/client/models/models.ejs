@@ -33,6 +33,16 @@ import {
 } from './<%= importName %>';
 <%_ }); _%>
 <%_ const isComposite = model.export === "one-of" || model.export === "any-of" || model.export === "all-of"; _%>
+<%_
+// Nested arrays of primitives (besides dates) don't need to have .map(...) called to convert them as the base case will be a noop
+// eg. an array of arrays of strings doesn't need to be rendered as `value.map(item0 => item0.map(item1 => item1))`
+const canShortCircuitConversion = (property) => {
+  if (["array", "dictionary"].includes(property.export)) {
+    return canShortCircuitConversion(property.link);
+  }
+  return property.isPrimitive && !["date", "date-time"].includes(property.format);
+};
+_%>
 
 <%_ if (model.export === "enum") { _%>
 /**
@@ -126,19 +136,45 @@ export function <%= model.name %>FromJSONTyped(json: any, ignoreDiscriminator: b
 <%_ } else { _%>
     return {
 
+<%_
+// Renders the appropriate nested function for .map() or mapValues() for arrays and dictionaries for the given type
+const renderNestedFromJsonValue = (type, depth = 0) => {
+    const itemIdentifier = `item${depth}`;
+    if (type.isPrimitive) {
+        return `(${itemIdentifier}) => ${["date", "date-time"].includes(type.format) ? `new Date(${itemIdentifier})` : itemIdentifier}`;
+    } else if (type.export === "array") {
+        return `(${itemIdentifier}) => ${itemIdentifier}.map(${renderNestedFromJsonValue(type.link, depth + 1)})`;
+    } else if (type.export === "dictionary") {
+        return `(${itemIdentifier}) => mapValues(${itemIdentifier}, ${renderNestedFromJsonValue(type.link, depth + 1)})`;
+    }
+    return `${type.name || type.type}FromJSON`;
+};
+// Renders the code to transform a property of the model from its json representation into the model types
+const renderFromJsonValue = (property) => {
+    const value = `json['${property.name}']`;
+    let rendered = '';
+    if (canShortCircuitConversion(property)) {
+        rendered = value;
+    } else if (property.isPrimitive) {
+        rendered = ["date", "date-time"].includes(property.format) ? `(new Date(${value}))` : value;
+    } else if (property.export === "array") {
+        rendered = `((${value} as Array<any>).map(${renderNestedFromJsonValue(property.link)}))`;
+        rendered = property.uniqueItems ? `new Set(${rendered})` : rendered;
+    } else if (property.export === "dictionary") {
+        rendered = `(mapValues(${value}, ${renderNestedFromJsonValue(property.link)}))`;
+    } else {
+        rendered = `${property.type}FromJSON(${value})`;
+    }
+    rendered = property.isNullable ? `${value} === null ? null : ${rendered}` : rendered;
+    rendered = !property.isRequired ? `!exists(json, '${property.name}') ? undefined : ${rendered}` : rendered;
+    return rendered;
+};
+_%>
 <%_ if (model.export === "dictionary") { _%>
             ...json,
 <%_ } _%>
 <%_ model.properties.forEach((property) => { _%>
-    <%_ if (property.isPrimitive) { _%>
-        '<%= property.typescriptName %>': <% if (!property.isRequired) { %>!exists(json, '<%- property.name %>') ? undefined : <% } %><% if (["date", "date-time"].includes(property.format) && property.isNullable) { %>json['<%- property.name %>'] === null ? null : <% } %><% if (["date", "date-time"].includes(property.format)) { %>(new Date(json['<%= property.name %>']))<% } else { %>json['<%= property.name %>']<% } %>,
-    <%_ } else if (property.export === 'array') { _%>
-        '<%= property.typescriptName %>': <% if (!property.isRequired) { %>!exists(json, '<%- property.name %>') ? undefined : <% } %><% if (property.isNullable) { %>json['<%- property.name %>'] === null ? null : <% } %><%= property.uniqueItems ? 'new Set(' : '' %>((json['<%= property.name %>'] as Array<any>).map(<%= property.type %>FromJSON))<%= property.uniqueItems ? ')' : '' %>,
-    <%_ } else if (property.export === 'dictionary') { _%>
-        '<%= property.typescriptName %>': <% if (!property.isRequired) { %>!exists(json, '<%- property.name %>') ? undefined : <% } %><% if (property.isNullable) { %>json['<%- property.name %>'] === null ? null : <% } %>(mapValues(json['<%= property.name %>'], <%= property.type %>FromJSON)),
-    <%_ } else { _%>
-        '<%= property.typescriptName %>': <% if (!property.isRequired) { %>!exists(json, '<%- property.name %>') ? undefined : <% } %><% if (property.isNullable) { %>json['<%- property.name %>'] === null ? null : <% } %><%= property.type %>FromJSON(json['<%= property.name %>']),
-    <%_ } _%>
+        '<%= property.typescriptName %>': <%- renderFromJsonValue(property) %>,
 <%_ }); _%>
     };
 <%_ } _%>
@@ -173,24 +209,56 @@ export function <%= model.name %>ToJSON(value?: <%= model.name %> | null): any {
 <%_ } else { _%>
     return {
 
+<%_
+// Render code to convert a date to its string representation
+const renderToJsonDateValue = (identifier, format) => {
+    return `${identifier}.toISOString()${format === 'date' ? '.substr(0,10)' : ''}`;
+};
+// Renders the appropriate nested function for .map() or mapValues() for arrays and dictionaries for the given type
+const renderNestedToJsonValue = (type, depth = 0) => {
+    const itemIdentifier = `item${depth}`;
+    if (type.isPrimitive) {
+        return `(${itemIdentifier}) => ${["date", "date-time"].includes(type.format) ? renderToJsonDateValue(itemIdentifier, type.format) : itemIdentifier}`;
+    } else if (type.export === "array") {
+        return `(${itemIdentifier}) => ${itemIdentifier}.map(${renderNestedToJsonValue(type.link, depth + 1)})`;
+    } else if (type.export === "dictionary") {
+        return `(${itemIdentifier}) => mapValues(${itemIdentifier}, ${renderNestedToJsonValue(type.link, depth + 1)})`;
+    }
+    return `${type.name || type.type}ToJSON`;
+};
+// Renders the code to transform a property of the model to its json representation from the model types
+const renderToJsonValue = (property) => {
+    const value = `value.${property.typescriptName}`;
+    let rendered = '';
+
+    if (canShortCircuitConversion(property)) {
+        rendered = value;
+    } else if (property.isPrimitive) {
+        rendered = ["date", "date-time"].includes(property.format) ? `(${renderToJsonDateValue(value, property.format)})` : value;
+    } else if (property.export === "array") {
+        const prefix = property.uniqueItems ? `Array.from(${value} as Array<any>)` : `(${value} as Array<any>)`;
+        rendered = `(${prefix}.map(${renderNestedToJsonValue(property.link)}))`;
+    } else if (property.export === "dictionary") {
+        rendered = `(mapValues(${value}, ${renderNestedToJsonValue(property.link)}))`;
+    } else if (property.type !== "any") {
+        rendered = `${property.type}ToJSON(${value})`;
+    } else {
+        rendered = value;
+    }
+
+    if ((property.isPrimitive && ["date", "date-time"].includes(property.format)) || (!property.isPrimitive && ["array", "dictionary"].includes(property.export))) {
+        rendered = property.isNullable ? `${value} === null ? null : ${rendered}` : rendered;
+        rendered = !property.isRequired ? `${value} === undefined ? undefined : ${rendered}` : rendered;
+    }
+    return rendered;
+};
+_%>
 <%_ if (model.export === "dictionary") { _%>
             ...value,
 <%_ } _%>
 <%_ model.properties.forEach((property) => { _%>
 <%_ if (!property.isReadOnly) { _%>
-    <%_ if (property.isPrimitive && ["date", "date-time"].includes(property.format)) { _%>
-        '<%= property.name %>': <% if (!property.isRequired) { %>value.<%- property.typescriptName %> === undefined ? undefined : <% } %>(<% if (property.isNullable) { %>value.<%- property.typescriptName %> === null ? null : <% } %>value.<%- property.typescriptName %>.toISOString()<% if (property.format === 'date') { %>.substr(0,10)<% } %>),
-    <%_ } else if (property.isPrimitive) { _%>
-        '<%= property.name %>': value.<%- property.typescriptName %>,
-    <%_ } else if (property.export === 'array') { _%>
-        '<%= property.name %>': <% if (!property.isRequired) { %>value.<%- property.typescriptName %> === undefined ? undefined : <% } %>(<% if (property.isNullable) { %>value.<%- property.typescriptName %> === null ? null : <% } %><% if (property.uniqueItems) { %>Array.from(value.<%- property.typescriptName %> as Set<any>)<% } else { %>(value.<%- property.typescriptName %> as Array<any>)<% } %>.map(<%- property.type %>ToJSON)),
-    <%_ } else if (property.export === 'dictionary') { _%>
-        '<%= property.name %>': <% if (!property.isRequired) { %>value.<%- property.typescriptName %> === undefined ? undefined : <% } %>(<% if (property.isNullable) { %>value.<%- property.typescriptName %> === null ? null : <% } %>mapValues(value.<%- property.typescriptName %>, <%- property.type %>ToJSON)),
-    <%_ } else if (property.type !== 'any') { _%>
-        '<%= property.name %>': <%- property.type %>ToJSON(value.<%- property.typescriptName %>),
-    <%_ } else { _%>
-        '<%= property.name %>': value.<%- property.typescriptName %>,
-    <%_ } _%>
+        '<%= property.name %>': <%- renderToJsonValue(property) %>,
 <%_ } _%>
 <%_ }); _%>
     };

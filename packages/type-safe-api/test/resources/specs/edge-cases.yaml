@@ -138,6 +138,16 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ArrayOfOneOfs"
+  /nested-collections:
+    post:
+      operationId: nestedCollections
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NestedCollections"
   /additional-properties:
     post:
       operationId: dictionary
@@ -175,6 +185,96 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/NamedOneOfUnion"
+    NestedCollections:
+      type: object
+      properties:
+        nestedArrayOfStrings:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+        nestedArrayOfDates:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+              format: date
+        nestedArrayOfObjects:
+          type: array
+          items:
+            type: array
+            items:
+              $ref: "#/components/schemas/SomeObject"
+        fourDimensionalNestedArrayOfObjects:
+          type: array
+          items:
+            type: array
+            items:
+              type: array
+              items:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SomeObject"
+        nestedDictionaryOfStrings:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+        nestedDictionaryOfObjects:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              $ref: "#/components/schemas/SomeObject"
+        fourDimensionalNestedDictionaryOfObjects:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: object
+              additionalProperties:
+                type: object
+                additionalProperties:
+                  $ref: "#/components/schemas/SomeObject"
+        nestedMixOfDictionariesAndArrays:
+          type: array
+          items:
+            type: object
+            additionalProperties:
+              type: array
+              items:
+                type: array
+                items:
+                  type: object
+                  additionalProperties:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/SomeObject"
+        cycleArray:
+          $ref: "#/components/schemas/CycleArray"
+        cycleDictionary:
+          $ref: "#/components/schemas/CycleDictionary"
+    CycleArray:
+      type: array
+      items:
+        $ref: "#/components/schemas/CycleArrayNode"
+    CycleArrayNode:
+      type: object
+      properties:
+        nodes:
+          $ref: "#/components/schemas/CycleArray"
+    CycleDictionary:
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/CycleDictionaryNode"
+    CycleDictionaryNode:
+      type: object
+      properties:
+        nodes:
+          $ref: "#/components/schemas/CycleDictionary"
     AdditionalPropertiesResponse:
       type: object
       properties:

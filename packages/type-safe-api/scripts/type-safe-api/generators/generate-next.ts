@@ -17,6 +17,7 @@ import _orderBy from "lodash/orderBy";
 import _uniq from "lodash/uniq";
 import _uniqBy from "lodash/uniqBy";
 import _isEqual from "lodash/isEqual";
+import _cloneDeepWith from "lodash/cloneDeepWith"
 import { OpenAPIV3 } from "openapi-types";
 import * as parseOpenapi from "parse-openapi";
 import { getOperationResponses } from "parse-openapi/dist/parser/getOperationResponses";
@@ -302,6 +303,7 @@ const splitAndWriteFiles = (renderedFileContents: string[], outputPath: string) 
 
 // Model types which indicate it is composed (ie inherits/mixin's another schema)
 const COMPOSED_SCHEMA_TYPES = new Set(["one-of", "any-of", "all-of"]);
+const COLLECTION_TYPES = new Set(["array", "dictionary"]);
 const PRIMITIVE_TYPES = new Set(["string", "integer", "number", "boolean", "null", "any", "binary", "void"]);
 
 /**
@@ -496,7 +498,7 @@ const mutateModelWithAdditionalTypes = (model: parseOpenapi.Model) => {
   (model as any).javaType = toJavaType(model);
   (model as any).pythonName = toPythonName('property', model.name);
   (model as any).pythonType = toPythonType(model);
-  (model as any).isPrimitive = PRIMITIVE_TYPES.has(model.type);
+  (model as any).isPrimitive = PRIMITIVE_TYPES.has(model.type) && !COMPOSED_SCHEMA_TYPES.has(model.export) && !COLLECTION_TYPES.has(model.export);
 };
 
 interface MockDataContext {
@@ -615,6 +617,8 @@ const _ensureModelLinks = (spec: OpenAPIV3.Document, modelsByName: {[name: strin
       if (modelsByName[name] && !model.link) {
         model.link = modelsByName[name];
       }
+    } else if (model.link && typeof schema.additionalProperties !== 'boolean') {
+      _ensureModelLinks(spec, modelsByName, model.link, schema.additionalProperties, visited);
     }
   } else if (model.export === "array" && 'items' in schema && schema.items) {
     if (isRef(schema.items)) {
@@ -622,6 +626,8 @@ const _ensureModelLinks = (spec: OpenAPIV3.Document, modelsByName: {[name: strin
       if (modelsByName[name] && !model.link) {
         model.link = modelsByName[name];
       }
+    } else if (model.link) {
+      _ensureModelLinks(spec, modelsByName, model.link, schema.items, visited);
     }
   }
 
@@ -713,13 +719,12 @@ const buildData = async (inSpec: OpenAPIV3.Document, metadata: any) => {
   // In order for the new generator not to be breaking, we apply the same logic here, however this can be removed
   // in future since we have control to avoid the duplicate handlers while allowing an operation to be part of
   // multiple "services".
-  let spec = JSON.parse(JSON.stringify(inSpec, (key, value) => {
+  let spec = _cloneDeepWith(inSpec, (value, key) => {
     // Keep only the first tag where we find a tag
     if (key === "tags" && value && value.length > 0 && typeof value[0] === "string") {
       return [value[0]];
     }
-    return value;
-  })) as OpenAPIV3.Document;
+  }) as OpenAPIV3.Document;
 
   // Ensure spec has schemas set
   if (!spec?.components?.schemas) {
@@ -775,7 +780,7 @@ const buildData = async (inSpec: OpenAPIV3.Document, metadata: any) => {
 
   // "Inline" any refs to non objects/enums
   const inlinedRefs: Set<string> = new Set();
-  spec = JSON.parse(JSON.stringify(spec, (k, v) => {
+  spec = _cloneDeepWith(spec, (v) => {
     if (v && typeof v === "object" && v.$ref) {
       const resolved = resolveRef(spec, v.$ref);
       if (resolved && resolved.type && resolved.type !== "object" && !(resolved.type === "string" && resolved.enum)) {
@@ -783,8 +788,7 @@ const buildData = async (inSpec: OpenAPIV3.Document, metadata: any) => {
         return resolved;
       }
     }
-    return v;
-  }));
+  });
 
   // Delete the non object schemas that were inlined
   [...inlinedRefs].forEach(ref => {
@@ -808,7 +812,7 @@ const buildData = async (inSpec: OpenAPIV3.Document, metadata: any) => {
   faker.setDefaultRefDate(new Date("2021-06-10"));
   const mockDataContext: MockDataContext = {
     faker,
-    dereferencedSpec: await SwaggerParser.dereference(structuredClone(spec), { dereference: { circular: 'ignore' }}) as OpenAPIV3.Document,
+    dereferencedSpec: await SwaggerParser.dereference(structuredClone(spec), { dereference: { circular: 'ignore' } }) as OpenAPIV3.Document,
   };
 
   // Augment operations with additional data
