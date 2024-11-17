@@ -35,13 +35,6 @@ export let RuleMetadata = [
     rule: rules.apigw.APIGWRequestValidation,
   },
   {
-    info: "The Athena workgroup does not encrypt query results.",
-    explanation:
-      "Encrypting query results stored in S3 helps secure data to meet compliance requirements for data-at-rest encryption.",
-    level: NagMessageLevel.WARN,
-    rule: rules.athena.AthenaWorkgroupEncryptedQueryResults,
-  },
-  {
     info: "The Auto Scaling launch configuration does not have public IP addresses disabled.",
     explanation:
       "If you configure your Network Interfaces with a public IP address, then the associated resources to those Network Interfaces are reachable from the internet. EC2 resources should not be publicly accessible, as this may allow unintended access to your applications or servers.\n\nExample threat: A global internet-based actor can discover EC2 instances that have public IP addresses, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
@@ -110,13 +103,6 @@ export let RuleMetadata = [
       "Explaining differences/edits to Docker images helps operators better understand system dependencies.",
     level: NagMessageLevel.WARN,
     rule: rules.codebuild.CodeBuildProjectManagedImages,
-  },
-  {
-    info: "The CodeBuild project has privileged mode enabled.",
-    explanation:
-      "Privileged grants elevated rights to the system, which introduces additional risk. Privileged mode should only be set to true only if the build project is used to build Docker images. Otherwise, a build that attempts to interact with the Docker daemon fails.",
-    level: NagMessageLevel.WARN,
-    rule: rules.codebuild.CodeBuildProjectPrivilegedModeDisabled,
   },
   {
     info: "The Cognito user pool does not have AdvancedSecurityMode set to ENFORCED.",
