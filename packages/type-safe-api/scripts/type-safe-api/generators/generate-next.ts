@@ -266,7 +266,7 @@ const splitAndWriteFiles = (renderedFileContents: string[], outputPath: string) 
       splitFiles.push({
         contents: newFileContents,
         pathRelativeToOutputPath: newFilePath,
-        shouldWrite: !fs.existsSync(newFilePath) || config.overwrite,
+        shouldWrite: !fs.existsSync(path.join(outputPath, newFilePath)) || config.overwrite,
         config,
       });
     }));
