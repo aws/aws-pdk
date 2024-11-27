@@ -10,6 +10,9 @@ import { Duration } from "aws-cdk-lib";
 import { SnapStartFunction, SnapStartFunctionProps } from "@aws/pdk/type-safe-api";
 import { Code, Function, Runtime, Tracing, FunctionProps } from "aws-cdk-lib/aws-lambda";
 import * as path from "path";
+<%_ if (metadata.esm) { _%>
+import * as url from 'url';
+<%_ } _%>
 
 <%_ if (vendorExtensions['x-connect-handler']) { _%>
 <%_ const language = vendorExtensions['x-connect-handler'].language; _%>
@@ -41,7 +44,7 @@ export class $ConnectFunction extends <% if (isJava) { %>SnapStart<% } %>Functio
       <%_ } else if (isJava) { _%>
       handler: "<%- metadata['x-handlers-java-package'] %>.$ConnectHandler",
       <%_ } _%>
-      code: Code.fromAsset(path.resolve(__dirname, "..",
+      code: Code.fromAsset(<%_ if (metadata.esm) { _%>url.fileURLToPath(new URL(path.join("..",<%_ } else { _%>path.resolve(__dirname, "..",<%_ } %>
         <%_ if (isTypeScript) { _%>
         "<%- metadata['x-handlers-typescript-asset-path'] %>",
         "$connect",
@@ -50,7 +53,7 @@ export class $ConnectFunction extends <% if (isJava) { %>SnapStart<% } %>Functio
         <%_ } else if (isJava) { _%>
         "<%- metadata['x-handlers-java-asset-path'] %>",
         <%_ } _%>
-      )),
+      )<%_ if (metadata.esm) { _%>, import.meta.url))<%_ } _%>),
       tracing: Tracing.ACTIVE,
       timeout: Duration.seconds(30),
       ...props,
@@ -89,7 +92,7 @@ export class $DisconnectFunction extends <% if (isJava) { %>SnapStart<% } %>Func
       <%_ } else if (isJava) { _%>
       handler: "<%- metadata['x-handlers-java-package'] %>.$DisconnectHandler",
       <%_ } _%>
-      code: Code.fromAsset(path.resolve(__dirname, "..",
+      code: Code.fromAsset(<%_ if (metadata.esm) { _%>url.fileURLToPath(new URL(path.join("..",<%_ } else { _%>path.resolve(__dirname, "..",<%_ } %>
         <%_ if (isTypeScript) { _%>
         "<%- metadata['x-handlers-typescript-asset-path'] %>",
         "$disconnect",
@@ -98,7 +101,7 @@ export class $DisconnectFunction extends <% if (isJava) { %>SnapStart<% } %>Func
         <%_ } else if (isJava) { _%>
         "<%- metadata['x-handlers-java-asset-path'] %>",
         <%_ } _%>
-      )),
+      )<%_ if (metadata.esm) { _%>, import.meta.url))<%_ } _%>),
       tracing: Tracing.ACTIVE,
       timeout: Duration.seconds(30),
       ...props,
@@ -138,7 +141,7 @@ export class <%- operation.operationIdPascalCase %>Function extends <% if (isJav
       <%_ } else if (isJava) { _%>
       handler: "<%- metadata['x-handlers-java-package'] %>.<%- operation.operationIdPascalCase %>Handler",
       <%_ } _%>
-      code: Code.fromAsset(path.resolve(__dirname, "..",
+      code: Code.fromAsset(<%_ if (metadata.esm) { _%>url.fileURLToPath(new URL(path.join("..",<%_ } else { _%>path.resolve(__dirname, "..",<%_ } %>
         <%_ if (isTypeScript) { _%>
         "<%- metadata['x-handlers-typescript-asset-path'] %>",
         "<%- operation.operationIdKebabCase %>",
@@ -147,7 +150,7 @@ export class <%- operation.operationIdPascalCase %>Function extends <% if (isJav
         <%_ } else if (isJava) { _%>
         "<%- metadata['x-handlers-java-asset-path'] %>",
         <%_ } _%>
-      )),
+      )<%_ if (metadata.esm) { _%>, import.meta.url))<%_ } _%>),
       tracing: Tracing.ACTIVE,
       timeout: Duration.seconds(30),
       ...props,

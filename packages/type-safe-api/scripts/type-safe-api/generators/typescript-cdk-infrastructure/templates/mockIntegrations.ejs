@@ -14,6 +14,9 @@
 import { Integrations, MockIntegration } from "@aws/pdk/type-safe-api";
 import * as fs from "fs";
 import * as path from "path";
+<%_ if (metadata.esm) { _%>
+import * as url from 'url';
+<%_ } _%>
 
 /**
  * Type-safe mock integrations for API operations
@@ -23,7 +26,15 @@ export class MockIntegrations {
    * Read a mock data file for the given operation
    */
   private static readMockDataFile(method: string, urlPath: string, statusCode: number): string {
-    return fs.readFileSync(path.join(__dirname, "..", "mocks", `${method.toLowerCase()}${urlPath.replace(/\//g, "-")}-${statusCode}.json`), "utf-8");
+    const mockPath = path.join("..", "mocks", `${method.toLowerCase()}${urlPath.replace(/\//g, "-")}-${statusCode}.json`);
+    return fs.readFileSync(
+      <%_ if (metadata.esm) { _%>
+      url.fileURLToPath(new URL(mockPath, import.meta.url)),
+      <%_ } else { _%>
+      path.join(__dirname, mockPath),
+      <%_ } _%>
+      "utf-8",
+    );
   }
 
   <%_ if (metadata.enableMockIntegrations) { _%>

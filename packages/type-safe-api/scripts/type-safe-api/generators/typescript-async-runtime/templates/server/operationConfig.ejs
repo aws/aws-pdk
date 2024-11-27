@@ -13,12 +13,12 @@ import {
     <%- model.name %>FromJSON,
     <%- model.name %>ToJSON,
 <%_ }); _%>
-} from '../models';
+} from '../models<%_ if (metadata.esm) { _%>/index.js<%_ } _%>';
 
 <%_ const serviceClassName = services[0] ? services[0].className : "DefaultApi"; _%>
 // API Gateway Types
 import { APIGatewayProxyWebsocketEventV2, APIGatewayProxyResultV2, Context } from "aws-lambda";
-import { <%- serviceClassName %>ServerSdk } from "./server-sdk";
+import { <%- serviceClassName %>ServerSdk } from "./server-sdk<%_ if (metadata.esm) { _%>.js<%_ } _%>";
 
 <%_ const toServerOperations = allOperations.filter(op => op.vendorExtensions && op.vendorExtensions['x-async'] && ['client_to_server', 'bidirectional'].includes(op.vendorExtensions['x-async'].direction)); _%>
 // Generic type for object keyed by operation names

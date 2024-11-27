@@ -16,7 +16,7 @@
 } from "<%= metadata.runtimePackageName %>";
 import {
   <%= operation.name %>
-} from "../<%= metadata.srcDir || 'src' %>/<%= operation.operationIdKebabCase %>";
+} from "../<%= metadata.srcDir || 'src' %>/<%= operation.operationIdKebabCase %><%_ if (metadata.esm) { _%>.js<%_ } _%>";
 
 // Common request arguments
 const requestArguments = {
@@ -25,7 +25,7 @@ const requestArguments = {
   context: {} as any,
   interceptorContext: {
     logger: {
-      info: jest.fn(),
+      info: <% if (metadata.vitest) { %>vi<% } else { %>jest<% } %>.fn(),
     },
   },
 } satisfies Omit<<%= operation.operationIdPascalCase %>ChainedRequestInput, 'input'>;

@@ -9,7 +9,11 @@
 ###/TSAPI_WRITE_FILE###import { TypeSafeWebsocketApi, TypeSafeWebsocketApiProps, TypeSafeWebsocketApiIntegration } from "@aws/pdk/type-safe-api";
 import { Construct } from "constructs";
 import { OperationConfig, OperationLookup } from "<%- metadata.runtimePackageName %>";
+<%_ if (metadata.esm) { _%>
+import * as url from 'url';
+<%_ } else { _%>
 import * as path from "path";
+<%_ } _%>
 
 export type WebSocketApiIntegrations = OperationConfig<TypeSafeWebsocketApiIntegration>;
 
@@ -27,7 +31,11 @@ export class WebSocketApi extends TypeSafeWebsocketApi {
       ...props,
       integrations: props.integrations as any,
       operationLookup: OperationLookup,
+      <%_ if (metadata.esm) { _%>
+      specPath: url.fileURLToPath(new URL("<%- metadata.relativeSpecPath %>", import.meta.url)),
+      <%_ } else { _%>
       specPath: path.resolve(__dirname, "<%- metadata.relativeSpecPath %>"),
+      <%_ } _%>
     });
   }
 }

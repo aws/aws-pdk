@@ -10,6 +10,9 @@ import { Duration } from "aws-cdk-lib";
 import { SnapStartFunction, SnapStartFunctionProps } from "@aws/pdk/type-safe-api";
 import { Code, Function, Runtime, Tracing, FunctionProps } from "aws-cdk-lib/aws-lambda";
 import * as path from "path";
+<%_ if (metadata.esm) { _%>
+import * as url from 'url';
+<%_ } _%>
 
 <%_ allOperations.forEach((operation) => { _%>
 <%_ if (operation.vendorExtensions && operation.vendorExtensions['x-handler']) { _%>
@@ -42,7 +45,7 @@ export class <%- operation.operationIdPascalCase %>Function extends <% if (isJav
       <%_ } else if (isJava) { _%>
       handler: "<%- metadata['x-handlers-java-package'] %>.<%- operation.operationIdPascalCase %>Handler",
       <%_ } _%>
-      code: Code.fromAsset(path.resolve(__dirname, "..",
+      code: Code.fromAsset(<%_ if (metadata.esm) { _%>url.fileURLToPath(new URL(path.join("..",<%_ } else { _%>path.resolve(__dirname, "..",<%_ } %>
         <%_ if (isTypeScript) { _%>
         "<%- metadata['x-handlers-typescript-asset-path'] %>",
         "<%- operation.operationIdKebabCase %>",
@@ -51,7 +54,7 @@ export class <%- operation.operationIdPascalCase %>Function extends <% if (isJav
         <%_ } else if (isJava) { _%>
         "<%- metadata['x-handlers-java-asset-path'] %>",
         <%_ } _%>
-      )),
+      )<%_ if (metadata.esm) { _%>, import.meta.url))<%_ } _%>),
       tracing: Tracing.ACTIVE,
       timeout: Duration.seconds(30),
       ...props,
