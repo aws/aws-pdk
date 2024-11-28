@@ -3962,7 +3962,7 @@ export const MyComponent: FC&lt;MyComponentProps&gt; = () =&gt; {
 </code></pre></div>
 <h2 id="paginated-operations">Paginated Operations</h2>
 <p>You can generate <code>useInfiniteQuery</code> hooks instead of <code>useQuery</code> hooks for paginated API operations by configuring the operation in your model. The configuration requires both an <code>inputToken</code> (specifies the input property used to request the next page), and an <code>outputToken</code> (specifies the output property in which the pagination token is returned) to be present.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">SMITHY</label><label for="__tabbed_3_2">OPENAPI</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">SMITHY</label><label for="__tabbed_3_2">TYPESPEC</label><label for="__tabbed_3_3">OPENAPI</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>In Smithy, annotate your paginated API operations with the <code>@paginated</code> trait, making sure both <code>inputToken</code> and <code>outputToken</code> are specified:</p>
@@ -3987,6 +3987,17 @@ export const MyComponent: FC&lt;MyComponentProps&gt; = () =&gt; {
 <span class="kd">list</span><span class="nc"> Pets</span><span class="w"> </span>{
 <span class="w">    </span><span class="nl">member:</span><span class="w"> </span><span class="vc">Pet</span>
 }
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<p>In TypeSpec, use the <code>@extension</code> decorator to add the <code>x-paginated</code> vendor extension.</p>
+<div class="highlight"><pre><span></span><code>@get
+@route(&quot;/pets&quot;)
+@extension(&quot;x-paginated&quot;, { inputToken: &quot;nextToken&quot;, outputToken: &quot;nextToken&quot; })
+op ListPets(@query nextToken?: string): {
+  pets: Pet[];
+  nextToken?: string;
+};`
 </code></pre></div>
 </div>
 <div class="tabbed-block">
@@ -4040,7 +4051,7 @@ return (
   <small>
     
       Last update:
-      2024-11-27
+      2024-11-28
     
   </small>
 </div>
