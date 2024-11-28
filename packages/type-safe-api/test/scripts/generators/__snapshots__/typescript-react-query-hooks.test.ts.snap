@@ -2489,3 +2489,1477 @@ export class TextApiResponse {
 ",
 }
 `;
+
+exports[`Typescript React Query Hooks Code Generation Script Unit Tests Generates react query v5 hooks 1`] = `
+{
+  ".tsapi-manifest": "src/apis/DefaultApi.ts
+src/apis/index.ts
+src/models/index.ts
+src/models/model-utils.ts
+src/models/ApiError.ts
+src/models/PaginatedGet200Response.ts
+src/models/RegularGet200Response.ts
+src/models/TestRequest.ts
+src/models/TestResponse.ts
+src/models/TestResponseMessagesInner.ts
+src/runtime.ts
+README.md
+src/apis/index.ts
+src/apis/DefaultApiClientProvider.tsx
+src/apis/DefaultApiHooks.ts
+src/index.ts",
+  "README.md": "# TypeScript React Query Hooks
+
+This project contains [react-query](https://tanstack.com/query/latest) hooks for interacting with your API.
+
+## Usage
+
+First, make sure you add a dependency on the generated hooks library, eg in your \`.projenrc\`:
+
+\`\`\`ts
+const api = new TypeSafeApiProject({ ... });
+
+new CloudscapeReactTsWebsite({
+  ...,
+  deps: [
+    ...
+    api.library.typescriptReactQueryHooks!.package.packageName,
+  ],
+});
+\`\`\`
+
+Next, create an instance of the API client (making sure to set the base URL and fetch instance). For example:
+
+\`\`\`ts
+export const useDefaultApiClient = () => useMemo(() => new DefaultApi(new Configuration({
+    basePath: 'https://example123.execute-api.ap-southeast-2.amazonaws.com/prod',
+    fetchApi: window.fetch.bind(window),
+})), []);
+\`\`\`
+
+Note that if you are using the [Cloudscape React Website](https://github.com/aws/aws-pdk/tree/mainline/packages/cloudscape-react-ts-website) with [AWS NorthStar](https://aws.github.io/aws-northstar/) and IAM (Sigv4) Auth for your API, you can use NorthStar's [\`useSigv4Client()\` hook](https://aws.github.io/aws-northstar/?path=/story/components-cognitoauth-sigv4client-docs--page) to create
+an instance of \`fetch\` which will sign requests with the logged in user's credentials. For example:
+
+\`\`\`ts
+export const useDefaultApiClient = () => {
+    const client = useSigv4Client();
+    return useMemo(() => new DefaultApi(new Configuration({
+        basePath: 'https://example123.execute-api.ap-southeast-2.amazonaws.com/prod',
+        fetchApi: client,
+    })), [client]);
+};
+\`\`\`
+
+Next, instantiate the client provider above where you would like to use the hooks in your component hierarchy (such as above your router). For example:
+
+\`\`\`tsx
+const api = useDefaultApiClient();
+
+return (
+    <DefaultApiClientProvider apiClient={api}>
+        { /* Components within the provider may make use of the hooks */ }
+    </DefaultApiClientProvider>
+);
+\`\`\`
+
+Finally, you can import and use your generated hooks. For example:
+
+\`\`\`tsx
+export const MyComponent: FC<MyComponentProps> = () => {
+    const sayHello = useSayHello({ name: 'World' });
+
+    return sayHello.isLoading ? (
+        <p>Loading...</p>
+    ) : sayHello.isError ? (
+        <p>Error!</p>
+    ) : (
+        <h1>{sayHello.data.message}</h1>
+    );
+};
+\`\`\`
+
+## Custom Error Type
+
+If you use middleware in your client for error handling and throw different errors, you can override the error type
+when you use a hook, for example:
+
+\`\`\`ts
+const sayHello = useSayHello<MyCustomError>({ name: 'World' });
+\`\`\`
+",
+  "src/apis/DefaultApi.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Example API
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+import * as runtime from '../runtime';
+import type {
+  ApiError,
+  PaginatedGet200Response,
+  RegularGet200Response,
+  TestRequest,
+  TestResponse,
+} from '../models';
+import {
+    ApiErrorFromJSON,
+    ApiErrorToJSON,
+    PaginatedGet200ResponseFromJSON,
+    PaginatedGet200ResponseToJSON,
+    RegularGet200ResponseFromJSON,
+    RegularGet200ResponseToJSON,
+    TestRequestFromJSON,
+    TestRequestToJSON,
+    TestResponseFromJSON,
+    TestResponseToJSON,
+} from '../models';
+
+export interface AnyRequestResponseRequest {
+    body?: any | null;
+}
+
+
+export interface MediaTypesRequest {
+    body: Blob;
+}
+
+export interface OperationOneRequest {
+    param1: string;
+    param2: Array<string>;
+    param3: number;
+    pathParam: string;
+    testRequest: TestRequest;
+    param4?: string;
+}
+
+export interface PaginatedGetRequest {
+    inputNextToken: string;
+}
+
+
+
+/**
+ * 
+ */
+export class DefaultApi extends runtime.BaseAPI {
+    /**
+     * 
+     */
+    async anyRequestResponseRaw(requestParameters: AnyRequestResponseRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
+        const queryParameters: any = {};
+
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+
+        const response = await this.request({
+            path: \`/any-request-response\`,
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+            body: requestParameters.body as any,
+        }, initOverrides);
+
+        return new runtime.TextApiResponse(response) as any;
+    }
+
+    /**
+     * 
+     */
+    async anyRequestResponse(requestParameters: AnyRequestResponseRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
+        const response = await this.anyRequestResponseRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * 
+     */
+    async emptyRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const queryParameters: any = {};
+
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+
+        const response = await this.request({
+            path: \`/empty-response\`,
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * 
+     */
+    async empty(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.emptyRaw(initOverrides);
+    }
+
+    /**
+     * 
+     */
+    async mediaTypesRaw(requestParameters: MediaTypesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+        if (requestParameters.body === null || requestParameters.body === undefined) {
+            throw new runtime.RequiredError('body','Required parameter requestParameters.body was null or undefined when calling mediaTypes.');
+        }
+
+        const queryParameters: any = {};
+
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/pdf';
+
+
+        const response = await this.request({
+            path: \`/different-media-type\`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: requestParameters.body as any,
+        }, initOverrides);
+
+        return new runtime.TextApiResponse(response) as any;
+    }
+
+    /**
+     * 
+     */
+    async mediaTypes(requestParameters: MediaTypesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.mediaTypesRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * 
+     */
+    async operationOneRaw(requestParameters: OperationOneRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<TestResponse>> {
+        if (requestParameters.param1 === null || requestParameters.param1 === undefined) {
+            throw new runtime.RequiredError('param1','Required parameter requestParameters.param1 was null or undefined when calling operationOne.');
+        }
+
+        if (requestParameters.param2 === null || requestParameters.param2 === undefined) {
+            throw new runtime.RequiredError('param2','Required parameter requestParameters.param2 was null or undefined when calling operationOne.');
+        }
+
+        if (requestParameters.param3 === null || requestParameters.param3 === undefined) {
+            throw new runtime.RequiredError('param3','Required parameter requestParameters.param3 was null or undefined when calling operationOne.');
+        }
+
+        if (requestParameters.pathParam === null || requestParameters.pathParam === undefined) {
+            throw new runtime.RequiredError('pathParam','Required parameter requestParameters.pathParam was null or undefined when calling operationOne.');
+        }
+
+        if (requestParameters.testRequest === null || requestParameters.testRequest === undefined) {
+            throw new runtime.RequiredError('testRequest','Required parameter requestParameters.testRequest was null or undefined when calling operationOne.');
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters.param1 !== undefined) {
+            queryParameters['param1'] = requestParameters.param1;
+        }
+
+        if (requestParameters.param2) {
+            queryParameters['param2'] = requestParameters.param2;
+        }
+
+        if (requestParameters.param3 !== undefined) {
+            queryParameters['param3'] = requestParameters.param3;
+        }
+
+        if (requestParameters.param4 !== undefined) {
+            queryParameters['param4'] = requestParameters.param4;
+        }
+
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+
+        const response = await this.request({
+            path: \`/path/{pathParam}\`.replace(\`{\${"pathParam"}}\`, encodeURIComponent(String(requestParameters.pathParam))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: TestRequestToJSON(requestParameters.testRequest),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => TestResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * 
+     */
+    async operationOne(requestParameters: OperationOneRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TestResponse> {
+        const response = await this.operationOneRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * 
+     */
+    async paginatedGetRaw(requestParameters: PaginatedGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PaginatedGet200Response>> {
+        if (requestParameters.inputNextToken === null || requestParameters.inputNextToken === undefined) {
+            throw new runtime.RequiredError('inputNextToken','Required parameter requestParameters.inputNextToken was null or undefined when calling paginatedGet.');
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters.inputNextToken !== undefined) {
+            queryParameters['inputNextToken'] = requestParameters.inputNextToken;
+        }
+
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+
+        const response = await this.request({
+            path: \`/paginated-get\`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PaginatedGet200ResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * 
+     */
+    async paginatedGet(requestParameters: PaginatedGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PaginatedGet200Response> {
+        const response = await this.paginatedGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * 
+     */
+    async regularGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<RegularGet200Response>> {
+        const queryParameters: any = {};
+
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+
+        const response = await this.request({
+            path: \`/regular-get\`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => RegularGet200ResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * 
+     */
+    async regularGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<RegularGet200Response> {
+        const response = await this.regularGetRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * 
+     */
+    async withoutOperationIdDeleteRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<TestResponse>> {
+        const queryParameters: any = {};
+
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+
+        const response = await this.request({
+            path: \`/without-operation-id\`,
+            method: 'DELETE',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => TestResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * 
+     */
+    async withoutOperationIdDelete(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TestResponse> {
+        const response = await this.withoutOperationIdDeleteRaw(initOverrides);
+        return await response.value();
+    }
+
+}
+
+",
+  "src/apis/DefaultApiClientProvider.tsx": "import * as React from "react";
+import {
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
+import { DefaultApi } from "./DefaultApi";
+import { DefaultApiClientContext } from "./DefaultApiHooks";
+
+const queryClient = new QueryClient();
+
+/**
+ * Properties for the DefaultApiClientProvider
+ */
+export interface DefaultApiClientProviderProps {
+  readonly apiClient: DefaultApi;
+  readonly client?: QueryClient;
+  readonly children?: React.ReactNode;
+}
+
+/**
+ * Provider for the API Client and Query Client used by the hooks.
+ * This must parent any components which make use of the hooks.
+ */
+export const DefaultApiClientProvider = ({
+  apiClient,
+  client = queryClient,
+  children,
+}: DefaultApiClientProviderProps): JSX.Element => {
+  return (
+    <QueryClientProvider client={client}>
+      <DefaultApiClientContext.Provider value={apiClient}>
+        {children}
+      </DefaultApiClientContext.Provider>
+    </QueryClientProvider>
+  );
+};
+",
+  "src/apis/DefaultApiHooks.ts": "// Import models
+import type {
+  ApiError,
+  PaginatedGet200Response,
+  RegularGet200Response,
+  TestRequest,
+  TestResponse,
+} from '../models';
+// Import request parameter interfaces
+import {
+    AnyRequestResponseRequest,
+    MediaTypesRequest,
+    OperationOneRequest,
+    PaginatedGetRequest,
+} from '..';
+
+import { ResponseError } from '../runtime';
+import { DefaultApi } from './DefaultApi';
+
+import {
+    InitialPageParam,
+    useQuery,
+    UseQueryResult,
+    UseQueryOptions,
+    useInfiniteQuery,
+    UseInfiniteQueryResult,
+    UseInfiniteQueryOptions,
+    useMutation,
+    UseMutationOptions,
+    UseMutationResult
+} from "@tanstack/react-query";
+import { createContext, useContext } from "react";
+
+/**
+ * Context for the API client used by the hooks.
+ */
+export const DefaultApiClientContext = createContext<DefaultApi | undefined>(undefined);
+
+const NO_API_ERROR = new Error(\`DefaultApi client missing. Please ensure you have instantiated the DefaultApiClientProvider with a client instance.\`);
+
+/**
+ * useMutation hook for the AnyRequestResponse operation
+ */
+export const useAnyRequestResponse = <TError = ResponseError>(
+    options?: Omit<UseMutationOptions<any, TError, AnyRequestResponseRequest>, 'mutationFn'>
+): UseMutationResult<any, TError, AnyRequestResponseRequest> => {
+    const api = useContext(DefaultApiClientContext);
+    if (!api) {
+        throw NO_API_ERROR;
+    }
+    return useMutation({
+        mutationFn: (params: AnyRequestResponseRequest) => api.anyRequestResponse(params),
+        ...options,
+    });
+};
+
+/**
+ * useMutation hook for the Empty operation
+ */
+export const useEmpty = <TError = ResponseError>(
+    options?: Omit<UseMutationOptions<void, TError, void>, 'mutationFn'>
+): UseMutationResult<void, TError, void> => {
+    const api = useContext(DefaultApiClientContext);
+    if (!api) {
+        throw NO_API_ERROR;
+    }
+    return useMutation({
+        mutationFn: () => api.empty(),
+        ...options,
+    });
+};
+
+/**
+ * useMutation hook for the MediaTypes operation
+ */
+export const useMediaTypes = <TError = ResponseError>(
+    options?: Omit<UseMutationOptions<string, TError, MediaTypesRequest>, 'mutationFn'>
+): UseMutationResult<string, TError, MediaTypesRequest> => {
+    const api = useContext(DefaultApiClientContext);
+    if (!api) {
+        throw NO_API_ERROR;
+    }
+    return useMutation({
+        mutationFn: (params: MediaTypesRequest) => api.mediaTypes(params),
+        ...options,
+    });
+};
+
+/**
+ * useMutation hook for the OperationOne operation
+ */
+export const useOperationOne = <TError = ResponseError>(
+    options?: Omit<UseMutationOptions<TestResponse, TError, OperationOneRequest>, 'mutationFn'>
+): UseMutationResult<TestResponse, TError, OperationOneRequest> => {
+    const api = useContext(DefaultApiClientContext);
+    if (!api) {
+        throw NO_API_ERROR;
+    }
+    return useMutation({
+        mutationFn: (params: OperationOneRequest) => api.operationOne(params),
+        ...options,
+    });
+};
+
+/**
+ * useInfiniteQuery hook for the PaginatedGet operation
+ */
+export const usePaginatedGet = <TError = ResponseError>(
+    params: PaginatedGetRequest,
+    options?: Omit<UseInfiniteQueryOptions<PaginatedGet200Response, TError>, 'queryKey' | 'queryFn' | 'getNextPageParam' | 'initialPageParam'> & (
+        InitialPageParam<PaginatedGetRequest['inputNextToken']>
+    )
+): UseInfiniteQueryResult<PaginatedGet200Response, TError> => {
+    const api = useContext(DefaultApiClientContext);
+    if (!api) {
+        throw NO_API_ERROR;
+    }
+    return useInfiniteQuery({
+        queryKey: ["paginatedGet", params],
+        queryFn: ({ pageParam }) => api.paginatedGet({ ...params, inputNextToken: pageParam as any }),
+        getNextPageParam: (response) => response.outputNextToken,
+        ...options,
+    });
+};
+
+/**
+ * useQuery hook for the RegularGet operation
+ */
+export const useRegularGet = <TError = ResponseError>(
+    options?: Omit<UseQueryOptions<RegularGet200Response, TError>, 'queryKey' | 'queryFn'>
+): UseQueryResult<RegularGet200Response, TError> => {
+    const api = useContext(DefaultApiClientContext);
+    if (!api) {
+        throw NO_API_ERROR;
+    }
+    return useQuery({
+        queryKey: ["regularGet"],
+        queryFn: () => api.regularGet(),
+        ...options,
+    });
+};
+
+/**
+ * useMutation hook for the WithoutOperationIdDelete operation
+ */
+export const useWithoutOperationIdDelete = <TError = ResponseError>(
+    options?: Omit<UseMutationOptions<TestResponse, TError, void>, 'mutationFn'>
+): UseMutationResult<TestResponse, TError, void> => {
+    const api = useContext(DefaultApiClientContext);
+    if (!api) {
+        throw NO_API_ERROR;
+    }
+    return useMutation({
+        mutationFn: () => api.withoutOperationIdDelete(),
+        ...options,
+    });
+};
+
+",
+  "src/apis/index.ts": "/* tslint:disable */
+/* eslint-disable */
+export * from './DefaultApi';
+export * from './DefaultApiHooks';
+export * from './DefaultApiClientProvider';
+",
+  "src/index.ts": "/* tslint:disable */
+/* eslint-disable */
+export * from './runtime';
+export * from './apis';
+export * from './models';",
+  "src/models/ApiError.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Example API
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * 
+ * @export
+ * @interface ApiError
+ */
+export interface ApiError {
+    /**
+     * 
+     * @type {string}
+     * @memberof ApiError
+     */
+    errorMessage: string;
+}
+
+
+/**
+ * Check if a given object implements the ApiError interface.
+ */
+export function instanceOfApiError(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "errorMessage" in value;
+    return isInstance;
+}
+
+export function ApiErrorFromJSON(json: any): ApiError {
+    return ApiErrorFromJSONTyped(json, false);
+}
+
+export function ApiErrorFromJSONTyped(json: any, ignoreDiscriminator: boolean): ApiError {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'errorMessage': json['errorMessage'],
+    };
+}
+
+export function ApiErrorToJSON(value?: ApiError | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'errorMessage': value.errorMessage,
+    };
+}
+
+",
+  "src/models/PaginatedGet200Response.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Example API
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * 
+ * @export
+ * @interface PaginatedGet200Response
+ */
+export interface PaginatedGet200Response {
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedGet200Response
+     */
+    outputNextToken?: string;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof PaginatedGet200Response
+     */
+    results?: Array<string>;
+}
+
+
+/**
+ * Check if a given object implements the PaginatedGet200Response interface.
+ */
+export function instanceOfPaginatedGet200Response(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function PaginatedGet200ResponseFromJSON(json: any): PaginatedGet200Response {
+    return PaginatedGet200ResponseFromJSONTyped(json, false);
+}
+
+export function PaginatedGet200ResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): PaginatedGet200Response {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'outputNextToken': !exists(json, 'outputNextToken') ? undefined : json['outputNextToken'],
+        'results': !exists(json, 'results') ? undefined : json['results'],
+    };
+}
+
+export function PaginatedGet200ResponseToJSON(value?: PaginatedGet200Response | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'outputNextToken': value.outputNextToken,
+        'results': value.results === undefined ? undefined : value.results,
+    };
+}
+
+",
+  "src/models/RegularGet200Response.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Example API
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * 
+ * @export
+ * @interface RegularGet200Response
+ */
+export interface RegularGet200Response {
+    /**
+     * 
+     * @type {string}
+     * @memberof RegularGet200Response
+     */
+    foo?: string;
+}
+
+
+/**
+ * Check if a given object implements the RegularGet200Response interface.
+ */
+export function instanceOfRegularGet200Response(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function RegularGet200ResponseFromJSON(json: any): RegularGet200Response {
+    return RegularGet200ResponseFromJSONTyped(json, false);
+}
+
+export function RegularGet200ResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): RegularGet200Response {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'foo': !exists(json, 'foo') ? undefined : json['foo'],
+    };
+}
+
+export function RegularGet200ResponseToJSON(value?: RegularGet200Response | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'foo': value.foo,
+    };
+}
+
+",
+  "src/models/TestRequest.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Example API
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * 
+ * @export
+ * @interface TestRequest
+ */
+export interface TestRequest {
+    /**
+     * 
+     * @type {number}
+     * @memberof TestRequest
+     */
+    myInput?: number;
+}
+
+
+/**
+ * Check if a given object implements the TestRequest interface.
+ */
+export function instanceOfTestRequest(value: object): boolean {
+    let isInstance = true;
+    return isInstance;
+}
+
+export function TestRequestFromJSON(json: any): TestRequest {
+    return TestRequestFromJSONTyped(json, false);
+}
+
+export function TestRequestFromJSONTyped(json: any, ignoreDiscriminator: boolean): TestRequest {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'myInput': !exists(json, 'myInput') ? undefined : json['myInput'],
+    };
+}
+
+export function TestRequestToJSON(value?: TestRequest | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'myInput': value.myInput,
+    };
+}
+
+",
+  "src/models/TestResponse.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Example API
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+import type { TestResponseMessagesInner } from './TestResponseMessagesInner';
+import {
+    TestResponseMessagesInnerFromJSON,
+    TestResponseMessagesInnerFromJSONTyped,
+    TestResponseMessagesInnerToJSON,
+    instanceOfTestResponseMessagesInner,
+} from './TestResponseMessagesInner';
+
+/**
+ * 
+ * @export
+ * @interface TestResponse
+ */
+export interface TestResponse {
+    /**
+     * 
+     * @type {Array<TestResponseMessagesInner>}
+     * @memberof TestResponse
+     */
+    messages: Array<TestResponseMessagesInner>;
+}
+
+
+/**
+ * Check if a given object implements the TestResponse interface.
+ */
+export function instanceOfTestResponse(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "messages" in value;
+    return isInstance;
+}
+
+export function TestResponseFromJSON(json: any): TestResponse {
+    return TestResponseFromJSONTyped(json, false);
+}
+
+export function TestResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): TestResponse {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'messages': ((json['messages'] as Array<any>).map(TestResponseMessagesInnerFromJSON)),
+    };
+}
+
+export function TestResponseToJSON(value?: TestResponse | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'messages': ((value.messages as Array<any>).map(TestResponseMessagesInnerToJSON)),
+    };
+}
+
+",
+  "src/models/TestResponseMessagesInner.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Example API
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+import { exists, mapValues } from './model-utils';
+
+/**
+ * 
+ * @export
+ * @interface TestResponseMessagesInner
+ */
+export interface TestResponseMessagesInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof TestResponseMessagesInner
+     */
+    message?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof TestResponseMessagesInner
+     */
+    id: number;
+}
+
+
+/**
+ * Check if a given object implements the TestResponseMessagesInner interface.
+ */
+export function instanceOfTestResponseMessagesInner(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "id" in value;
+    return isInstance;
+}
+
+export function TestResponseMessagesInnerFromJSON(json: any): TestResponseMessagesInner {
+    return TestResponseMessagesInnerFromJSONTyped(json, false);
+}
+
+export function TestResponseMessagesInnerFromJSONTyped(json: any, ignoreDiscriminator: boolean): TestResponseMessagesInner {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+
+        'message': !exists(json, 'message') ? undefined : json['message'],
+        'id': json['id'],
+    };
+}
+
+export function TestResponseMessagesInnerToJSON(value?: TestResponseMessagesInner | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+
+        'message': value.message,
+        'id': value.id,
+    };
+}
+
+",
+  "src/models/index.ts": "/* tslint:disable */
+/* eslint-disable */
+export * from './ApiError';
+export * from './PaginatedGet200Response';
+export * from './RegularGet200Response';
+export * from './TestRequest';
+export * from './TestResponse';
+export * from './TestResponseMessagesInner';
+",
+  "src/models/model-utils.ts": "/* tslint:disable */
+/* eslint-disable */
+
+export function mapValues(data: any, fn: (item: any) => any) {
+  return Object.keys(data).reduce(
+    (acc, key) => ({ ...acc, [key]: fn(data[key]) }),
+    {}
+  );
+}
+
+export function exists(json: any, key: string) {
+  const value = json[key];
+  return value !== null && value !== undefined;
+}
+",
+  "src/runtime.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Example API
+ * 
+ *
+ * The version of the OpenAPI document: 1.0.0
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+export const BASE_PATH = "http://localhost".replace(/\\/+$/, "");
+
+export interface ConfigurationParameters {
+    basePath?: string; // override base path
+    fetchApi?: FetchAPI; // override for fetch implementation
+    middleware?: Middleware[]; // middleware to apply before/after fetch requests
+    queryParamsStringify?: (params: HTTPQuery) => string; // stringify function for query strings
+    username?: string; // parameter for basic security
+    password?: string; // parameter for basic security
+    apiKey?: string | ((name: string) => string); // parameter for apiKey security
+    accessToken?: string | Promise<string> | ((name?: string, scopes?: string[]) => string | Promise<string>); // parameter for oauth2 security
+    headers?: HTTPHeaders; //header params we want to use on every request
+    credentials?: RequestCredentials; //value for the credentials param we want to use on each request
+}
+
+export class Configuration {
+    constructor(private configuration: ConfigurationParameters = {}) {}
+
+    set config(configuration: Configuration) {
+        this.configuration = configuration;
+    }
+
+    get basePath(): string {
+        return this.configuration.basePath != null ? this.configuration.basePath : BASE_PATH;
+    }
+
+    get fetchApi(): FetchAPI | undefined {
+        return this.configuration.fetchApi;
+    }
+
+    get middleware(): Middleware[] {
+        return this.configuration.middleware || [];
+    }
+
+    get queryParamsStringify(): (params: HTTPQuery) => string {
+        return this.configuration.queryParamsStringify || querystring;
+    }
+
+    get username(): string | undefined {
+        return this.configuration.username;
+    }
+
+    get password(): string | undefined {
+        return this.configuration.password;
+    }
+
+    get apiKey(): ((name: string) => string) | undefined {
+        const apiKey = this.configuration.apiKey;
+        if (apiKey) {
+            return typeof apiKey === 'function' ? apiKey : () => apiKey;
+        }
+        return undefined;
+    }
+
+    get accessToken(): ((name?: string, scopes?: string[]) => string | Promise<string>) | undefined {
+        const accessToken = this.configuration.accessToken;
+        if (accessToken) {
+            return typeof accessToken === 'function' ? accessToken : async () => accessToken;
+        }
+        return undefined;
+    }
+
+    get headers(): HTTPHeaders | undefined {
+        return this.configuration.headers;
+    }
+
+    get credentials(): RequestCredentials | undefined {
+        return this.configuration.credentials;
+    }
+}
+
+export const DefaultConfig = new Configuration();
+
+/**
+ * This is the base class for all generated API classes.
+ */
+export class BaseAPI {
+
+    private middleware: Middleware[];
+
+    constructor(protected configuration = DefaultConfig) {
+        this.middleware = configuration.middleware;
+    }
+
+    withMiddleware<T extends BaseAPI>(this: T, ...middlewares: Middleware[]) {
+        const next = this.clone<T>();
+        next.middleware = next.middleware.concat(...middlewares);
+        return next;
+    }
+
+    withPreMiddleware<T extends BaseAPI>(this: T, ...preMiddlewares: Array<Middleware['pre']>) {
+        const middlewares = preMiddlewares.map((pre) => ({ pre }));
+        return this.withMiddleware<T>(...middlewares);
+    }
+
+    withPostMiddleware<T extends BaseAPI>(this: T, ...postMiddlewares: Array<Middleware['post']>) {
+        const middlewares = postMiddlewares.map((post) => ({ post }));
+        return this.withMiddleware<T>(...middlewares);
+    }
+
+    protected async request(context: RequestOpts, initOverrides?: RequestInit | InitOverrideFunction): Promise<Response> {
+        const { url, init } = await this.createFetchParams(context, initOverrides);
+        const response = await this.fetchApi(url, init);
+        if (response && (response.status >= 200 && response.status < 300)) {
+            return response;
+        }
+        throw new ResponseError(response, 'Response returned an error code');
+    }
+
+    private async createFetchParams(context: RequestOpts, initOverrides?: RequestInit | InitOverrideFunction) {
+        let url = this.configuration.basePath + context.path;
+        if (context.query !== undefined && Object.keys(context.query).length !== 0) {
+            // only add the querystring to the URL if there are query parameters.
+            // this is done to avoid urls ending with a "?" character which buggy webservers
+            // do not handle correctly sometimes.
+            url += '?' + this.configuration.queryParamsStringify(context.query);
+        }
+
+        const headers = Object.assign({}, this.configuration.headers, context.headers);
+        Object.keys(headers).forEach(key => headers[key] === undefined ? delete headers[key] : {});
+
+        const initOverrideFn =
+            typeof initOverrides === "function"
+                ? initOverrides
+                : async () => initOverrides;
+
+        const initParams = {
+            method: context.method,
+            headers,
+            body: context.body,
+            credentials: this.configuration.credentials,
+        };
+
+        const overriddenInit: RequestInit = {
+            ...initParams,
+            ...(await initOverrideFn({
+                init: initParams,
+                context,
+            }))
+        };
+
+        const init: RequestInit = {
+            ...overriddenInit,
+            body:
+                isFormData(overriddenInit.body) ||
+                overriddenInit.body instanceof URLSearchParams ||
+                isBlob(overriddenInit.body)
+                    ? overriddenInit.body
+                    : JSON.stringify(overriddenInit.body),
+        };
+
+        return { url, init };
+    }
+
+    private fetchApi = async (url: string, init: RequestInit) => {
+        let fetchParams = { url, init };
+        for (const middleware of this.middleware) {
+            if (middleware.pre) {
+                fetchParams = await middleware.pre({
+                    fetch: this.fetchApi,
+                    ...fetchParams,
+                }) || fetchParams;
+            }
+        }
+        let response: Response | undefined = undefined;
+        try {
+            response = await (this.configuration.fetchApi || fetch)(fetchParams.url, fetchParams.init);
+        } catch (e) {
+            for (const middleware of this.middleware) {
+                if (middleware.onError) {
+                    response = await middleware.onError({
+                        fetch: this.fetchApi,
+                        url: fetchParams.url,
+                        init: fetchParams.init,
+                        error: e,
+                        response: response ? response.clone() : undefined,
+                    }) || response;
+                }
+            }
+            if (response === undefined) {
+              if (e instanceof Error) {
+                throw new FetchError(e, 'The request failed and the interceptors did not return an alternative response');
+              } else {
+                throw e;
+              }
+            }
+        }
+        for (const middleware of this.middleware) {
+            if (middleware.post) {
+                response = await middleware.post({
+                    fetch: this.fetchApi,
+                    url: fetchParams.url,
+                    init: fetchParams.init,
+                    response: response.clone(),
+                }) || response;
+            }
+        }
+        return response;
+    }
+
+    /**
+     * Create a shallow clone of \`this\` by constructing a new instance
+     * and then shallow cloning data members.
+     */
+    private clone<T extends BaseAPI>(this: T): T {
+        const constructor = this.constructor as any;
+        const next = new constructor(this.configuration);
+        next.middleware = this.middleware.slice();
+        return next;
+    }
+};
+
+function isBlob(value: any): value is Blob {
+    return typeof Blob !== 'undefined' && value instanceof Blob;
+}
+
+function isFormData(value: any): value is FormData {
+    return typeof FormData !== "undefined" && value instanceof FormData;
+}
+
+export class ResponseError extends Error {
+    override name: "ResponseError" = "ResponseError";
+    constructor(public response: Response, msg?: string) {
+        super(msg);
+    }
+}
+
+export class FetchError extends Error {
+    override name: "FetchError" = "FetchError";
+    constructor(public cause: Error, msg?: string) {
+        super(msg);
+    }
+}
+
+export class RequiredError extends Error {
+    override name: "RequiredError" = "RequiredError";
+    constructor(public field: string, msg?: string) {
+        super(msg);
+    }
+}
+
+export const COLLECTION_FORMATS = {
+    csv: ",",
+    ssv: " ",
+    tsv: "\\t",
+    pipes: "|",
+};
+
+export type FetchAPI = WindowOrWorkerGlobalScope['fetch'];
+
+export type Json = any;
+export type HTTPMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS' | 'HEAD';
+export type HTTPHeaders = { [key: string]: string };
+export type HTTPQuery = { [key: string]: string | number | null | boolean | Array<string | number | null | boolean> | Set<string | number | null | boolean> | HTTPQuery };
+export type HTTPBody = Json | FormData | URLSearchParams;
+export type HTTPRequestInit = { headers?: HTTPHeaders; method: HTTPMethod; credentials?: RequestCredentials; body?: HTTPBody };
+export type ModelPropertyNaming = 'camelCase' | 'snake_case' | 'PascalCase' | 'original';
+
+export type InitOverrideFunction = (requestContext: { init: HTTPRequestInit, context: RequestOpts }) => Promise<RequestInit>
+
+export interface FetchParams {
+    url: string;
+    init: RequestInit;
+}
+
+export interface RequestOpts {
+    path: string;
+    method: HTTPMethod;
+    headers: HTTPHeaders;
+    query?: HTTPQuery;
+    body?: HTTPBody;
+}
+
+export function exists(json: any, key: string) {
+    const value = json[key];
+    return value !== null && value !== undefined;
+}
+
+export function querystring(params: HTTPQuery, prefix: string = ''): string {
+    return Object.keys(params)
+        .map(key => querystringSingleKey(key, params[key], prefix))
+        .filter(part => part.length > 0)
+        .join('&');
+}
+
+function querystringSingleKey(key: string, value: string | number | null | undefined | boolean | Array<string | number | null | boolean> | Set<string | number | null | boolean> | HTTPQuery, keyPrefix: string = ''): string {
+    const fullKey = keyPrefix + (keyPrefix.length ? \`[\${key}]\` : key);
+    if (value instanceof Array) {
+        const multiValue = value.map(singleValue => encodeURIComponent(String(singleValue)))
+            .join(\`&\${encodeURIComponent(fullKey)}=\`);
+        return \`\${encodeURIComponent(fullKey)}=\${multiValue}\`;
+    }
+    if (value instanceof Set) {
+        const valueAsArray = Array.from(value);
+        return querystringSingleKey(key, valueAsArray, keyPrefix);
+    }
+    if (value instanceof Date) {
+        return \`\${encodeURIComponent(fullKey)}=\${encodeURIComponent(value.toISOString())}\`;
+    }
+    if (value instanceof Object) {
+        return querystring(value as HTTPQuery, fullKey);
+    }
+    return \`\${encodeURIComponent(fullKey)}=\${encodeURIComponent(String(value))}\`;
+}
+
+export function mapValues(data: any, fn: (item: any) => any) {
+  return Object.keys(data).reduce(
+    (acc, key) => ({ ...acc, [key]: fn(data[key]) }),
+    {}
+  );
+}
+
+export function canConsumeForm(consumes: Consume[]): boolean {
+    for (const consume of consumes) {
+        if ('multipart/form-data' === consume.contentType) {
+            return true;
+        }
+    }
+    return false;
+}
+
+export interface Consume {
+    contentType: string;
+}
+
+export interface RequestContext {
+    fetch: FetchAPI;
+    url: string;
+    init: RequestInit;
+}
+
+export interface ResponseContext {
+    fetch: FetchAPI;
+    url: string;
+    init: RequestInit;
+    response: Response;
+}
+
+export interface ErrorContext {
+    fetch: FetchAPI;
+    url: string;
+    init: RequestInit;
+    error: unknown;
+    response?: Response;
+}
+
+export interface Middleware {
+    pre?(context: RequestContext): Promise<FetchParams | void>;
+    post?(context: ResponseContext): Promise<Response | void>;
+    onError?(context: ErrorContext): Promise<Response | void>;
+}
+
+export interface ApiResponse<T> {
+    raw: Response;
+    value(): Promise<T>;
+}
+
+export interface ResponseTransformer<T> {
+    (json: any): T;
+}
+
+export class JSONApiResponse<T> {
+    constructor(public raw: Response, private transformer: ResponseTransformer<T> = (jsonValue: any) => jsonValue) {}
+
+    async value(): Promise<T> {
+        return this.transformer(await this.raw.json());
+    }
+}
+
+export class VoidApiResponse {
+    constructor(public raw: Response) {}
+
+    async value(): Promise<void> {
+        return undefined;
+    }
+}
+
+export class BlobApiResponse {
+    constructor(public raw: Response) {}
+
+    async value(): Promise<Blob> {
+        return await this.raw.blob();
+    };
+}
+
+export class TextApiResponse {
+    constructor(public raw: Response) {}
+
+    async value(): Promise<string> {
+        return await this.raw.text();
+    };
+}
+",
+}
+`;

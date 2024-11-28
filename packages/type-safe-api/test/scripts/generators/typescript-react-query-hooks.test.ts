@@ -42,4 +42,40 @@ describe("Typescript React Query Hooks Code Generation Script Unit Tests", () =>
       ).toMatchSnapshot();
     }
   );
+
+  it("Generates react query v5 hooks", () => {
+    const specPath = path.resolve(
+      __dirname,
+      `../../resources/specs/single-pagination.yaml`
+    );
+    expect(
+      withTmpDirSnapshot(
+        os.tmpdir(),
+        (outdir) => {
+          exec(`cp ${specPath} ${outdir}/spec.yaml`, {
+            cwd: path.resolve(__dirname),
+          });
+          const project = new TypescriptReactQueryHooksLibrary({
+            name: "test",
+            defaultReleaseBranch: "main",
+            outdir,
+            specPath: "spec.yaml",
+            useReactQueryV5: true,
+          });
+          exec(
+            `${path.resolve(
+              __dirname,
+              "../../../scripts/type-safe-api/run.js generate"
+            )} ${project.buildGenerateCommandArgs()}`,
+            {
+              cwd: outdir,
+            }
+          );
+        },
+        {
+          excludeGlobs: [".projen/*", "spec.yaml"],
+        }
+      )
+    ).toMatchSnapshot();
+  });
 });

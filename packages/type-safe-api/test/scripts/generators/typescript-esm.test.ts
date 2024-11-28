@@ -14,6 +14,8 @@ describe("TypeScript ESM Generator Tests", () => {
     ["typescript-lambda-handlers", "handlers.yaml"],
     ["typescript-async-lambda-handlers", "async/handlers.yaml"],
     ["typescript-websocket-client", "async/handlers.yaml"],
+    ["typescript-react-query-hooks", "handlers.yaml"],
+    ["typescript-websocket-hooks", "async/handlers.yaml"],
   ])("Generates %s with ESM compatible syntax", (templateDir, spec) => {
     const specPath = path.resolve(__dirname, `../../resources/specs/${spec}`);
     expect(

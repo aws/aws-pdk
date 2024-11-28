@@ -254,7 +254,13 @@ export interface GeneratedJavaHandlersOptions
  */
 export interface GeneratedTypeScriptReactQueryHooksOptions
   extends TypeScriptProjectOptions,
-    GeneratedProjectOptions {}
+    GeneratedProjectOptions {
+  /**
+   * Set to true to use @tanstack/react-query version 5.x
+   * @default false - @tanstack/react-query version 4.x is used
+   */
+  readonly useReactQueryV5?: boolean;
+}
 
 /**
  * Options for configuring a generated typescript websocket client library project

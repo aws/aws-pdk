@@ -11,11 +11,12 @@ import {
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
-import { <%- service.className %> } from "./<%- service.className %>";
-import { <%- service.className %>ClientContext } from "./<%- service.className %>Hooks";
+import { <%- service.className %> } from "./<%- service.className %><%_ if (metadata.esm) { _%>.js<%_ } _%>";
+import { <%- service.className %>ClientContext } from "./<%- service.className %>Hooks<%_ if (metadata.esm) { _%>.js<%_ } _%>";
 
 const queryClient = new QueryClient();
 
+<%_ if (!metadata.queryV5) { _%>
 /**
  * Default QueryClient context for <%- service.className %>
  */
@@ -23,13 +24,16 @@ export const <%- service.className %>DefaultContext = React.createContext<QueryC
   undefined
 );
 
+<%_ } _%>
 /**
  * Properties for the <%- service.className %>ClientProvider
  */
 export interface <%- service.className %>ClientProviderProps {
   readonly apiClient: <%- service.className %>;
   readonly client?: QueryClient;
+  <%_ if (!metadata.queryV5) { _%>
   readonly context?: React.Context<QueryClient | undefined>;
+  <%_ } _%>
   readonly children?: React.ReactNode;
 }
 
@@ -40,11 +44,13 @@ export interface <%- service.className %>ClientProviderProps {
 export const <%- service.className %>ClientProvider = ({
   apiClient,
   client = queryClient,
+  <%_ if (!metadata.queryV5) { _%>
   context = <%- service.className %>DefaultContext,
+  <%_ } _%>
   children,
 }: <%- service.className %>ClientProviderProps): JSX.Element => {
   return (
-    <QueryClientProvider client={client} context={context}>
+    <QueryClientProvider client={client}<% if (!metadata.queryV5) { %> context={context}<% } %>>
       <<%- service.className %>ClientContext.Provider value={apiClient}>
         {children}
       </<%- service.className %>ClientContext.Provider>

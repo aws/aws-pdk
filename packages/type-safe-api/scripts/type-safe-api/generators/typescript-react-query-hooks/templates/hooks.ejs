@@ -12,7 +12,7 @@ import type {
 <%_ service.modelImports.forEach((modelImport) => { _%>
   <%- modelImport %>,
 <%_ }); _%>
-} from '../models';
+} from '../models<%_ if (metadata.esm) { _%>/index.js<%_ } _%>';
 <%_ } _%>
 // Import request parameter interfaces
 import {
@@ -21,13 +21,18 @@ import {
     <%- operation.operationIdPascalCase %>Request,
     <%_ } _%>
 <%_ }); _%>
-} from '..';
+} from '..<%_ if (metadata.esm) { _%>/index.js<%_ } _%>';
 
-import { ResponseError } from '../runtime';
-import { <%- service.className %> } from './<%- service.className %>';
-import { <%- service.className %>DefaultContext } from "./<%- service.className %>ClientProvider";
+import { ResponseError } from '../runtime<%_ if (metadata.esm) { _%>.js<%_ } _%>';
+import { <%- service.className %> } from './<%- service.className %><%_ if (metadata.esm) { _%>.js<%_ } _%>';
+<%_ if (!metadata.queryV5) { _%>
+import { <%- service.className %>DefaultContext } from "./<%- service.className %>ClientProvider<%_ if (metadata.esm) { _%>.js<%_ } _%>";
+<%_ } _%>
 
 import {
+    <%_ if (metadata.queryV5) { _%>
+    InitialPageParam,
+    <%_ } _%>
     useQuery,
     UseQueryResult,
     UseQueryOptions,
@@ -61,17 +66,28 @@ export const use<%- operation.operationIdPascalCase %> = <TError = ResponseError
     <%_ if (operation.parameters.length > 0) { _%>
     params: <%- operation.operationIdPascalCase %>Request,
     <%_ } _%>
-    options?: Omit<UseInfiniteQueryOptions<<%- resultType %>, TError>, 'queryKey' | 'queryFn' | 'getNextPageParam'>
+    options?: Omit<UseInfiniteQueryOptions<<%- resultType %>, TError>, 'queryKey' | 'queryFn' | 'getNextPageParam'<% if (metadata.queryV5) { %> | 'initialPageParam'<% } %>><% if (metadata.queryV5) { %> & (
+        InitialPageParam<<%- operation.operationIdPascalCase %>Request['<%- paginationInputParam.typescriptName %>']>
+    )<% } %>
 ): UseInfiniteQueryResult<<%- resultType %>, TError> => {
     const api = useContext(<%- service.className %>ClientContext);
     if (!api) {
         throw NO_API_ERROR;
     }
+    <%_ if (metadata.queryV5) { _%>
+    return useInfiniteQuery({
+        queryKey: ["<%- operation.name %>"<% if (operation.parameters.length > 0) { %>, params<% } %>],
+        queryFn: ({ pageParam }) => api.<%- operation.name %>({ <% if (operation.parameters.length > 0) { %>...params, <% } %><%- paginationInputParam.typescriptName %>: pageParam as any }),
+        getNextPageParam: (response) => response.<%- pagination.outputToken %>,
+        ...options,
+    });
+    <%_ } else { _%>
     return useInfiniteQuery(["<%- operation.name %>"<% if (operation.parameters.length > 0) { %>, params<% } %>], ({ pageParam }) => api.<%- operation.name %>({ <% if (operation.parameters.length > 0) { %>...params, <% } %><%- paginationInputParam.typescriptName %>: pageParam }), {
         getNextPageParam: (response) => response.<%- pagination.outputToken %>,
         context: <%- service.className %>DefaultContext,
         ...options as any,
     });
+    <%_ } _%>
 };
 <%_ } else { _%>
 /**
@@ -87,10 +103,18 @@ export const use<%- operation.operationIdPascalCase %> = <TError = ResponseError
     if (!api) {
         throw NO_API_ERROR;
     }
+    <%_ if (metadata.queryV5) { _%>
+    return useQuery({
+        queryKey: ["<%- operation.name %>"<% if (operation.parameters.length > 0) { %>, params<% } %>],
+        queryFn: () => api.<%- operation.name %>(<% if (operation.parameters.length > 0) { %>params<% } %>),
+        ...options,
+    });
+    <%_ } else { _%>
     return useQuery(["<%- operation.name %>"<% if (operation.parameters.length > 0) { %>, params<% } %>], () => api.<%- operation.name %>(<% if (operation.parameters.length > 0) { %>params<% } %>), {
         context: <%- service.className %>DefaultContext,
         ...options,
     });
+    <%_ } _%>
 };
 <%_ } _%>
 <%_ } else { _%>
@@ -104,10 +128,17 @@ export const use<%- operation.operationIdPascalCase %> = <TError = ResponseError
     if (!api) {
         throw NO_API_ERROR;
     }
+    <%_ if (metadata.queryV5) { _%>
+    return useMutation({
+        mutationFn: (<% if (operation.parameters.length > 0) { %>params: <%- operation.operationIdPascalCase %>Request<% } %>) => api.<%- operation.name %>(<% if (operation.parameters.length > 0) { %>params<% } %>),
+        ...options,
+    });
+    <%_ } else { _%>
     return useMutation((<% if (operation.parameters.length > 0) { %>params: <%- operation.operationIdPascalCase %>Request<% } %>) => api.<%- operation.name %>(<% if (operation.parameters.length > 0) { %>params<% } %>), {
         context: <%- service.className %>DefaultContext,
         ...options,
     });
+    <%_ } _%>
 };
 <%_ } _%>
 

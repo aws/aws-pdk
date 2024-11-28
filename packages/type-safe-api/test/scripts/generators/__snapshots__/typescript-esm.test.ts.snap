@@ -4143,6 +4143,296 @@ describe('TypescriptTwo', () => {
 }
 `;
 
+exports[`TypeScript ESM Generator Tests Generates typescript-react-query-hooks with ESM compatible syntax 1`] = `
+{
+  ".tsapi-manifest": "README.md
+src/apis/index.ts
+src/apis/DefaultApiClientProvider.tsx
+src/apis/DefaultApiHooks.ts
+src/index.ts",
+  "README.md": "# TypeScript React Query Hooks
+
+This project contains [react-query](https://tanstack.com/query/latest) hooks for interacting with your API.
+
+## Usage
+
+First, make sure you add a dependency on the generated hooks library, eg in your \`.projenrc\`:
+
+\`\`\`ts
+const api = new TypeSafeApiProject({ ... });
+
+new CloudscapeReactTsWebsite({
+  ...,
+  deps: [
+    ...
+    api.library.typescriptReactQueryHooks!.package.packageName,
+  ],
+});
+\`\`\`
+
+Next, create an instance of the API client (making sure to set the base URL and fetch instance). For example:
+
+\`\`\`ts
+export const useDefaultApiClient = () => useMemo(() => new DefaultApi(new Configuration({
+    basePath: 'https://example123.execute-api.ap-southeast-2.amazonaws.com/prod',
+    fetchApi: window.fetch.bind(window),
+})), []);
+\`\`\`
+
+Note that if you are using the [Cloudscape React Website](https://github.com/aws/aws-pdk/tree/mainline/packages/cloudscape-react-ts-website) with [AWS NorthStar](https://aws.github.io/aws-northstar/) and IAM (Sigv4) Auth for your API, you can use NorthStar's [\`useSigv4Client()\` hook](https://aws.github.io/aws-northstar/?path=/story/components-cognitoauth-sigv4client-docs--page) to create
+an instance of \`fetch\` which will sign requests with the logged in user's credentials. For example:
+
+\`\`\`ts
+export const useDefaultApiClient = () => {
+    const client = useSigv4Client();
+    return useMemo(() => new DefaultApi(new Configuration({
+        basePath: 'https://example123.execute-api.ap-southeast-2.amazonaws.com/prod',
+        fetchApi: client,
+    })), [client]);
+};
+\`\`\`
+
+Next, instantiate the client provider above where you would like to use the hooks in your component hierarchy (such as above your router). For example:
+
+\`\`\`tsx
+const api = useDefaultApiClient();
+
+return (
+    <DefaultApiClientProvider apiClient={api}>
+        { /* Components within the provider may make use of the hooks */ }
+    </DefaultApiClientProvider>
+);
+\`\`\`
+
+Finally, you can import and use your generated hooks. For example:
+
+\`\`\`tsx
+export const MyComponent: FC<MyComponentProps> = () => {
+    const sayHello = useSayHello({ name: 'World' });
+
+    return sayHello.isLoading ? (
+        <p>Loading...</p>
+    ) : sayHello.isError ? (
+        <p>Error!</p>
+    ) : (
+        <h1>{sayHello.data.message}</h1>
+    );
+};
+\`\`\`
+
+## Custom Error Type
+
+If you use middleware in your client for error handling and throw different errors, you can override the error type
+when you use a hook, for example:
+
+\`\`\`ts
+const sayHello = useSayHello<MyCustomError>({ name: 'World' });
+\`\`\`
+",
+  "src/apis/DefaultApiClientProvider.tsx": "import * as React from "react";
+import {
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
+import { DefaultApi } from "./DefaultApi.js";
+import { DefaultApiClientContext } from "./DefaultApiHooks.js";
+
+const queryClient = new QueryClient();
+
+/**
+ * Default QueryClient context for DefaultApi
+ */
+export const DefaultApiDefaultContext = React.createContext<QueryClient | undefined>(
+  undefined
+);
+
+/**
+ * Properties for the DefaultApiClientProvider
+ */
+export interface DefaultApiClientProviderProps {
+  readonly apiClient: DefaultApi;
+  readonly client?: QueryClient;
+  readonly context?: React.Context<QueryClient | undefined>;
+  readonly children?: React.ReactNode;
+}
+
+/**
+ * Provider for the API Client and Query Client used by the hooks.
+ * This must parent any components which make use of the hooks.
+ */
+export const DefaultApiClientProvider = ({
+  apiClient,
+  client = queryClient,
+  context = DefaultApiDefaultContext,
+  children,
+}: DefaultApiClientProviderProps): JSX.Element => {
+  return (
+    <QueryClientProvider client={client} context={context}>
+      <DefaultApiClientContext.Provider value={apiClient}>
+        {children}
+      </DefaultApiClientContext.Provider>
+    </QueryClientProvider>
+  );
+};
+",
+  "src/apis/DefaultApiHooks.ts": "// Import models
+import type {
+  BadRequestErrorResponseContent,
+  InternalFailureErrorResponseContent,
+  NotAuthorizedErrorResponseContent,
+  SuccessResponseContent,
+} from '../models/index.js';
+// Import request parameter interfaces
+import {
+    JavaOneRequest,
+    JavaTwoRequest,
+    PythonOneRequest,
+    PythonTwoRequest,
+    TypescriptOneRequest,
+    TypescriptTwoRequest,
+} from '../index.js';
+
+import { ResponseError } from '../runtime.js';
+import { DefaultApi } from './DefaultApi.js';
+import { DefaultApiDefaultContext } from "./DefaultApiClientProvider.js";
+
+import {
+    useQuery,
+    UseQueryResult,
+    UseQueryOptions,
+    useInfiniteQuery,
+    UseInfiniteQueryResult,
+    UseInfiniteQueryOptions,
+    useMutation,
+    UseMutationOptions,
+    UseMutationResult
+} from "@tanstack/react-query";
+import { createContext, useContext } from "react";
+
+/**
+ * Context for the API client used by the hooks.
+ */
+export const DefaultApiClientContext = createContext<DefaultApi | undefined>(undefined);
+
+const NO_API_ERROR = new Error(\`DefaultApi client missing. Please ensure you have instantiated the DefaultApiClientProvider with a client instance.\`);
+
+/**
+ * useQuery hook for the JavaOne operation
+ */
+export const useJavaOne = <TError = ResponseError>(
+    params: JavaOneRequest,
+    options?: Omit<UseQueryOptions<SuccessResponseContent, TError>, 'queryKey' | 'queryFn'>
+): UseQueryResult<SuccessResponseContent, TError> => {
+    const api = useContext(DefaultApiClientContext);
+    if (!api) {
+        throw NO_API_ERROR;
+    }
+    return useQuery(["javaOne", params], () => api.javaOne(params), {
+        context: DefaultApiDefaultContext,
+        ...options,
+    });
+};
+
+/**
+ * useQuery hook for the JavaTwo operation
+ */
+export const useJavaTwo = <TError = ResponseError>(
+    params: JavaTwoRequest,
+    options?: Omit<UseQueryOptions<SuccessResponseContent, TError>, 'queryKey' | 'queryFn'>
+): UseQueryResult<SuccessResponseContent, TError> => {
+    const api = useContext(DefaultApiClientContext);
+    if (!api) {
+        throw NO_API_ERROR;
+    }
+    return useQuery(["javaTwo", params], () => api.javaTwo(params), {
+        context: DefaultApiDefaultContext,
+        ...options,
+    });
+};
+
+/**
+ * useQuery hook for the PythonOne operation
+ */
+export const usePythonOne = <TError = ResponseError>(
+    params: PythonOneRequest,
+    options?: Omit<UseQueryOptions<SuccessResponseContent, TError>, 'queryKey' | 'queryFn'>
+): UseQueryResult<SuccessResponseContent, TError> => {
+    const api = useContext(DefaultApiClientContext);
+    if (!api) {
+        throw NO_API_ERROR;
+    }
+    return useQuery(["pythonOne", params], () => api.pythonOne(params), {
+        context: DefaultApiDefaultContext,
+        ...options,
+    });
+};
+
+/**
+ * useQuery hook for the PythonTwo operation
+ */
+export const usePythonTwo = <TError = ResponseError>(
+    params: PythonTwoRequest,
+    options?: Omit<UseQueryOptions<SuccessResponseContent, TError>, 'queryKey' | 'queryFn'>
+): UseQueryResult<SuccessResponseContent, TError> => {
+    const api = useContext(DefaultApiClientContext);
+    if (!api) {
+        throw NO_API_ERROR;
+    }
+    return useQuery(["pythonTwo", params], () => api.pythonTwo(params), {
+        context: DefaultApiDefaultContext,
+        ...options,
+    });
+};
+
+/**
+ * useQuery hook for the TypescriptOne operation
+ */
+export const useTypescriptOne = <TError = ResponseError>(
+    params: TypescriptOneRequest,
+    options?: Omit<UseQueryOptions<SuccessResponseContent, TError>, 'queryKey' | 'queryFn'>
+): UseQueryResult<SuccessResponseContent, TError> => {
+    const api = useContext(DefaultApiClientContext);
+    if (!api) {
+        throw NO_API_ERROR;
+    }
+    return useQuery(["typescriptOne", params], () => api.typescriptOne(params), {
+        context: DefaultApiDefaultContext,
+        ...options,
+    });
+};
+
+/**
+ * useQuery hook for the TypescriptTwo operation
+ */
+export const useTypescriptTwo = <TError = ResponseError>(
+    params: TypescriptTwoRequest,
+    options?: Omit<UseQueryOptions<SuccessResponseContent, TError>, 'queryKey' | 'queryFn'>
+): UseQueryResult<SuccessResponseContent, TError> => {
+    const api = useContext(DefaultApiClientContext);
+    if (!api) {
+        throw NO_API_ERROR;
+    }
+    return useQuery(["typescriptTwo", params], () => api.typescriptTwo(params), {
+        context: DefaultApiDefaultContext,
+        ...options,
+    });
+};
+
+",
+  "src/apis/index.ts": "/* tslint:disable */
+/* eslint-disable */
+export * from './DefaultApi.js';
+export * from './DefaultApiHooks.js';
+export * from './DefaultApiClientProvider.js';
+",
+  "src/index.ts": "/* tslint:disable */
+/* eslint-disable */
+export * from './runtime.js';
+export * from './apis/index.js';
+export * from './models/index.js';",
+}
+`;
+
 exports[`TypeScript ESM Generator Tests Generates typescript-websocket-client with ESM compatible syntax 1`] = `
 {
   ".tsapi-manifest": "src/client/client.ts
@@ -4615,6 +4905,134 @@ export class DefaultApiWebSocketClient {
 /* eslint-disable */
 export * from './models/index.js';
 export * from './client/client.js';
+",
+}
+`;
+
+exports[`TypeScript ESM Generator Tests Generates typescript-websocket-hooks with ESM compatible syntax 1`] = `
+{
+  ".tsapi-manifest": "src/hooks/hooks.tsx
+src/index.ts
+src/hooks/provider.tsx",
+  "src/hooks/hooks.tsx": "import {
+  Request,
+  DefaultApiWebSocketClient,
+} from "";
+import {
+  DefaultApiWebSocketClientContext,
+} from "./provider.js";
+import { useContext, useEffect, useCallback, DependencyList } from "react";
+
+const NO_CLIENT_ERROR = new Error(\`DefaultApiWebSocketClient is missing. Please ensure you have instantiated the DefaultApiWebSocketClientProvider with a client instance.\`);
+
+/**
+ * Hook to retrieve the websocket client from the context
+ */
+export const useDefaultApiWebSocketClient = () => {
+  const client = useContext(DefaultApiWebSocketClientContext);
+  if (!client) {
+    throw NO_CLIENT_ERROR;
+  }
+  return client;
+};
+
+/**
+ * Listen to JavaOne messages from the server
+ * Provided callback should use the useCallback hook to memoise the function
+ */
+export const useOnJavaOne = (callback: (input: Request) => void, deps: DependencyList) => {
+  const client = useDefaultApiWebSocketClient();
+  const cb = useCallback(callback, deps);
+  useEffect(() => {
+    return client.onJavaOne(cb);
+  }, [client, cb]);
+};
+
+/**
+ * Listen to JavaTwo messages from the server
+ * Provided callback should use the useCallback hook to memoise the function
+ */
+export const useOnJavaTwo = (callback: (input: Request) => void, deps: DependencyList) => {
+  const client = useDefaultApiWebSocketClient();
+  const cb = useCallback(callback, deps);
+  useEffect(() => {
+    return client.onJavaTwo(cb);
+  }, [client, cb]);
+};
+
+/**
+ * Listen to PythonOne messages from the server
+ * Provided callback should use the useCallback hook to memoise the function
+ */
+export const useOnPythonOne = (callback: (input: Request) => void, deps: DependencyList) => {
+  const client = useDefaultApiWebSocketClient();
+  const cb = useCallback(callback, deps);
+  useEffect(() => {
+    return client.onPythonOne(cb);
+  }, [client, cb]);
+};
+
+/**
+ * Listen to PythonTwo messages from the server
+ * Provided callback should use the useCallback hook to memoise the function
+ */
+export const useOnPythonTwo = (callback: (input: Request) => void, deps: DependencyList) => {
+  const client = useDefaultApiWebSocketClient();
+  const cb = useCallback(callback, deps);
+  useEffect(() => {
+    return client.onPythonTwo(cb);
+  }, [client, cb]);
+};
+
+/**
+ * Listen to TypescriptOne messages from the server
+ * Provided callback should use the useCallback hook to memoise the function
+ */
+export const useOnTypescriptOne = (callback: (input: Request) => void, deps: DependencyList) => {
+  const client = useDefaultApiWebSocketClient();
+  const cb = useCallback(callback, deps);
+  useEffect(() => {
+    return client.onTypescriptOne(cb);
+  }, [client, cb]);
+};
+
+/**
+ * Listen to TypescriptTwo messages from the server
+ * Provided callback should use the useCallback hook to memoise the function
+ */
+export const useOnTypescriptTwo = (callback: (input: Request) => void, deps: DependencyList) => {
+  const client = useDefaultApiWebSocketClient();
+  const cb = useCallback(callback, deps);
+  useEffect(() => {
+    return client.onTypescriptTwo(cb);
+  }, [client, cb]);
+};
+
+",
+  "src/hooks/provider.tsx": "import {
+  DefaultApiWebSocketClient,
+} from "";
+import React, { createContext, ReactNode, FC } from "react";
+
+export const DefaultApiWebSocketClientContext = createContext<DefaultApiWebSocketClient | undefined>(undefined);
+
+export interface DefaultApiWebSocketClientProviderProps {
+  readonly client: DefaultApiWebSocketClient;
+  readonly children?: ReactNode;
+}
+
+export const DefaultApiWebSocketClientProvider: FC<DefaultApiWebSocketClientProviderProps> = (props) => {
+  return (
+    <DefaultApiWebSocketClientContext.Provider value={props.client}>
+      {props.children}
+    </DefaultApiWebSocketClientContext.Provider>
+  );
+};
+",
+  "src/index.ts": "/* tslint:disable */
+/* eslint-disable */
+export * from './hooks/hooks.js';
+export * from './hooks/provider.js';
 ",
 }
 `;

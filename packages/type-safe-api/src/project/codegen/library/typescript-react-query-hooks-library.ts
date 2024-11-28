@@ -12,12 +12,20 @@ import { CodegenOptions } from "../components/utils";
  * Configuration for the generated typescript client project
  */
 export interface GeneratedTypescriptReactQueryHooksProjectOptions
-  extends GeneratedTypescriptLibraryProjectOptions {}
+  extends GeneratedTypescriptLibraryProjectOptions {
+  /**
+   * Set to true to use @tanstack/react-query version 5.x
+   * @default false - @tanstack/react-query version 4.x is used
+   */
+  readonly useReactQueryV5?: boolean;
+}
 
 /**
  * Typescript project containing generated react-query hooks
  */
 export class TypescriptReactQueryHooksLibrary extends GeneratedTypescriptLibraryProject {
+  private readonly useReactQueryV5?: boolean;
+
   constructor(options: GeneratedTypescriptReactQueryHooksProjectOptions) {
     super({
       ...options,
@@ -27,9 +35,14 @@ export class TypescriptReactQueryHooksLibrary extends GeneratedTypescriptLibrary
         },
       },
     });
+    this.useReactQueryV5 = options.useReactQueryV5;
 
     // Add dependencies on react-query and react
-    this.addDeps("@tanstack/react-query@^4"); // Pin at 4 for now - requires generated code updates to upgrade to 5
+    if (this.useReactQueryV5) {
+      this.addDeps("@tanstack/react-query@^5");
+    } else {
+      this.addDeps("@tanstack/react-query@^4");
+    }
     this.addDevDeps("react", "@types/react");
     this.addPeerDeps("react");
   }
@@ -44,6 +57,7 @@ export class TypescriptReactQueryHooksLibrary extends GeneratedTypescriptLibrary
       ],
       metadata: {
         srcDir: this.srcdir,
+        queryV5: !!this.useReactQueryV5,
       },
     };
   }
