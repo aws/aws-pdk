@@ -47,6 +47,7 @@ export class TypeSafeApiProject extends PDKProject {
         "ejs@3.1.10", // Used by scripts
         "@types/ejs@3.1.5", // Used by scripts
         "parse-openapi@0.0.1", // Used by scripts
+        "minimatch@10.0.1", // Used by scripts
         "esbuild",
       ],
       deps: [

@@ -24,6 +24,7 @@ import { getOperationResponses } from "parse-openapi/dist/parser/getOperationRes
 import { getOperationResponse } from "parse-openapi/dist/parser/getOperationResponse";
 import { generateMockDataForSchema } from "../custom/mock-data/generate-mock-data";
 import { allFakers, Faker } from "@faker-js/faker";
+import { minimatch } from "minimatch";
 
 const TSAPI_WRITE_FILE_START = "###TSAPI_WRITE_FILE###";
 const TSAPI_WRITE_FILE_END = "###/TSAPI_WRITE_FILE###";
@@ -41,6 +42,11 @@ interface Arguments {
    * Directories for templates - names relative to the location of this script
    */
   readonly templateDirs: string[];
+
+  /**
+   * Glob patterns for templates to exclude
+   */
+  readonly excludeTemplates?: string[];
 
   /**
    * JSON string containing metadata
@@ -1049,6 +1055,7 @@ export default async (argv: string[], rootScriptDir: string) => {
     specPath: { type: String },
     metadata: { type: String, optional: true },
     templateDirs: { type: String, multiple: true },
+    excludeTemplates: { type: String, multiple: true, optional: true },
     outputPath: { type: String },
     printData: { type: Boolean, optional: true },
   }, { argv });
@@ -1063,8 +1070,11 @@ export default async (argv: string[], rootScriptDir: string) => {
   }
 
   // Read all .ejs files in each template directory
-  const templates = args.templateDirs.flatMap(t => listFilesInDirRecursive(resolveTemplateDir(rootScriptDir, t))
+  const candidateTemplates = args.templateDirs.flatMap(t => listFilesInDirRecursive(resolveTemplateDir(rootScriptDir, t))
     .filter(f => f.endsWith('.ejs') && !f.endsWith('.partial.ejs')));
+
+  // Filter out any excluded templates
+  const templates = candidateTemplates.filter((t => !(args.excludeTemplates ?? []).some(pattern => minimatch(t, pattern))));
 
   // Render the templates with the data from the spec
   const renderedFiles = await Promise.all(templates.map(async (template) => {
