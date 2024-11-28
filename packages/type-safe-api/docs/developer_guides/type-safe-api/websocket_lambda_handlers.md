@@ -46,6 +46,18 @@ By configuring `handlers.languages` in your `TypeSafeWebSocketApiProject` and an
     }
     ```
 
+=== "TYPESPEC"
+
+    Use the `@handler` decorator, and specify the language you wish to implement this operation in.
+
+    ```tsp hl_lines="1-2"
+    @async({ direction: "client_to_server" })
+    @handler({ language: "typescript" })
+    op SayHello(
+        name: string,
+    ): void;
+    ```
+
 === "OPENAPI"
 
     Use the `x-handler` vendor extension, specifying the language you wish to implement this operation in.

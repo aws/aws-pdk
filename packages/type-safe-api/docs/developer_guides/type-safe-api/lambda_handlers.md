@@ -75,6 +75,19 @@ By configuring `handlers.languages` in your `TypeSafeApiProject` and annotating 
     }
     ```
 
+=== "TYPESPEC"
+
+    Use the `@handler` decorator, and specify the language you wish to implement this operation in.
+
+    ```hl_lines="3"
+    @get
+    @route("/hello")
+    @handler({ language: "typescript" })
+    op SayHello(@query name: string): {
+        message: string;
+    };
+    ```
+
 === "OPENAPI"
 
     Use the `x-handler` vendor extension, specifying the language you wish to implement this operation in.

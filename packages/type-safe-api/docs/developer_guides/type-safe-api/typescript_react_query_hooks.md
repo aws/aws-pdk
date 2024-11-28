@@ -185,6 +185,21 @@ You can generate `useInfiniteQuery` hooks instead of `useQuery` hooks for pagina
     }
     ```
 
+=== "TYPESPEC"
+
+    In TypeSpec, use the `@extension` decorator to add the `x-paginated` vendor extension.
+
+    ```
+    @get
+    @route("/pets")
+    @extension("x-paginated", { inputToken: "nextToken", outputToken: "nextToken" })
+    op ListPets(@query nextToken?: string): {
+      pets: Pet[];
+      nextToken?: string;
+    };`
+    ```
+
+
 === "OPENAPI"
 
     In OpenAPI, use the `x-paginaged` vendor extension in your operation, making sure both `inputToken` and `outputToken` are specified:
