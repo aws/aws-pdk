@@ -178,14 +178,18 @@ export const generateMockDataForSchema = (
 
 const generateStringFromRegex = (pattern: string): string | undefined => {
   const random = Math.random;
+  const warn = console.warn;
   try {
     // Fix random to ensure mocked data is deterministic
     Math.random = () => 0.5;
+    // ReRegExp prints warnings to the console which add unnecessary noise
+    console.warn = () => {};
     return new ReRegExp(pattern).build();
   } catch {
     // Couldn't convert regex to string, don't fail, just be less strict
   } finally {
     Math.random = random;
+    console.warn = warn;
   }
   return undefined;
 }
