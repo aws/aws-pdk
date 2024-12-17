@@ -883,18 +883,14 @@ exports[`Static Website Unit Tests Defaults - Nested 1`] = `
                 ],
               },
               "Id": "NestedStackDefaultsCloudfrontDistributionOrigin1D3B56211",
+              "OriginAccessControlId": {
+                "Fn::GetAtt": [
+                  "DefaultsCloudfrontDistributionOrigin1S3OriginAccessControl6814E8FF",
+                  "Id",
+                ],
+              },
               "S3OriginConfig": {
-                "OriginAccessIdentity": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "origin-access-identity/cloudfront/",
-                      {
-                        "Ref": "DefaultsOriginAccessIdentity7F5D47DF",
-                      },
-                    ],
-                  ],
-                },
+                "OriginAccessIdentity": "",
               },
             },
           ],
@@ -907,6 +903,81 @@ exports[`Static Website Unit Tests Defaults - Nested 1`] = `
         },
       },
       "Type": "AWS::CloudFront::Distribution",
+    },
+    "DefaultsCloudfrontDistributionOrigin1S3OriginAccessControl6814E8FF": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "id": "AwsSolutions-S1",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+            {
+              "id": "AwsPrototyping-S3BucketLoggingEnabled",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "OriginAccessControlConfig": {
+          "Name": "NestedStackDefaultsCloudfronOrigin1S3OriginAccessControl48785B6C",
+          "OriginAccessControlOriginType": "s3",
+          "SigningBehavior": "always",
+          "SigningProtocol": "sigv4",
+        },
+      },
+      "Type": "AWS::CloudFront::OriginAccessControl",
     },
     "DefaultsDistributionLogBucket7EA741E2": {
       "DeletionPolicy": "Delete",
@@ -1245,78 +1316,6 @@ exports[`Static Website Unit Tests Defaults - Nested 1`] = `
         },
       },
       "Type": "AWS::S3::BucketPolicy",
-    },
-    "DefaultsOriginAccessIdentity7F5D47DF": {
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "id": "AwsSolutions-L1",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "id": "AwsPrototyping-LambdaLatestVersion",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM5",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoWildcardPermissions",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "id": "AwsSolutions-S1",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-            {
-              "id": "AwsPrototyping-S3BucketLoggingEnabled",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "CloudFrontOriginAccessIdentityConfig": {
-          "Comment": "Allows CloudFront to reach the bucket",
-        },
-      },
-      "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
     },
     "DefaultsWebsiteAclCFAclCustomResource08DBB477": {
       "DeletionPolicy": "Delete",
@@ -2486,33 +2485,33 @@ exports[`Static Website Unit Tests Defaults - Nested 1`] = `
               ],
             },
             {
-              "Action": "s3:ListBucket",
-              "Effect": "Allow",
-              "Principal": {
-                "CanonicalUser": {
-                  "Fn::GetAtt": [
-                    "DefaultsOriginAccessIdentity7F5D47DF",
-                    "S3CanonicalUserId",
-                  ],
-                },
-              },
-              "Resource": {
-                "Fn::GetAtt": [
-                  "DefaultsWebsiteBucket3263D025",
-                  "Arn",
-                ],
-              },
-            },
-            {
               "Action": "s3:GetObject",
+              "Condition": {
+                "StringEquals": {
+                  "AWS:SourceArn": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":cloudfront::",
+                        {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":distribution/",
+                        {
+                          "Ref": "DefaultsCloudfrontDistributionF4EA1054",
+                        },
+                      ],
+                    ],
+                  },
+                },
+              },
               "Effect": "Allow",
               "Principal": {
-                "CanonicalUser": {
-                  "Fn::GetAtt": [
-                    "DefaultsOriginAccessIdentity7F5D47DF",
-                    "S3CanonicalUserId",
-                  ],
-                },
+                "Service": "cloudfront.amazonaws.com",
               },
               "Resource": {
                 "Fn::Join": [
@@ -3598,18 +3597,14 @@ exports[`Static Website Unit Tests Defaults - using AwsPrototyping NagPack 1`] =
                 ],
               },
               "Id": "DefaultsCloudfrontDistributionOrigin1BA23CD94",
+              "OriginAccessControlId": {
+                "Fn::GetAtt": [
+                  "DefaultsCloudfrontDistributionOrigin1S3OriginAccessControl6814E8FF",
+                  "Id",
+                ],
+              },
               "S3OriginConfig": {
-                "OriginAccessIdentity": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "origin-access-identity/cloudfront/",
-                      {
-                        "Ref": "DefaultsOriginAccessIdentity7F5D47DF",
-                      },
-                    ],
-                  ],
-                },
+                "OriginAccessIdentity": "",
               },
             },
           ],
@@ -3622,6 +3617,81 @@ exports[`Static Website Unit Tests Defaults - using AwsPrototyping NagPack 1`] =
         },
       },
       "Type": "AWS::CloudFront::Distribution",
+    },
+    "DefaultsCloudfrontDistributionOrigin1S3OriginAccessControl6814E8FF": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "id": "AwsSolutions-S1",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+            {
+              "id": "AwsPrototyping-S3BucketLoggingEnabled",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "OriginAccessControlConfig": {
+          "Name": "DefaultsCloudfrontDistributiOrigin1S3OriginAccessControlC8BD58BC",
+          "OriginAccessControlOriginType": "s3",
+          "SigningBehavior": "always",
+          "SigningProtocol": "sigv4",
+        },
+      },
+      "Type": "AWS::CloudFront::OriginAccessControl",
     },
     "DefaultsDistributionLogBucket7EA741E2": {
       "DeletionPolicy": "Delete",
@@ -3960,78 +4030,6 @@ exports[`Static Website Unit Tests Defaults - using AwsPrototyping NagPack 1`] =
         },
       },
       "Type": "AWS::S3::BucketPolicy",
-    },
-    "DefaultsOriginAccessIdentity7F5D47DF": {
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "id": "AwsSolutions-L1",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "id": "AwsPrototyping-LambdaLatestVersion",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM5",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoWildcardPermissions",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "id": "AwsSolutions-S1",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-            {
-              "id": "AwsPrototyping-S3BucketLoggingEnabled",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "CloudFrontOriginAccessIdentityConfig": {
-          "Comment": "Allows CloudFront to reach the bucket",
-        },
-      },
-      "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
     },
     "DefaultsWebsiteAclCFAclCustomResource08DBB477": {
       "DeletionPolicy": "Delete",
@@ -5179,33 +5177,33 @@ exports[`Static Website Unit Tests Defaults - using AwsPrototyping NagPack 1`] =
               ],
             },
             {
-              "Action": "s3:ListBucket",
-              "Effect": "Allow",
-              "Principal": {
-                "CanonicalUser": {
-                  "Fn::GetAtt": [
-                    "DefaultsOriginAccessIdentity7F5D47DF",
-                    "S3CanonicalUserId",
-                  ],
-                },
-              },
-              "Resource": {
-                "Fn::GetAtt": [
-                  "DefaultsWebsiteBucket3263D025",
-                  "Arn",
-                ],
-              },
-            },
-            {
               "Action": "s3:GetObject",
+              "Condition": {
+                "StringEquals": {
+                  "AWS:SourceArn": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":cloudfront::",
+                        {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":distribution/",
+                        {
+                          "Ref": "DefaultsCloudfrontDistributionF4EA1054",
+                        },
+                      ],
+                    ],
+                  },
+                },
+              },
               "Effect": "Allow",
               "Principal": {
-                "CanonicalUser": {
-                  "Fn::GetAtt": [
-                    "DefaultsOriginAccessIdentity7F5D47DF",
-                    "S3CanonicalUserId",
-                  ],
-                },
+                "Service": "cloudfront.amazonaws.com",
               },
               "Resource": {
                 "Fn::Join": [
@@ -6318,18 +6316,14 @@ exports[`Static Website Unit Tests Defaults 1`] = `
                 ],
               },
               "Id": "DefaultsCloudfrontDistributionOrigin1BA23CD94",
+              "OriginAccessControlId": {
+                "Fn::GetAtt": [
+                  "DefaultsCloudfrontDistributionOrigin1S3OriginAccessControl6814E8FF",
+                  "Id",
+                ],
+              },
               "S3OriginConfig": {
-                "OriginAccessIdentity": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "origin-access-identity/cloudfront/",
-                      {
-                        "Ref": "DefaultsOriginAccessIdentity7F5D47DF",
-                      },
-                    ],
-                  ],
-                },
+                "OriginAccessIdentity": "",
               },
             },
           ],
@@ -6342,6 +6336,81 @@ exports[`Static Website Unit Tests Defaults 1`] = `
         },
       },
       "Type": "AWS::CloudFront::Distribution",
+    },
+    "DefaultsCloudfrontDistributionOrigin1S3OriginAccessControl6814E8FF": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "id": "AwsSolutions-S1",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+            {
+              "id": "AwsPrototyping-S3BucketLoggingEnabled",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "OriginAccessControlConfig": {
+          "Name": "DefaultsCloudfrontDistributiOrigin1S3OriginAccessControlC8BD58BC",
+          "OriginAccessControlOriginType": "s3",
+          "SigningBehavior": "always",
+          "SigningProtocol": "sigv4",
+        },
+      },
+      "Type": "AWS::CloudFront::OriginAccessControl",
     },
     "DefaultsDistributionLogBucket7EA741E2": {
       "DeletionPolicy": "Delete",
@@ -6680,78 +6749,6 @@ exports[`Static Website Unit Tests Defaults 1`] = `
         },
       },
       "Type": "AWS::S3::BucketPolicy",
-    },
-    "DefaultsOriginAccessIdentity7F5D47DF": {
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "id": "AwsSolutions-L1",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "id": "AwsPrototyping-LambdaLatestVersion",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM5",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoWildcardPermissions",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "id": "AwsSolutions-S1",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-            {
-              "id": "AwsPrototyping-S3BucketLoggingEnabled",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "CloudFrontOriginAccessIdentityConfig": {
-          "Comment": "Allows CloudFront to reach the bucket",
-        },
-      },
-      "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
     },
     "DefaultsWebsiteAclCFAclCustomResource08DBB477": {
       "DeletionPolicy": "Delete",
@@ -7899,33 +7896,33 @@ exports[`Static Website Unit Tests Defaults 1`] = `
               ],
             },
             {
-              "Action": "s3:ListBucket",
-              "Effect": "Allow",
-              "Principal": {
-                "CanonicalUser": {
-                  "Fn::GetAtt": [
-                    "DefaultsOriginAccessIdentity7F5D47DF",
-                    "S3CanonicalUserId",
-                  ],
-                },
-              },
-              "Resource": {
-                "Fn::GetAtt": [
-                  "DefaultsWebsiteBucket3263D025",
-                  "Arn",
-                ],
-              },
-            },
-            {
               "Action": "s3:GetObject",
+              "Condition": {
+                "StringEquals": {
+                  "AWS:SourceArn": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":cloudfront::",
+                        {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":distribution/",
+                        {
+                          "Ref": "DefaultsCloudfrontDistributionF4EA1054",
+                        },
+                      ],
+                    ],
+                  },
+                },
+              },
               "Effect": "Allow",
               "Principal": {
-                "CanonicalUser": {
-                  "Fn::GetAtt": [
-                    "DefaultsOriginAccessIdentity7F5D47DF",
-                    "S3CanonicalUserId",
-                  ],
-                },
+                "Service": "cloudfront.amazonaws.com",
               },
               "Resource": {
                 "Fn::Join": [
@@ -9038,18 +9035,14 @@ exports[`Static Website Unit Tests Defaults and Geoblocking - using AwsPrototypi
                 ],
               },
               "Id": "DefaultsCloudfrontDistributionOrigin1BA23CD94",
+              "OriginAccessControlId": {
+                "Fn::GetAtt": [
+                  "DefaultsCloudfrontDistributionOrigin1S3OriginAccessControl6814E8FF",
+                  "Id",
+                ],
+              },
               "S3OriginConfig": {
-                "OriginAccessIdentity": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "origin-access-identity/cloudfront/",
-                      {
-                        "Ref": "DefaultsOriginAccessIdentity7F5D47DF",
-                      },
-                    ],
-                  ],
-                },
+                "OriginAccessIdentity": "",
               },
             },
           ],
@@ -9071,6 +9064,81 @@ exports[`Static Website Unit Tests Defaults and Geoblocking - using AwsPrototypi
         },
       },
       "Type": "AWS::CloudFront::Distribution",
+    },
+    "DefaultsCloudfrontDistributionOrigin1S3OriginAccessControl6814E8FF": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "id": "AwsSolutions-S1",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+            {
+              "id": "AwsPrototyping-S3BucketLoggingEnabled",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "OriginAccessControlConfig": {
+          "Name": "DefaultsCloudfrontDistributiOrigin1S3OriginAccessControlC8BD58BC",
+          "OriginAccessControlOriginType": "s3",
+          "SigningBehavior": "always",
+          "SigningProtocol": "sigv4",
+        },
+      },
+      "Type": "AWS::CloudFront::OriginAccessControl",
     },
     "DefaultsDistributionLogBucket7EA741E2": {
       "DeletionPolicy": "Delete",
@@ -9409,78 +9477,6 @@ exports[`Static Website Unit Tests Defaults and Geoblocking - using AwsPrototypi
         },
       },
       "Type": "AWS::S3::BucketPolicy",
-    },
-    "DefaultsOriginAccessIdentity7F5D47DF": {
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "id": "AwsSolutions-L1",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "id": "AwsPrototyping-LambdaLatestVersion",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM5",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoWildcardPermissions",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "id": "AwsSolutions-S1",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-            {
-              "id": "AwsPrototyping-S3BucketLoggingEnabled",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "CloudFrontOriginAccessIdentityConfig": {
-          "Comment": "Allows CloudFront to reach the bucket",
-        },
-      },
-      "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
     },
     "DefaultsWebsiteAclCFAclCustomResource08DBB477": {
       "DeletionPolicy": "Delete",
@@ -10628,33 +10624,33 @@ exports[`Static Website Unit Tests Defaults and Geoblocking - using AwsPrototypi
               ],
             },
             {
-              "Action": "s3:ListBucket",
-              "Effect": "Allow",
-              "Principal": {
-                "CanonicalUser": {
-                  "Fn::GetAtt": [
-                    "DefaultsOriginAccessIdentity7F5D47DF",
-                    "S3CanonicalUserId",
-                  ],
-                },
-              },
-              "Resource": {
-                "Fn::GetAtt": [
-                  "DefaultsWebsiteBucket3263D025",
-                  "Arn",
-                ],
-              },
-            },
-            {
               "Action": "s3:GetObject",
+              "Condition": {
+                "StringEquals": {
+                  "AWS:SourceArn": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":cloudfront::",
+                        {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":distribution/",
+                        {
+                          "Ref": "DefaultsCloudfrontDistributionF4EA1054",
+                        },
+                      ],
+                    ],
+                  },
+                },
+              },
               "Effect": "Allow",
               "Principal": {
-                "CanonicalUser": {
-                  "Fn::GetAtt": [
-                    "DefaultsOriginAccessIdentity7F5D47DF",
-                    "S3CanonicalUserId",
-                  ],
-                },
+                "Service": "cloudfront.amazonaws.com",
               },
               "Resource": {
                 "Fn::Join": [
@@ -11833,18 +11829,14 @@ exports[`Static Website Unit Tests Defaults with suppression rule - using AwsPro
                 ],
               },
               "Id": "DefaultsCloudfrontDistributionOrigin1BA23CD94",
+              "OriginAccessControlId": {
+                "Fn::GetAtt": [
+                  "DefaultsCloudfrontDistributionOrigin1S3OriginAccessControl6814E8FF",
+                  "Id",
+                ],
+              },
               "S3OriginConfig": {
-                "OriginAccessIdentity": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "origin-access-identity/cloudfront/",
-                      {
-                        "Ref": "DefaultsOriginAccessIdentity7F5D47DF",
-                      },
-                    ],
-                  ],
-                },
+                "OriginAccessIdentity": "",
               },
             },
           ],
@@ -11857,6 +11849,85 @@ exports[`Static Website Unit Tests Defaults with suppression rule - using AwsPro
         },
       },
       "Type": "AWS::CloudFront::Distribution",
+    },
+    "DefaultsCloudfrontDistributionOrigin1S3OriginAccessControl6814E8FF": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "id": "AwsSolutions-S1",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+            {
+              "id": "AwsPrototyping-S3BucketLoggingEnabled",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+            {
+              "id": "AwsPrototyping-CloudFrontDistributionGeoRestrictions",
+              "reason": "This is a supression reason",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "OriginAccessControlConfig": {
+          "Name": "DefaultsCloudfrontDistributiOrigin1S3OriginAccessControlC8BD58BC",
+          "OriginAccessControlOriginType": "s3",
+          "SigningBehavior": "always",
+          "SigningProtocol": "sigv4",
+        },
+      },
+      "Type": "AWS::CloudFront::OriginAccessControl",
     },
     "DefaultsDistributionLogBucket7EA741E2": {
       "DeletionPolicy": "Delete",
@@ -12207,82 +12278,6 @@ exports[`Static Website Unit Tests Defaults with suppression rule - using AwsPro
         },
       },
       "Type": "AWS::S3::BucketPolicy",
-    },
-    "DefaultsOriginAccessIdentity7F5D47DF": {
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "id": "AwsSolutions-L1",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "id": "AwsPrototyping-LambdaLatestVersion",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM5",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoWildcardPermissions",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "id": "AwsSolutions-S1",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-            {
-              "id": "AwsPrototyping-S3BucketLoggingEnabled",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-            {
-              "id": "AwsPrototyping-CloudFrontDistributionGeoRestrictions",
-              "reason": "This is a supression reason",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "CloudFrontOriginAccessIdentityConfig": {
-          "Comment": "Allows CloudFront to reach the bucket",
-        },
-      },
-      "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
     },
     "DefaultsWebsiteAclCFAclCustomResource08DBB477": {
       "DeletionPolicy": "Delete",
@@ -13466,33 +13461,33 @@ exports[`Static Website Unit Tests Defaults with suppression rule - using AwsPro
               ],
             },
             {
-              "Action": "s3:ListBucket",
-              "Effect": "Allow",
-              "Principal": {
-                "CanonicalUser": {
-                  "Fn::GetAtt": [
-                    "DefaultsOriginAccessIdentity7F5D47DF",
-                    "S3CanonicalUserId",
-                  ],
-                },
-              },
-              "Resource": {
-                "Fn::GetAtt": [
-                  "DefaultsWebsiteBucket3263D025",
-                  "Arn",
-                ],
-              },
-            },
-            {
               "Action": "s3:GetObject",
+              "Condition": {
+                "StringEquals": {
+                  "AWS:SourceArn": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":cloudfront::",
+                        {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":distribution/",
+                        {
+                          "Ref": "DefaultsCloudfrontDistributionF4EA1054",
+                        },
+                      ],
+                    ],
+                  },
+                },
+              },
               "Effect": "Allow",
               "Principal": {
-                "CanonicalUser": {
-                  "Fn::GetAtt": [
-                    "DefaultsOriginAccessIdentity7F5D47DF",
-                    "S3CanonicalUserId",
-                  ],
-                },
+                "Service": "cloudfront.amazonaws.com",
               },
               "Resource": {
                 "Fn::Join": [
@@ -14613,24 +14608,95 @@ exports[`Static Website Unit Tests Disable Web ACL 1`] = `
                 ],
               },
               "Id": "WithoutWebAclCloudfrontDistributionOrigin1FA8DDFBE",
+              "OriginAccessControlId": {
+                "Fn::GetAtt": [
+                  "WithoutWebAclCloudfrontDistributionOrigin1S3OriginAccessControl3A3CA07F",
+                  "Id",
+                ],
+              },
               "S3OriginConfig": {
-                "OriginAccessIdentity": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "origin-access-identity/cloudfront/",
-                      {
-                        "Ref": "WithoutWebAclOriginAccessIdentity44AFE92A",
-                      },
-                    ],
-                  ],
-                },
+                "OriginAccessIdentity": "",
               },
             },
           ],
         },
       },
       "Type": "AWS::CloudFront::Distribution",
+    },
+    "WithoutWebAclCloudfrontDistributionOrigin1S3OriginAccessControl3A3CA07F": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "id": "AwsSolutions-S1",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+            {
+              "id": "AwsPrototyping-S3BucketLoggingEnabled",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "OriginAccessControlConfig": {
+          "Name": "WithoutWebAclCloudfrontDistrOrigin1S3OriginAccessControl03D012B7",
+          "OriginAccessControlOriginType": "s3",
+          "SigningBehavior": "always",
+          "SigningProtocol": "sigv4",
+        },
+      },
+      "Type": "AWS::CloudFront::OriginAccessControl",
     },
     "WithoutWebAclDistributionLogBucketAutoDeleteObjectsCustomResource6B7F8E37": {
       "DeletionPolicy": "Delete",
@@ -14969,78 +15035,6 @@ exports[`Static Website Unit Tests Disable Web ACL 1`] = `
         },
       },
       "Type": "AWS::S3::BucketPolicy",
-    },
-    "WithoutWebAclOriginAccessIdentity44AFE92A": {
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "id": "AwsSolutions-L1",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "id": "AwsPrototyping-LambdaLatestVersion",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM5",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoWildcardPermissions",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "id": "AwsSolutions-S1",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-            {
-              "id": "AwsPrototyping-S3BucketLoggingEnabled",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "CloudFrontOriginAccessIdentityConfig": {
-          "Comment": "Allows CloudFront to reach the bucket",
-        },
-      },
-      "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
     },
     "WithoutWebAclWebsiteBucket86DBF045": {
       "DeletionPolicy": "Delete",
@@ -15382,33 +15376,33 @@ exports[`Static Website Unit Tests Disable Web ACL 1`] = `
               ],
             },
             {
-              "Action": "s3:ListBucket",
-              "Effect": "Allow",
-              "Principal": {
-                "CanonicalUser": {
-                  "Fn::GetAtt": [
-                    "WithoutWebAclOriginAccessIdentity44AFE92A",
-                    "S3CanonicalUserId",
-                  ],
-                },
-              },
-              "Resource": {
-                "Fn::GetAtt": [
-                  "WithoutWebAclWebsiteBucket86DBF045",
-                  "Arn",
-                ],
-              },
-            },
-            {
               "Action": "s3:GetObject",
+              "Condition": {
+                "StringEquals": {
+                  "AWS:SourceArn": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":cloudfront::",
+                        {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":distribution/",
+                        {
+                          "Ref": "WithoutWebAclCloudfrontDistribution079C1AED",
+                        },
+                      ],
+                    ],
+                  },
+                },
+              },
               "Effect": "Allow",
               "Principal": {
-                "CanonicalUser": {
-                  "Fn::GetAtt": [
-                    "WithoutWebAclOriginAccessIdentity44AFE92A",
-                    "S3CanonicalUserId",
-                  ],
-                },
+                "Service": "cloudfront.amazonaws.com",
               },
               "Resource": {
                 "Fn::Join": [
@@ -16521,18 +16515,14 @@ exports[`Static Website Unit Tests With Provided WebAclId, should configure the 
                 ],
               },
               "Id": "WebAclIdProvidedCloudfrontDistributionOrigin129E9BD2F",
+              "OriginAccessControlId": {
+                "Fn::GetAtt": [
+                  "WebAclIdProvidedCloudfrontDistributionOrigin1S3OriginAccessControlA55B491E",
+                  "Id",
+                ],
+              },
               "S3OriginConfig": {
-                "OriginAccessIdentity": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "origin-access-identity/cloudfront/",
-                      {
-                        "Ref": "WebAclIdProvidedOriginAccessIdentity16B3A296",
-                      },
-                    ],
-                  ],
-                },
+                "OriginAccessIdentity": "",
               },
             },
           ],
@@ -16540,6 +16530,81 @@ exports[`Static Website Unit Tests With Provided WebAclId, should configure the 
         },
       },
       "Type": "AWS::CloudFront::Distribution",
+    },
+    "WebAclIdProvidedCloudfrontDistributionOrigin1S3OriginAccessControlA55B491E": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "id": "AwsSolutions-S1",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+            {
+              "id": "AwsPrototyping-S3BucketLoggingEnabled",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "OriginAccessControlConfig": {
+          "Name": "WebAclIdProvidedCloudfrontDiOrigin1S3OriginAccessControl287C13D9",
+          "OriginAccessControlOriginType": "s3",
+          "SigningBehavior": "always",
+          "SigningProtocol": "sigv4",
+        },
+      },
+      "Type": "AWS::CloudFront::OriginAccessControl",
     },
     "WebAclIdProvidedDistributionLogBucket2B00498C": {
       "DeletionPolicy": "Delete",
@@ -16878,78 +16943,6 @@ exports[`Static Website Unit Tests With Provided WebAclId, should configure the 
         },
       },
       "Type": "AWS::S3::BucketPolicy",
-    },
-    "WebAclIdProvidedOriginAccessIdentity16B3A296": {
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "id": "AwsSolutions-L1",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "id": "AwsPrototyping-LambdaLatestVersion",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM5",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoWildcardPermissions",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "id": "AwsSolutions-S1",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-            {
-              "id": "AwsPrototyping-S3BucketLoggingEnabled",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "CloudFrontOriginAccessIdentityConfig": {
-          "Comment": "Allows CloudFront to reach the bucket",
-        },
-      },
-      "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
     },
     "WebAclIdProvidedWebsiteBucket00CB0B79": {
       "DeletionPolicy": "Delete",
@@ -17291,33 +17284,33 @@ exports[`Static Website Unit Tests With Provided WebAclId, should configure the 
               ],
             },
             {
-              "Action": "s3:ListBucket",
-              "Effect": "Allow",
-              "Principal": {
-                "CanonicalUser": {
-                  "Fn::GetAtt": [
-                    "WebAclIdProvidedOriginAccessIdentity16B3A296",
-                    "S3CanonicalUserId",
-                  ],
-                },
-              },
-              "Resource": {
-                "Fn::GetAtt": [
-                  "WebAclIdProvidedWebsiteBucket00CB0B79",
-                  "Arn",
-                ],
-              },
-            },
-            {
               "Action": "s3:GetObject",
+              "Condition": {
+                "StringEquals": {
+                  "AWS:SourceArn": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":cloudfront::",
+                        {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":distribution/",
+                        {
+                          "Ref": "WebAclIdProvidedCloudfrontDistribution4D164817",
+                        },
+                      ],
+                    ],
+                  },
+                },
+              },
               "Effect": "Allow",
               "Principal": {
-                "CanonicalUser": {
-                  "Fn::GetAtt": [
-                    "WebAclIdProvidedOriginAccessIdentity16B3A296",
-                    "S3CanonicalUserId",
-                  ],
-                },
+                "Service": "cloudfront.amazonaws.com",
               },
               "Resource": {
                 "Fn::Join": [
@@ -18197,18 +18190,14 @@ exports[`Static Website Unit Tests With custom bucket deployment props 1`] = `
                 ],
               },
               "Id": "CustomBucketDeploymentPropsCloudfrontDistributionOrigin1A81BA7D6",
+              "OriginAccessControlId": {
+                "Fn::GetAtt": [
+                  "CustomBucketDeploymentPropsCloudfrontDistributionOrigin1S3OriginAccessControl01C2C4C6",
+                  "Id",
+                ],
+              },
               "S3OriginConfig": {
-                "OriginAccessIdentity": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "origin-access-identity/cloudfront/",
-                      {
-                        "Ref": "CustomBucketDeploymentPropsOriginAccessIdentity45810ADD",
-                      },
-                    ],
-                  ],
-                },
+                "OriginAccessIdentity": "",
               },
             },
           ],
@@ -18221,6 +18210,81 @@ exports[`Static Website Unit Tests With custom bucket deployment props 1`] = `
         },
       },
       "Type": "AWS::CloudFront::Distribution",
+    },
+    "CustomBucketDeploymentPropsCloudfrontDistributionOrigin1S3OriginAccessControl01C2C4C6": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "id": "AwsSolutions-S1",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+            {
+              "id": "AwsPrototyping-S3BucketLoggingEnabled",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "OriginAccessControlConfig": {
+          "Name": "CustomBucketDeploymentPropsCOrigin1S3OriginAccessControl47A0850A",
+          "OriginAccessControlOriginType": "s3",
+          "SigningBehavior": "always",
+          "SigningProtocol": "sigv4",
+        },
+      },
+      "Type": "AWS::CloudFront::OriginAccessControl",
     },
     "CustomBucketDeploymentPropsDistributionLogBucket5A45CBB2": {
       "DeletionPolicy": "Delete",
@@ -18559,78 +18623,6 @@ exports[`Static Website Unit Tests With custom bucket deployment props 1`] = `
         },
       },
       "Type": "AWS::S3::BucketPolicy",
-    },
-    "CustomBucketDeploymentPropsOriginAccessIdentity45810ADD": {
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "id": "AwsSolutions-L1",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "id": "AwsPrototyping-LambdaLatestVersion",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM5",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoWildcardPermissions",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "id": "AwsSolutions-S1",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-            {
-              "id": "AwsPrototyping-S3BucketLoggingEnabled",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "CloudFrontOriginAccessIdentityConfig": {
-          "Comment": "Allows CloudFront to reach the bucket",
-        },
-      },
-      "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
     },
     "CustomBucketDeploymentPropsWebsiteAclCFAclCustomResource88ECBD3C": {
       "DeletionPolicy": "Delete",
@@ -19778,33 +19770,33 @@ exports[`Static Website Unit Tests With custom bucket deployment props 1`] = `
               ],
             },
             {
-              "Action": "s3:ListBucket",
-              "Effect": "Allow",
-              "Principal": {
-                "CanonicalUser": {
-                  "Fn::GetAtt": [
-                    "CustomBucketDeploymentPropsOriginAccessIdentity45810ADD",
-                    "S3CanonicalUserId",
-                  ],
-                },
-              },
-              "Resource": {
-                "Fn::GetAtt": [
-                  "CustomBucketDeploymentPropsWebsiteBucket36644456",
-                  "Arn",
-                ],
-              },
-            },
-            {
               "Action": "s3:GetObject",
+              "Condition": {
+                "StringEquals": {
+                  "AWS:SourceArn": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":cloudfront::",
+                        {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":distribution/",
+                        {
+                          "Ref": "CustomBucketDeploymentPropsCloudfrontDistributionB6A5E893",
+                        },
+                      ],
+                    ],
+                  },
+                },
+              },
               "Effect": "Allow",
               "Principal": {
-                "CanonicalUser": {
-                  "Fn::GetAtt": [
-                    "CustomBucketDeploymentPropsOriginAccessIdentity45810ADD",
-                    "S3CanonicalUserId",
-                  ],
-                },
+                "Service": "cloudfront.amazonaws.com",
               },
               "Resource": {
                 "Fn::Join": [

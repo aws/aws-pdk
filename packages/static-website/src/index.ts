@@ -4,3 +4,4 @@ export * from "./cloudfront-web-acl";
 export * from "./static-website";
 export * from "./bucket-deployment-props";
 export * from "./distribution-props";
+export * from "./lazy-token-renderer";

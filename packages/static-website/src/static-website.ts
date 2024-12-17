@@ -5,13 +5,11 @@ import { CfnOutput, RemovalPolicy, Stack } from "aws-cdk-lib";
 import {
   Distribution,
   IOrigin,
-  OriginAccessIdentity,
   OriginBindConfig,
   OriginBindOptions,
   ViewerProtocolPolicy,
 } from "aws-cdk-lib/aws-cloudfront";
-import { S3Origin } from "aws-cdk-lib/aws-cloudfront-origins";
-import { PolicyStatement } from "aws-cdk-lib/aws-iam";
+import { S3BucketOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
 import { Key } from "aws-cdk-lib/aws-kms";
 import {
   BlockPublicAccess,
@@ -26,6 +24,7 @@ import { Construct } from "constructs";
 import { BucketDeploymentProps } from "./bucket-deployment-props";
 import { CloudfrontWebAcl, CloudFrontWebAclProps } from "./cloudfront-web-acl";
 import { DistributionProps } from "./distribution-props";
+import { lazilyRender } from "./lazy-token-renderer";
 
 const DEFAULT_RUNTIME_CONFIG_FILENAME = "runtime-config.json";
 
@@ -196,18 +195,6 @@ export class StaticWebsite extends Construct {
         serverAccessLogsBucket: accessLogsBucket,
       });
 
-    const originAccessIdentity = new OriginAccessIdentity(
-      this,
-      "OriginAccessIdentity"
-    );
-    this.websiteBucket.addToResourcePolicy(
-      new PolicyStatement({
-        resources: [this.websiteBucket.bucketArn],
-        actions: ["s3:ListBucket"],
-        principals: [originAccessIdentity.grantPrincipal],
-      })
-    );
-
     const defaultRootObject =
       distributionProps?.defaultRootObject ?? "index.html";
     this.cloudFrontDistribution = new Distribution(
@@ -220,9 +207,7 @@ export class StaticWebsite extends Construct {
         logBucket: logBucket,
         defaultBehavior: {
           ...distributionProps?.defaultBehavior,
-          origin: new S3Origin(this.websiteBucket, {
-            originAccessIdentity,
-          }),
+          origin: S3BucketOrigin.withOriginAccessControl(this.websiteBucket),
           viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         },
         defaultRootObject,
@@ -246,7 +231,7 @@ export class StaticWebsite extends Construct {
               Source.jsonData(
                 props.runtimeOptions?.jsonFileName ||
                   DEFAULT_RUNTIME_CONFIG_FILENAME,
-                props.runtimeOptions?.jsonPayload
+                lazilyRender(this, props.runtimeOptions.jsonPayload)
               ),
             ]
           : []),
