@@ -22,6 +22,7 @@ export class DocsProject extends TypeScriptProject {
       name: "@aws/docs",
       depsUpgrade: false,
       deps: ["fs-extra"],
+      devDeps: ["generate-license-file@3.0.3"],
     });
 
     this.package.addField("private", true);
