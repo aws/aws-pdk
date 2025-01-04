@@ -22,7 +22,7 @@ export class PDKPipelineIntegApp extends PDKNagApp {
       repositoryName: "monorepo",
       crossAccountKeys: true,
       synth: {
-        commands: ["npm ci", "npm run build"],
+        
       },
     });
 
