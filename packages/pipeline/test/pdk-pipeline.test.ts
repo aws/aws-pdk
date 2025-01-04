@@ -1,5 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { log } from "console";
 import * as path from "path";
 import { AwsPrototypingChecks, PDKNag } from "@aws/pdk-nag";
 import { Stack, Stage } from "aws-cdk-lib";
@@ -11,60 +12,22 @@ import { PDKPipeline } from "../src";
 describe("PDK Pipeline Unit Tests", () => {
   const originalEnv = process.env;
 
-  beforeEach(() => {
-    jest.resetModules();
-  });
-
   afterEach(() => {
+    // Reset process.env after each test case
     process.env = originalEnv;
   });
 
-  it("throws error when neither repositoryName nor codestarConnectionArn is provided", () => {
-    const app = PDKNag.app();
-    const stack = new Stack(app);
-
-    expect(() => {
-      new PDKPipeline(stack, "InvalidConfig", {
-        primarySynthDirectory: "cdk.out",
-        synth: {
-          commands: ["npx projen build"],
-        },
-        crossAccountKeys: false,
-      });
-    }).toThrow(
-      "Either repositoryName or codestarConnectionArn must be provided"
-    );
-  });
-
-  it("throws error when codestarConnectionArn is provided without repositoryOwnerAndName", () => {
-    const app = PDKNag.app();
-    const stack = new Stack(app);
-
-    expect(() => {
-      new PDKPipeline(stack, "InvalidCodeStarConfig", {
-        primarySynthDirectory: "cdk.out",
-        codestarConnectionArn:
-          "arn:aws:codestar-connections:region:account:connection/uuid",
-        synth: {
-          commands: ["npx projen build"],
-        },
-        crossAccountKeys: false,
-      });
-    }).toThrow(
-      "repositoryOwnerAndName is required when using codestarConnectionArn"
-    );
-  });
-
-  it("CodeCommit Source - Defaults", () => {
+  it("Defaults", () => {
     const app = PDKNag.app();
     const stack = new Stack(app);
 
     const pipeline = new PDKPipeline(stack, "Defaults", {
+      codestarConnectionArn: "",
+      repositoryOwnerAndName: "",
+      useCodeCommit: true,
       primarySynthDirectory: "cdk.out",
       repositoryName: "Defaults",
-      synth: {
-        commands: ["npx projen build"],
-      },
+      synth: {},
       crossAccountKeys: false,
       sonarCodeScannerConfig: {
         sonarqubeAuthorizedGroup: "dev",
@@ -84,41 +47,7 @@ describe("PDK Pipeline Unit Tests", () => {
     pipeline.buildPipeline();
 
     app.synth();
-    expect(app.nagResults().length).toEqual(0);
-    expect(Template.fromStack(stack)).toMatchSnapshot();
-  });
-
-  it("CodeStar Connection Source - Defaults", () => {
-    const app = PDKNag.app();
-    const stack = new Stack(app);
-
-    const pipeline = new PDKPipeline(stack, "CodeStarDefaults", {
-      primarySynthDirectory: "cdk.out",
-      codestarConnectionArn:
-        "arn:aws:codestar-connections:region:account:connection/uuid",
-      repositoryOwnerAndName: "owner/repo",
-      synth: {
-        commands: ["npx projen build"],
-      },
-      crossAccountKeys: false,
-      sonarCodeScannerConfig: {
-        sonarqubeAuthorizedGroup: "dev",
-        sonarqubeDefaultProfileOrGateName: "dev",
-        sonarqubeEndpoint: "https://sonar.dev",
-        sonarqubeProjectName: "Default",
-      },
-    });
-
-    const stage = new Stage(app, "Stage");
-    const appStack = new Stack(stage, "AppStack");
-    new Asset(appStack, "Asset", {
-      path: path.join(__dirname, "pdk-pipeline.test.ts"),
-    });
-
-    pipeline.addStage(stage);
-    pipeline.buildPipeline();
-
-    app.synth();
+    log(app.nagResults());
     expect(app.nagResults().length).toEqual(0);
     expect(Template.fromStack(stack)).toMatchSnapshot();
   });
@@ -128,11 +57,12 @@ describe("PDK Pipeline Unit Tests", () => {
     const stack = new Stack(app);
 
     const pipeline = new PDKPipeline(stack, "Defaults", {
+      codestarConnectionArn: "",
+      repositoryOwnerAndName: "",
+      useCodeCommit: true,
       primarySynthDirectory: "cdk.out",
       repositoryName: "Defaults",
-      synth: {
-        commands: ["npx projen build"],
-      },
+      synth: {},
       crossAccountKeys: false,
       sonarCodeScannerConfig: {
         sonarqubeAuthorizedGroup: "dev",
@@ -161,11 +91,12 @@ describe("PDK Pipeline Unit Tests", () => {
     const stack = new Stack(app);
 
     const pipeline = new PDKPipeline(stack, "CrossAccount", {
+      codestarConnectionArn: "",
+      repositoryOwnerAndName: "",
+      useCodeCommit: true,
       primarySynthDirectory: "cdk.out",
       repositoryName: "Defaults",
-      synth: {
-        commands: ["npx projen build"],
-      },
+      synth: {},
       crossAccountKeys: true,
       sonarCodeScannerConfig: {
         sonarqubeAuthorizedGroup: "dev",
@@ -189,18 +120,17 @@ describe("PDK Pipeline Unit Tests", () => {
     expect(Template.fromStack(stack)).toMatchSnapshot();
   });
 
-  it("CrossAccount - CodeStar Connection", () => {
-    const app = PDKNag.app();
+  it("CrossAccount - using AwsPrototyping NagPack", () => {
+    const app = PDKNag.app({ nagPacks: [new AwsPrototypingChecks()] });
     const stack = new Stack(app);
 
-    const pipeline = new PDKPipeline(stack, "CrossAccountCodeStar", {
+    const pipeline = new PDKPipeline(stack, "CrossAccount", {
+      codestarConnectionArn: "",
+      repositoryOwnerAndName: "",
+      useCodeCommit: true,
       primarySynthDirectory: "cdk.out",
-      codestarConnectionArn:
-        "arn:aws:codestar-connections:region:account:connection/uuid",
-      repositoryOwnerAndName: "owner/repo",
-      synth: {
-        commands: ["npx projen build"],
-      },
+      repositoryName: "Defaults",
+      synth: {},
       crossAccountKeys: true,
       sonarCodeScannerConfig: {
         sonarqubeAuthorizedGroup: "dev",
@@ -208,68 +138,6 @@ describe("PDK Pipeline Unit Tests", () => {
         sonarqubeEndpoint: "https://sonar.dev",
         sonarqubeProjectName: "Default",
       },
-    });
-
-    const stage = new Stage(app, "Stage");
-    const appStack = new Stack(stage, "AppStack");
-    new Asset(appStack, "Asset", {
-      path: path.join(__dirname, "pdk-pipeline.test.ts"),
-    });
-
-    pipeline.addStage(stage);
-    pipeline.buildPipeline();
-
-    app.synth();
-    expect(app.nagResults().length).toEqual(0);
-    expect(Template.fromStack(stack)).toMatchSnapshot();
-  });
-
-  it("Feature Branches - CodeCommit", () => {
-    delete process.env.BRANCH;
-    const app = PDKNag.app();
-    const stack = new Stack(app);
-
-    const pipeline = new PDKPipeline(stack, "FeatureBranches", {
-      primarySynthDirectory: "cdk.out",
-      repositoryName: "FeatureBranches",
-      defaultBranchName: "mainline",
-      branchNamePrefixes: PDKPipeline.ALL_BRANCHES,
-      synth: {
-        commands: ["npx projen build"],
-      },
-      crossAccountKeys: false,
-    });
-
-    const stage = new Stage(app, "Stage");
-    const appStack = new Stack(stage, "AppStack");
-    new Asset(appStack, "Asset", {
-      path: path.join(__dirname, "pdk-pipeline.test.ts"),
-    });
-
-    pipeline.addStage(stage);
-    pipeline.buildPipeline();
-
-    app.synth();
-    expect(app.nagResults().length).toEqual(0);
-    expect(Template.fromStack(stack)).toMatchSnapshot();
-  });
-
-  it("Feature Branches - CodeStar Connection", () => {
-    delete process.env.BRANCH;
-    const app = PDKNag.app();
-    const stack = new Stack(app);
-
-    const pipeline = new PDKPipeline(stack, "FeatureBranchesCodeStar", {
-      primarySynthDirectory: "cdk.out",
-      codestarConnectionArn:
-        "arn:aws:codestar-connections:region:account:connection/uuid",
-      repositoryOwnerAndName: "owner/repo",
-      defaultBranchName: "main",
-      branchNamePrefixes: PDKPipeline.ALL_BRANCHES,
-      synth: {
-        commands: ["npx projen build"],
-      },
-      crossAccountKeys: false,
     });
 
     const stage = new Stage(app, "Stage");
@@ -291,12 +159,12 @@ describe("PDK Pipeline Unit Tests", () => {
     const stack = new Stack(app);
 
     const pipeline = new PDKPipeline(stack, "StageNagRuns", {
+      codestarConnectionArn: "",
+      repositoryOwnerAndName: "",
+      useCodeCommit: true,
       primarySynthDirectory: "cdk.out",
       repositoryName: "StageNagRuns",
-      synth: {
-        commands: ["npx projen build"],
-      },
-      crossAccountKeys: false,
+      synth: {},
       sonarCodeScannerConfig: {
         sonarqubeAuthorizedGroup: "dev",
         sonarqubeDefaultProfileOrGateName: "dev",
@@ -327,12 +195,12 @@ describe("PDK Pipeline Unit Tests", () => {
     const stack = new Stack(app);
 
     const pipeline = new PDKPipeline(stack, "StageNagRuns", {
+      codestarConnectionArn: "",
+      repositoryOwnerAndName: "",
+      useCodeCommit: true,
       primarySynthDirectory: "cdk.out",
       repositoryName: "StageNagRuns",
-      synth: {
-        commands: ["npx projen build"],
-      },
-      crossAccountKeys: false,
+      synth: {},
       sonarCodeScannerConfig: {
         sonarqubeAuthorizedGroup: "dev",
         sonarqubeDefaultProfileOrGateName: "dev",
@@ -353,5 +221,206 @@ describe("PDK Pipeline Unit Tests", () => {
     expect(app.nagResults()[0].resource).toEqual(
       "Stage/AppStack/Non-Compliant/Resource"
     );
+  });
+
+  it("Feature Branches", () => {
+    delete process.env.BRANCH;
+    const app = PDKNag.app();
+    const stack = new Stack(app);
+
+    const pipeline = new PDKPipeline(stack, "FeatureBranches", {
+      codestarConnectionArn: "",
+      repositoryOwnerAndName: "",
+      useCodeCommit: true,
+      primarySynthDirectory: "cdk.out",
+      repositoryName: "FeatureBranches",
+      defaultBranchName: "mainline",
+      branchNamePrefixes: PDKPipeline.ALL_BRANCHES,
+      synth: {},
+      crossAccountKeys: false,
+    });
+
+    const stage = new Stage(app, "Stage");
+    const appStack = new Stack(stage, "AppStack");
+    new Asset(appStack, "Asset", {
+      path: path.join(__dirname, "pdk-pipeline.test.ts"),
+    });
+
+    pipeline.addStage(stage);
+    pipeline.buildPipeline();
+
+    app.synth();
+    expect(app.nagResults().length).toEqual(0);
+    expect(Template.fromStack(stack)).toMatchSnapshot();
+  });
+
+  it("Feature Branches - mainline", () => {
+    process.env.BRANCH = "mainline";
+    const app = PDKNag.app();
+    const stack = new Stack(app);
+    const branchPrefix = "";
+
+    const pipeline = new PDKPipeline(stack, branchPrefix + "FeatureBranches", {
+      codestarConnectionArn: "",
+      repositoryOwnerAndName: "",
+      useCodeCommit: true,
+      primarySynthDirectory: "cdk.out",
+      repositoryName: "FeatureBranches",
+      defaultBranchName: "mainline",
+      branchNamePrefixes: PDKPipeline.ALL_BRANCHES,
+      synth: {},
+      crossAccountKeys: false,
+    });
+
+    const stage = new Stage(app, branchPrefix + "Stage");
+    const appStack = new Stack(stage, "AppStack");
+    new Asset(appStack, "Asset", {
+      path: path.join(__dirname, "pdk-pipeline.test.ts"),
+    });
+
+    pipeline.addStage(stage);
+    pipeline.buildPipeline();
+
+    app.synth();
+    expect(app.nagResults().length).toEqual(0);
+    expect(Template.fromStack(stack)).toMatchSnapshot();
+  });
+
+  it("Feature Branches - feature/new-feature_branch", () => {
+    process.env.BRANCH = "feature/new-feature_branch";
+    const app = PDKNag.app();
+    const stack = new Stack(app);
+    const branchPrefix = PDKPipeline.getBranchPrefix({ node: app.node });
+
+    const pipeline = new PDKPipeline(stack, branchPrefix + "FeatureBranches", {
+      codestarConnectionArn: "",
+      repositoryOwnerAndName: "",
+      useCodeCommit: true,
+      primarySynthDirectory: "cdk.out",
+      repositoryName: "FeatureBranches",
+      defaultBranchName: "mainline",
+      branchNamePrefixes: PDKPipeline.ALL_BRANCHES,
+      synth: {},
+      crossAccountKeys: false,
+    });
+
+    const stage = new Stage(app, branchPrefix + "Stage");
+    const appStack = new Stack(stage, "AppStack");
+    new Asset(appStack, "Asset", {
+      path: path.join(__dirname, "pdk-pipeline.test.ts"),
+    });
+
+    pipeline.addStage(stage);
+    pipeline.buildPipeline();
+
+    app.synth();
+    expect(app.nagResults().length).toEqual(0);
+    expect(Template.fromStack(stack)).toMatchSnapshot();
+  });
+
+  it("Feature Branches - using AwsPrototyping NagPack", () => {
+    delete process.env.BRANCH;
+    const app = PDKNag.app({
+      failOnError: false,
+      nagPacks: [new AwsPrototypingChecks()],
+    });
+    const stack = new Stack(app);
+
+    const pipeline = new PDKPipeline(stack, "FeatureBranches", {
+      codestarConnectionArn: "",
+      repositoryOwnerAndName: "",
+      useCodeCommit: true,
+      primarySynthDirectory: "cdk.out",
+      repositoryName: "FeatureBranches",
+      defaultBranchName: "mainline",
+      branchNamePrefixes: PDKPipeline.ALL_BRANCHES,
+      synth: {},
+      crossAccountKeys: false,
+    });
+
+    const stage = new Stage(app, "Stage");
+    const appStack = new Stack(stage, "AppStack");
+    new Asset(appStack, "Asset", {
+      path: path.join(__dirname, "pdk-pipeline.test.ts"),
+    });
+
+    pipeline.addStage(stage);
+    pipeline.buildPipeline();
+
+    app.synth();
+    log(JSON.stringify(app.nagResults(), null, 2));
+    expect(app.nagResults().length).toEqual(0);
+    expect(Template.fromStack(stack)).toMatchSnapshot();
+  });
+
+  it("Feature Branches - mainline - using AwsPrototyping NagPack", () => {
+    process.env.BRANCH = "mainline";
+    const app = PDKNag.app({
+      failOnError: false,
+      nagPacks: [new AwsPrototypingChecks()],
+    });
+    const stack = new Stack(app);
+    const branchPrefix = "";
+
+    const pipeline = new PDKPipeline(stack, branchPrefix + "FeatureBranches", {
+      codestarConnectionArn: "",
+      repositoryOwnerAndName: "",
+      useCodeCommit: true,
+      primarySynthDirectory: "cdk.out",
+      repositoryName: "FeatureBranches",
+      defaultBranchName: "mainline",
+      branchNamePrefixes: PDKPipeline.ALL_BRANCHES,
+      synth: {},
+      crossAccountKeys: false,
+    });
+
+    const stage = new Stage(app, branchPrefix + "Stage");
+    const appStack = new Stack(stage, "AppStack");
+    new Asset(appStack, "Asset", {
+      path: path.join(__dirname, "pdk-pipeline.test.ts"),
+    });
+
+    pipeline.addStage(stage);
+    pipeline.buildPipeline();
+    app.synth();
+    log(JSON.stringify(app.nagResults(), null, 2));
+    expect(app.nagResults().length).toEqual(0);
+    expect(Template.fromStack(stack)).toMatchSnapshot();
+  });
+
+  it("Feature Branches - feature/new-feature_branch - using AwsPrototyping NagPack", () => {
+    process.env.BRANCH = "feature/new-feature_branch";
+    const app = PDKNag.app({
+      failOnError: false,
+      nagPacks: [new AwsPrototypingChecks()],
+    });
+    const stack = new Stack(app);
+    const branchPrefix = PDKPipeline.getBranchPrefix({ node: app.node });
+
+    const pipeline = new PDKPipeline(stack, branchPrefix + "FeatureBranches", {
+      codestarConnectionArn: "",
+      repositoryOwnerAndName: "",
+      useCodeCommit: true,
+      primarySynthDirectory: "cdk.out",
+      repositoryName: "FeatureBranches",
+      defaultBranchName: "mainline",
+      branchNamePrefixes: PDKPipeline.ALL_BRANCHES,
+      synth: {},
+      crossAccountKeys: false,
+    });
+
+    const stage = new Stage(app, branchPrefix + "Stage");
+    const appStack = new Stack(stage, "AppStack");
+    new Asset(appStack, "Asset", {
+      path: path.join(__dirname, "pdk-pipeline.test.ts"),
+    });
+
+    pipeline.addStage(stage);
+    pipeline.buildPipeline();
+
+    app.synth();
+    const results = app.nagResults();
+    expect(results.length).toEqual(0);
+    expect(Template.fromStack(stack)).toMatchSnapshot();
   });
 });
