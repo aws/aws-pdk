@@ -18,11 +18,14 @@ export class PDKPipelineIntegApp extends PDKNagApp {
       env: ENVIRONMENTS.DEFAULT,
     });
     const pipeline = new PDKPipeline(pipelineStack, "Pipeline", {
+      useCodeCommit: true,
+      codestarConnectionArn:'',
+      repositoryOwnerAndName: '',
       primarySynthDirectory: props.outdir,
       repositoryName: "monorepo",
       crossAccountKeys: true,
       synth: {
-        
+
       },
     });
 
