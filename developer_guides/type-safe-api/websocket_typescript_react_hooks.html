@@ -3895,46 +3895,46 @@
 <span class="p">};</span>
 </code></pre></div>
 <p>Next, instantiate the client provider above where you would like to use the hooks in your component hierarchy (such as above your router). For example:</p>
-<div class="highlight"><pre><span></span><code>// NB: client provider may be named differently if you have tagged your operations
-import { DefaultApiWebSocketClientProvider } from &quot;myapi-typescript-websocket-hooks&quot;;
+<div class="highlight"><pre><span></span><code><span class="c1">// NB: client provider may be named differently if you have tagged your operations</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">DefaultApiWebSocketClientProvider</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;myapi-typescript-websocket-hooks&quot;</span><span class="p">;</span>
 
-const client = useWebSocketApiClient();
+<span class="kd">const</span><span class="w"> </span><span class="nx">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useWebSocketApiClient</span><span class="p">();</span>
 
-return client ? (
-  &lt;DefaultApiClientProvider client={client}&gt;
-    {/* Components within the provider may make use of the hooks */}
-  &lt;/DefaultApiClientProvider&gt;
-) : &lt;Spinner /&gt;;
+<span class="k">return</span><span class="w"> </span><span class="nx">client</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">(</span>
+<span class="w">  </span><span class="p">&lt;</span><span class="nt">DefaultApiClientProvider</span><span class="w"> </span><span class="na">client</span><span class="o">=</span><span class="p">{</span><span class="nx">client</span><span class="p">}&gt;</span>
+<span class="w">    </span><span class="p">{</span><span class="cm">/* Components within the provider may make use of the hooks */</span><span class="p">}</span>
+<span class="w">  </span><span class="p">&lt;/</span><span class="nt">DefaultApiClientProvider</span><span class="p">&gt;</span>
+<span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">&lt;</span><span class="nt">Spinner</span><span class="w"> </span><span class="p">/&gt;;</span>
 </code></pre></div>
 <p>Finally, you can import and use your generated hooks. For example:</p>
-<div class="highlight"><pre><span></span><code>import { useDefaultApiWebSocketClient, useOnSendNotification } from &quot;myapi-typescript-websocket-hooks&quot;;
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useDefaultApiWebSocketClient</span><span class="p">,</span><span class="w"> </span><span class="nx">useOnSendNotification</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;myapi-typescript-websocket-hooks&quot;</span><span class="p">;</span>
 
-export const MyComponent: FC&lt;MyComponentProps&gt; = () =&gt; {
-  // The useDefaultApiWebSocketClient hook retrieves the client from the context (reusing the existing connection)
-  const client = useDefaultApiWebSocketClient();
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">MyComponent</span><span class="o">:</span><span class="w"> </span><span class="kt">FC</span><span class="p">&lt;</span><span class="nt">MyComponentProps</span><span class="p">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// The useDefaultApiWebSocketClient hook retrieves the client from the context (reusing the existing connection)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useDefaultApiWebSocketClient</span><span class="p">();</span>
 
-  const [notifications, setNotifications] = useState&lt;string[]&gt;([]);
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">notifications</span><span class="p">,</span><span class="w"> </span><span class="nx">setNotifications</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useState</span><span class="p">&lt;</span><span class="nt">string</span><span class="err">[]</span><span class="p">&gt;([]);</span>
 
-  // The useOn&lt;OperationName&gt; hooks listen for server_to_client or bidirectional messages for the operation
-  // Pass the deps array as the second argument just like you would for a useCallback hook.
-  useOnSendNotification((input) =&gt; {
-    setNotifications(prev =&gt; [...prev, input.message]);
-  }, [setNotifications]);
+<span class="w">  </span><span class="c1">// The useOn&lt;OperationName&gt; hooks listen for server_to_client or bidirectional messages for the operation</span>
+<span class="w">  </span><span class="c1">// Pass the deps array as the second argument just like you would for a useCallback hook.</span>
+<span class="w">  </span><span class="nx">useOnSendNotification</span><span class="p">((</span><span class="nx">input</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">setNotifications</span><span class="p">(</span><span class="nx">prev</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">[...</span><span class="nx">prev</span><span class="p">,</span><span class="w"> </span><span class="nx">input</span><span class="p">.</span><span class="nx">message</span><span class="p">]);</span>
+<span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="p">[</span><span class="nx">setNotifications</span><span class="p">]);</span>
 
-  return (
-    &lt;div&gt;
-      {/* Use the client to send messages to the server */}
-      &lt;Button onClick={() =&gt; client.subscribeToNotifications({ topic: &quot;foo&quot; })}&gt;Send!&lt;/Button&gt;
-      &lt;ul&gt;
-        {notifications.map((notification, i) =&gt; (
-          &lt;li key={i}&gt;
-            {notification}
-          &lt;/li&gt;
-        ))}
-      &lt;/ul&gt;
-    &lt;/div&gt;
-  )
-};
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">{</span><span class="cm">/* Use the client to send messages to the server */</span><span class="p">}</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">Button</span><span class="w"> </span><span class="na">onClick</span><span class="o">=</span><span class="p">{()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">subscribeToNotifications</span><span class="p">({</span><span class="w"> </span><span class="nx">topic</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;foo&quot;</span><span class="w"> </span><span class="p">})}&gt;</span><span class="nx">Send</span><span class="o">!</span><span class="p">&lt;/</span><span class="nt">Button</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
+<span class="w">        </span><span class="p">{</span><span class="nx">notifications</span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">notification</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">(</span>
+<span class="w">          </span><span class="p">&lt;</span><span class="nt">li</span><span class="w"> </span><span class="na">key</span><span class="o">=</span><span class="p">{</span><span class="nx">i</span><span class="p">}&gt;</span>
+<span class="w">            </span><span class="p">{</span><span class="nx">notification</span><span class="p">}</span>
+<span class="w">          </span><span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+<span class="w">        </span><span class="p">))}</span>
+<span class="w">      </span><span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+<span class="w">    </span><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="w">  </span><span class="p">)</span>
+<span class="p">};</span>
 </code></pre></div>
 
   <hr>
@@ -3942,7 +3942,7 @@ export const MyComponent: FC&lt;MyComponentProps&gt; = () =&gt; {
   <small>
     
       Last update:
-      2024-12-20
+      2025-02-12
     
   </small>
 </div>

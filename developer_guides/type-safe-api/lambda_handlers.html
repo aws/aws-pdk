@@ -3900,12 +3900,12 @@
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">myapi_python_runtime.api.operation_config</span> <span class="kn">import</span> <span class="n">say_hello_handler</span><span class="p">,</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="n">ApiResponse</span><span class="p">,</span> <span class="n">SayHelloOperationResponses</span>
-<span class="kn">from</span> <span class="nn">myapi_python_runtime.model.api_error</span> <span class="kn">import</span> <span class="n">ApiError</span>
-<span class="kn">from</span> <span class="nn">myapi_python_runtime.model.say_hello_response_content</span> <span class="kn">import</span> <span class="n">SayHelloResponseContent</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">myapi_python_runtime.api.operation_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">say_hello_handler</span><span class="p">,</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="n">ApiResponse</span><span class="p">,</span> <span class="n">SayHelloOperationResponses</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myapi_python_runtime.model.api_error</span><span class="w"> </span><span class="kn">import</span> <span class="n">ApiError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myapi_python_runtime.model.say_hello_response_content</span><span class="w"> </span><span class="kn">import</span> <span class="n">SayHelloResponseContent</span>
 
 <span class="nd">@say_hello_handler</span>
-<span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SayHelloOperationResponses</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">handler</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SayHelloOperationResponses</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">Response</span><span class="o">.</span><span class="n">success</span><span class="p">(</span>
         <span class="n">SayHelloResponseContent</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Hello </span><span class="si">{</span><span class="nb">input</span><span class="o">.</span><span class="n">request_parameters</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">!&quot;</span><span class="p">),</span>
     <span class="p">)</span>
@@ -4078,16 +4078,16 @@
 <div class="tabbed-block">
 <p>Notice this defines a <code>say_hello</code> method which provides type-safety for your inputs and outputs. You can implement your business logic in there. The lambda handler is wrapped by the <code>say_hello_handler</code> wrapper which manages marshalling and demarshalling, as well as the application of "interceptors". Notice that this is used in non-annotation form, such that <code>say_hello</code> can be called directly in your tests, and you can write tests in terms of your modelled inputs and outputs.</p>
 <p>Notice the default <code>INTERCEPTORS</code> are added to your handler, which provide logging, tracing and metrics from Powertools for AWS Lambda, as well as error handling and adding CORS response headers. For more details about interceptors, refer to the <a href="interceptors.html">Interceptors section</a>.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">myapi_python_runtime.models</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">myapi_python_runtime.response</span> <span class="kn">import</span> <span class="n">Response</span>
-<span class="kn">from</span> <span class="nn">myapi_python_runtime.interceptors</span> <span class="kn">import</span> <span class="n">INTERCEPTORS</span>
-<span class="kn">from</span> <span class="nn">myapi_python_runtime.interceptors.powertools.logger</span> <span class="kn">import</span> <span class="n">LoggingInterceptor</span>
-<span class="kn">from</span> <span class="nn">myapi_python_runtime.api.operation_config</span> <span class="kn">import</span> <span class="p">(</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">myapi_python_runtime.models</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myapi_python_runtime.response</span><span class="w"> </span><span class="kn">import</span> <span class="n">Response</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myapi_python_runtime.interceptors</span><span class="w"> </span><span class="kn">import</span> <span class="n">INTERCEPTORS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myapi_python_runtime.interceptors.powertools.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoggingInterceptor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myapi_python_runtime.api.operation_config</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">say_hello_handler</span><span class="p">,</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="n">SayHelloOperationResponses</span>
 <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">say_hello</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SayHelloOperationResponses</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">say_hello</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SayHelloOperationResponses</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Type-safe handler for the SayHello operation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -4156,8 +4156,8 @@
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">myapi_python_infra.api</span> <span class="kn">import</span> <span class="n">Api</span>
-<span class="hll"><span class="kn">from</span> <span class="nn">myapi_python_infra.functions</span> <span class="kn">import</span> <span class="n">SayHelloFunction</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">myapi_python_infra.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Api</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">myapi_python_infra.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">SayHelloFunction</span>
 </span>
 <span class="n">Api</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span>
    <span class="n">default_authorizer</span><span class="o">=</span><span class="n">Authorizers</span><span class="o">.</span><span class="n">iam</span><span class="p">(),</span>
@@ -4389,14 +4389,14 @@
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">myapi_python_runtime.apis.tags.default_api_operation_config</span> <span class="kn">import</span> <span class="n">say_hello_handler</span><span class="p">,</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="n">ApiResponse</span><span class="p">,</span> <span class="n">SayHelloOperationResponses</span><span class="p">,</span> <span class="n">handler_router</span><span class="p">,</span> <span class="n">HandlerRouterHandlers</span>
-<span class="kn">from</span> <span class="nn">myapi_python_runtime.model.api_error</span> <span class="kn">import</span> <span class="n">ApiError</span>
-<span class="kn">from</span> <span class="nn">myapi_python_runtime.model.hello_response</span> <span class="kn">import</span> <span class="n">HelloResponse</span>
-<span class="kn">from</span> <span class="nn">other_handlers</span> <span class="kn">import</span> <span class="n">say_goodbye</span>
-<span class="kn">from</span> <span class="nn">my_interceptors</span> <span class="kn">import</span> <span class="n">cors_interceptor</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">myapi_python_runtime.apis.tags.default_api_operation_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">say_hello_handler</span><span class="p">,</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="n">ApiResponse</span><span class="p">,</span> <span class="n">SayHelloOperationResponses</span><span class="p">,</span> <span class="n">handler_router</span><span class="p">,</span> <span class="n">HandlerRouterHandlers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myapi_python_runtime.model.api_error</span><span class="w"> </span><span class="kn">import</span> <span class="n">ApiError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myapi_python_runtime.model.hello_response</span><span class="w"> </span><span class="kn">import</span> <span class="n">HelloResponse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">other_handlers</span><span class="w"> </span><span class="kn">import</span> <span class="n">say_goodbye</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">my_interceptors</span><span class="w"> </span><span class="kn">import</span> <span class="n">cors_interceptor</span>
 
 <span class="nd">@say_hello_handler</span>
-<span class="k">def</span> <span class="nf">say_hello</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SayHelloOperationResponses</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">say_hello</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SayHelloOperationResponses</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">ApiResponse</span><span class="p">(</span>
         <span class="n">status_code</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
         <span class="n">body</span><span class="o">=</span><span class="n">HelloResponse</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Hello </span><span class="si">{}</span><span class="s2">!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">request_parameters</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])),</span>
@@ -4451,9 +4451,9 @@
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">aws_pdk.type_safe_api</span> <span class="kn">import</span> <span class="n">Integrations</span><span class="p">,</span> <span class="n">TypeSafeApiIntegration</span><span class="p">,</span> <span class="n">Authorizers</span>
-<span class="kn">from</span> <span class="nn">myapi_python_runtime.apis.tags.default_api_operation_config</span> <span class="kn">import</span> <span class="n">Operations</span>
-<span class="kn">from</span> <span class="nn">myapi_python_infra.api</span> <span class="kn">import</span> <span class="n">Api</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">aws_pdk.type_safe_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Integrations</span><span class="p">,</span> <span class="n">TypeSafeApiIntegration</span><span class="p">,</span> <span class="n">Authorizers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myapi_python_runtime.apis.tags.default_api_operation_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Operations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myapi_python_infra.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Api</span>
 
 <span class="n">Api</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Api&quot;</span><span class="p">,</span>
     <span class="n">default_authorizer</span><span class="o">=</span><span class="n">Authorizers</span><span class="o">.</span><span class="n">iam</span><span class="p">(),</span>
@@ -4472,7 +4472,7 @@
   <small>
     
       Last update:
-      2024-12-20
+      2025-02-12
     
   </small>
 </div>

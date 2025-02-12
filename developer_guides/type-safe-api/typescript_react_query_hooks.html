@@ -3934,31 +3934,31 @@ an instance of <code>fetch</code> which will sign requests with the logged in us
 <span class="p">};</span>
 </code></pre></div>
 <p>Next, instantiate the client provider above where you would like to use the hooks in your component hierarchy (such as above your router). For example:</p>
-<div class="highlight"><pre><span></span><code>// NB: client provider may be named differently if you have tagged your operations
-import { DefaultApiClientProvider } from &quot;myapi-typescript-react-query-hooks&quot;;
+<div class="highlight"><pre><span></span><code><span class="c1">// NB: client provider may be named differently if you have tagged your operations</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">DefaultApiClientProvider</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;myapi-typescript-react-query-hooks&quot;</span><span class="p">;</span>
 
-const api = useApiClient();
+<span class="kd">const</span><span class="w"> </span><span class="nx">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useApiClient</span><span class="p">();</span>
 
-return (
-  &lt;DefaultApiClientProvider apiClient={api}&gt;
-    {/* Components within the provider may make use of the hooks */}
-  &lt;/DefaultApiClientProvider&gt;
-);
+<span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<span class="w">  </span><span class="p">&lt;</span><span class="nt">DefaultApiClientProvider</span><span class="w"> </span><span class="na">apiClient</span><span class="o">=</span><span class="p">{</span><span class="nx">api</span><span class="p">}&gt;</span>
+<span class="w">    </span><span class="p">{</span><span class="cm">/* Components within the provider may make use of the hooks */</span><span class="p">}</span>
+<span class="w">  </span><span class="p">&lt;/</span><span class="nt">DefaultApiClientProvider</span><span class="p">&gt;</span>
+<span class="p">);</span>
 </code></pre></div>
 <p>Finally, you can import and use your generated hooks. For example:</p>
-<div class="highlight"><pre><span></span><code>import { useSayHello } from &quot;myapi-typescript-react-query-hooks&quot;;
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useSayHello</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;myapi-typescript-react-query-hooks&quot;</span><span class="p">;</span>
 
-export const MyComponent: FC&lt;MyComponentProps&gt; = () =&gt; {
-  const sayHello = useSayHello({ name: &quot;World&quot; });
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">MyComponent</span><span class="o">:</span><span class="w"> </span><span class="kt">FC</span><span class="p">&lt;</span><span class="nt">MyComponentProps</span><span class="p">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">sayHello</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useSayHello</span><span class="p">({</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;World&quot;</span><span class="w"> </span><span class="p">});</span>
 
-  return sayHello.isLoading ? (
-    &lt;p&gt;Loading...&lt;/p&gt;
-  ) : sayHello.isError ? (
-    &lt;p&gt;Error!&lt;/p&gt;
-  ) : (
-    &lt;h1&gt;{sayHello.data.message}&lt;/h1&gt;
-  );
-};
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">sayHello</span><span class="p">.</span><span class="nx">isLoading</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span><span class="nx">Loading</span><span class="p">...&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="nx">sayHello</span><span class="p">.</span><span class="nx">isError</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span><span class="ne">Error</span><span class="o">!</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;{</span><span class="nx">sayHello</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">message</span><span class="p">}&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">};</span>
 </code></pre></div>
 <h2 id="paginated-operations">Paginated Operations</h2>
 <p>You can generate <code>useInfiniteQuery</code> hooks instead of <code>useQuery</code> hooks for paginated API operations by configuring the operation in your model. The configuration requires both an <code>inputToken</code> (specifies the input property used to request the next page), and an <code>outputToken</code> (specifies the output property in which the pagination token is returned) to be present.</p>
@@ -4034,16 +4034,16 @@ op ListPets(@query nextToken?: string): {
 </div>
 <h2 id="custom-queryclient">Custom QueryClient</h2>
 <p>If you wish to customise the react-query <code>QueryClient</code>, pass a custom instance to the client provider, eg:</p>
-<div class="highlight"><pre><span></span><code>import { DefaultApiClientProvider } from &quot;myapi-typescript-react-query-hooks&quot;;
-import { QueryClient } from &quot;@tanstack/react-query&quot;;
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">DefaultApiClientProvider</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;myapi-typescript-react-query-hooks&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">QueryClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@tanstack/react-query&quot;</span><span class="p">;</span>
 
-const queryClient = new QueryClient({ ... });
+<span class="kd">const</span><span class="w"> </span><span class="nx">queryClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">QueryClient</span><span class="p">({</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">});</span>
 
-return (
-  &lt;DefaultApiClientProvider apiClient={api} client={queryClient}&gt;
-    {/* Components within the provider may make use of the hooks */}
-  &lt;/DefaultApiClientProvider&gt;
-);
+<span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<span class="w">  </span><span class="p">&lt;</span><span class="nt">DefaultApiClientProvider</span><span class="w"> </span><span class="na">apiClient</span><span class="o">=</span><span class="p">{</span><span class="nx">api</span><span class="p">}</span><span class="w"> </span><span class="na">client</span><span class="o">=</span><span class="p">{</span><span class="nx">queryClient</span><span class="p">}&gt;</span>
+<span class="w">    </span><span class="p">{</span><span class="cm">/* Components within the provider may make use of the hooks */</span><span class="p">}</span>
+<span class="w">  </span><span class="p">&lt;/</span><span class="nt">DefaultApiClientProvider</span><span class="p">&gt;</span>
+<span class="p">);</span>
 </code></pre></div>
 
   <hr>
@@ -4051,7 +4051,7 @@ return (
   <small>
     
       Last update:
-      2024-12-20
+      2025-02-12
     
   </small>
 </div>
