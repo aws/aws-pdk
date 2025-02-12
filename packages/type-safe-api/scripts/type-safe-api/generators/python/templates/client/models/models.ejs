@@ -462,7 +462,7 @@ class <%- model.name %>(BaseModel):
                 if self.<%- property.pythonName %>[_key]:
                     _field_dict[_key] = self.<%- property.pythonName %>[_key].to_dict()
             _dict['<%- property.name %>'] = _field_dict
-        <%_ } else if (!property.isPrimitive) { _%>
+        <%_ } else if (property.export !== 'array' && !property.isPrimitive) { _%>
         # override the default output from pydantic by calling `to_dict()` of <%- property.pythonName %>
         if self.<%- property.pythonName %>:
             _dict['<%- property.name %>'] = self.<%- property.pythonName %>.to_dict()
