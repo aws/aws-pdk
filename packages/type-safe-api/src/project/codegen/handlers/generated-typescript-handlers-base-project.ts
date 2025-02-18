@@ -63,7 +63,7 @@ export abstract class GeneratedTypescriptHandlersBaseProject extends TypeScriptP
       npmignoreEnabled: false,
     });
     this.options = options;
-    this.runtimeVersion = options.runtimeVersion ?? NodeVersion.NODE_18;
+    this.runtimeVersion = options.runtimeVersion ?? NodeVersion.NODE_22;
 
     TypeSafeApiCommandEnvironment.ensure(this);
 

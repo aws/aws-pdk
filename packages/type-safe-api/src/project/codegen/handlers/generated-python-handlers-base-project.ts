@@ -58,7 +58,7 @@ export abstract class GeneratedPythonHandlersBaseProject extends PythonProject {
     });
     TypeSafeApiCommandEnvironment.ensure(this);
     this.options = options;
-    this.runtimeVersion = options.runtimeVersion ?? PythonVersion.PYTHON_3_11;
+    this.runtimeVersion = options.runtimeVersion ?? PythonVersion.PYTHON_3_13;
     this.tstDir = "test";
 
     if (options.pytest ?? true) {
