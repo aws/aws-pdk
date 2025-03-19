@@ -361,7 +361,9 @@ export class TypeSafeRestApi extends Construct {
       "PrepareSpecCustomResource",
       {
         serviceToken: provider.serviceToken,
-        properties: prepareApiSpecCustomResourceProperties,
+        properties: {
+          options: JSON.stringify(prepareApiSpecCustomResourceProperties),
+        },
       }
     );
 
