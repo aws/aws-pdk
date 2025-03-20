@@ -53,7 +53,14 @@ interface OnEventRequest {
   /**
    * Properties for preparing the api
    */
-  readonly ResourceProperties: PrepareApiSpecCustomResourceProperties;
+  readonly ResourceProperties: {
+    /**
+     * This is acually of type PrepareApiSpecCustomResourceProperties but JSON stringified to work around A
+     * bug in cloudformation!
+     * @see https://github.com/aws-cloudformation/cloudformation-coverage-roadmap/issues/1037
+     */
+    options: string;
+  };
 }
 
 /**
@@ -136,7 +143,9 @@ exports.handler = async (event: OnEventRequest): Promise<OnEventResponse> => {
     case "Create":
     case "Update":
       // Prepare the spec on create
-      const outputLocation = await prepare(event.ResourceProperties);
+      const outputLocation = await prepare(
+        JSON.parse(event.ResourceProperties.options)
+      );
       return {
         PhysicalResourceId: outputLocation.key,
         Status: "SUCCESS",
