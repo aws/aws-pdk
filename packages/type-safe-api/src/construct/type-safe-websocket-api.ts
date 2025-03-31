@@ -2,6 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
+import { addMetric } from "@aws/monorepo";
 import { PDKNag } from "@aws/pdk-nag";
 import { CustomResource, Duration, Stack } from "aws-cdk-lib";
 import {
@@ -139,6 +140,9 @@ export class TypeSafeWebsocketApi extends Construct {
 
   constructor(scope: Construct, id: string, props: TypeSafeWebsocketApiProps) {
     super(scope, id);
+
+    addMetric(scope, "type-safe-websocket-api");
+
     this._props = props;
 
     // Create the WebSocket API

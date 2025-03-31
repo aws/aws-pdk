@@ -2,7 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
-import { PDKProject } from "../abstract/pdk-project";
+import { PDK_NAMESPACE, PDKProject } from "../abstract/pdk-project";
 
 /**
  * Contains utils for testing CDK based constructs.
@@ -27,6 +27,7 @@ export class PDKNagProject extends PDKProject {
         "fs-extra",
         "ts-node",
       ],
+      deps: [`${PDK_NAMESPACE}monorepo@^0.x`],
       author: "AWS APJ COPE",
       authorAddress: "apj-cope@amazon.com",
       repositoryUrl: "https://github.com/aws/aws-pdk",

@@ -26,7 +26,7 @@ export class StaticWebsiteProject extends PDKProject {
         "cdk-nag",
       ],
       peerDeps: ["projen", "aws-cdk-lib", "constructs", "cdk-nag"],
-      deps: [`${PDK_NAMESPACE}pdk-nag@^0.x`],
+      deps: [`${PDK_NAMESPACE}pdk-nag@^0.x`, `${PDK_NAMESPACE}monorepo@^0.x`],
       stability: Stability.STABLE,
     });
 

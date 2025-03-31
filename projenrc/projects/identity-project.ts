@@ -31,7 +31,7 @@ export class IdentityProject extends PDKProject {
         "cdk-nag",
         "@aws-cdk/aws-cognito-identitypool-alpha",
       ],
-      deps: [`${PDK_NAMESPACE}pdk-nag@^0.x`],
+      deps: [`${PDK_NAMESPACE}pdk-nag@^0.x`, `${PDK_NAMESPACE}monorepo@^0.x`],
       stability: Stability.STABLE,
     });
   }

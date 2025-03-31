@@ -1,5 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { addMetric } from "@aws/monorepo";
 import {
   IdentityPool,
   IdentityPoolProps,
@@ -46,6 +47,8 @@ export class UserIdentity extends Construct {
 
   constructor(scope: Construct, id: string, props?: UserIdentityProps) {
     super(scope, id);
+
+    addMetric(scope, "identity");
 
     // Unless explicitly stated, created a default Cognito User Pool and Web Client.
     this.userPool = !props?.userPool
