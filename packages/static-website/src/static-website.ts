@@ -1,5 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { addMetric } from "@aws/monorepo";
 import { PDKNag } from "@aws/pdk-nag";
 import { CfnOutput, RemovalPolicy, Stack } from "aws-cdk-lib";
 import {
@@ -132,6 +133,8 @@ export class StaticWebsite extends Construct {
 
   constructor(scope: Construct, id: string, props: StaticWebsiteProps) {
     super(scope, id);
+
+    addMetric(scope, "static-website");
 
     this.node.setContext(
       "@aws-cdk/aws-s3:serverAccessLogsUseBucketPolicy",

@@ -35,6 +35,7 @@ export class CdkGraphProject extends PDKProject {
         "constructs",
         "projen",
       ],
+      deps: [`${PDK_NAMESPACE}monorepo@^0.x`],
       peerDeps: ["projen", "aws-cdk-lib", "constructs"],
       bundledDeps: [
         "chalk@^4.x",

@@ -2,6 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
+import { addMetric } from "@aws/monorepo";
 import { PDKNag } from "@aws/pdk-nag";
 import { CustomResource, Duration, Size, Stack } from "aws-cdk-lib";
 import {
@@ -113,6 +114,8 @@ export class TypeSafeRestApi extends Construct {
 
   constructor(scope: Construct, id: string, props: TypeSafeRestApiProps) {
     super(scope, id);
+
+    addMetric(scope, "type-safe-rest-api");
 
     const {
       integrations,

@@ -1,6 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
+import { addMetric } from "@aws/monorepo";
 import { Aspects, ISynthesisSession } from "aws-cdk-lib";
 import chalk = require("chalk"); // eslint-disable-line @typescript-eslint/no-require-imports
 import { Construct, IConstruct } from "constructs";
@@ -253,6 +254,8 @@ export class CdkGraph extends Construct {
   constructor(public readonly root: Construct, props: ICdkGraphProps = {}) {
     super(root, CdkGraph.ID);
 
+    addMetric(root, "cdk-graph");
+
     this.config = resolveConfig();
 
     this.plugins = props.plugins || [];
@@ -260,6 +263,7 @@ export class CdkGraph extends Construct {
 
     // bind all plugins to this instance of the graph
     this.plugins.forEach((plugin) => {
+      addMetric(root, `cdk-graph-plugin-${plugin.id}` as any);
       plugin.bind(this);
     });
 

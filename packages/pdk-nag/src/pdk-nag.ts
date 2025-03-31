@@ -19,6 +19,7 @@ import {
 import { IConstruct } from "constructs";
 import { MemoryLogger } from "./loggers/memory-logger";
 import { ExtendedNagResult } from "./loggers/types";
+import { MetricsAspect } from "./metrics-aspect";
 
 const CDK_NAG_MESSAGE_TYPES = {
   ERROR: "aws:cdk:error",
@@ -105,6 +106,7 @@ export class PDKNagApp extends App {
     this.nagPacks = props?.nagPacks ?? DEFAULT_NAG_PACKS;
 
     Aspects.of(this).add(new PDKNagAspect(this));
+    Aspects.of(this).add(new MetricsAspect());
   }
 
   synth(options?: StageSynthesisOptions): CloudAssembly {
