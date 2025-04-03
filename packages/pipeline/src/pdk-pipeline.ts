@@ -51,27 +51,11 @@ export const DEFAULT_BRANCH_NAME = "mainline";
  * synthShellStepPartialProps.commands is marked as a required field, however
  * if you pass in [] the default commands of this construct will be retained.
  */
-export interface PDKPipelineProps extends _CodePipelineProps {
+export interface BasePDKPipelineProps extends _CodePipelineProps {
   /**
    * Whether to use codeCommit or not
    */
-  readonly useCodeCommit: boolean;
-
-  /**
-   * If CodeStar Connections are used - this is the ARN of the connection.
-   */
-  readonly codestarConnectionArn: string;
-
-  /**
-   * The Owner and Repository name for instance, user Bob with git repository
-   * ACME becomes "Bob/ACME"
-   */
-  readonly repositoryOwnerAndName: string;
-
-  /**
-   * Name of the CodeCommit repository to create.
-   */
-  readonly repositoryName: string;
+  readonly useCodeCommit?: boolean;
 
   /**
    * Output directory for cdk synthesized artifacts i.e: packages/infra/cdk.out.
@@ -101,11 +85,20 @@ export interface PDKPipelineProps extends _CodePipelineProps {
   readonly sonarCodeScannerConfig?: SonarCodeScannerConfig;
 
   /**
-   * Possible values for a resource's Removal Policy
-   * The removal policy controls what happens to the resource if it stops being managed by CloudFormation.
+   * The directory with `cdk.json` to run cdk synth from. Set this if you enabled
+   * feature branches and `cdk.json` is not located in the parent directory of
+   * `primarySynthDirectory`.
+   *
+   * @default The parent directory of `primarySynthDirectory`
    */
-  readonly codeCommitRemovalPolicy?: RemovalPolicy;
+  readonly cdkSrcDir?: string;
 
+  /**
+   * CDK command. Override the command used to call cdk for synth and deploy.
+   *
+   * @default 'npx cdk'
+   */
+  readonly cdkCommand?: string;
   /**
    * Branch name prefixes
    * Any branches created matching this list of prefixes will create a new pipeline and stack.
@@ -131,23 +124,39 @@ export interface PDKPipelineProps extends _CodePipelineProps {
    * @default undefined
    */
   readonly branchNamePrefixes?: string[];
-
-  /**
-   * The directory with `cdk.json` to run cdk synth from. Set this if you enabled
-   * feature branches and `cdk.json` is not located in the parent directory of
-   * `primarySynthDirectory`.
-   *
-   * @default The parent directory of `primarySynthDirectory`
-   */
-  readonly cdkSrcDir?: string;
-
-  /**
-   * CDK command. Override the command used to call cdk for synth and deploy.
-   *
-   * @default 'npx cdk'
-   */
-  readonly cdkCommand?: string;
 }
+
+export interface PDKPipelineWithCodeCommit extends BasePDKPipelineProps {
+  useCodeCommit?: true;
+  /**
+   * Name of the CodeCommit repository to create.
+   */
+  readonly repositoryName: string;
+  /**
+ * Possible values for a resource's Removal Policy
+ * The removal policy controls what happens to the resource if it stops being managed by CloudFormation.
+ */
+  readonly codeCommitRemovalPolicy?: RemovalPolicy;
+}
+
+export interface PDKPipelineWithCodeStartConnection extends BasePDKPipelineProps {
+  useCodeCommit: false;
+  branchNamePrefixes?: undefined;
+
+  /**
+   * If CodeStar Connections are used - this is the ARN of the connection.
+   */
+  readonly codestarConnectionArn: string;
+
+  /**
+   * The Owner and Repository name for instance, user Bob with git repository
+   * ACME becomes "Bob/ACME"
+   */
+  readonly repositoryOwnerAndName: string;
+
+}
+
+export type PDKPipelineProps = PDKPipelineWithCodeCommit | PDKPipelineWithCodeStartConnection;
 
 /**
  * Properties to help the isDefaultBranch function determine the default branch name.
@@ -252,8 +261,11 @@ export class PDKPipeline extends Construct {
 
     let source: CodePipelineSource;
 
-    if (props.useCodeCommit) {
+    const useCodeCommit = props.useCodeCommit ?? true;
+
+    if (useCodeCommit) {
       let codeRepository: IRepository;
+      const pipelineProps = props as PDKPipelineWithCodeCommit;
 
       if (
         PDKPipeline.isDefaultBranch({
@@ -263,10 +275,10 @@ export class PDKPipeline extends Construct {
       ) {
         // In the default branch, create a CodeCommit repository
         codeRepository = new Repository(this, "CodeRepository", {
-          repositoryName: props.repositoryName,
+          repositoryName: pipelineProps.repositoryName,
         });
         codeRepository.applyRemovalPolicy(
-          props.codeCommitRemovalPolicy ?? RemovalPolicy.RETAIN
+          pipelineProps.codeCommitRemovalPolicy ?? RemovalPolicy.RETAIN
         );
         // Initialize source here for default branch
         source = CodePipelineSource.codeCommit(
@@ -278,7 +290,7 @@ export class PDKPipeline extends Construct {
         codeRepository = Repository.fromRepositoryName(
           scope,
           "CodeRepository",
-          props.repositoryName
+          pipelineProps.repositoryName
         );
         this.codeRepository = codeRepository;
         source = CodePipelineSource.codeCommit(
@@ -287,17 +299,18 @@ export class PDKPipeline extends Construct {
         );
       }
     } else {
+      const pipelineProps = props as PDKPipelineWithCodeStartConnection;
       // CodeStar connection logic
-      if (!props.codestarConnectionArn) {
+      if (!pipelineProps.codestarConnectionArn) {
         throw new Error(
           "CodeStar connection ARN is required when useCodeCommit is false"
         );
       }
       source = CodePipelineSource.connection(
-        props.repositoryOwnerAndName,
+        pipelineProps.repositoryOwnerAndName,
         props.defaultBranchName || DEFAULT_BRANCH_NAME,
         {
-          connectionArn: props.codestarConnectionArn,
+          connectionArn: pipelineProps.codestarConnectionArn,
         }
       );
     }
@@ -322,9 +335,9 @@ export class PDKPipeline extends Construct {
         : BucketEncryption.S3_MANAGED,
       encryptionKey: props.crossAccountKeys
         ? new Key(this, "ArtifactKey", {
-            enableKeyRotation: true,
-            removalPolicy: RemovalPolicy.DESTROY,
-          })
+          enableKeyRotation: true,
+          removalPolicy: RemovalPolicy.DESTROY,
+        })
         : undefined,
       objectOwnership: ObjectOwnership.BUCKET_OWNER_ENFORCED,
       publicReadAccess: false,
@@ -356,8 +369,8 @@ export class PDKPipeline extends Construct {
       env:
         props.branchNamePrefixes && props.branchNamePrefixes.length > 0
           ? {
-              BRANCH: branch,
-            }
+            BRANCH: branch,
+          }
           : undefined,
       installCommands: ["npm install -g aws-cdk pnpm", "npx projen install"],
       commands:
@@ -378,15 +391,18 @@ export class PDKPipeline extends Construct {
     this.codePipeline = new CodePipeline(this, id, codePipelineProps);
     this.sonarCodeScannerConfig = props.sonarCodeScannerConfig
       ? {
-          cdkOutDir: props.primarySynthDirectory,
-          ...props.sonarCodeScannerConfig,
-        }
+        cdkOutDir: props.primarySynthDirectory,
+        ...props.sonarCodeScannerConfig,
+      }
       : undefined;
     this.branchNamePrefixes = props.branchNamePrefixes;
     this.defaultBranchName = props.defaultBranchName;
-    this.repositoryName = props.repositoryName;
+    this.repositoryName = useCodeCommit 
+      ? (props as PDKPipelineWithCodeCommit).repositoryName 
+      : (props as PDKPipelineWithCodeStartConnection).repositoryOwnerAndName;
 
     if (
+      this.codeRepository &&
       props.branchNamePrefixes &&
       PDKPipeline.isDefaultBranch({
         node: this.node,
@@ -397,10 +413,7 @@ export class PDKPipeline extends Construct {
         branchNamePrefixes: props.branchNamePrefixes,
         cdkSrcDir: props.cdkSrcDir || path.dirname(props.primarySynthDirectory),
         defaultBranchName: props.defaultBranchName || DEFAULT_BRANCH_NAME,
-        repositoryType: props.repositoryName ? "codecommit" : "codestar",
-        connectionArn: props.codestarConnectionArn,
-        repositoryOwnerAndName: props.repositoryOwnerAndName,
-        repository: this.codeRepository,
+        codeRepository: this.codeRepository,
         synthShellStepPartialProps: props.synthShellStepPartialProps,
         cdkCommand: props.cdkCommand,
         codeBuildDefaults: props.codeBuildDefaults,
