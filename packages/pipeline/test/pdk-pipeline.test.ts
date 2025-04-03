@@ -1,6 +1,5 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { log } from "console";
 import * as path from "path";
 import { AwsPrototypingChecks, PDKNag } from "@aws/pdk-nag";
 import { Stack, Stage } from "aws-cdk-lib";
@@ -22,9 +21,6 @@ describe("PDK Pipeline Unit Tests", () => {
     const stack = new Stack(app);
 
     const pipeline = new PDKPipeline(stack, "Defaults", {
-      codestarConnectionArn: "",
-      repositoryOwnerAndName: "",
-      useCodeCommit: true,
       primarySynthDirectory: "cdk.out",
       repositoryName: "Defaults",
       synth: {},
@@ -47,7 +43,6 @@ describe("PDK Pipeline Unit Tests", () => {
     pipeline.buildPipeline();
 
     app.synth();
-    log(app.nagResults());
     expect(app.nagResults().length).toEqual(0);
     expect(Template.fromStack(stack)).toMatchSnapshot();
   });
@@ -57,9 +52,6 @@ describe("PDK Pipeline Unit Tests", () => {
     const stack = new Stack(app);
 
     const pipeline = new PDKPipeline(stack, "Defaults", {
-      codestarConnectionArn: "",
-      repositoryOwnerAndName: "",
-      useCodeCommit: true,
       primarySynthDirectory: "cdk.out",
       repositoryName: "Defaults",
       synth: {},
@@ -91,9 +83,6 @@ describe("PDK Pipeline Unit Tests", () => {
     const stack = new Stack(app);
 
     const pipeline = new PDKPipeline(stack, "CrossAccount", {
-      codestarConnectionArn: "",
-      repositoryOwnerAndName: "",
-      useCodeCommit: true,
       primarySynthDirectory: "cdk.out",
       repositoryName: "Defaults",
       synth: {},
@@ -125,9 +114,6 @@ describe("PDK Pipeline Unit Tests", () => {
     const stack = new Stack(app);
 
     const pipeline = new PDKPipeline(stack, "CrossAccount", {
-      codestarConnectionArn: "",
-      repositoryOwnerAndName: "",
-      useCodeCommit: true,
       primarySynthDirectory: "cdk.out",
       repositoryName: "Defaults",
       synth: {},
@@ -159,9 +145,6 @@ describe("PDK Pipeline Unit Tests", () => {
     const stack = new Stack(app);
 
     const pipeline = new PDKPipeline(stack, "StageNagRuns", {
-      codestarConnectionArn: "",
-      repositoryOwnerAndName: "",
-      useCodeCommit: true,
       primarySynthDirectory: "cdk.out",
       repositoryName: "StageNagRuns",
       synth: {},
@@ -195,9 +178,6 @@ describe("PDK Pipeline Unit Tests", () => {
     const stack = new Stack(app);
 
     const pipeline = new PDKPipeline(stack, "StageNagRuns", {
-      codestarConnectionArn: "",
-      repositoryOwnerAndName: "",
-      useCodeCommit: true,
       primarySynthDirectory: "cdk.out",
       repositoryName: "StageNagRuns",
       synth: {},
@@ -229,9 +209,6 @@ describe("PDK Pipeline Unit Tests", () => {
     const stack = new Stack(app);
 
     const pipeline = new PDKPipeline(stack, "FeatureBranches", {
-      codestarConnectionArn: "",
-      repositoryOwnerAndName: "",
-      useCodeCommit: true,
       primarySynthDirectory: "cdk.out",
       repositoryName: "FeatureBranches",
       defaultBranchName: "mainline",
@@ -261,9 +238,6 @@ describe("PDK Pipeline Unit Tests", () => {
     const branchPrefix = "";
 
     const pipeline = new PDKPipeline(stack, branchPrefix + "FeatureBranches", {
-      codestarConnectionArn: "",
-      repositoryOwnerAndName: "",
-      useCodeCommit: true,
       primarySynthDirectory: "cdk.out",
       repositoryName: "FeatureBranches",
       defaultBranchName: "mainline",
@@ -293,9 +267,6 @@ describe("PDK Pipeline Unit Tests", () => {
     const branchPrefix = PDKPipeline.getBranchPrefix({ node: app.node });
 
     const pipeline = new PDKPipeline(stack, branchPrefix + "FeatureBranches", {
-      codestarConnectionArn: "",
-      repositoryOwnerAndName: "",
-      useCodeCommit: true,
       primarySynthDirectory: "cdk.out",
       repositoryName: "FeatureBranches",
       defaultBranchName: "mainline",
@@ -327,9 +298,6 @@ describe("PDK Pipeline Unit Tests", () => {
     const stack = new Stack(app);
 
     const pipeline = new PDKPipeline(stack, "FeatureBranches", {
-      codestarConnectionArn: "",
-      repositoryOwnerAndName: "",
-      useCodeCommit: true,
       primarySynthDirectory: "cdk.out",
       repositoryName: "FeatureBranches",
       defaultBranchName: "mainline",
@@ -348,7 +316,6 @@ describe("PDK Pipeline Unit Tests", () => {
     pipeline.buildPipeline();
 
     app.synth();
-    log(JSON.stringify(app.nagResults(), null, 2));
     expect(app.nagResults().length).toEqual(0);
     expect(Template.fromStack(stack)).toMatchSnapshot();
   });
@@ -363,9 +330,6 @@ describe("PDK Pipeline Unit Tests", () => {
     const branchPrefix = "";
 
     const pipeline = new PDKPipeline(stack, branchPrefix + "FeatureBranches", {
-      codestarConnectionArn: "",
-      repositoryOwnerAndName: "",
-      useCodeCommit: true,
       primarySynthDirectory: "cdk.out",
       repositoryName: "FeatureBranches",
       defaultBranchName: "mainline",
@@ -382,8 +346,8 @@ describe("PDK Pipeline Unit Tests", () => {
 
     pipeline.addStage(stage);
     pipeline.buildPipeline();
+
     app.synth();
-    log(JSON.stringify(app.nagResults(), null, 2));
     expect(app.nagResults().length).toEqual(0);
     expect(Template.fromStack(stack)).toMatchSnapshot();
   });
@@ -398,9 +362,6 @@ describe("PDK Pipeline Unit Tests", () => {
     const branchPrefix = PDKPipeline.getBranchPrefix({ node: app.node });
 
     const pipeline = new PDKPipeline(stack, branchPrefix + "FeatureBranches", {
-      codestarConnectionArn: "",
-      repositoryOwnerAndName: "",
-      useCodeCommit: true,
       primarySynthDirectory: "cdk.out",
       repositoryName: "FeatureBranches",
       defaultBranchName: "mainline",
@@ -419,8 +380,7 @@ describe("PDK Pipeline Unit Tests", () => {
     pipeline.buildPipeline();
 
     app.synth();
-    const results = app.nagResults();
-    expect(results.length).toEqual(0);
+    expect(app.nagResults().length).toEqual(0);
     expect(Template.fromStack(stack)).toMatchSnapshot();
   });
 });
