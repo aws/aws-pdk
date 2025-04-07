@@ -40,23 +40,7 @@ export * from "./code_scanner/sonar-code-scanner";
 
 export const DEFAULT_BRANCH_NAME = "mainline";
 
-/**
- * Properties to configure the PDKPipeline.
- *
- * Note: Due to limitations with JSII and generic support it should be noted that
- * the synth, synthShellStepPartialProps.input and
- * synthShellStepPartialProps.primaryOutputDirectory properties will be ignored
- * if passed in to this construct.
- *
- * synthShellStepPartialProps.commands is marked as a required field, however
- * if you pass in [] the default commands of this construct will be retained.
- */
-export interface BasePDKPipelineProps extends _CodePipelineProps {
-  /**
-   * Whether to use codeCommit or not
-   */
-  readonly useCodeCommit?: boolean;
-
+interface SharePDKPipelineProps extends _CodePipelineProps {
   /**
    * Output directory for cdk synthesized artifacts i.e: packages/infra/cdk.out.
    */
@@ -99,6 +83,87 @@ export interface BasePDKPipelineProps extends _CodePipelineProps {
    * @default 'npx cdk'
    */
   readonly cdkCommand?: string;
+}
+
+interface BasePDKPipelineProps extends SharePDKPipelineProps {
+  /**
+   * Whether to use codeCommit as source or not.
+   */
+  readonly useCodeCommit: boolean;
+  /**
+   * The repository to add the pipeline to.
+   */
+  readonly codeCommitRepository?: IRepository;
+  /**
+   * Name of the CodeCommit repository to create.
+   */
+  readonly repositoryName?: string;
+  /**
+   * Possible values for a resource's Removal Policy
+   * The removal policy controls what happens to the resource if it stops being managed by CloudFormation.
+   */
+  readonly codeCommitRemovalPolicy?: RemovalPolicy;
+  /**
+   * Branch name prefixes
+   * Any branches created matching this list of prefixes will create a new pipeline and stack.
+   *
+   * @example
+   * // Creates a new pipeline and stack for any branch
+   * new PDKPipeline(this, 'PDKPipeline', {
+   *   repositoryName: 'my-repo',
+   *   branchNamePrefixes: PDKPipeline.ALL_BRANCHES,
+   * }
+   * @example
+   * // Creates a new pipeline and stack for any branch starting with 'feature/' or 'fix/'
+   * new PDKPipeline(this, 'PDKPipeline', {
+   *   repositoryName: 'my-repo',
+   *   branchNamePrefixes: ['feature/', 'fix/'],
+   * }
+   * @example
+   * // Disables feature branches (default)
+   * new PDKPipeline(this, 'PDKPipeline', {
+   *   repositoryName: 'my-repo',
+   *   branchNamePrefixes: [], // or simply exclude this line
+   * }
+   * @default undefined
+   */
+  readonly branchNamePrefixes?: string[];
+  /**
+   * If CodeStar Connections are used - this is the ARN of the connection.
+   */
+  readonly codeStarConnectionArn?: string;
+  /**
+   * The Owner and Repository name for instance, user Bob with git repository
+   * ACME becomes "Bob/ACME"
+   */
+  readonly repositoryOwnerAndName?: string;
+}
+
+/**
+ * Properties to configure the PDKPipeline with CodeCommit as source.
+ *
+ * Note: Due to limitations with JSII and generic support it should be noted that
+ * the synth, synthShellStepPartialProps.input and
+ * synthShellStepPartialProps.primaryOutputDirectory properties will be ignored
+ * if passed in to this construct.
+ *
+ * synthShellStepPartialProps.commands is marked as a required field, however
+ * if you pass in [] the default commands of this construct will be retained.
+ */
+export interface PDKPipelineProps extends SharePDKPipelineProps {
+  /**
+   * The repository to add the pipeline to.
+   */
+  readonly codeCommitRepository?: IRepository;
+  /**
+   * Name of the CodeCommit repository to create.
+   */
+  readonly repositoryName: string;
+  /**
+   * Possible values for a resource's Removal Policy
+   * The removal policy controls what happens to the resource if it stops being managed by CloudFormation.
+   */
+  readonly codeCommitRemovalPolicy?: RemovalPolicy;
   /**
    * Branch name prefixes
    * Any branches created matching this list of prefixes will create a new pipeline and stack.
@@ -126,37 +191,29 @@ export interface BasePDKPipelineProps extends _CodePipelineProps {
   readonly branchNamePrefixes?: string[];
 }
 
-export interface PDKPipelineWithCodeCommit extends BasePDKPipelineProps {
-  useCodeCommit?: true;
-  /**
-   * Name of the CodeCommit repository to create.
-   */
-  readonly repositoryName: string;
-  /**
- * Possible values for a resource's Removal Policy
- * The removal policy controls what happens to the resource if it stops being managed by CloudFormation.
+/**
+ * Properties to configure the PDKPipeline with Code Star Connection as source.
+ *
+ * Note: Due to limitations with JSII and generic support it should be noted that
+ * the synth, synthShellStepPartialProps.input and
+ * synthShellStepPartialProps.primaryOutputDirectory properties will be ignored
+ * if passed in to this construct.
+ *
+ * synthShellStepPartialProps.commands is marked as a required field, however
+ * if you pass in [] the default commands of this construct will be retained.
  */
-  readonly codeCommitRemovalPolicy?: RemovalPolicy;
-}
-
-export interface PDKPipelineWithCodeStartConnection extends BasePDKPipelineProps {
-  useCodeCommit: false;
-  branchNamePrefixes?: undefined;
-
+export interface PDKPipelineWithCodeStarConnectionProps
+  extends SharePDKPipelineProps {
   /**
-   * If CodeStar Connections are used - this is the ARN of the connection.
+   * The Arn of the CodeStar connection.
    */
-  readonly codestarConnectionArn: string;
-
+  readonly codeStarConnectionArn: string;
   /**
    * The Owner and Repository name for instance, user Bob with git repository
    * ACME becomes "Bob/ACME"
    */
   readonly repositoryOwnerAndName: string;
-
 }
-
-export type PDKPipelineProps = PDKPipelineWithCodeCommit | PDKPipelineWithCodeStartConnection;
 
 /**
  * Properties to help the isDefaultBranch function determine the default branch name.
@@ -178,7 +235,7 @@ export interface IsDefaultBranchProps {
  * codebase. In addition to this, it also creates a CodeCommit repository with
  * automated PR builds and approvals.
  */
-export class PDKPipeline extends Construct {
+class BasePDKPipeline extends Construct {
   static readonly ALL_BRANCHES = [""];
   static readonly defaultBranchName = DEFAULT_BRANCH_NAME;
 
@@ -221,7 +278,7 @@ export class PDKPipeline extends Construct {
     const defaultBranchName: string =
       props.defaultBranchName ||
       (props.node && props.node.tryGetContext("defaultBranchName")) ||
-      PDKPipeline.defaultBranchName;
+      BasePDKPipeline.defaultBranchName;
     return defaultBranchName === process.env.BRANCH;
   }
 
@@ -239,9 +296,9 @@ export class PDKPipeline extends Construct {
       node: undefined,
     }
   ): string {
-    return PDKPipeline.isDefaultBranch(props)
+    return BasePDKPipeline.isDefaultBranch(props)
       ? ""
-      : PDKPipeline.normalizeBranchName(process.env.BRANCH!) + "-";
+      : BasePDKPipeline.normalizeBranchName(process.env.BRANCH!) + "-";
   }
 
   readonly codePipeline: CodePipeline;
@@ -251,7 +308,11 @@ export class PDKPipeline extends Construct {
   private readonly defaultBranchName?: string;
   private readonly repositoryName: string;
 
-  public constructor(scope: Construct, id: string, props: PDKPipelineProps) {
+  public constructor(
+    scope: Construct,
+    id: string,
+    props: BasePDKPipelineProps
+  ) {
     super(scope, id);
 
     this.node.setContext(
@@ -259,26 +320,42 @@ export class PDKPipeline extends Construct {
       true
     );
 
+    this.node.addValidation({
+      validate: () => {
+        const errors: string[] = [];
+        if (props.useCodeCommit) {
+          if (!props.repositoryName) {
+            errors.push("Empty repositoryName");
+          }
+        } else {
+          if (!props.codeStarConnectionArn) {
+            errors.push("Empty codeStarConnectionArn");
+          }
+          if (!props.repositoryOwnerAndName) {
+            errors.push("Empty repositoryOwnerAndName");
+          }
+        }
+        return errors;
+      },
+    });
+
     let source: CodePipelineSource;
 
-    const useCodeCommit = props.useCodeCommit ?? true;
-
-    if (useCodeCommit) {
+    if (props.useCodeCommit) {
       let codeRepository: IRepository;
-      const pipelineProps = props as PDKPipelineWithCodeCommit;
-
+      const repositoryName = props.repositoryName || "";
       if (
-        PDKPipeline.isDefaultBranch({
+        BasePDKPipeline.isDefaultBranch({
           node: this.node,
           defaultBranchName: props.defaultBranchName,
         })
       ) {
         // In the default branch, create a CodeCommit repository
         codeRepository = new Repository(this, "CodeRepository", {
-          repositoryName: pipelineProps.repositoryName,
+          repositoryName,
         });
         codeRepository.applyRemovalPolicy(
-          pipelineProps.codeCommitRemovalPolicy ?? RemovalPolicy.RETAIN
+          props.codeCommitRemovalPolicy ?? RemovalPolicy.RETAIN
         );
         // Initialize source here for default branch
         source = CodePipelineSource.codeCommit(
@@ -290,27 +367,23 @@ export class PDKPipeline extends Construct {
         codeRepository = Repository.fromRepositoryName(
           scope,
           "CodeRepository",
-          pipelineProps.repositoryName
+          repositoryName
         );
-        this.codeRepository = codeRepository;
         source = CodePipelineSource.codeCommit(
           codeRepository,
           process.env.BRANCH || props.defaultBranchName || DEFAULT_BRANCH_NAME
         );
       }
+
+      this.codeRepository = codeRepository;
     } else {
-      const pipelineProps = props as PDKPipelineWithCodeStartConnection;
-      // CodeStar connection logic
-      if (!pipelineProps.codestarConnectionArn) {
-        throw new Error(
-          "CodeStar connection ARN is required when useCodeCommit is false"
-        );
-      }
+      const repositoryOwnerAndName = props.repositoryOwnerAndName || "";
+      const codeStarConnectionArn = props.codeStarConnectionArn || "";
       source = CodePipelineSource.connection(
-        pipelineProps.repositoryOwnerAndName,
+        repositoryOwnerAndName,
         props.defaultBranchName || DEFAULT_BRANCH_NAME,
         {
-          connectionArn: pipelineProps.codestarConnectionArn,
+          connectionArn: codeStarConnectionArn,
         }
       );
     }
@@ -335,9 +408,9 @@ export class PDKPipeline extends Construct {
         : BucketEncryption.S3_MANAGED,
       encryptionKey: props.crossAccountKeys
         ? new Key(this, "ArtifactKey", {
-          enableKeyRotation: true,
-          removalPolicy: RemovalPolicy.DESTROY,
-        })
+            enableKeyRotation: true,
+            removalPolicy: RemovalPolicy.DESTROY,
+          })
         : undefined,
       objectOwnership: ObjectOwnership.BUCKET_OWNER_ENFORCED,
       publicReadAccess: false,
@@ -369,8 +442,8 @@ export class PDKPipeline extends Construct {
       env:
         props.branchNamePrefixes && props.branchNamePrefixes.length > 0
           ? {
-            BRANCH: branch,
-          }
+              BRANCH: branch,
+            }
           : undefined,
       installCommands: ["npm install -g aws-cdk pnpm", "npx projen install"],
       commands:
@@ -391,42 +464,46 @@ export class PDKPipeline extends Construct {
     this.codePipeline = new CodePipeline(this, id, codePipelineProps);
     this.sonarCodeScannerConfig = props.sonarCodeScannerConfig
       ? {
-        cdkOutDir: props.primarySynthDirectory,
-        ...props.sonarCodeScannerConfig,
-      }
+          cdkOutDir: props.primarySynthDirectory,
+          ...props.sonarCodeScannerConfig,
+        }
       : undefined;
-    this.branchNamePrefixes = props.branchNamePrefixes;
+    this.branchNamePrefixes = props.useCodeCommit
+      ? props.branchNamePrefixes
+      : undefined;
     this.defaultBranchName = props.defaultBranchName;
-    this.repositoryName = useCodeCommit 
-      ? (props as PDKPipelineWithCodeCommit).repositoryName 
-      : (props as PDKPipelineWithCodeStartConnection).repositoryOwnerAndName;
+    this.repositoryName =
+      (props.useCodeCommit
+        ? props.repositoryName
+        : props.repositoryOwnerAndName) || "";
 
-    if (
-      this.codeRepository &&
-      props.branchNamePrefixes &&
-      PDKPipeline.isDefaultBranch({
-        node: this.node,
-        defaultBranchName: props.defaultBranchName,
-      })
-    ) {
-      new FeatureBranches(this, "FeatureBranchPipelines", {
-        branchNamePrefixes: props.branchNamePrefixes,
-        cdkSrcDir: props.cdkSrcDir || path.dirname(props.primarySynthDirectory),
-        defaultBranchName: props.defaultBranchName || DEFAULT_BRANCH_NAME,
-        codeRepository: this.codeRepository,
-        synthShellStepPartialProps: props.synthShellStepPartialProps,
-        cdkCommand: props.cdkCommand,
-        codeBuildDefaults: props.codeBuildDefaults,
-        dockerEnabledForSynth: props.dockerEnabledForSynth,
-      });
-    } else if (props.branchNamePrefixes) {
-      Tags.of(Stack.of(this)).add("FeatureBranch", branch);
-      if (this.repositoryName) {
-        Tags.of(Stack.of(this)).add("RepoName", this.repositoryName);
+    if (this.codeRepository && props.branchNamePrefixes) {
+      if (
+        PDKPipeline.isDefaultBranch({
+          node: this.node,
+          defaultBranchName: props.defaultBranchName,
+        })
+      ) {
+        new FeatureBranches(this, "FeatureBranchPipelines", {
+          branchNamePrefixes: props.branchNamePrefixes,
+          cdkSrcDir:
+            props.cdkSrcDir || path.dirname(props.primarySynthDirectory),
+          defaultBranchName: props.defaultBranchName || DEFAULT_BRANCH_NAME,
+          codeRepository: this.codeRepository,
+          synthShellStepPartialProps: props.synthShellStepPartialProps,
+          cdkCommand: props.cdkCommand,
+          codeBuildDefaults: props.codeBuildDefaults,
+          dockerEnabledForSynth: props.dockerEnabledForSynth,
+        });
+      } else {
+        Tags.of(Stack.of(this)).add("FeatureBranch", branch);
+        if (this.repositoryName) {
+          Tags.of(Stack.of(this)).add("RepoName", this.repositoryName);
+        }
       }
     }
 
-    if (this.codeRepository) {
+    if (props.useCodeCommit && this.codeRepository) {
       new CfnOutput(this, "CodeRepositoryGRCUrl", {
         value: this.codeRepository.repositoryCloneUrlGrc,
       });
@@ -504,12 +581,6 @@ export class PDKPipeline extends Construct {
       ["AwsSolutions-S1", "AwsPrototyping-S3BucketLoggingEnabled"],
       "Access Log buckets should not have s3 bucket logging"
     );
-
-    // Add this new suppression
-    this.suppressRules(
-      ["AwsPrototyping-IAMPolicyNoStatementsWithFullAccess"],
-      "Feature pipeline requires these permissions for deployment operations"
-    );
   }
 
   private suppressRules(rules: string[], reason: string) {
@@ -521,5 +592,37 @@ export class PDKPipeline extends Construct {
       })),
       true
     );
+  }
+}
+
+/**
+ * An extension to CodePipeline which configures same defaults for a NX Monorepo
+ * codebase. In addition to this, it also creates a CodeCommit repository with
+ * automated PR builds and approvals.
+ */
+export class PDKPipeline extends BasePDKPipeline {
+  constructor(scope: Construct, id: string, props: PDKPipelineProps) {
+    super(scope, id, {
+      ...props,
+      useCodeCommit: true,
+      codeStarConnectionArn: undefined,
+      repositoryOwnerAndName: undefined,
+    });
+  }
+}
+
+/**
+ * An extension to CodePipeline which configures same defaults for a NX Monorepo and using CodeStar Connection as a source.
+ */
+export class PDKPipelineWithCodeStarConnection extends BasePDKPipeline {
+  constructor(
+    scope: Construct,
+    id: string,
+    props: PDKPipelineWithCodeStarConnectionProps
+  ) {
+    super(scope, id, {
+      ...props,
+      useCodeCommit: false,
+    });
   }
 }
