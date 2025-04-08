@@ -129,9 +129,9 @@ interface BasePDKPipelineProps extends SharePDKPipelineProps {
    */
   readonly branchNamePrefixes?: string[];
   /**
-   * If CodeStar Connections are used - this is the ARN of the connection.
+   * If CodeConnections are used - this is the ARN of the connection.
    */
-  readonly codeStarConnectionArn?: string;
+  readonly codeConnectionArn?: string;
   /**
    * The Owner and Repository name for instance, user Bob with git repository
    * ACME becomes "Bob/ACME"
@@ -192,7 +192,7 @@ export interface PDKPipelineProps extends SharePDKPipelineProps {
 }
 
 /**
- * Properties to configure the PDKPipeline with Code Star Connection as source.
+ * Properties to configure the PDKPipeline with a CodeConnections as source.
  *
  * Note: Due to limitations with JSII and generic support it should be noted that
  * the synth, synthShellStepPartialProps.input and
@@ -202,12 +202,12 @@ export interface PDKPipelineProps extends SharePDKPipelineProps {
  * synthShellStepPartialProps.commands is marked as a required field, however
  * if you pass in [] the default commands of this construct will be retained.
  */
-export interface PDKPipelineWithCodeStarConnectionProps
+export interface PDKPipelineWithCodeConnectionProps
   extends SharePDKPipelineProps {
   /**
-   * The Arn of the CodeStar connection.
+   * The Arn of the CodeConnection.
    */
-  readonly codeStarConnectionArn: string;
+  readonly codeConnectionArn: string;
   /**
    * The Owner and Repository name for instance, user Bob with git repository
    * ACME becomes "Bob/ACME"
@@ -355,12 +355,12 @@ class BasePDKPipeline extends Construct {
       this.codeRepository = codeRepository;
     } else {
       const repositoryOwnerAndName = props.repositoryOwnerAndName || "";
-      const codeStarConnectionArn = props.codeStarConnectionArn || "";
+      const codeConnectionArn = props.codeConnectionArn || "";
       source = CodePipelineSource.connection(
         repositoryOwnerAndName,
         props.defaultBranchName || DEFAULT_BRANCH_NAME,
         {
-          connectionArn: codeStarConnectionArn,
+          connectionArn: codeConnectionArn,
         }
       );
     }
@@ -558,20 +558,20 @@ export class PDKPipeline extends BasePDKPipeline {
     super(scope, id, {
       ...props,
       useCodeCommit: true,
-      codeStarConnectionArn: undefined,
+      codeConnectionArn: undefined,
       repositoryOwnerAndName: undefined,
     });
   }
 }
 
 /**
- * An extension to CodePipeline which configures same defaults for a NX Monorepo and using CodeStar Connection as a source.
+ * An extension to CodePipeline which configures same defaults for a NX Monorepo and using a AWS CodeConnections as source.
  */
-export class PDKPipelineWithCodeStarConnection extends BasePDKPipeline {
+export class PDKPipelineWithCodeConnection extends BasePDKPipeline {
   constructor(
     scope: Construct,
     id: string,
-    props: PDKPipelineWithCodeStarConnectionProps
+    props: PDKPipelineWithCodeConnectionProps
   ) {
     super(scope, id, {
       ...props,

@@ -14,7 +14,7 @@ CodeCommit repository -> CodePipeline
                              |-> Secret (sonarqube token)
 ```
 
-### CDK Nag
+## CDK Nag
 
 In order to keep CDK Nag happy, make sure you build the pipeline before synth as per https://github.com/aws/aws-cdk/issues/18440.
 
@@ -26,9 +26,9 @@ The feature is enabled and configured by setting the `branchNamePrefixes` proper
 
 When your PDKPipeline is run, the current branch will be available in the `BRANCH` environment variable. You can use this to give unique names to the stacks and stages created by that branch. You can also enable and disable stages based on the branch name. For example, you may want the PipelineStack and Dev stage to get created for any branch and only create the Prod stage in the default branch.
 
-### PDKPipeline configuration
+## PDKPipeline configuration
 
-#### Example: All Branches
+### Example: All Branches
 
 pipeline-stack.ts
 
@@ -40,7 +40,7 @@ this.pipeline = new PDKPipeline(this, "ApplicationPipeline", {
 });
 ```
 
-#### Example: Branches starting with "feature/" or "fix/"
+### Example: Branches starting with "feature/" or "fix/"
 
 pipeline-stack.ts
 
@@ -89,3 +89,24 @@ if (PDKPipeline.isDefaultBranch({ node: app.node })) {
   pipelineStack.pipeline.addStage(prodStage);
 }
 ```
+
+## PDKPipeline with CodeConnections as source
+
+The PDKPipelineWithCodeConnection construct provides an alternative source option for your PDKPipeline. This feature allows you to leverage existing third-party git repositories through [CodeConnections](https://docs.aws.amazon.com/dtconsole/latest/userguide/welcome-connections.html), enabling you to build your PDKPipeline using external source code repositories as pipeline source."
+
+### Configuration - Using a CodeConnections as source
+
+pipeline-stacks.ts
+
+```ts
+import { PDKPipelineWithCodeConnection } from '@aws/pdk/pipeline';
+
+...
+
+this.pipeline = new PDKPipelineWithCodeConnection(this, "ApplicationPipeline", {
+  codeConnectionArn: "arn:aws:codeconnections:<region>:<account>:connection/<connection_id>",
+  repositoryOwnerAndName: "test/test",
+  primarySynthDirectory: "packages/backend/cdk.out",
+});
+```
+

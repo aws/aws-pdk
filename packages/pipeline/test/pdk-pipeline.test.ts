@@ -6,7 +6,7 @@ import { Stack, Stage } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
 import { Bucket } from "aws-cdk-lib/aws-s3";
 import { Asset } from "aws-cdk-lib/aws-s3-assets";
-import { PDKPipeline, PDKPipelineWithCodeStarConnection } from "../src";
+import { PDKPipeline, PDKPipelineWithCodeConnection } from "../src";
 
 describe("PDK Pipeline Unit Tests", () => {
   const originalEnv = process.env;
@@ -384,16 +384,16 @@ describe("PDK Pipeline Unit Tests", () => {
     expect(Template.fromStack(stack)).toMatchSnapshot();
   });
 
-  it("PDKPipelineWithCodeStarConnection - using CodeStar Connection As Source", () => {
+  it("PDKPipelineWithCodeConnection - using a CodeConnections As Source", () => {
     delete process.env.BRANCH;
     const app = PDKNag.app();
     const stack = new Stack(app);
 
-    const pipeline = new PDKPipelineWithCodeStarConnection(
+    const pipeline = new PDKPipelineWithCodeConnection(
       stack,
-      "PDKPipelineWithCodeStarConnectionDefaults",
+      "PDKPipelineWithCodeConnectionDefaults",
       {
-        codeStarConnectionArn:
+        codeConnectionArn:
           "arn:aws:codeconnections:us-west-2:123456789012:connection/abcdefghijk",
         repositoryOwnerAndName: "test/test",
         primarySynthDirectory: "cdk.out",
@@ -422,15 +422,15 @@ describe("PDK Pipeline Unit Tests", () => {
     expect(Template.fromStack(stack)).toMatchSnapshot();
   });
 
-  it("PDKPipelineWithCodeStarConnection - using AwsPrototyping NagPack", () => {
+  it("PDKPipelineWithCodeConnection - using AwsPrototyping NagPack", () => {
     const app = PDKNag.app({ nagPacks: [new AwsPrototypingChecks()] });
     const stack = new Stack(app);
 
-    const pipeline = new PDKPipelineWithCodeStarConnection(
+    const pipeline = new PDKPipelineWithCodeConnection(
       stack,
-      "PDKPipelineWithCodeStarAwsPrototypingNagPack",
+      "PDKPipelineWithCodeConnectionUsingAwsPrototypingNagPack",
       {
-        codeStarConnectionArn:
+        codeConnectionArn:
           "arn:aws:codeconnections:us-west-2:123456789012:connection/abcdefghijk",
         repositoryOwnerAndName: "test/test",
         defaultBranchName: "main",
@@ -460,15 +460,15 @@ describe("PDK Pipeline Unit Tests", () => {
     expect(Template.fromStack(stack)).toMatchSnapshot();
   });
 
-  it("PDKPipelineWithCodeStarConnection - CrossAccount", () => {
+  it("PDKPipelineWithCodeConnection - CrossAccount", () => {
     const app = PDKNag.app();
     const stack = new Stack(app);
 
-    const pipeline = new PDKPipelineWithCodeStarConnection(
+    const pipeline = new PDKPipelineWithCodeConnection(
       stack,
-      "PDKPipelineWithCodeStarConnectionCrossAccount",
+      "PDKPipelineWithCodeConnectionCrossAccount",
       {
-        codeStarConnectionArn:
+        codeConnectionArn:
           "arn:aws:codeconnections:us-west-2:123456789012:connection/abcdefghijk",
         repositoryOwnerAndName: "test/test",
         primarySynthDirectory: "cdk.out",
