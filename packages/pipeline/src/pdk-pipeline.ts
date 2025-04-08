@@ -320,25 +320,6 @@ class BasePDKPipeline extends Construct {
       true
     );
 
-    this.node.addValidation({
-      validate: () => {
-        const errors: string[] = [];
-        if (props.useCodeCommit) {
-          if (!props.repositoryName) {
-            errors.push("Empty repositoryName");
-          }
-        } else {
-          if (!props.codeStarConnectionArn) {
-            errors.push("Empty codeStarConnectionArn");
-          }
-          if (!props.repositoryOwnerAndName) {
-            errors.push("Empty repositoryOwnerAndName");
-          }
-        }
-        return errors;
-      },
-    });
-
     let source: CodePipelineSource;
 
     if (props.useCodeCommit) {
