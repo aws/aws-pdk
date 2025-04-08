@@ -322,6 +322,9 @@ class BasePDKPipeline extends Construct {
 
     let source: CodePipelineSource;
 
+    const branch =
+      process.env.BRANCH || props.defaultBranchName || DEFAULT_BRANCH_NAME;
+
     if (props.useCodeCommit) {
       let codeRepository: IRepository;
       const repositoryName = props.repositoryName || "";
@@ -338,11 +341,6 @@ class BasePDKPipeline extends Construct {
         codeRepository.applyRemovalPolicy(
           props.codeCommitRemovalPolicy ?? RemovalPolicy.RETAIN
         );
-        // Initialize source here for default branch
-        source = CodePipelineSource.codeCommit(
-          codeRepository,
-          props.defaultBranchName || DEFAULT_BRANCH_NAME
-        );
       } else {
         // In a non-default branch, use an existing CodeCommit repository
         codeRepository = Repository.fromRepositoryName(
@@ -350,11 +348,9 @@ class BasePDKPipeline extends Construct {
           "CodeRepository",
           repositoryName
         );
-        source = CodePipelineSource.codeCommit(
-          codeRepository,
-          process.env.BRANCH || props.defaultBranchName || DEFAULT_BRANCH_NAME
-        );
       }
+
+      source = CodePipelineSource.codeCommit(codeRepository, branch);
 
       this.codeRepository = codeRepository;
     } else {
@@ -415,9 +411,6 @@ class BasePDKPipeline extends Construct {
       ...synthShellStepPartialProps
     } = props.synthShellStepPartialProps || {};
 
-    const branch =
-      process.env.BRANCH || props.defaultBranchName || DEFAULT_BRANCH_NAME;
-
     const synthShellStep = new ShellStep("Synth", {
       input: source,
       env:
@@ -449,9 +442,7 @@ class BasePDKPipeline extends Construct {
           ...props.sonarCodeScannerConfig,
         }
       : undefined;
-    this.branchNamePrefixes = props.useCodeCommit
-      ? props.branchNamePrefixes
-      : undefined;
+    this.branchNamePrefixes = props.branchNamePrefixes;
     this.defaultBranchName = props.defaultBranchName;
     this.repositoryName =
       (props.useCodeCommit
@@ -466,21 +457,19 @@ class BasePDKPipeline extends Construct {
         })
       ) {
         new FeatureBranches(this, "FeatureBranchPipelines", {
-          branchNamePrefixes: props.branchNamePrefixes,
+          codeRepository: this.codeRepository,
           cdkSrcDir:
             props.cdkSrcDir || path.dirname(props.primarySynthDirectory),
-          defaultBranchName: props.defaultBranchName || DEFAULT_BRANCH_NAME,
-          codeRepository: this.codeRepository,
           synthShellStepPartialProps: props.synthShellStepPartialProps,
           cdkCommand: props.cdkCommand,
+          branchNamePrefixes: props.branchNamePrefixes,
+          defaultBranchName: props.defaultBranchName || DEFAULT_BRANCH_NAME,
           codeBuildDefaults: props.codeBuildDefaults,
           dockerEnabledForSynth: props.dockerEnabledForSynth,
         });
       } else {
         Tags.of(Stack.of(this)).add("FeatureBranch", branch);
-        if (this.repositoryName) {
-          Tags.of(Stack.of(this)).add("RepoName", this.repositoryName);
-        }
+        Tags.of(Stack.of(this)).add("RepoName", this.repositoryName);
       }
     }
 
@@ -528,23 +517,6 @@ class BasePDKPipeline extends Construct {
   }
 
   suppressCDKViolations() {
-    this.suppressRules(
-      ["AwsSolutions-IAM5", "AwsPrototyping-IAMNoWildcardPermissions"],
-      "Wildcards are needed for dynamically created resources."
-    );
-
-    this.suppressRules(
-      [
-        "AwsSolutions-CB4",
-        "AwsPrototyping-CodeBuildProjectKMSEncryptedArtifacts",
-      ],
-      "Encryption of Codebuild is not required."
-    );
-
-    this.suppressRules(
-      ["AwsSolutions-S1", "AwsPrototyping-S3BucketLoggingEnabled"],
-      "Access Log buckets should not have s3 bucket logging"
-    );
     this.suppressRules(
       ["AwsSolutions-IAM5", "AwsPrototyping-IAMNoWildcardPermissions"],
       "Wildcards are needed for dynamically created resources."
