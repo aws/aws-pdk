@@ -17,7 +17,7 @@ export class MetricsAspect implements IAspect {
       const tags: string[] = getUniqueMetrics(node).map((m) => m.metric);
       node.templateOptions.description = `${
         node.templateOptions.description ?? ""
-      } (${id}) (version:${version}) (tags:${tags.join(",")})`.trim();
+      } (${id}) (version:${version}) (tag:${tags.join(",")})`.trim();
     }
   }
 }
