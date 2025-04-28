@@ -54,12 +54,7 @@ interface OnEventRequest {
    * Properties for preparing the api
    */
   readonly ResourceProperties: {
-    /**
-     * This is acually of type PrepareApiSpecCustomResourceProperties but JSON stringified to work around A
-     * bug in cloudformation!
-     * @see https://github.com/aws-cloudformation/cloudformation-coverage-roadmap/issues/1037
-     */
-    options: string;
+    options: PrepareApiSpecCustomResourceProperties;
   };
 }
 
@@ -138,13 +133,80 @@ const prepare = async ({
   return outputLocation;
 };
 
+/**
+ * Due to a bug in cloudformation, primitive types are coerced into strings! Coerce them back here.
+ * @see https://github.com/aws-cloudformation/cloudformation-coverage-roadmap/issues/1037
+ */
+export const ensurePrimitiveTypes = (
+  options: PrepareApiSpecCustomResourceProperties
+): PrepareApiSpecCustomResourceProperties => {
+  const result = JSON.parse(JSON.stringify(options));
+
+  // Handle apiKeyOptions.requiredByDefault (boolean)
+  if (result.apiKeyOptions?.requiredByDefault !== undefined) {
+    if (result.apiKeyOptions.requiredByDefault === "true") {
+      result.apiKeyOptions.requiredByDefault = true;
+    } else if (result.apiKeyOptions.requiredByDefault === "false") {
+      result.apiKeyOptions.requiredByDefault = false;
+    }
+  }
+
+  // Handle corsOptions.statusCode (number)
+  if (result.corsOptions?.statusCode !== undefined) {
+    const statusCode = Number(result.corsOptions.statusCode);
+    if (!isNaN(statusCode)) {
+      result.corsOptions.statusCode = statusCode;
+    }
+  }
+
+  if (result.integrations) {
+    for (const operationId in result.integrations) {
+      const integration = result.integrations[operationId];
+      // Handle integration options.apiKeyRequired (boolean)
+      if (integration.options?.apiKeyRequired !== undefined) {
+        if (integration.options.apiKeyRequired === "true") {
+          integration.options.apiKeyRequired = true;
+        } else if (integration.options.apiKeyRequired === "false") {
+          integration.options.apiKeyRequired = false;
+        }
+      }
+
+      // Handle timeoutInMillis (number)
+      if (integration.integration?.timeoutInMillis !== undefined) {
+        const timeoutInMillis = Number(integration.integration.timeoutInMillis);
+        if (!isNaN(timeoutInMillis)) {
+          integration.integration.timeoutInMillis = timeoutInMillis;
+        }
+      }
+
+      // Handle tlsConfig.insecureSkipVerification (boolean)
+      if (
+        integration.integration?.tlsConfig?.insecureSkipVerification !==
+        undefined
+      ) {
+        if (
+          integration.integration.tlsConfig.insecureSkipVerification === "true"
+        ) {
+          integration.integration.tlsConfig.insecureSkipVerification = true;
+        } else if (
+          integration.integration.tlsConfig.insecureSkipVerification === "false"
+        ) {
+          integration.integration.tlsConfig.insecureSkipVerification = false;
+        }
+      }
+    }
+  }
+
+  return result;
+};
+
 exports.handler = async (event: OnEventRequest): Promise<OnEventResponse> => {
   switch (event.RequestType) {
     case "Create":
     case "Update":
       // Prepare the spec on create
       const outputLocation = await prepare(
-        JSON.parse(event.ResourceProperties.options)
+        ensurePrimitiveTypes(event.ResourceProperties.options)
       );
       return {
         PhysicalResourceId: outputLocation.key,
