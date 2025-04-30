@@ -6,7 +6,7 @@ import { Stack, Stage } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
 import { Bucket } from "aws-cdk-lib/aws-s3";
 import { Asset } from "aws-cdk-lib/aws-s3-assets";
-import { PDKPipeline } from "../src";
+import { PDKPipeline, PDKPipelineWithCodeConnection } from "../src";
 
 describe("PDK Pipeline Unit Tests", () => {
   const originalEnv = process.env;
@@ -371,6 +371,119 @@ describe("PDK Pipeline Unit Tests", () => {
     });
 
     const stage = new Stage(app, branchPrefix + "Stage");
+    const appStack = new Stack(stage, "AppStack");
+    new Asset(appStack, "Asset", {
+      path: path.join(__dirname, "pdk-pipeline.test.ts"),
+    });
+
+    pipeline.addStage(stage);
+    pipeline.buildPipeline();
+
+    app.synth();
+    expect(app.nagResults().length).toEqual(0);
+    expect(Template.fromStack(stack)).toMatchSnapshot();
+  });
+
+  it("PDKPipelineWithCodeConnection - using a CodeConnections As Source", () => {
+    delete process.env.BRANCH;
+    const app = PDKNag.app();
+    const stack = new Stack(app);
+
+    const pipeline = new PDKPipelineWithCodeConnection(
+      stack,
+      "PDKPipelineWithCodeConnectionDefaults",
+      {
+        codeConnectionArn:
+          "arn:aws:codeconnections:us-west-2:123456789012:connection/abcdefghijk",
+        repositoryOwnerAndName: "test/test",
+        primarySynthDirectory: "cdk.out",
+        synth: {},
+        crossAccountKeys: false,
+        sonarCodeScannerConfig: {
+          sonarqubeAuthorizedGroup: "dev",
+          sonarqubeDefaultProfileOrGateName: "dev",
+          sonarqubeEndpoint: "https://sonar.dev",
+          sonarqubeProjectName: "Default",
+        },
+      }
+    );
+
+    const stage = new Stage(app, "Stage");
+    const appStack = new Stack(stage, "AppStack");
+    new Asset(appStack, "Asset", {
+      path: path.join(__dirname, "pdk-pipeline.test.ts"),
+    });
+
+    pipeline.addStage(stage);
+    pipeline.buildPipeline();
+
+    app.synth();
+    expect(app.nagResults().length).toEqual(0);
+    expect(Template.fromStack(stack)).toMatchSnapshot();
+  });
+
+  it("PDKPipelineWithCodeConnection - using AwsPrototyping NagPack", () => {
+    const app = PDKNag.app({ nagPacks: [new AwsPrototypingChecks()] });
+    const stack = new Stack(app);
+
+    const pipeline = new PDKPipelineWithCodeConnection(
+      stack,
+      "PDKPipelineWithCodeConnectionUsingAwsPrototypingNagPack",
+      {
+        codeConnectionArn:
+          "arn:aws:codeconnections:us-west-2:123456789012:connection/abcdefghijk",
+        repositoryOwnerAndName: "test/test",
+        defaultBranchName: "main",
+        primarySynthDirectory: "cdk.out",
+        synth: {},
+        crossAccountKeys: false,
+        sonarCodeScannerConfig: {
+          sonarqubeAuthorizedGroup: "dev",
+          sonarqubeDefaultProfileOrGateName: "dev",
+          sonarqubeEndpoint: "https://sonar.dev",
+          sonarqubeProjectName: "Default",
+        },
+      }
+    );
+
+    const stage = new Stage(app, "Stage");
+    const appStack = new Stack(stage, "AppStack");
+    new Asset(appStack, "Asset", {
+      path: path.join(__dirname, "pdk-pipeline.test.ts"),
+    });
+
+    pipeline.addStage(stage);
+    pipeline.buildPipeline();
+
+    app.synth();
+    expect(app.nagResults().length).toEqual(0);
+    expect(Template.fromStack(stack)).toMatchSnapshot();
+  });
+
+  it("PDKPipelineWithCodeConnection - CrossAccount", () => {
+    const app = PDKNag.app();
+    const stack = new Stack(app);
+
+    const pipeline = new PDKPipelineWithCodeConnection(
+      stack,
+      "PDKPipelineWithCodeConnectionCrossAccount",
+      {
+        codeConnectionArn:
+          "arn:aws:codeconnections:us-west-2:123456789012:connection/abcdefghijk",
+        repositoryOwnerAndName: "test/test",
+        primarySynthDirectory: "cdk.out",
+        synth: {},
+        crossAccountKeys: true,
+        sonarCodeScannerConfig: {
+          sonarqubeAuthorizedGroup: "dev",
+          sonarqubeDefaultProfileOrGateName: "dev",
+          sonarqubeEndpoint: "https://sonar.dev",
+          sonarqubeProjectName: "Default",
+        },
+      }
+    );
+
+    const stage = new Stage(app, "Stage");
     const appStack = new Stack(stage, "AppStack");
     new Asset(appStack, "Asset", {
       path: path.join(__dirname, "pdk-pipeline.test.ts"),
