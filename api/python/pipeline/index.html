@@ -3748,6 +3748,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pdkpipelinewithcodeconnection" class="md-nav__link">
+    PDKPipelineWithCodeConnection 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#sonarcodescanner" class="md-nav__link">
     SonarCodeScanner 
   </a>
@@ -3784,6 +3791,13 @@
           <li class="md-nav__item">
   <a href="#pdkpipelineprops" class="md-nav__link">
     PDKPipelineProps 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pdkpipelinewithcodeconnectionprops" class="md-nav__link">
+    PDKPipelineWithCodeConnectionProps 
   </a>
   
 </li>
@@ -3828,7 +3842,7 @@
 <h1 id="api-reference">API Reference <a name="API Reference" id="api-reference"></a></h1>
 <h2 id="constructs">Constructs <a name="Constructs" id="Constructs"></a></h2>
 <h3 id="pdkpipeline">PDKPipeline <a name="PDKPipeline" id="@aws/pipeline.PDKPipeline"></a></h3>
-<p>An extension to CodePipeline which configures sane defaults for a NX Monorepo codebase.</p>
+<p>An extension to CodePipeline which configures same defaults for a NX Monorepo codebase.</p>
 <p>In addition to this, it also creates a CodeCommit repository with
 automated PR builds and approvals.</p>
 <h4 id="initializers">Initializers <a name="Initializers" id="@aws/pipeline.PDKPipeline.Initializer"></a></h4>
@@ -3863,6 +3877,7 @@ automated PR builds and approvals.</p>
   <span class="n">cdk_command</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">cdk_src_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">code_commit_removal_policy</span><span class="p">:</span> <span class="n">RemovalPolicy</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">code_commit_repository</span><span class="p">:</span> <span class="n">IRepository</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">default_branch_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">sonar_code_scanner_config</span><span class="p">:</span> <span class="n">SonarCodeScannerConfig</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">synth_shell_step_partial_props</span><span class="p">:</span> <span class="n">ShellStepProps</span> <span class="o">=</span> <span class="kc">None</span>
@@ -4016,6 +4031,11 @@ automated PR builds and approvals.</p>
 <td><code><a href="#@aws/pipeline.PDKPipeline.Initializer.parameter.codeCommitRemovalPolicy">code_commit_removal_policy</a></code></td>
 <td><code>aws_cdk.RemovalPolicy</code></td>
 <td>Possible values for a resource's Removal Policy The removal policy controls what happens to the resource if it stops being managed by CloudFormation.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipeline.Initializer.parameter.codeCommitRepository">code_commit_repository</a></code></td>
+<td><code>aws_cdk.aws_codecommit.IRepository</code></td>
+<td>The repository to add the pipeline to.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws/pipeline.PDKPipeline.Initializer.parameter.defaultBranchName">default_branch_name</a></code></td>
@@ -4292,6 +4312,12 @@ to deploy the stack in one pipeline action.</p>
 </ul>
 <p>Possible values for a resource's Removal Policy The removal policy controls what happens to the resource if it stops being managed by CloudFormation.</p>
 <hr />
+<h5 id="code_commit_repositoryoptional"><code>code_commit_repository</code><sup>Optional</sup> <a name="code_commit_repository" id="@aws/pipeline.PDKPipeline.Initializer.parameter.codeCommitRepository"></a></h5>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_codecommit.IRepository</li>
+</ul>
+<p>The repository to add the pipeline to.</p>
+<hr />
 <h5 id="default_branch_nameoptional"><code>default_branch_name</code><sup>Optional</sup> <a name="default_branch_name" id="@aws/pipeline.PDKPipeline.Initializer.parameter.defaultBranchName"></a></h5>
 <ul>
 <li><em>Type:</em> str</li>
@@ -4549,7 +4575,7 @@ branch. Otherwise, check that BRANCH matches the default branch name.</p>
 <li><em>Type:</em> aws_cdk.pipelines.CodePipeline</li>
 </ul>
 <hr />
-<h5 id="code_repositoryrequired"><code>code_repository</code><sup>Required</sup> <a name="code_repository" id="@aws/pipeline.PDKPipeline.property.codeRepository"></a></h5>
+<h5 id="code_repositoryoptional"><code>code_repository</code><sup>Optional</sup> <a name="code_repository" id="@aws/pipeline.PDKPipeline.property.codeRepository"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">code_repository</span><span class="p">:</span> <span class="n">IRepository</span>
 </code></pre></div>
 <ul>
@@ -4593,8 +4619,751 @@ branch. Otherwise, check that BRANCH matches the default branch name.</p>
 <li><em>Type:</em> str</li>
 </ul>
 <hr />
+<h3 id="pdkpipelinewithcodeconnection">PDKPipelineWithCodeConnection <a name="PDKPipelineWithCodeConnection" id="@aws/pipeline.PDKPipelineWithCodeConnection"></a></h3>
+<p>An extension to CodePipeline which configures same defaults for a NX Monorepo and using a AWS CodeConnections as source.</p>
+<h4 id="initializers_1">Initializers <a name="Initializers" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">aws.pdk.pipeline</span>
+
+<span class="n">aws</span><span class="o">.</span><span class="n">pdk</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">PDKPipelineWithCodeConnection</span><span class="p">(</span>
+  <span class="n">scope</span><span class="p">:</span> <span class="n">Construct</span><span class="p">,</span>
+  <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">artifact_bucket</span><span class="p">:</span> <span class="n">IBucket</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">asset_publishing_code_build_defaults</span><span class="p">:</span> <span class="n">CodeBuildOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">cli_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">code_build_defaults</span><span class="p">:</span> <span class="n">CodeBuildOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">code_pipeline</span><span class="p">:</span> <span class="n">Pipeline</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">cross_account_keys</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">cross_region_replication_buckets</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">IBucket</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">docker_credentials</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">DockerCredential</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">docker_enabled_for_self_mutation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">docker_enabled_for_synth</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">enable_key_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">pipeline_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">publish_assets_in_parallel</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">reuse_cross_region_support_stacks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">role</span><span class="p">:</span> <span class="n">IRole</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">self_mutation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">self_mutation_code_build_defaults</span><span class="p">:</span> <span class="n">CodeBuildOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">synth</span><span class="p">:</span> <span class="n">IFileSetProducer</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">synth_code_build_defaults</span><span class="p">:</span> <span class="n">CodeBuildOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">use_change_sets</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">code_connection_arn</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">primary_synth_directory</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">repository_owner_and_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">cdk_command</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">cdk_src_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">default_branch_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">sonar_code_scanner_config</span><span class="p">:</span> <span class="n">SonarCodeScannerConfig</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">synth_shell_step_partial_props</span><span class="p">:</span> <span class="n">ShellStepProps</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.scope">scope</a></code></td>
+<td><code>constructs.Construct</code></td>
+<td><em>No description.</em></td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.id">id</a></code></td>
+<td><code>str</code></td>
+<td><em>No description.</em></td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.artifactBucket">artifact_bucket</a></code></td>
+<td><code>aws_cdk.aws_s3.IBucket</code></td>
+<td>An existing S3 Bucket to use for storing the pipeline's artifact.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.assetPublishingCodeBuildDefaults">asset_publishing_code_build_defaults</a></code></td>
+<td><code>aws_cdk.pipelines.CodeBuildOptions</code></td>
+<td>Additional customizations to apply to the asset publishing CodeBuild projects.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.cliVersion">cli_version</a></code></td>
+<td><code>str</code></td>
+<td>CDK CLI version to use in self-mutation and asset publishing steps.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.codeBuildDefaults">code_build_defaults</a></code></td>
+<td><code>aws_cdk.pipelines.CodeBuildOptions</code></td>
+<td>Customize the CodeBuild projects created for this pipeline.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.codePipeline">code_pipeline</a></code></td>
+<td><code>aws_cdk.aws_codepipeline.Pipeline</code></td>
+<td>An existing Pipeline to be reused and built upon.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.crossAccountKeys">cross_account_keys</a></code></td>
+<td><code>bool</code></td>
+<td>Create KMS keys for the artifact buckets, allowing cross-account deployments.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.crossRegionReplicationBuckets">cross_region_replication_buckets</a></code></td>
+<td><code>typing.Mapping[aws_cdk.aws_s3.IBucket]</code></td>
+<td>A map of region to S3 bucket name used for cross-region CodePipeline.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.dockerCredentials">docker_credentials</a></code></td>
+<td><code>typing.List[aws_cdk.pipelines.DockerCredential]</code></td>
+<td>A list of credentials used to authenticate to Docker registries.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.dockerEnabledForSelfMutation">docker_enabled_for_self_mutation</a></code></td>
+<td><code>bool</code></td>
+<td>Enable Docker for the self-mutate step.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.dockerEnabledForSynth">docker_enabled_for_synth</a></code></td>
+<td><code>bool</code></td>
+<td>Enable Docker for the 'synth' step.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.enableKeyRotation">enable_key_rotation</a></code></td>
+<td><code>bool</code></td>
+<td>Enable KMS key rotation for the generated KMS keys.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.pipelineName">pipeline_name</a></code></td>
+<td><code>str</code></td>
+<td>The name of the CodePipeline pipeline.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.publishAssetsInParallel">publish_assets_in_parallel</a></code></td>
+<td><code>bool</code></td>
+<td>Publish assets in multiple CodeBuild projects. If set to false, use one Project per type to publish all assets.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.reuseCrossRegionSupportStacks">reuse_cross_region_support_stacks</a></code></td>
+<td><code>bool</code></td>
+<td>Reuse the same cross region support stack for all pipelines in the App.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.role">role</a></code></td>
+<td><code>aws_cdk.aws_iam.IRole</code></td>
+<td>The IAM role to be assumed by this Pipeline.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.selfMutation">self_mutation</a></code></td>
+<td><code>bool</code></td>
+<td>Whether the pipeline will update itself.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.selfMutationCodeBuildDefaults">self_mutation_code_build_defaults</a></code></td>
+<td><code>aws_cdk.pipelines.CodeBuildOptions</code></td>
+<td>Additional customizations to apply to the self mutation CodeBuild projects.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.synth">synth</a></code></td>
+<td><code>aws_cdk.pipelines.IFileSetProducer</code></td>
+<td>The build step that produces the CDK Cloud Assembly.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.synthCodeBuildDefaults">synth_code_build_defaults</a></code></td>
+<td><code>aws_cdk.pipelines.CodeBuildOptions</code></td>
+<td>Additional customizations to apply to the synthesize CodeBuild projects.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.useChangeSets">use_change_sets</a></code></td>
+<td><code>bool</code></td>
+<td>Deploy every stack by creating a change set and executing it.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.codeConnectionArn">code_connection_arn</a></code></td>
+<td><code>str</code></td>
+<td>The Arn of the CodeConnection.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.primarySynthDirectory">primary_synth_directory</a></code></td>
+<td><code>str</code></td>
+<td>Output directory for cdk synthesized artifacts i.e: packages/infra/cdk.out.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.repositoryOwnerAndName">repository_owner_and_name</a></code></td>
+<td><code>str</code></td>
+<td>The Owner and Repository name for instance, user Bob with git repository ACME becomes "Bob/ACME".</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.cdkCommand">cdk_command</a></code></td>
+<td><code>str</code></td>
+<td>CDK command.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.cdkSrcDir">cdk_src_dir</a></code></td>
+<td><code>str</code></td>
+<td>The directory with <code>cdk.json</code> to run cdk synth from. Set this if you enabled feature branches and <code>cdk.json</code> is not located in the parent directory of <code>primarySynthDirectory</code>.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.defaultBranchName">default_branch_name</a></code></td>
+<td><code>str</code></td>
+<td>Branch to trigger the pipeline execution.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.sonarCodeScannerConfig">sonar_code_scanner_config</a></code></td>
+<td><code><a href="#@aws/pipeline.SonarCodeScannerConfig">SonarCodeScannerConfig</a></code></td>
+<td>Configuration for enabling Sonarqube code scanning on a successful synth.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.synthShellStepPartialProps">synth_shell_step_partial_props</a></code></td>
+<td><code>aws_cdk.pipelines.ShellStepProps</code></td>
+<td>PDKPipeline by default assumes a NX Monorepo structure for it's codebase and uses sane defaults for the install and run commands.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="scoperequired_1"><code>scope</code><sup>Required</sup> <a name="scope" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.scope"></a></h5>
+<ul>
+<li><em>Type:</em> constructs.Construct</li>
+</ul>
+<hr />
+<h5 id="idrequired_1"><code>id</code><sup>Required</sup> <a name="id" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.id"></a></h5>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<hr />
+<h5 id="artifact_bucketoptional_1"><code>artifact_bucket</code><sup>Optional</sup> <a name="artifact_bucket" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.artifactBucket"></a></h5>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_s3.IBucket</li>
+<li><em>Default:</em> A new S3 bucket will be created.</li>
+</ul>
+<p>An existing S3 Bucket to use for storing the pipeline's artifact.</p>
+<hr />
+<h5 id="asset_publishing_code_build_defaultsoptional_1"><code>asset_publishing_code_build_defaults</code><sup>Optional</sup> <a name="asset_publishing_code_build_defaults" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.assetPublishingCodeBuildDefaults"></a></h5>
+<ul>
+<li><em>Type:</em> aws_cdk.pipelines.CodeBuildOptions</li>
+<li><em>Default:</em> Only <code>codeBuildDefaults</code> are applied</li>
+</ul>
+<p>Additional customizations to apply to the asset publishing CodeBuild projects.</p>
+<hr />
+<h5 id="cli_versionoptional_1"><code>cli_version</code><sup>Optional</sup> <a name="cli_version" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.cliVersion"></a></h5>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> Latest version</li>
+</ul>
+<p>CDK CLI version to use in self-mutation and asset publishing steps.</p>
+<p>If you want to lock the CDK CLI version used in the pipeline, by steps
+that are automatically generated for you, specify the version here.</p>
+<p>We recommend you do not specify this value, as not specifying it always
+uses the latest CLI version which is backwards compatible with old versions.</p>
+<p>If you do specify it, be aware that this version should always be equal to or higher than the
+version of the CDK framework used by the CDK app, when the CDK commands are
+run during your pipeline execution. When you change this version, the <em>next
+time</em> the <code>SelfMutate</code> step runs it will still be using the CLI of the the
+<em>previous</em> version that was in this property: it will only start using the
+new version after <code>SelfMutate</code> completes successfully. That means that if
+you want to update both framework and CLI version, you should update the
+CLI version first, commit, push and deploy, and only then update the
+framework version.</p>
+<hr />
+<h5 id="code_build_defaultsoptional_1"><code>code_build_defaults</code><sup>Optional</sup> <a name="code_build_defaults" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.codeBuildDefaults"></a></h5>
+<ul>
+<li><em>Type:</em> aws_cdk.pipelines.CodeBuildOptions</li>
+<li><em>Default:</em> All projects run non-privileged build, SMALL instance, LinuxBuildImage.STANDARD_7_0</li>
+</ul>
+<p>Customize the CodeBuild projects created for this pipeline.</p>
+<hr />
+<h5 id="code_pipelineoptional_1"><code>code_pipeline</code><sup>Optional</sup> <a name="code_pipeline" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.codePipeline"></a></h5>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_codepipeline.Pipeline</li>
+<li><em>Default:</em> a new underlying pipeline is created.</li>
+</ul>
+<p>An existing Pipeline to be reused and built upon.</p>
+<p>[disable-awslint:ref-via-interface]</p>
+<hr />
+<h5 id="cross_account_keysoptional_1"><code>cross_account_keys</code><sup>Optional</sup> <a name="cross_account_keys" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.crossAccountKeys"></a></h5>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> false</li>
+</ul>
+<p>Create KMS keys for the artifact buckets, allowing cross-account deployments.</p>
+<p>The artifact buckets have to be encrypted to support deploying CDK apps to
+another account, so if you want to do that or want to have your artifact
+buckets encrypted, be sure to set this value to <code>true</code>.</p>
+<p>Be aware there is a cost associated with maintaining the KMS keys.</p>
+<hr />
+<h5 id="cross_region_replication_bucketsoptional_1"><code>cross_region_replication_buckets</code><sup>Optional</sup> <a name="cross_region_replication_buckets" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.crossRegionReplicationBuckets"></a></h5>
+<ul>
+<li><em>Type:</em> typing.Mapping[aws_cdk.aws_s3.IBucket]</li>
+<li><em>Default:</em> no cross region replication buckets.</li>
+</ul>
+<p>A map of region to S3 bucket name used for cross-region CodePipeline.</p>
+<p>For every Action that you specify targeting a different region than the Pipeline itself,
+if you don't provide an explicit Bucket for that region using this property,
+the construct will automatically create a Stack containing an S3 Bucket in that region.
+Passed directly through to the {<a class="magiclink magiclink-github magiclink-mention" href="https://github.com/link" title="GitHub User: link">@link</a> cp.Pipeline }.</p>
+<hr />
+<h5 id="docker_credentialsoptional_1"><code>docker_credentials</code><sup>Optional</sup> <a name="docker_credentials" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.dockerCredentials"></a></h5>
+<ul>
+<li><em>Type:</em> typing.List[aws_cdk.pipelines.DockerCredential]</li>
+<li><em>Default:</em> []</li>
+</ul>
+<p>A list of credentials used to authenticate to Docker registries.</p>
+<p>Specify any credentials necessary within the pipeline to build, synth, update, or publish assets.</p>
+<hr />
+<h5 id="docker_enabled_for_self_mutationoptional_1"><code>docker_enabled_for_self_mutation</code><sup>Optional</sup> <a name="docker_enabled_for_self_mutation" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.dockerEnabledForSelfMutation"></a></h5>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> false</li>
+</ul>
+<p>Enable Docker for the self-mutate step.</p>
+<p>Set this to true if the pipeline itself uses Docker container assets
+(for example, if you use <code>LinuxBuildImage.fromAsset()</code> as the build
+image of a CodeBuild step in the pipeline).</p>
+<p>You do not need to set it if you build Docker image assets in the
+application Stages and Stacks that are <em>deployed</em> by this pipeline.</p>
+<p>Configures privileged mode for the self-mutation CodeBuild action.</p>
+<p>If you are about to turn this on in an already-deployed Pipeline,
+set the value to <code>true</code> first, commit and allow the pipeline to
+self-update, and only then use the Docker asset in the pipeline.</p>
+<hr />
+<h5 id="docker_enabled_for_synthoptional_1"><code>docker_enabled_for_synth</code><sup>Optional</sup> <a name="docker_enabled_for_synth" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.dockerEnabledForSynth"></a></h5>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> false</li>
+</ul>
+<p>Enable Docker for the 'synth' step.</p>
+<p>Set this to true if you are using file assets that require
+"bundling" anywhere in your application (meaning an asset
+compilation step will be run with the tools provided by
+a Docker image), both for the Pipeline stack as well as the
+application stacks.</p>
+<p>A common way to use bundling assets in your application is by
+using the <code>aws-cdk-lib/aws-lambda-nodejs</code> library.</p>
+<p>Configures privileged mode for the synth CodeBuild action.</p>
+<p>If you are about to turn this on in an already-deployed Pipeline,
+set the value to <code>true</code> first, commit and allow the pipeline to
+self-update, and only then use the bundled asset.</p>
+<hr />
+<h5 id="enable_key_rotationoptional_1"><code>enable_key_rotation</code><sup>Optional</sup> <a name="enable_key_rotation" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.enableKeyRotation"></a></h5>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> false (key rotation is disabled)</li>
+</ul>
+<p>Enable KMS key rotation for the generated KMS keys.</p>
+<p>By default KMS key rotation is disabled, but will add
+additional costs when enabled.</p>
+<hr />
+<h5 id="pipeline_nameoptional_1"><code>pipeline_name</code><sup>Optional</sup> <a name="pipeline_name" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.pipelineName"></a></h5>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> Automatically generated</li>
+</ul>
+<p>The name of the CodePipeline pipeline.</p>
+<hr />
+<h5 id="publish_assets_in_paralleloptional_1"><code>publish_assets_in_parallel</code><sup>Optional</sup> <a name="publish_assets_in_parallel" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.publishAssetsInParallel"></a></h5>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true</li>
+</ul>
+<p>Publish assets in multiple CodeBuild projects. If set to false, use one Project per type to publish all assets.</p>
+<p>Publishing in parallel improves concurrency and may reduce publishing
+latency, but may also increase overall provisioning time of the CodeBuild
+projects.</p>
+<p>Experiment and see what value works best for you.</p>
+<hr />
+<h5 id="reuse_cross_region_support_stacksoptional_1"><code>reuse_cross_region_support_stacks</code><sup>Optional</sup> <a name="reuse_cross_region_support_stacks" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.reuseCrossRegionSupportStacks"></a></h5>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true (Use the same support stack for all pipelines in App)</li>
+</ul>
+<p>Reuse the same cross region support stack for all pipelines in the App.</p>
+<hr />
+<h5 id="roleoptional_1"><code>role</code><sup>Optional</sup> <a name="role" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.role"></a></h5>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_iam.IRole</li>
+<li><em>Default:</em> A new role is created</li>
+</ul>
+<p>The IAM role to be assumed by this Pipeline.</p>
+<hr />
+<h5 id="self_mutationoptional_1"><code>self_mutation</code><sup>Optional</sup> <a name="self_mutation" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.selfMutation"></a></h5>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true</li>
+</ul>
+<p>Whether the pipeline will update itself.</p>
+<p>This needs to be set to <code>true</code> to allow the pipeline to reconfigure
+itself when assets or stages are being added to it, and <code>true</code> is the
+recommended setting.</p>
+<p>You can temporarily set this to <code>false</code> while you are iterating
+on the pipeline itself and prefer to deploy changes using <code>cdk deploy</code>.</p>
+<hr />
+<h5 id="self_mutation_code_build_defaultsoptional_1"><code>self_mutation_code_build_defaults</code><sup>Optional</sup> <a name="self_mutation_code_build_defaults" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.selfMutationCodeBuildDefaults"></a></h5>
+<ul>
+<li><em>Type:</em> aws_cdk.pipelines.CodeBuildOptions</li>
+<li><em>Default:</em> Only <code>codeBuildDefaults</code> are applied</li>
+</ul>
+<p>Additional customizations to apply to the self mutation CodeBuild projects.</p>
+<hr />
+<h5 id="synthoptional_1"><code>synth</code><sup>Optional</sup> <a name="synth" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.synth"></a></h5>
+<ul>
+<li><em>Type:</em> aws_cdk.pipelines.IFileSetProducer</li>
+</ul>
+<p>The build step that produces the CDK Cloud Assembly.</p>
+<p>The primary output of this step needs to be the <code>cdk.out</code> directory
+generated by the <code>cdk synth</code> command.</p>
+<p>If you use a <code>ShellStep</code> here and you don't configure an output directory,
+the output directory will automatically be assumed to be <code>cdk.out</code>.</p>
+<hr />
+<h5 id="synth_code_build_defaultsoptional_1"><code>synth_code_build_defaults</code><sup>Optional</sup> <a name="synth_code_build_defaults" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.synthCodeBuildDefaults"></a></h5>
+<ul>
+<li><em>Type:</em> aws_cdk.pipelines.CodeBuildOptions</li>
+<li><em>Default:</em> Only <code>codeBuildDefaults</code> are applied</li>
+</ul>
+<p>Additional customizations to apply to the synthesize CodeBuild projects.</p>
+<hr />
+<h5 id="use_change_setsoptional_1"><code>use_change_sets</code><sup>Optional</sup> <a name="use_change_sets" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.useChangeSets"></a></h5>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true</li>
+</ul>
+<p>Deploy every stack by creating a change set and executing it.</p>
+<p>When enabled, creates a "Prepare" and "Execute" action for each stack. Disable
+to deploy the stack in one pipeline action.</p>
+<hr />
+<h5 id="code_connection_arnrequired"><code>code_connection_arn</code><sup>Required</sup> <a name="code_connection_arn" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.codeConnectionArn"></a></h5>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>The Arn of the CodeConnection.</p>
+<hr />
+<h5 id="primary_synth_directoryrequired_1"><code>primary_synth_directory</code><sup>Required</sup> <a name="primary_synth_directory" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.primarySynthDirectory"></a></h5>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>Output directory for cdk synthesized artifacts i.e: packages/infra/cdk.out.</p>
+<hr />
+<h5 id="repository_owner_and_namerequired"><code>repository_owner_and_name</code><sup>Required</sup> <a name="repository_owner_and_name" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.repositoryOwnerAndName"></a></h5>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>The Owner and Repository name for instance, user Bob with git repository ACME becomes "Bob/ACME".</p>
+<hr />
+<h5 id="cdk_commandoptional_1"><code>cdk_command</code><sup>Optional</sup> <a name="cdk_command" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.cdkCommand"></a></h5>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> 'npx cdk'</li>
+</ul>
+<p>CDK command.</p>
+<p>Override the command used to call cdk for synth and deploy.</p>
+<hr />
+<h5 id="cdk_src_diroptional_1"><code>cdk_src_dir</code><sup>Optional</sup> <a name="cdk_src_dir" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.cdkSrcDir"></a></h5>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> The parent directory of <code>primarySynthDirectory</code></li>
+</ul>
+<p>The directory with <code>cdk.json</code> to run cdk synth from. Set this if you enabled feature branches and <code>cdk.json</code> is not located in the parent directory of <code>primarySynthDirectory</code>.</p>
+<hr />
+<h5 id="default_branch_nameoptional_3"><code>default_branch_name</code><sup>Optional</sup> <a name="default_branch_name" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.defaultBranchName"></a></h5>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> mainline</li>
+</ul>
+<p>Branch to trigger the pipeline execution.</p>
+<hr />
+<h5 id="sonar_code_scanner_configoptional_1"><code>sonar_code_scanner_config</code><sup>Optional</sup> <a name="sonar_code_scanner_config" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.sonarCodeScannerConfig"></a></h5>
+<ul>
+<li><em>Type:</em> <a href="#@aws/pipeline.SonarCodeScannerConfig">SonarCodeScannerConfig</a></li>
+<li><em>Default:</em> undefined</li>
+</ul>
+<p>Configuration for enabling Sonarqube code scanning on a successful synth.</p>
+<hr />
+<h5 id="synth_shell_step_partial_propsoptional_1"><code>synth_shell_step_partial_props</code><sup>Optional</sup> <a name="synth_shell_step_partial_props" id="@aws/pipeline.PDKPipelineWithCodeConnection.Initializer.parameter.synthShellStepPartialProps"></a></h5>
+<ul>
+<li><em>Type:</em> aws_cdk.pipelines.ShellStepProps</li>
+</ul>
+<p>PDKPipeline by default assumes a NX Monorepo structure for it's codebase and uses sane defaults for the install and run commands.</p>
+<p>To override these defaults
+and/or provide additional inputs, specify env settings, etc you can provide
+a partial ShellStepProps.</p>
+<hr />
+<h4 id="methods_1">Methods <a name="Methods" id="Methods"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.toString">to_string</a></code></td>
+<td>Returns a string representation of this construct.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.addStage">add_stage</a></code></td>
+<td><em>No description.</em></td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.buildPipeline">build_pipeline</a></code></td>
+<td><em>No description.</em></td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.suppressCDKViolations">suppress_cdk_violations</a></code></td>
+<td><em>No description.</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="to_string_1"><code>to_string</code> <a name="to_string" id="@aws/pipeline.PDKPipelineWithCodeConnection.toString"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">to_string</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span>
+</code></pre></div>
+<p>Returns a string representation of this construct.</p>
+<h5 id="add_stage_1"><code>add_stage</code> <a name="add_stage" id="@aws/pipeline.PDKPipelineWithCodeConnection.addStage"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_stage</span><span class="p">(</span>
+  <span class="n">stage</span><span class="p">:</span> <span class="n">Stage</span><span class="p">,</span>
+  <span class="n">post</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">Step</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">pre</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">Step</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">stack_steps</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">StackSteps</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StageDeployment</span>
+</code></pre></div>
+<h6 id="stagerequired_1"><code>stage</code><sup>Required</sup> <a name="stage" id="@aws/pipeline.PDKPipelineWithCodeConnection.addStage.parameter.stage"></a></h6>
+<ul>
+<li><em>Type:</em> aws_cdk.Stage</li>
+</ul>
+<hr />
+<h6 id="postoptional_1"><code>post</code><sup>Optional</sup> <a name="post" id="@aws/pipeline.PDKPipelineWithCodeConnection.addStage.parameter.post"></a></h6>
+<ul>
+<li><em>Type:</em> typing.List[aws_cdk.pipelines.Step]</li>
+<li><em>Default:</em> No additional steps</li>
+</ul>
+<p>Additional steps to run after all of the stacks in the stage.</p>
+<hr />
+<h6 id="preoptional_1"><code>pre</code><sup>Optional</sup> <a name="pre" id="@aws/pipeline.PDKPipelineWithCodeConnection.addStage.parameter.pre"></a></h6>
+<ul>
+<li><em>Type:</em> typing.List[aws_cdk.pipelines.Step]</li>
+<li><em>Default:</em> No additional steps</li>
+</ul>
+<p>Additional steps to run before any of the stacks in the stage.</p>
+<hr />
+<h6 id="stack_stepsoptional_1"><code>stack_steps</code><sup>Optional</sup> <a name="stack_steps" id="@aws/pipeline.PDKPipelineWithCodeConnection.addStage.parameter.stackSteps"></a></h6>
+<ul>
+<li><em>Type:</em> typing.List[aws_cdk.pipelines.StackSteps]</li>
+<li><em>Default:</em> No additional instructions</li>
+</ul>
+<p>Instructions for stack level steps.</p>
+<hr />
+<h5 id="build_pipeline_1"><code>build_pipeline</code> <a name="build_pipeline" id="@aws/pipeline.PDKPipelineWithCodeConnection.buildPipeline"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_pipeline</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+<h5 id="suppress_cdk_violations_1"><code>suppress_cdk_violations</code> <a name="suppress_cdk_violations" id="@aws/pipeline.PDKPipelineWithCodeConnection.suppressCDKViolations"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">suppress_cdk_violations</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+<h4 id="static-functions_1">Static Functions <a name="Static Functions" id="Static Functions"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.isConstruct">is_construct</a></code></td>
+<td>Checks if <code>x</code> is a construct.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.getBranchPrefix">get_branch_prefix</a></code></td>
+<td>A helper function to create a branch prefix.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.isDefaultBranch">is_default_branch</a></code></td>
+<td>A helper function to determine if the current branch is the default branch.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.normalizeBranchName">normalize_branch_name</a></code></td>
+<td>A helper function to normalize the branch name with only alphanumeric characters and hypens ('-').</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="is_construct_1"><code>is_construct</code> <a name="is_construct" id="@aws/pipeline.PDKPipelineWithCodeConnection.isConstruct"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">aws.pdk.pipeline</span>
+
+<span class="n">aws</span><span class="o">.</span><span class="n">pdk</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">PDKPipelineWithCodeConnection</span><span class="o">.</span><span class="n">is_construct</span><span class="p">(</span>
+  <span class="n">x</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Checks if <code>x</code> is a construct.</p>
+<p>Use this method instead of <code>instanceof</code> to properly detect <code>Construct</code>
+instances, even when the construct library is symlinked.</p>
+<p>Explanation: in JavaScript, multiple copies of the <code>constructs</code> library on
+disk are seen as independent, completely different libraries. As a
+consequence, the class <code>Construct</code> in each copy of the <code>constructs</code> library
+is seen as a different class, and an instance of one class will not test as
+<code>instanceof</code> the other class. <code>npm install</code> will not create installations
+like this, but users may manually symlink construct libraries together or
+use a monorepo tool: in those cases, multiple copies of the <code>constructs</code>
+library can be accidentally installed, and <code>instanceof</code> will behave
+unpredictably. It is safest to avoid using <code>instanceof</code>, and using
+this type-testing method instead.</p>
+<h6 id="xrequired_1"><code>x</code><sup>Required</sup> <a name="x" id="@aws/pipeline.PDKPipelineWithCodeConnection.isConstruct.parameter.x"></a></h6>
+<ul>
+<li><em>Type:</em> typing.Any</li>
+</ul>
+<p>Any object.</p>
+<hr />
+<h5 id="get_branch_prefix_1"><code>get_branch_prefix</code> <a name="get_branch_prefix" id="@aws/pipeline.PDKPipelineWithCodeConnection.getBranchPrefix"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">aws.pdk.pipeline</span>
+
+<span class="n">aws</span><span class="o">.</span><span class="n">pdk</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">PDKPipelineWithCodeConnection</span><span class="o">.</span><span class="n">get_branch_prefix</span><span class="p">(</span>
+  <span class="n">default_branch_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">node</span><span class="p">:</span> <span class="n">Node</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>A helper function to create a branch prefix.</p>
+<p>The prefix is empty on the default branch.</p>
+<h6 id="default_branch_nameoptional_4"><code>default_branch_name</code><sup>Optional</sup> <a name="default_branch_name" id="@aws/pipeline.PDKPipelineWithCodeConnection.getBranchPrefix.parameter.defaultBranchName"></a></h6>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>Specify the default branch name without context.</p>
+<hr />
+<h6 id="nodeoptional_2"><code>node</code><sup>Optional</sup> <a name="node" id="@aws/pipeline.PDKPipelineWithCodeConnection.getBranchPrefix.parameter.node"></a></h6>
+<ul>
+<li><em>Type:</em> constructs.Node</li>
+</ul>
+<p>The current node to fetch defaultBranchName from context.</p>
+<hr />
+<h5 id="is_default_branch_1"><code>is_default_branch</code> <a name="is_default_branch" id="@aws/pipeline.PDKPipelineWithCodeConnection.isDefaultBranch"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">aws.pdk.pipeline</span>
+
+<span class="n">aws</span><span class="o">.</span><span class="n">pdk</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">PDKPipelineWithCodeConnection</span><span class="o">.</span><span class="n">is_default_branch</span><span class="p">(</span>
+  <span class="n">default_branch_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">node</span><span class="p">:</span> <span class="n">Node</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>A helper function to determine if the current branch is the default branch.</p>
+<p>If there is no BRANCH environment variable, then assume this is the default
+branch. Otherwise, check that BRANCH matches the default branch name.</p>
+<p>The default branch name is determined in the following priority:</p>
+<ol>
+<li>defaultBranchName property</li>
+<li>defaultBranchName context</li>
+<li>PDKPipeline.defaultBranchName constant</li>
+</ol>
+<h6 id="default_branch_nameoptional_5"><code>default_branch_name</code><sup>Optional</sup> <a name="default_branch_name" id="@aws/pipeline.PDKPipelineWithCodeConnection.isDefaultBranch.parameter.defaultBranchName"></a></h6>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>Specify the default branch name without context.</p>
+<hr />
+<h6 id="nodeoptional_3"><code>node</code><sup>Optional</sup> <a name="node" id="@aws/pipeline.PDKPipelineWithCodeConnection.isDefaultBranch.parameter.node"></a></h6>
+<ul>
+<li><em>Type:</em> constructs.Node</li>
+</ul>
+<p>The current node to fetch defaultBranchName from context.</p>
+<hr />
+<h5 id="normalize_branch_name_1"><code>normalize_branch_name</code> <a name="normalize_branch_name" id="@aws/pipeline.PDKPipelineWithCodeConnection.normalizeBranchName"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">aws.pdk.pipeline</span>
+
+<span class="n">aws</span><span class="o">.</span><span class="n">pdk</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">PDKPipelineWithCodeConnection</span><span class="o">.</span><span class="n">normalize_branch_name</span><span class="p">(</span>
+  <span class="n">branch_name</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>A helper function to normalize the branch name with only alphanumeric characters and hypens ('-').</p>
+<h6 id="branch_namerequired_1"><code>branch_name</code><sup>Required</sup> <a name="branch_name" id="@aws/pipeline.PDKPipelineWithCodeConnection.normalizeBranchName.parameter.branchName"></a></h6>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>The name of the branch to normalize.</p>
+<hr />
+<h4 id="properties_1">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.property.node">node</a></code></td>
+<td><code>constructs.Node</code></td>
+<td>The tree node.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.property.codePipeline">code_pipeline</a></code></td>
+<td><code>aws_cdk.pipelines.CodePipeline</code></td>
+<td><em>No description.</em></td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.property.codeRepository">code_repository</a></code></td>
+<td><code>aws_cdk.aws_codecommit.IRepository</code></td>
+<td><em>No description.</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="noderequired_1"><code>node</code><sup>Required</sup> <a name="node" id="@aws/pipeline.PDKPipelineWithCodeConnection.property.node"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">node</span><span class="p">:</span> <span class="n">Node</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> constructs.Node</li>
+</ul>
+<p>The tree node.</p>
+<hr />
+<h5 id="code_pipelinerequired_1"><code>code_pipeline</code><sup>Required</sup> <a name="code_pipeline" id="@aws/pipeline.PDKPipelineWithCodeConnection.property.codePipeline"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">code_pipeline</span><span class="p">:</span> <span class="n">CodePipeline</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.pipelines.CodePipeline</li>
+</ul>
+<hr />
+<h5 id="code_repositoryoptional_1"><code>code_repository</code><sup>Optional</sup> <a name="code_repository" id="@aws/pipeline.PDKPipelineWithCodeConnection.property.codeRepository"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">code_repository</span><span class="p">:</span> <span class="n">IRepository</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_codecommit.IRepository</li>
+</ul>
+<hr />
+<h4 id="constants_1">Constants <a name="Constants" id="Constants"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.property.ALL_BRANCHES">ALL_BRANCHES</a></code></td>
+<td><code>typing.List[str]</code></td>
+<td><em>No description.</em></td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnection.property.defaultBranchName">defaultBranchName</a></code></td>
+<td><code>str</code></td>
+<td><em>No description.</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="all_branchesrequired_1"><code>ALL_BRANCHES</code><sup>Required</sup> <a name="ALL_BRANCHES" id="@aws/pipeline.PDKPipelineWithCodeConnection.property.ALL_BRANCHES"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">ALL_BRANCHES</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+</ul>
+<hr />
+<h5 id="defaultbranchnamerequired_1"><code>defaultBranchName</code><sup>Required</sup> <a name="defaultBranchName" id="@aws/pipeline.PDKPipelineWithCodeConnection.property.defaultBranchName"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">defaultBranchName</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<hr />
 <h3 id="sonarcodescanner">SonarCodeScanner <a name="SonarCodeScanner" id="@aws/pipeline.SonarCodeScanner"></a></h3>
-<h4 id="initializers_1">Initializers <a name="Initializers" id="@aws/pipeline.SonarCodeScanner.Initializer"></a></h4>
+<h4 id="initializers_2">Initializers <a name="Initializers" id="@aws/pipeline.SonarCodeScanner.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">aws.pdk.pipeline</span>
 
 <span class="n">aws</span><span class="o">.</span><span class="n">pdk</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">SonarCodeScanner</span><span class="p">(</span>
@@ -4708,12 +5477,12 @@ branch. Otherwise, check that BRANCH matches the default branch name.</p>
 </tbody>
 </table>
 <hr />
-<h5 id="scoperequired_1"><code>scope</code><sup>Required</sup> <a name="scope" id="@aws/pipeline.SonarCodeScanner.Initializer.parameter.scope"></a></h5>
+<h5 id="scoperequired_2"><code>scope</code><sup>Required</sup> <a name="scope" id="@aws/pipeline.SonarCodeScanner.Initializer.parameter.scope"></a></h5>
 <ul>
 <li><em>Type:</em> constructs.Construct</li>
 </ul>
 <hr />
-<h5 id="idrequired_1"><code>id</code><sup>Required</sup> <a name="id" id="@aws/pipeline.SonarCodeScanner.Initializer.parameter.id"></a></h5>
+<h5 id="idrequired_2"><code>id</code><sup>Required</sup> <a name="id" id="@aws/pipeline.SonarCodeScanner.Initializer.parameter.id"></a></h5>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
@@ -4805,7 +5574,7 @@ branch. Otherwise, check that BRANCH matches the default branch name.</p>
 </ul>
 <p>Artifact bucket key ARN used to encrypt the artifacts.</p>
 <hr />
-<h4 id="methods_1">Methods <a name="Methods" id="Methods"></a></h4>
+<h4 id="methods_2">Methods <a name="Methods" id="Methods"></a></h4>
 <table>
 <thead>
 <tr>
@@ -4821,11 +5590,11 @@ branch. Otherwise, check that BRANCH matches the default branch name.</p>
 </tbody>
 </table>
 <hr />
-<h5 id="to_string_1"><code>to_string</code> <a name="to_string" id="@aws/pipeline.SonarCodeScanner.toString"></a></h5>
+<h5 id="to_string_2"><code>to_string</code> <a name="to_string" id="@aws/pipeline.SonarCodeScanner.toString"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">to_string</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span>
 </code></pre></div>
 <p>Returns a string representation of this construct.</p>
-<h4 id="static-functions_1">Static Functions <a name="Static Functions" id="Static Functions"></a></h4>
+<h4 id="static-functions_2">Static Functions <a name="Static Functions" id="Static Functions"></a></h4>
 <table>
 <thead>
 <tr>
@@ -4841,7 +5610,7 @@ branch. Otherwise, check that BRANCH matches the default branch name.</p>
 </tbody>
 </table>
 <hr />
-<h5 id="is_construct_1"><code>is_construct</code> <a name="is_construct" id="@aws/pipeline.SonarCodeScanner.isConstruct"></a></h5>
+<h5 id="is_construct_2"><code>is_construct</code> <a name="is_construct" id="@aws/pipeline.SonarCodeScanner.isConstruct"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">aws.pdk.pipeline</span>
 
 <span class="n">aws</span><span class="o">.</span><span class="n">pdk</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">SonarCodeScanner</span><span class="o">.</span><span class="n">is_construct</span><span class="p">(</span>
@@ -4861,13 +5630,13 @@ use a monorepo tool: in those cases, multiple copies of the <code>constructs</co
 library can be accidentally installed, and <code>instanceof</code> will behave
 unpredictably. It is safest to avoid using <code>instanceof</code>, and using
 this type-testing method instead.</p>
-<h6 id="xrequired_1"><code>x</code><sup>Required</sup> <a name="x" id="@aws/pipeline.SonarCodeScanner.isConstruct.parameter.x"></a></h6>
+<h6 id="xrequired_2"><code>x</code><sup>Required</sup> <a name="x" id="@aws/pipeline.SonarCodeScanner.isConstruct.parameter.x"></a></h6>
 <ul>
 <li><em>Type:</em> typing.Any</li>
 </ul>
 <p>Any object.</p>
 <hr />
-<h4 id="properties_1">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_2">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -4885,7 +5654,7 @@ this type-testing method instead.</p>
 </tbody>
 </table>
 <hr />
-<h5 id="noderequired_1"><code>node</code><sup>Required</sup> <a name="node" id="@aws/pipeline.SonarCodeScanner.property.node"></a></h5>
+<h5 id="noderequired_2"><code>node</code><sup>Required</sup> <a name="node" id="@aws/pipeline.SonarCodeScanner.property.node"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">node</span><span class="p">:</span> <span class="n">Node</span>
 </code></pre></div>
 <ul>
@@ -4922,7 +5691,7 @@ this type-testing method instead.</p>
   <span class="n">use_change_sets</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_2">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_3">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5035,7 +5804,7 @@ this type-testing method instead.</p>
 </tbody>
 </table>
 <hr />
-<h5 id="artifact_bucketoptional_1"><code>artifact_bucket</code><sup>Optional</sup> <a name="artifact_bucket" id="@aws/pipeline.CodePipelineProps.property.artifactBucket"></a></h5>
+<h5 id="artifact_bucketoptional_2"><code>artifact_bucket</code><sup>Optional</sup> <a name="artifact_bucket" id="@aws/pipeline.CodePipelineProps.property.artifactBucket"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">artifact_bucket</span><span class="p">:</span> <span class="n">IBucket</span>
 </code></pre></div>
 <ul>
@@ -5044,7 +5813,7 @@ this type-testing method instead.</p>
 </ul>
 <p>An existing S3 Bucket to use for storing the pipeline's artifact.</p>
 <hr />
-<h5 id="asset_publishing_code_build_defaultsoptional_1"><code>asset_publishing_code_build_defaults</code><sup>Optional</sup> <a name="asset_publishing_code_build_defaults" id="@aws/pipeline.CodePipelineProps.property.assetPublishingCodeBuildDefaults"></a></h5>
+<h5 id="asset_publishing_code_build_defaultsoptional_2"><code>asset_publishing_code_build_defaults</code><sup>Optional</sup> <a name="asset_publishing_code_build_defaults" id="@aws/pipeline.CodePipelineProps.property.assetPublishingCodeBuildDefaults"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">asset_publishing_code_build_defaults</span><span class="p">:</span> <span class="n">CodeBuildOptions</span>
 </code></pre></div>
 <ul>
@@ -5053,7 +5822,7 @@ this type-testing method instead.</p>
 </ul>
 <p>Additional customizations to apply to the asset publishing CodeBuild projects.</p>
 <hr />
-<h5 id="cli_versionoptional_1"><code>cli_version</code><sup>Optional</sup> <a name="cli_version" id="@aws/pipeline.CodePipelineProps.property.cliVersion"></a></h5>
+<h5 id="cli_versionoptional_2"><code>cli_version</code><sup>Optional</sup> <a name="cli_version" id="@aws/pipeline.CodePipelineProps.property.cliVersion"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">cli_version</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div>
 <ul>
@@ -5075,7 +5844,7 @@ you want to update both framework and CLI version, you should update the
 CLI version first, commit, push and deploy, and only then update the
 framework version.</p>
 <hr />
-<h5 id="code_build_defaultsoptional_1"><code>code_build_defaults</code><sup>Optional</sup> <a name="code_build_defaults" id="@aws/pipeline.CodePipelineProps.property.codeBuildDefaults"></a></h5>
+<h5 id="code_build_defaultsoptional_2"><code>code_build_defaults</code><sup>Optional</sup> <a name="code_build_defaults" id="@aws/pipeline.CodePipelineProps.property.codeBuildDefaults"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">code_build_defaults</span><span class="p">:</span> <span class="n">CodeBuildOptions</span>
 </code></pre></div>
 <ul>
@@ -5084,7 +5853,7 @@ framework version.</p>
 </ul>
 <p>Customize the CodeBuild projects created for this pipeline.</p>
 <hr />
-<h5 id="code_pipelineoptional_1"><code>code_pipeline</code><sup>Optional</sup> <a name="code_pipeline" id="@aws/pipeline.CodePipelineProps.property.codePipeline"></a></h5>
+<h5 id="code_pipelineoptional_2"><code>code_pipeline</code><sup>Optional</sup> <a name="code_pipeline" id="@aws/pipeline.CodePipelineProps.property.codePipeline"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">code_pipeline</span><span class="p">:</span> <span class="n">Pipeline</span>
 </code></pre></div>
 <ul>
@@ -5094,7 +5863,7 @@ framework version.</p>
 <p>An existing Pipeline to be reused and built upon.</p>
 <p>[disable-awslint:ref-via-interface]</p>
 <hr />
-<h5 id="cross_account_keysoptional_1"><code>cross_account_keys</code><sup>Optional</sup> <a name="cross_account_keys" id="@aws/pipeline.CodePipelineProps.property.crossAccountKeys"></a></h5>
+<h5 id="cross_account_keysoptional_2"><code>cross_account_keys</code><sup>Optional</sup> <a name="cross_account_keys" id="@aws/pipeline.CodePipelineProps.property.crossAccountKeys"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">cross_account_keys</span><span class="p">:</span> <span class="nb">bool</span>
 </code></pre></div>
 <ul>
@@ -5107,7 +5876,7 @@ another account, so if you want to do that or want to have your artifact
 buckets encrypted, be sure to set this value to <code>true</code>.</p>
 <p>Be aware there is a cost associated with maintaining the KMS keys.</p>
 <hr />
-<h5 id="cross_region_replication_bucketsoptional_1"><code>cross_region_replication_buckets</code><sup>Optional</sup> <a name="cross_region_replication_buckets" id="@aws/pipeline.CodePipelineProps.property.crossRegionReplicationBuckets"></a></h5>
+<h5 id="cross_region_replication_bucketsoptional_2"><code>cross_region_replication_buckets</code><sup>Optional</sup> <a name="cross_region_replication_buckets" id="@aws/pipeline.CodePipelineProps.property.crossRegionReplicationBuckets"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">cross_region_replication_buckets</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">IBucket</span><span class="p">]</span>
 </code></pre></div>
 <ul>
@@ -5120,7 +5889,7 @@ if you don't provide an explicit Bucket for that region using this property,
 the construct will automatically create a Stack containing an S3 Bucket in that region.
 Passed directly through to the {<a class="magiclink magiclink-github magiclink-mention" href="https://github.com/link" title="GitHub User: link">@link</a> cp.Pipeline }.</p>
 <hr />
-<h5 id="docker_credentialsoptional_1"><code>docker_credentials</code><sup>Optional</sup> <a name="docker_credentials" id="@aws/pipeline.CodePipelineProps.property.dockerCredentials"></a></h5>
+<h5 id="docker_credentialsoptional_2"><code>docker_credentials</code><sup>Optional</sup> <a name="docker_credentials" id="@aws/pipeline.CodePipelineProps.property.dockerCredentials"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">docker_credentials</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">DockerCredential</span><span class="p">]</span>
 </code></pre></div>
 <ul>
@@ -5130,7 +5899,7 @@ Passed directly through to the {<a class="magiclink magiclink-github magiclink-m
 <p>A list of credentials used to authenticate to Docker registries.</p>
 <p>Specify any credentials necessary within the pipeline to build, synth, update, or publish assets.</p>
 <hr />
-<h5 id="docker_enabled_for_self_mutationoptional_1"><code>docker_enabled_for_self_mutation</code><sup>Optional</sup> <a name="docker_enabled_for_self_mutation" id="@aws/pipeline.CodePipelineProps.property.dockerEnabledForSelfMutation"></a></h5>
+<h5 id="docker_enabled_for_self_mutationoptional_2"><code>docker_enabled_for_self_mutation</code><sup>Optional</sup> <a name="docker_enabled_for_self_mutation" id="@aws/pipeline.CodePipelineProps.property.dockerEnabledForSelfMutation"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">docker_enabled_for_self_mutation</span><span class="p">:</span> <span class="nb">bool</span>
 </code></pre></div>
 <ul>
@@ -5148,7 +5917,7 @@ application Stages and Stacks that are <em>deployed</em> by this pipeline.</p>
 set the value to <code>true</code> first, commit and allow the pipeline to
 self-update, and only then use the Docker asset in the pipeline.</p>
 <hr />
-<h5 id="docker_enabled_for_synthoptional_1"><code>docker_enabled_for_synth</code><sup>Optional</sup> <a name="docker_enabled_for_synth" id="@aws/pipeline.CodePipelineProps.property.dockerEnabledForSynth"></a></h5>
+<h5 id="docker_enabled_for_synthoptional_2"><code>docker_enabled_for_synth</code><sup>Optional</sup> <a name="docker_enabled_for_synth" id="@aws/pipeline.CodePipelineProps.property.dockerEnabledForSynth"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">docker_enabled_for_synth</span><span class="p">:</span> <span class="nb">bool</span>
 </code></pre></div>
 <ul>
@@ -5168,7 +5937,7 @@ using the <code>aws-cdk-lib/aws-lambda-nodejs</code> library.</p>
 set the value to <code>true</code> first, commit and allow the pipeline to
 self-update, and only then use the bundled asset.</p>
 <hr />
-<h5 id="enable_key_rotationoptional_1"><code>enable_key_rotation</code><sup>Optional</sup> <a name="enable_key_rotation" id="@aws/pipeline.CodePipelineProps.property.enableKeyRotation"></a></h5>
+<h5 id="enable_key_rotationoptional_2"><code>enable_key_rotation</code><sup>Optional</sup> <a name="enable_key_rotation" id="@aws/pipeline.CodePipelineProps.property.enableKeyRotation"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">enable_key_rotation</span><span class="p">:</span> <span class="nb">bool</span>
 </code></pre></div>
 <ul>
@@ -5179,7 +5948,7 @@ self-update, and only then use the bundled asset.</p>
 <p>By default KMS key rotation is disabled, but will add
 additional costs when enabled.</p>
 <hr />
-<h5 id="pipeline_nameoptional_1"><code>pipeline_name</code><sup>Optional</sup> <a name="pipeline_name" id="@aws/pipeline.CodePipelineProps.property.pipelineName"></a></h5>
+<h5 id="pipeline_nameoptional_2"><code>pipeline_name</code><sup>Optional</sup> <a name="pipeline_name" id="@aws/pipeline.CodePipelineProps.property.pipelineName"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">pipeline_name</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div>
 <ul>
@@ -5188,7 +5957,7 @@ additional costs when enabled.</p>
 </ul>
 <p>The name of the CodePipeline pipeline.</p>
 <hr />
-<h5 id="publish_assets_in_paralleloptional_1"><code>publish_assets_in_parallel</code><sup>Optional</sup> <a name="publish_assets_in_parallel" id="@aws/pipeline.CodePipelineProps.property.publishAssetsInParallel"></a></h5>
+<h5 id="publish_assets_in_paralleloptional_2"><code>publish_assets_in_parallel</code><sup>Optional</sup> <a name="publish_assets_in_parallel" id="@aws/pipeline.CodePipelineProps.property.publishAssetsInParallel"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">publish_assets_in_parallel</span><span class="p">:</span> <span class="nb">bool</span>
 </code></pre></div>
 <ul>
@@ -5201,7 +5970,7 @@ latency, but may also increase overall provisioning time of the CodeBuild
 projects.</p>
 <p>Experiment and see what value works best for you.</p>
 <hr />
-<h5 id="reuse_cross_region_support_stacksoptional_1"><code>reuse_cross_region_support_stacks</code><sup>Optional</sup> <a name="reuse_cross_region_support_stacks" id="@aws/pipeline.CodePipelineProps.property.reuseCrossRegionSupportStacks"></a></h5>
+<h5 id="reuse_cross_region_support_stacksoptional_2"><code>reuse_cross_region_support_stacks</code><sup>Optional</sup> <a name="reuse_cross_region_support_stacks" id="@aws/pipeline.CodePipelineProps.property.reuseCrossRegionSupportStacks"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">reuse_cross_region_support_stacks</span><span class="p">:</span> <span class="nb">bool</span>
 </code></pre></div>
 <ul>
@@ -5210,7 +5979,7 @@ projects.</p>
 </ul>
 <p>Reuse the same cross region support stack for all pipelines in the App.</p>
 <hr />
-<h5 id="roleoptional_1"><code>role</code><sup>Optional</sup> <a name="role" id="@aws/pipeline.CodePipelineProps.property.role"></a></h5>
+<h5 id="roleoptional_2"><code>role</code><sup>Optional</sup> <a name="role" id="@aws/pipeline.CodePipelineProps.property.role"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">role</span><span class="p">:</span> <span class="n">IRole</span>
 </code></pre></div>
 <ul>
@@ -5219,7 +5988,7 @@ projects.</p>
 </ul>
 <p>The IAM role to be assumed by this Pipeline.</p>
 <hr />
-<h5 id="self_mutationoptional_1"><code>self_mutation</code><sup>Optional</sup> <a name="self_mutation" id="@aws/pipeline.CodePipelineProps.property.selfMutation"></a></h5>
+<h5 id="self_mutationoptional_2"><code>self_mutation</code><sup>Optional</sup> <a name="self_mutation" id="@aws/pipeline.CodePipelineProps.property.selfMutation"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">self_mutation</span><span class="p">:</span> <span class="nb">bool</span>
 </code></pre></div>
 <ul>
@@ -5233,7 +6002,7 @@ recommended setting.</p>
 <p>You can temporarily set this to <code>false</code> while you are iterating
 on the pipeline itself and prefer to deploy changes using <code>cdk deploy</code>.</p>
 <hr />
-<h5 id="self_mutation_code_build_defaultsoptional_1"><code>self_mutation_code_build_defaults</code><sup>Optional</sup> <a name="self_mutation_code_build_defaults" id="@aws/pipeline.CodePipelineProps.property.selfMutationCodeBuildDefaults"></a></h5>
+<h5 id="self_mutation_code_build_defaultsoptional_2"><code>self_mutation_code_build_defaults</code><sup>Optional</sup> <a name="self_mutation_code_build_defaults" id="@aws/pipeline.CodePipelineProps.property.selfMutationCodeBuildDefaults"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">self_mutation_code_build_defaults</span><span class="p">:</span> <span class="n">CodeBuildOptions</span>
 </code></pre></div>
 <ul>
@@ -5242,7 +6011,7 @@ on the pipeline itself and prefer to deploy changes using <code>cdk deploy</code
 </ul>
 <p>Additional customizations to apply to the self mutation CodeBuild projects.</p>
 <hr />
-<h5 id="synthoptional_1"><code>synth</code><sup>Optional</sup> <a name="synth" id="@aws/pipeline.CodePipelineProps.property.synth"></a></h5>
+<h5 id="synthoptional_2"><code>synth</code><sup>Optional</sup> <a name="synth" id="@aws/pipeline.CodePipelineProps.property.synth"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">synth</span><span class="p">:</span> <span class="n">IFileSetProducer</span>
 </code></pre></div>
 <ul>
@@ -5254,7 +6023,7 @@ generated by the <code>cdk synth</code> command.</p>
 <p>If you use a <code>ShellStep</code> here and you don't configure an output directory,
 the output directory will automatically be assumed to be <code>cdk.out</code>.</p>
 <hr />
-<h5 id="synth_code_build_defaultsoptional_1"><code>synth_code_build_defaults</code><sup>Optional</sup> <a name="synth_code_build_defaults" id="@aws/pipeline.CodePipelineProps.property.synthCodeBuildDefaults"></a></h5>
+<h5 id="synth_code_build_defaultsoptional_2"><code>synth_code_build_defaults</code><sup>Optional</sup> <a name="synth_code_build_defaults" id="@aws/pipeline.CodePipelineProps.property.synthCodeBuildDefaults"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">synth_code_build_defaults</span><span class="p">:</span> <span class="n">CodeBuildOptions</span>
 </code></pre></div>
 <ul>
@@ -5263,7 +6032,7 @@ the output directory will automatically be assumed to be <code>cdk.out</code>.</
 </ul>
 <p>Additional customizations to apply to the synthesize CodeBuild projects.</p>
 <hr />
-<h5 id="use_change_setsoptional_1"><code>use_change_sets</code><sup>Optional</sup> <a name="use_change_sets" id="@aws/pipeline.CodePipelineProps.property.useChangeSets"></a></h5>
+<h5 id="use_change_setsoptional_2"><code>use_change_sets</code><sup>Optional</sup> <a name="use_change_sets" id="@aws/pipeline.CodePipelineProps.property.useChangeSets"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">use_change_sets</span><span class="p">:</span> <span class="nb">bool</span>
 </code></pre></div>
 <ul>
@@ -5284,7 +6053,7 @@ to deploy the stack in one pipeline action.</p>
   <span class="n">node</span><span class="p">:</span> <span class="n">Node</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_3">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_4">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5307,7 +6076,7 @@ to deploy the stack in one pipeline action.</p>
 </tbody>
 </table>
 <hr />
-<h5 id="default_branch_nameoptional_3"><code>default_branch_name</code><sup>Optional</sup> <a name="default_branch_name" id="@aws/pipeline.IsDefaultBranchProps.property.defaultBranchName"></a></h5>
+<h5 id="default_branch_nameoptional_6"><code>default_branch_name</code><sup>Optional</sup> <a name="default_branch_name" id="@aws/pipeline.IsDefaultBranchProps.property.defaultBranchName"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">default_branch_name</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div>
 <ul>
@@ -5315,7 +6084,7 @@ to deploy the stack in one pipeline action.</p>
 </ul>
 <p>Specify the default branch name without context.</p>
 <hr />
-<h5 id="nodeoptional_2"><code>node</code><sup>Optional</sup> <a name="node" id="@aws/pipeline.IsDefaultBranchProps.property.node"></a></h5>
+<h5 id="nodeoptional_4"><code>node</code><sup>Optional</sup> <a name="node" id="@aws/pipeline.IsDefaultBranchProps.property.node"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">node</span><span class="p">:</span> <span class="n">Node</span>
 </code></pre></div>
 <ul>
@@ -5324,7 +6093,7 @@ to deploy the stack in one pipeline action.</p>
 <p>The current node to fetch defaultBranchName from context.</p>
 <hr />
 <h3 id="pdkpipelineprops">PDKPipelineProps <a name="PDKPipelineProps" id="@aws/pipeline.PDKPipelineProps"></a></h3>
-<p>Properties to configure the PDKPipeline.</p>
+<p>Properties to configure the PDKPipeline with CodeCommit as source.</p>
 <p>Note: Due to limitations with JSII and generic support it should be noted that
 the synth, synthShellStepPartialProps.input and
 synthShellStepPartialProps.primaryOutputDirectory properties will be ignored
@@ -5361,12 +6130,13 @@ if you pass in [] the default commands of this construct will be retained.</p>
   <span class="n">cdk_command</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">cdk_src_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">code_commit_removal_policy</span><span class="p">:</span> <span class="n">RemovalPolicy</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">code_commit_repository</span><span class="p">:</span> <span class="n">IRepository</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">default_branch_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">sonar_code_scanner_config</span><span class="p">:</span> <span class="n">SonarCodeScannerConfig</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">synth_shell_step_partial_props</span><span class="p">:</span> <span class="n">ShellStepProps</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_4">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_5">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5507,6 +6277,11 @@ if you pass in [] the default commands of this construct will be retained.</p>
 <td>Possible values for a resource's Removal Policy The removal policy controls what happens to the resource if it stops being managed by CloudFormation.</td>
 </tr>
 <tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineProps.property.codeCommitRepository">code_commit_repository</a></code></td>
+<td><code>aws_cdk.aws_codecommit.IRepository</code></td>
+<td>The repository to add the pipeline to.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws/pipeline.PDKPipelineProps.property.defaultBranchName">default_branch_name</a></code></td>
 <td><code>str</code></td>
 <td>Branch to trigger the pipeline execution.</td>
@@ -5524,7 +6299,7 @@ if you pass in [] the default commands of this construct will be retained.</p>
 </tbody>
 </table>
 <hr />
-<h5 id="artifact_bucketoptional_2"><code>artifact_bucket</code><sup>Optional</sup> <a name="artifact_bucket" id="@aws/pipeline.PDKPipelineProps.property.artifactBucket"></a></h5>
+<h5 id="artifact_bucketoptional_3"><code>artifact_bucket</code><sup>Optional</sup> <a name="artifact_bucket" id="@aws/pipeline.PDKPipelineProps.property.artifactBucket"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">artifact_bucket</span><span class="p">:</span> <span class="n">IBucket</span>
 </code></pre></div>
 <ul>
@@ -5533,7 +6308,7 @@ if you pass in [] the default commands of this construct will be retained.</p>
 </ul>
 <p>An existing S3 Bucket to use for storing the pipeline's artifact.</p>
 <hr />
-<h5 id="asset_publishing_code_build_defaultsoptional_2"><code>asset_publishing_code_build_defaults</code><sup>Optional</sup> <a name="asset_publishing_code_build_defaults" id="@aws/pipeline.PDKPipelineProps.property.assetPublishingCodeBuildDefaults"></a></h5>
+<h5 id="asset_publishing_code_build_defaultsoptional_3"><code>asset_publishing_code_build_defaults</code><sup>Optional</sup> <a name="asset_publishing_code_build_defaults" id="@aws/pipeline.PDKPipelineProps.property.assetPublishingCodeBuildDefaults"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">asset_publishing_code_build_defaults</span><span class="p">:</span> <span class="n">CodeBuildOptions</span>
 </code></pre></div>
 <ul>
@@ -5542,7 +6317,7 @@ if you pass in [] the default commands of this construct will be retained.</p>
 </ul>
 <p>Additional customizations to apply to the asset publishing CodeBuild projects.</p>
 <hr />
-<h5 id="cli_versionoptional_2"><code>cli_version</code><sup>Optional</sup> <a name="cli_version" id="@aws/pipeline.PDKPipelineProps.property.cliVersion"></a></h5>
+<h5 id="cli_versionoptional_3"><code>cli_version</code><sup>Optional</sup> <a name="cli_version" id="@aws/pipeline.PDKPipelineProps.property.cliVersion"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">cli_version</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div>
 <ul>
@@ -5564,7 +6339,7 @@ you want to update both framework and CLI version, you should update the
 CLI version first, commit, push and deploy, and only then update the
 framework version.</p>
 <hr />
-<h5 id="code_build_defaultsoptional_2"><code>code_build_defaults</code><sup>Optional</sup> <a name="code_build_defaults" id="@aws/pipeline.PDKPipelineProps.property.codeBuildDefaults"></a></h5>
+<h5 id="code_build_defaultsoptional_3"><code>code_build_defaults</code><sup>Optional</sup> <a name="code_build_defaults" id="@aws/pipeline.PDKPipelineProps.property.codeBuildDefaults"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">code_build_defaults</span><span class="p">:</span> <span class="n">CodeBuildOptions</span>
 </code></pre></div>
 <ul>
@@ -5573,7 +6348,7 @@ framework version.</p>
 </ul>
 <p>Customize the CodeBuild projects created for this pipeline.</p>
 <hr />
-<h5 id="code_pipelineoptional_2"><code>code_pipeline</code><sup>Optional</sup> <a name="code_pipeline" id="@aws/pipeline.PDKPipelineProps.property.codePipeline"></a></h5>
+<h5 id="code_pipelineoptional_3"><code>code_pipeline</code><sup>Optional</sup> <a name="code_pipeline" id="@aws/pipeline.PDKPipelineProps.property.codePipeline"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">code_pipeline</span><span class="p">:</span> <span class="n">Pipeline</span>
 </code></pre></div>
 <ul>
@@ -5583,7 +6358,7 @@ framework version.</p>
 <p>An existing Pipeline to be reused and built upon.</p>
 <p>[disable-awslint:ref-via-interface]</p>
 <hr />
-<h5 id="cross_account_keysoptional_2"><code>cross_account_keys</code><sup>Optional</sup> <a name="cross_account_keys" id="@aws/pipeline.PDKPipelineProps.property.crossAccountKeys"></a></h5>
+<h5 id="cross_account_keysoptional_3"><code>cross_account_keys</code><sup>Optional</sup> <a name="cross_account_keys" id="@aws/pipeline.PDKPipelineProps.property.crossAccountKeys"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">cross_account_keys</span><span class="p">:</span> <span class="nb">bool</span>
 </code></pre></div>
 <ul>
@@ -5596,7 +6371,7 @@ another account, so if you want to do that or want to have your artifact
 buckets encrypted, be sure to set this value to <code>true</code>.</p>
 <p>Be aware there is a cost associated with maintaining the KMS keys.</p>
 <hr />
-<h5 id="cross_region_replication_bucketsoptional_2"><code>cross_region_replication_buckets</code><sup>Optional</sup> <a name="cross_region_replication_buckets" id="@aws/pipeline.PDKPipelineProps.property.crossRegionReplicationBuckets"></a></h5>
+<h5 id="cross_region_replication_bucketsoptional_3"><code>cross_region_replication_buckets</code><sup>Optional</sup> <a name="cross_region_replication_buckets" id="@aws/pipeline.PDKPipelineProps.property.crossRegionReplicationBuckets"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">cross_region_replication_buckets</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">IBucket</span><span class="p">]</span>
 </code></pre></div>
 <ul>
@@ -5609,7 +6384,7 @@ if you don't provide an explicit Bucket for that region using this property,
 the construct will automatically create a Stack containing an S3 Bucket in that region.
 Passed directly through to the {<a class="magiclink magiclink-github magiclink-mention" href="https://github.com/link" title="GitHub User: link">@link</a> cp.Pipeline }.</p>
 <hr />
-<h5 id="docker_credentialsoptional_2"><code>docker_credentials</code><sup>Optional</sup> <a name="docker_credentials" id="@aws/pipeline.PDKPipelineProps.property.dockerCredentials"></a></h5>
+<h5 id="docker_credentialsoptional_3"><code>docker_credentials</code><sup>Optional</sup> <a name="docker_credentials" id="@aws/pipeline.PDKPipelineProps.property.dockerCredentials"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">docker_credentials</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">DockerCredential</span><span class="p">]</span>
 </code></pre></div>
 <ul>
@@ -5619,7 +6394,7 @@ Passed directly through to the {<a class="magiclink magiclink-github magiclink-m
 <p>A list of credentials used to authenticate to Docker registries.</p>
 <p>Specify any credentials necessary within the pipeline to build, synth, update, or publish assets.</p>
 <hr />
-<h5 id="docker_enabled_for_self_mutationoptional_2"><code>docker_enabled_for_self_mutation</code><sup>Optional</sup> <a name="docker_enabled_for_self_mutation" id="@aws/pipeline.PDKPipelineProps.property.dockerEnabledForSelfMutation"></a></h5>
+<h5 id="docker_enabled_for_self_mutationoptional_3"><code>docker_enabled_for_self_mutation</code><sup>Optional</sup> <a name="docker_enabled_for_self_mutation" id="@aws/pipeline.PDKPipelineProps.property.dockerEnabledForSelfMutation"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">docker_enabled_for_self_mutation</span><span class="p">:</span> <span class="nb">bool</span>
 </code></pre></div>
 <ul>
@@ -5637,7 +6412,7 @@ application Stages and Stacks that are <em>deployed</em> by this pipeline.</p>
 set the value to <code>true</code> first, commit and allow the pipeline to
 self-update, and only then use the Docker asset in the pipeline.</p>
 <hr />
-<h5 id="docker_enabled_for_synthoptional_2"><code>docker_enabled_for_synth</code><sup>Optional</sup> <a name="docker_enabled_for_synth" id="@aws/pipeline.PDKPipelineProps.property.dockerEnabledForSynth"></a></h5>
+<h5 id="docker_enabled_for_synthoptional_3"><code>docker_enabled_for_synth</code><sup>Optional</sup> <a name="docker_enabled_for_synth" id="@aws/pipeline.PDKPipelineProps.property.dockerEnabledForSynth"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">docker_enabled_for_synth</span><span class="p">:</span> <span class="nb">bool</span>
 </code></pre></div>
 <ul>
@@ -5657,7 +6432,7 @@ using the <code>aws-cdk-lib/aws-lambda-nodejs</code> library.</p>
 set the value to <code>true</code> first, commit and allow the pipeline to
 self-update, and only then use the bundled asset.</p>
 <hr />
-<h5 id="enable_key_rotationoptional_2"><code>enable_key_rotation</code><sup>Optional</sup> <a name="enable_key_rotation" id="@aws/pipeline.PDKPipelineProps.property.enableKeyRotation"></a></h5>
+<h5 id="enable_key_rotationoptional_3"><code>enable_key_rotation</code><sup>Optional</sup> <a name="enable_key_rotation" id="@aws/pipeline.PDKPipelineProps.property.enableKeyRotation"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">enable_key_rotation</span><span class="p">:</span> <span class="nb">bool</span>
 </code></pre></div>
 <ul>
@@ -5668,7 +6443,7 @@ self-update, and only then use the bundled asset.</p>
 <p>By default KMS key rotation is disabled, but will add
 additional costs when enabled.</p>
 <hr />
-<h5 id="pipeline_nameoptional_2"><code>pipeline_name</code><sup>Optional</sup> <a name="pipeline_name" id="@aws/pipeline.PDKPipelineProps.property.pipelineName"></a></h5>
+<h5 id="pipeline_nameoptional_3"><code>pipeline_name</code><sup>Optional</sup> <a name="pipeline_name" id="@aws/pipeline.PDKPipelineProps.property.pipelineName"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">pipeline_name</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div>
 <ul>
@@ -5677,7 +6452,7 @@ additional costs when enabled.</p>
 </ul>
 <p>The name of the CodePipeline pipeline.</p>
 <hr />
-<h5 id="publish_assets_in_paralleloptional_2"><code>publish_assets_in_parallel</code><sup>Optional</sup> <a name="publish_assets_in_parallel" id="@aws/pipeline.PDKPipelineProps.property.publishAssetsInParallel"></a></h5>
+<h5 id="publish_assets_in_paralleloptional_3"><code>publish_assets_in_parallel</code><sup>Optional</sup> <a name="publish_assets_in_parallel" id="@aws/pipeline.PDKPipelineProps.property.publishAssetsInParallel"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">publish_assets_in_parallel</span><span class="p">:</span> <span class="nb">bool</span>
 </code></pre></div>
 <ul>
@@ -5690,7 +6465,7 @@ latency, but may also increase overall provisioning time of the CodeBuild
 projects.</p>
 <p>Experiment and see what value works best for you.</p>
 <hr />
-<h5 id="reuse_cross_region_support_stacksoptional_2"><code>reuse_cross_region_support_stacks</code><sup>Optional</sup> <a name="reuse_cross_region_support_stacks" id="@aws/pipeline.PDKPipelineProps.property.reuseCrossRegionSupportStacks"></a></h5>
+<h5 id="reuse_cross_region_support_stacksoptional_3"><code>reuse_cross_region_support_stacks</code><sup>Optional</sup> <a name="reuse_cross_region_support_stacks" id="@aws/pipeline.PDKPipelineProps.property.reuseCrossRegionSupportStacks"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">reuse_cross_region_support_stacks</span><span class="p">:</span> <span class="nb">bool</span>
 </code></pre></div>
 <ul>
@@ -5699,7 +6474,7 @@ projects.</p>
 </ul>
 <p>Reuse the same cross region support stack for all pipelines in the App.</p>
 <hr />
-<h5 id="roleoptional_2"><code>role</code><sup>Optional</sup> <a name="role" id="@aws/pipeline.PDKPipelineProps.property.role"></a></h5>
+<h5 id="roleoptional_3"><code>role</code><sup>Optional</sup> <a name="role" id="@aws/pipeline.PDKPipelineProps.property.role"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">role</span><span class="p">:</span> <span class="n">IRole</span>
 </code></pre></div>
 <ul>
@@ -5708,7 +6483,7 @@ projects.</p>
 </ul>
 <p>The IAM role to be assumed by this Pipeline.</p>
 <hr />
-<h5 id="self_mutationoptional_2"><code>self_mutation</code><sup>Optional</sup> <a name="self_mutation" id="@aws/pipeline.PDKPipelineProps.property.selfMutation"></a></h5>
+<h5 id="self_mutationoptional_3"><code>self_mutation</code><sup>Optional</sup> <a name="self_mutation" id="@aws/pipeline.PDKPipelineProps.property.selfMutation"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">self_mutation</span><span class="p">:</span> <span class="nb">bool</span>
 </code></pre></div>
 <ul>
@@ -5722,7 +6497,7 @@ recommended setting.</p>
 <p>You can temporarily set this to <code>false</code> while you are iterating
 on the pipeline itself and prefer to deploy changes using <code>cdk deploy</code>.</p>
 <hr />
-<h5 id="self_mutation_code_build_defaultsoptional_2"><code>self_mutation_code_build_defaults</code><sup>Optional</sup> <a name="self_mutation_code_build_defaults" id="@aws/pipeline.PDKPipelineProps.property.selfMutationCodeBuildDefaults"></a></h5>
+<h5 id="self_mutation_code_build_defaultsoptional_3"><code>self_mutation_code_build_defaults</code><sup>Optional</sup> <a name="self_mutation_code_build_defaults" id="@aws/pipeline.PDKPipelineProps.property.selfMutationCodeBuildDefaults"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">self_mutation_code_build_defaults</span><span class="p">:</span> <span class="n">CodeBuildOptions</span>
 </code></pre></div>
 <ul>
@@ -5731,7 +6506,7 @@ on the pipeline itself and prefer to deploy changes using <code>cdk deploy</code
 </ul>
 <p>Additional customizations to apply to the self mutation CodeBuild projects.</p>
 <hr />
-<h5 id="synthoptional_2"><code>synth</code><sup>Optional</sup> <a name="synth" id="@aws/pipeline.PDKPipelineProps.property.synth"></a></h5>
+<h5 id="synthoptional_3"><code>synth</code><sup>Optional</sup> <a name="synth" id="@aws/pipeline.PDKPipelineProps.property.synth"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">synth</span><span class="p">:</span> <span class="n">IFileSetProducer</span>
 </code></pre></div>
 <ul>
@@ -5743,7 +6518,7 @@ generated by the <code>cdk synth</code> command.</p>
 <p>If you use a <code>ShellStep</code> here and you don't configure an output directory,
 the output directory will automatically be assumed to be <code>cdk.out</code>.</p>
 <hr />
-<h5 id="synth_code_build_defaultsoptional_2"><code>synth_code_build_defaults</code><sup>Optional</sup> <a name="synth_code_build_defaults" id="@aws/pipeline.PDKPipelineProps.property.synthCodeBuildDefaults"></a></h5>
+<h5 id="synth_code_build_defaultsoptional_3"><code>synth_code_build_defaults</code><sup>Optional</sup> <a name="synth_code_build_defaults" id="@aws/pipeline.PDKPipelineProps.property.synthCodeBuildDefaults"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">synth_code_build_defaults</span><span class="p">:</span> <span class="n">CodeBuildOptions</span>
 </code></pre></div>
 <ul>
@@ -5752,7 +6527,7 @@ the output directory will automatically be assumed to be <code>cdk.out</code>.</
 </ul>
 <p>Additional customizations to apply to the synthesize CodeBuild projects.</p>
 <hr />
-<h5 id="use_change_setsoptional_2"><code>use_change_sets</code><sup>Optional</sup> <a name="use_change_sets" id="@aws/pipeline.PDKPipelineProps.property.useChangeSets"></a></h5>
+<h5 id="use_change_setsoptional_3"><code>use_change_sets</code><sup>Optional</sup> <a name="use_change_sets" id="@aws/pipeline.PDKPipelineProps.property.useChangeSets"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">use_change_sets</span><span class="p">:</span> <span class="nb">bool</span>
 </code></pre></div>
 <ul>
@@ -5763,7 +6538,7 @@ the output directory will automatically be assumed to be <code>cdk.out</code>.</
 <p>When enabled, creates a "Prepare" and "Execute" action for each stack. Disable
 to deploy the stack in one pipeline action.</p>
 <hr />
-<h5 id="primary_synth_directoryrequired_1"><code>primary_synth_directory</code><sup>Required</sup> <a name="primary_synth_directory" id="@aws/pipeline.PDKPipelineProps.property.primarySynthDirectory"></a></h5>
+<h5 id="primary_synth_directoryrequired_2"><code>primary_synth_directory</code><sup>Required</sup> <a name="primary_synth_directory" id="@aws/pipeline.PDKPipelineProps.property.primarySynthDirectory"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">primary_synth_directory</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div>
 <ul>
@@ -5796,7 +6571,7 @@ to deploy the stack in one pipeline action.</p>
     <span class="n">branch_name_prefixes</span><span class="o">=</span><span class="p">[]</span>
 <span class="p">)</span>
 </code></pre></div>
-<h5 id="cdk_commandoptional_1"><code>cdk_command</code><sup>Optional</sup> <a name="cdk_command" id="@aws/pipeline.PDKPipelineProps.property.cdkCommand"></a></h5>
+<h5 id="cdk_commandoptional_2"><code>cdk_command</code><sup>Optional</sup> <a name="cdk_command" id="@aws/pipeline.PDKPipelineProps.property.cdkCommand"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">cdk_command</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div>
 <ul>
@@ -5806,7 +6581,7 @@ to deploy the stack in one pipeline action.</p>
 <p>CDK command.</p>
 <p>Override the command used to call cdk for synth and deploy.</p>
 <hr />
-<h5 id="cdk_src_diroptional_1"><code>cdk_src_dir</code><sup>Optional</sup> <a name="cdk_src_dir" id="@aws/pipeline.PDKPipelineProps.property.cdkSrcDir"></a></h5>
+<h5 id="cdk_src_diroptional_2"><code>cdk_src_dir</code><sup>Optional</sup> <a name="cdk_src_dir" id="@aws/pipeline.PDKPipelineProps.property.cdkSrcDir"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">cdk_src_dir</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div>
 <ul>
@@ -5823,7 +6598,15 @@ to deploy the stack in one pipeline action.</p>
 </ul>
 <p>Possible values for a resource's Removal Policy The removal policy controls what happens to the resource if it stops being managed by CloudFormation.</p>
 <hr />
-<h5 id="default_branch_nameoptional_4"><code>default_branch_name</code><sup>Optional</sup> <a name="default_branch_name" id="@aws/pipeline.PDKPipelineProps.property.defaultBranchName"></a></h5>
+<h5 id="code_commit_repositoryoptional_1"><code>code_commit_repository</code><sup>Optional</sup> <a name="code_commit_repository" id="@aws/pipeline.PDKPipelineProps.property.codeCommitRepository"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">code_commit_repository</span><span class="p">:</span> <span class="n">IRepository</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_codecommit.IRepository</li>
+</ul>
+<p>The repository to add the pipeline to.</p>
+<hr />
+<h5 id="default_branch_nameoptional_7"><code>default_branch_name</code><sup>Optional</sup> <a name="default_branch_name" id="@aws/pipeline.PDKPipelineProps.property.defaultBranchName"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">default_branch_name</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div>
 <ul>
@@ -5832,7 +6615,7 @@ to deploy the stack in one pipeline action.</p>
 </ul>
 <p>Branch to trigger the pipeline execution.</p>
 <hr />
-<h5 id="sonar_code_scanner_configoptional_1"><code>sonar_code_scanner_config</code><sup>Optional</sup> <a name="sonar_code_scanner_config" id="@aws/pipeline.PDKPipelineProps.property.sonarCodeScannerConfig"></a></h5>
+<h5 id="sonar_code_scanner_configoptional_2"><code>sonar_code_scanner_config</code><sup>Optional</sup> <a name="sonar_code_scanner_config" id="@aws/pipeline.PDKPipelineProps.property.sonarCodeScannerConfig"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">sonar_code_scanner_config</span><span class="p">:</span> <span class="n">SonarCodeScannerConfig</span>
 </code></pre></div>
 <ul>
@@ -5841,7 +6624,513 @@ to deploy the stack in one pipeline action.</p>
 </ul>
 <p>Configuration for enabling Sonarqube code scanning on a successful synth.</p>
 <hr />
-<h5 id="synth_shell_step_partial_propsoptional_1"><code>synth_shell_step_partial_props</code><sup>Optional</sup> <a name="synth_shell_step_partial_props" id="@aws/pipeline.PDKPipelineProps.property.synthShellStepPartialProps"></a></h5>
+<h5 id="synth_shell_step_partial_propsoptional_2"><code>synth_shell_step_partial_props</code><sup>Optional</sup> <a name="synth_shell_step_partial_props" id="@aws/pipeline.PDKPipelineProps.property.synthShellStepPartialProps"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">synth_shell_step_partial_props</span><span class="p">:</span> <span class="n">ShellStepProps</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.pipelines.ShellStepProps</li>
+</ul>
+<p>PDKPipeline by default assumes a NX Monorepo structure for it's codebase and uses sane defaults for the install and run commands.</p>
+<p>To override these defaults
+and/or provide additional inputs, specify env settings, etc you can provide
+a partial ShellStepProps.</p>
+<hr />
+<h3 id="pdkpipelinewithcodeconnectionprops">PDKPipelineWithCodeConnectionProps <a name="PDKPipelineWithCodeConnectionProps" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps"></a></h3>
+<p>Properties to configure the PDKPipeline with a CodeConnections as source.</p>
+<p>Note: Due to limitations with JSII and generic support it should be noted that
+the synth, synthShellStepPartialProps.input and
+synthShellStepPartialProps.primaryOutputDirectory properties will be ignored
+if passed in to this construct.</p>
+<p>synthShellStepPartialProps.commands is marked as a required field, however
+if you pass in [] the default commands of this construct will be retained.</p>
+<h4 id="initializer_3">Initializer <a name="Initializer" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">aws.pdk.pipeline</span>
+
+<span class="n">aws</span><span class="o">.</span><span class="n">pdk</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">PDKPipelineWithCodeConnectionProps</span><span class="p">(</span>
+  <span class="n">artifact_bucket</span><span class="p">:</span> <span class="n">IBucket</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">asset_publishing_code_build_defaults</span><span class="p">:</span> <span class="n">CodeBuildOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">cli_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">code_build_defaults</span><span class="p">:</span> <span class="n">CodeBuildOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">code_pipeline</span><span class="p">:</span> <span class="n">Pipeline</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">cross_account_keys</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">cross_region_replication_buckets</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">IBucket</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">docker_credentials</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">DockerCredential</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">docker_enabled_for_self_mutation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">docker_enabled_for_synth</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">enable_key_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">pipeline_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">publish_assets_in_parallel</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">reuse_cross_region_support_stacks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">role</span><span class="p">:</span> <span class="n">IRole</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">self_mutation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">self_mutation_code_build_defaults</span><span class="p">:</span> <span class="n">CodeBuildOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">synth</span><span class="p">:</span> <span class="n">IFileSetProducer</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">synth_code_build_defaults</span><span class="p">:</span> <span class="n">CodeBuildOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">use_change_sets</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">code_connection_arn</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">primary_synth_directory</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">repository_owner_and_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">cdk_command</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">cdk_src_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">default_branch_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">sonar_code_scanner_config</span><span class="p">:</span> <span class="n">SonarCodeScannerConfig</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">synth_shell_step_partial_props</span><span class="p">:</span> <span class="n">ShellStepProps</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="properties_6">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.artifactBucket">artifact_bucket</a></code></td>
+<td><code>aws_cdk.aws_s3.IBucket</code></td>
+<td>An existing S3 Bucket to use for storing the pipeline's artifact.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.assetPublishingCodeBuildDefaults">asset_publishing_code_build_defaults</a></code></td>
+<td><code>aws_cdk.pipelines.CodeBuildOptions</code></td>
+<td>Additional customizations to apply to the asset publishing CodeBuild projects.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.cliVersion">cli_version</a></code></td>
+<td><code>str</code></td>
+<td>CDK CLI version to use in self-mutation and asset publishing steps.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.codeBuildDefaults">code_build_defaults</a></code></td>
+<td><code>aws_cdk.pipelines.CodeBuildOptions</code></td>
+<td>Customize the CodeBuild projects created for this pipeline.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.codePipeline">code_pipeline</a></code></td>
+<td><code>aws_cdk.aws_codepipeline.Pipeline</code></td>
+<td>An existing Pipeline to be reused and built upon.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.crossAccountKeys">cross_account_keys</a></code></td>
+<td><code>bool</code></td>
+<td>Create KMS keys for the artifact buckets, allowing cross-account deployments.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.crossRegionReplicationBuckets">cross_region_replication_buckets</a></code></td>
+<td><code>typing.Mapping[aws_cdk.aws_s3.IBucket]</code></td>
+<td>A map of region to S3 bucket name used for cross-region CodePipeline.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.dockerCredentials">docker_credentials</a></code></td>
+<td><code>typing.List[aws_cdk.pipelines.DockerCredential]</code></td>
+<td>A list of credentials used to authenticate to Docker registries.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.dockerEnabledForSelfMutation">docker_enabled_for_self_mutation</a></code></td>
+<td><code>bool</code></td>
+<td>Enable Docker for the self-mutate step.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.dockerEnabledForSynth">docker_enabled_for_synth</a></code></td>
+<td><code>bool</code></td>
+<td>Enable Docker for the 'synth' step.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.enableKeyRotation">enable_key_rotation</a></code></td>
+<td><code>bool</code></td>
+<td>Enable KMS key rotation for the generated KMS keys.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.pipelineName">pipeline_name</a></code></td>
+<td><code>str</code></td>
+<td>The name of the CodePipeline pipeline.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.publishAssetsInParallel">publish_assets_in_parallel</a></code></td>
+<td><code>bool</code></td>
+<td>Publish assets in multiple CodeBuild projects. If set to false, use one Project per type to publish all assets.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.reuseCrossRegionSupportStacks">reuse_cross_region_support_stacks</a></code></td>
+<td><code>bool</code></td>
+<td>Reuse the same cross region support stack for all pipelines in the App.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.role">role</a></code></td>
+<td><code>aws_cdk.aws_iam.IRole</code></td>
+<td>The IAM role to be assumed by this Pipeline.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.selfMutation">self_mutation</a></code></td>
+<td><code>bool</code></td>
+<td>Whether the pipeline will update itself.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.selfMutationCodeBuildDefaults">self_mutation_code_build_defaults</a></code></td>
+<td><code>aws_cdk.pipelines.CodeBuildOptions</code></td>
+<td>Additional customizations to apply to the self mutation CodeBuild projects.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.synth">synth</a></code></td>
+<td><code>aws_cdk.pipelines.IFileSetProducer</code></td>
+<td>The build step that produces the CDK Cloud Assembly.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.synthCodeBuildDefaults">synth_code_build_defaults</a></code></td>
+<td><code>aws_cdk.pipelines.CodeBuildOptions</code></td>
+<td>Additional customizations to apply to the synthesize CodeBuild projects.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.useChangeSets">use_change_sets</a></code></td>
+<td><code>bool</code></td>
+<td>Deploy every stack by creating a change set and executing it.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.codeConnectionArn">code_connection_arn</a></code></td>
+<td><code>str</code></td>
+<td>The Arn of the CodeConnection.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.primarySynthDirectory">primary_synth_directory</a></code></td>
+<td><code>str</code></td>
+<td>Output directory for cdk synthesized artifacts i.e: packages/infra/cdk.out.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.repositoryOwnerAndName">repository_owner_and_name</a></code></td>
+<td><code>str</code></td>
+<td>The Owner and Repository name for instance, user Bob with git repository ACME becomes "Bob/ACME".</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.cdkCommand">cdk_command</a></code></td>
+<td><code>str</code></td>
+<td>CDK command.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.cdkSrcDir">cdk_src_dir</a></code></td>
+<td><code>str</code></td>
+<td>The directory with <code>cdk.json</code> to run cdk synth from. Set this if you enabled feature branches and <code>cdk.json</code> is not located in the parent directory of <code>primarySynthDirectory</code>.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.defaultBranchName">default_branch_name</a></code></td>
+<td><code>str</code></td>
+<td>Branch to trigger the pipeline execution.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.sonarCodeScannerConfig">sonar_code_scanner_config</a></code></td>
+<td><code><a href="#@aws/pipeline.SonarCodeScannerConfig">SonarCodeScannerConfig</a></code></td>
+<td>Configuration for enabling Sonarqube code scanning on a successful synth.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.synthShellStepPartialProps">synth_shell_step_partial_props</a></code></td>
+<td><code>aws_cdk.pipelines.ShellStepProps</code></td>
+<td>PDKPipeline by default assumes a NX Monorepo structure for it's codebase and uses sane defaults for the install and run commands.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="artifact_bucketoptional_4"><code>artifact_bucket</code><sup>Optional</sup> <a name="artifact_bucket" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.artifactBucket"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">artifact_bucket</span><span class="p">:</span> <span class="n">IBucket</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_s3.IBucket</li>
+<li><em>Default:</em> A new S3 bucket will be created.</li>
+</ul>
+<p>An existing S3 Bucket to use for storing the pipeline's artifact.</p>
+<hr />
+<h5 id="asset_publishing_code_build_defaultsoptional_4"><code>asset_publishing_code_build_defaults</code><sup>Optional</sup> <a name="asset_publishing_code_build_defaults" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.assetPublishingCodeBuildDefaults"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">asset_publishing_code_build_defaults</span><span class="p">:</span> <span class="n">CodeBuildOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.pipelines.CodeBuildOptions</li>
+<li><em>Default:</em> Only <code>codeBuildDefaults</code> are applied</li>
+</ul>
+<p>Additional customizations to apply to the asset publishing CodeBuild projects.</p>
+<hr />
+<h5 id="cli_versionoptional_4"><code>cli_version</code><sup>Optional</sup> <a name="cli_version" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.cliVersion"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">cli_version</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> Latest version</li>
+</ul>
+<p>CDK CLI version to use in self-mutation and asset publishing steps.</p>
+<p>If you want to lock the CDK CLI version used in the pipeline, by steps
+that are automatically generated for you, specify the version here.</p>
+<p>We recommend you do not specify this value, as not specifying it always
+uses the latest CLI version which is backwards compatible with old versions.</p>
+<p>If you do specify it, be aware that this version should always be equal to or higher than the
+version of the CDK framework used by the CDK app, when the CDK commands are
+run during your pipeline execution. When you change this version, the <em>next
+time</em> the <code>SelfMutate</code> step runs it will still be using the CLI of the the
+<em>previous</em> version that was in this property: it will only start using the
+new version after <code>SelfMutate</code> completes successfully. That means that if
+you want to update both framework and CLI version, you should update the
+CLI version first, commit, push and deploy, and only then update the
+framework version.</p>
+<hr />
+<h5 id="code_build_defaultsoptional_4"><code>code_build_defaults</code><sup>Optional</sup> <a name="code_build_defaults" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.codeBuildDefaults"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">code_build_defaults</span><span class="p">:</span> <span class="n">CodeBuildOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.pipelines.CodeBuildOptions</li>
+<li><em>Default:</em> All projects run non-privileged build, SMALL instance, LinuxBuildImage.STANDARD_7_0</li>
+</ul>
+<p>Customize the CodeBuild projects created for this pipeline.</p>
+<hr />
+<h5 id="code_pipelineoptional_4"><code>code_pipeline</code><sup>Optional</sup> <a name="code_pipeline" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.codePipeline"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">code_pipeline</span><span class="p">:</span> <span class="n">Pipeline</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_codepipeline.Pipeline</li>
+<li><em>Default:</em> a new underlying pipeline is created.</li>
+</ul>
+<p>An existing Pipeline to be reused and built upon.</p>
+<p>[disable-awslint:ref-via-interface]</p>
+<hr />
+<h5 id="cross_account_keysoptional_4"><code>cross_account_keys</code><sup>Optional</sup> <a name="cross_account_keys" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.crossAccountKeys"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">cross_account_keys</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> false</li>
+</ul>
+<p>Create KMS keys for the artifact buckets, allowing cross-account deployments.</p>
+<p>The artifact buckets have to be encrypted to support deploying CDK apps to
+another account, so if you want to do that or want to have your artifact
+buckets encrypted, be sure to set this value to <code>true</code>.</p>
+<p>Be aware there is a cost associated with maintaining the KMS keys.</p>
+<hr />
+<h5 id="cross_region_replication_bucketsoptional_4"><code>cross_region_replication_buckets</code><sup>Optional</sup> <a name="cross_region_replication_buckets" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.crossRegionReplicationBuckets"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">cross_region_replication_buckets</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">IBucket</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.Mapping[aws_cdk.aws_s3.IBucket]</li>
+<li><em>Default:</em> no cross region replication buckets.</li>
+</ul>
+<p>A map of region to S3 bucket name used for cross-region CodePipeline.</p>
+<p>For every Action that you specify targeting a different region than the Pipeline itself,
+if you don't provide an explicit Bucket for that region using this property,
+the construct will automatically create a Stack containing an S3 Bucket in that region.
+Passed directly through to the {<a class="magiclink magiclink-github magiclink-mention" href="https://github.com/link" title="GitHub User: link">@link</a> cp.Pipeline }.</p>
+<hr />
+<h5 id="docker_credentialsoptional_4"><code>docker_credentials</code><sup>Optional</sup> <a name="docker_credentials" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.dockerCredentials"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">docker_credentials</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">DockerCredential</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.List[aws_cdk.pipelines.DockerCredential]</li>
+<li><em>Default:</em> []</li>
+</ul>
+<p>A list of credentials used to authenticate to Docker registries.</p>
+<p>Specify any credentials necessary within the pipeline to build, synth, update, or publish assets.</p>
+<hr />
+<h5 id="docker_enabled_for_self_mutationoptional_4"><code>docker_enabled_for_self_mutation</code><sup>Optional</sup> <a name="docker_enabled_for_self_mutation" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.dockerEnabledForSelfMutation"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">docker_enabled_for_self_mutation</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> false</li>
+</ul>
+<p>Enable Docker for the self-mutate step.</p>
+<p>Set this to true if the pipeline itself uses Docker container assets
+(for example, if you use <code>LinuxBuildImage.fromAsset()</code> as the build
+image of a CodeBuild step in the pipeline).</p>
+<p>You do not need to set it if you build Docker image assets in the
+application Stages and Stacks that are <em>deployed</em> by this pipeline.</p>
+<p>Configures privileged mode for the self-mutation CodeBuild action.</p>
+<p>If you are about to turn this on in an already-deployed Pipeline,
+set the value to <code>true</code> first, commit and allow the pipeline to
+self-update, and only then use the Docker asset in the pipeline.</p>
+<hr />
+<h5 id="docker_enabled_for_synthoptional_4"><code>docker_enabled_for_synth</code><sup>Optional</sup> <a name="docker_enabled_for_synth" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.dockerEnabledForSynth"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">docker_enabled_for_synth</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> false</li>
+</ul>
+<p>Enable Docker for the 'synth' step.</p>
+<p>Set this to true if you are using file assets that require
+"bundling" anywhere in your application (meaning an asset
+compilation step will be run with the tools provided by
+a Docker image), both for the Pipeline stack as well as the
+application stacks.</p>
+<p>A common way to use bundling assets in your application is by
+using the <code>aws-cdk-lib/aws-lambda-nodejs</code> library.</p>
+<p>Configures privileged mode for the synth CodeBuild action.</p>
+<p>If you are about to turn this on in an already-deployed Pipeline,
+set the value to <code>true</code> first, commit and allow the pipeline to
+self-update, and only then use the bundled asset.</p>
+<hr />
+<h5 id="enable_key_rotationoptional_4"><code>enable_key_rotation</code><sup>Optional</sup> <a name="enable_key_rotation" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.enableKeyRotation"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">enable_key_rotation</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> false (key rotation is disabled)</li>
+</ul>
+<p>Enable KMS key rotation for the generated KMS keys.</p>
+<p>By default KMS key rotation is disabled, but will add
+additional costs when enabled.</p>
+<hr />
+<h5 id="pipeline_nameoptional_4"><code>pipeline_name</code><sup>Optional</sup> <a name="pipeline_name" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.pipelineName"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">pipeline_name</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> Automatically generated</li>
+</ul>
+<p>The name of the CodePipeline pipeline.</p>
+<hr />
+<h5 id="publish_assets_in_paralleloptional_4"><code>publish_assets_in_parallel</code><sup>Optional</sup> <a name="publish_assets_in_parallel" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.publishAssetsInParallel"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">publish_assets_in_parallel</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true</li>
+</ul>
+<p>Publish assets in multiple CodeBuild projects. If set to false, use one Project per type to publish all assets.</p>
+<p>Publishing in parallel improves concurrency and may reduce publishing
+latency, but may also increase overall provisioning time of the CodeBuild
+projects.</p>
+<p>Experiment and see what value works best for you.</p>
+<hr />
+<h5 id="reuse_cross_region_support_stacksoptional_4"><code>reuse_cross_region_support_stacks</code><sup>Optional</sup> <a name="reuse_cross_region_support_stacks" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.reuseCrossRegionSupportStacks"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">reuse_cross_region_support_stacks</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true (Use the same support stack for all pipelines in App)</li>
+</ul>
+<p>Reuse the same cross region support stack for all pipelines in the App.</p>
+<hr />
+<h5 id="roleoptional_4"><code>role</code><sup>Optional</sup> <a name="role" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.role"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">role</span><span class="p">:</span> <span class="n">IRole</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_iam.IRole</li>
+<li><em>Default:</em> A new role is created</li>
+</ul>
+<p>The IAM role to be assumed by this Pipeline.</p>
+<hr />
+<h5 id="self_mutationoptional_4"><code>self_mutation</code><sup>Optional</sup> <a name="self_mutation" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.selfMutation"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">self_mutation</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true</li>
+</ul>
+<p>Whether the pipeline will update itself.</p>
+<p>This needs to be set to <code>true</code> to allow the pipeline to reconfigure
+itself when assets or stages are being added to it, and <code>true</code> is the
+recommended setting.</p>
+<p>You can temporarily set this to <code>false</code> while you are iterating
+on the pipeline itself and prefer to deploy changes using <code>cdk deploy</code>.</p>
+<hr />
+<h5 id="self_mutation_code_build_defaultsoptional_4"><code>self_mutation_code_build_defaults</code><sup>Optional</sup> <a name="self_mutation_code_build_defaults" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.selfMutationCodeBuildDefaults"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">self_mutation_code_build_defaults</span><span class="p">:</span> <span class="n">CodeBuildOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.pipelines.CodeBuildOptions</li>
+<li><em>Default:</em> Only <code>codeBuildDefaults</code> are applied</li>
+</ul>
+<p>Additional customizations to apply to the self mutation CodeBuild projects.</p>
+<hr />
+<h5 id="synthoptional_4"><code>synth</code><sup>Optional</sup> <a name="synth" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.synth"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">synth</span><span class="p">:</span> <span class="n">IFileSetProducer</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.pipelines.IFileSetProducer</li>
+</ul>
+<p>The build step that produces the CDK Cloud Assembly.</p>
+<p>The primary output of this step needs to be the <code>cdk.out</code> directory
+generated by the <code>cdk synth</code> command.</p>
+<p>If you use a <code>ShellStep</code> here and you don't configure an output directory,
+the output directory will automatically be assumed to be <code>cdk.out</code>.</p>
+<hr />
+<h5 id="synth_code_build_defaultsoptional_4"><code>synth_code_build_defaults</code><sup>Optional</sup> <a name="synth_code_build_defaults" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.synthCodeBuildDefaults"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">synth_code_build_defaults</span><span class="p">:</span> <span class="n">CodeBuildOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.pipelines.CodeBuildOptions</li>
+<li><em>Default:</em> Only <code>codeBuildDefaults</code> are applied</li>
+</ul>
+<p>Additional customizations to apply to the synthesize CodeBuild projects.</p>
+<hr />
+<h5 id="use_change_setsoptional_4"><code>use_change_sets</code><sup>Optional</sup> <a name="use_change_sets" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.useChangeSets"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">use_change_sets</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true</li>
+</ul>
+<p>Deploy every stack by creating a change set and executing it.</p>
+<p>When enabled, creates a "Prepare" and "Execute" action for each stack. Disable
+to deploy the stack in one pipeline action.</p>
+<hr />
+<h5 id="code_connection_arnrequired_1"><code>code_connection_arn</code><sup>Required</sup> <a name="code_connection_arn" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.codeConnectionArn"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">code_connection_arn</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>The Arn of the CodeConnection.</p>
+<hr />
+<h5 id="primary_synth_directoryrequired_3"><code>primary_synth_directory</code><sup>Required</sup> <a name="primary_synth_directory" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.primarySynthDirectory"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">primary_synth_directory</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>Output directory for cdk synthesized artifacts i.e: packages/infra/cdk.out.</p>
+<hr />
+<h5 id="repository_owner_and_namerequired_1"><code>repository_owner_and_name</code><sup>Required</sup> <a name="repository_owner_and_name" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.repositoryOwnerAndName"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">repository_owner_and_name</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>The Owner and Repository name for instance, user Bob with git repository ACME becomes "Bob/ACME".</p>
+<hr />
+<h5 id="cdk_commandoptional_3"><code>cdk_command</code><sup>Optional</sup> <a name="cdk_command" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.cdkCommand"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">cdk_command</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> 'npx cdk'</li>
+</ul>
+<p>CDK command.</p>
+<p>Override the command used to call cdk for synth and deploy.</p>
+<hr />
+<h5 id="cdk_src_diroptional_3"><code>cdk_src_dir</code><sup>Optional</sup> <a name="cdk_src_dir" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.cdkSrcDir"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">cdk_src_dir</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> The parent directory of <code>primarySynthDirectory</code></li>
+</ul>
+<p>The directory with <code>cdk.json</code> to run cdk synth from. Set this if you enabled feature branches and <code>cdk.json</code> is not located in the parent directory of <code>primarySynthDirectory</code>.</p>
+<hr />
+<h5 id="default_branch_nameoptional_8"><code>default_branch_name</code><sup>Optional</sup> <a name="default_branch_name" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.defaultBranchName"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">default_branch_name</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> mainline</li>
+</ul>
+<p>Branch to trigger the pipeline execution.</p>
+<hr />
+<h5 id="sonar_code_scanner_configoptional_3"><code>sonar_code_scanner_config</code><sup>Optional</sup> <a name="sonar_code_scanner_config" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.sonarCodeScannerConfig"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">sonar_code_scanner_config</span><span class="p">:</span> <span class="n">SonarCodeScannerConfig</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> <a href="#@aws/pipeline.SonarCodeScannerConfig">SonarCodeScannerConfig</a></li>
+<li><em>Default:</em> undefined</li>
+</ul>
+<p>Configuration for enabling Sonarqube code scanning on a successful synth.</p>
+<hr />
+<h5 id="synth_shell_step_partial_propsoptional_3"><code>synth_shell_step_partial_props</code><sup>Optional</sup> <a name="synth_shell_step_partial_props" id="@aws/pipeline.PDKPipelineWithCodeConnectionProps.property.synthShellStepPartialProps"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">synth_shell_step_partial_props</span><span class="p">:</span> <span class="n">ShellStepProps</span>
 </code></pre></div>
 <ul>
@@ -5853,7 +7142,7 @@ and/or provide additional inputs, specify env settings, etc you can provide
 a partial ShellStepProps.</p>
 <hr />
 <h3 id="sonarcodescannerconfig">SonarCodeScannerConfig <a name="SonarCodeScannerConfig" id="@aws/pipeline.SonarCodeScannerConfig"></a></h3>
-<h4 id="initializer_3">Initializer <a name="Initializer" id="@aws/pipeline.SonarCodeScannerConfig.Initializer"></a></h4>
+<h4 id="initializer_4">Initializer <a name="Initializer" id="@aws/pipeline.SonarCodeScannerConfig.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">aws.pdk.pipeline</span>
 
 <span class="n">aws</span><span class="o">.</span><span class="n">pdk</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">SonarCodeScannerConfig</span><span class="p">(</span>
@@ -5870,7 +7159,7 @@ a partial ShellStepProps.</p>
   <span class="n">sonarqube_tags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_5">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_7">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6031,7 +7320,7 @@ a partial ShellStepProps.</p>
 <hr />
 <h3 id="sonarcodescannerprops">SonarCodeScannerProps <a name="SonarCodeScannerProps" id="@aws/pipeline.SonarCodeScannerProps"></a></h3>
 <p>SonarCodeScanners properties.</p>
-<h4 id="initializer_4">Initializer <a name="Initializer" id="@aws/pipeline.SonarCodeScannerProps.Initializer"></a></h4>
+<h4 id="initializer_5">Initializer <a name="Initializer" id="@aws/pipeline.SonarCodeScannerProps.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">aws.pdk.pipeline</span>
 
 <span class="n">aws</span><span class="o">.</span><span class="n">pdk</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">SonarCodeScannerProps</span><span class="p">(</span>
@@ -6051,7 +7340,7 @@ a partial ShellStepProps.</p>
   <span class="n">artifact_bucket_key_arn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_6">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_8">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6255,7 +7544,7 @@ a partial ShellStepProps.</p>
   <small>
     
       Last update:
-      2025-02-19
+      2025-04-30
     
   </small>
 </div>
