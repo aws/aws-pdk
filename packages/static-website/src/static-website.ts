@@ -214,18 +214,20 @@ export class StaticWebsite extends Construct {
           viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         },
         defaultRootObject,
-        errorResponses: distributionProps?.errorResponses ?? [
-          {
-            httpStatus: 404, // We need to redirect "key not found errors" to index.html for single page apps
+        // We need to redirect "key not found errors" to index.html for single page apps
+        errorResponses:
+          distributionProps?.errorResponses ??
+          [403, 404].map((httpStatus) => ({
+            httpStatus,
             responseHttpStatus: 200,
             responsePagePath: `/${defaultRootObject}`,
-          },
-        ],
+          })),
       }
     );
 
     // Deploy Website
     this.bucketDeployment = new BucketDeployment(this, "WebsiteDeployment", {
+      memoryLimit: 2048,
       ...props.bucketDeploymentProps,
       sources: [
         Source.asset(props.websiteContentPath),
