@@ -73,7 +73,7 @@ export abstract class PDKProject extends JsiiProject {
         module: "aws_pdk",
       },
       publishToMaven: {
-        mavenEndpoint: "https://aws.oss.sonatype.org",
+        mavenServerId: "central",
         mavenGroupId: "software.aws",
         mavenArtifactId: "pdk",
         javaPackage: "software.aws.pdk",
