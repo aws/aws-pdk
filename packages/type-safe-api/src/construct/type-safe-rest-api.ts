@@ -9,6 +9,7 @@ import {
   AccessLogFormat,
   ApiDefinition,
   Cors,
+  GatewayResponseOptions,
   LogGroupLogDestination,
   MethodLoggingLevel,
   RestApiBaseProps,
@@ -85,6 +86,17 @@ export interface TypeSafeRestApiProps
    * use this option to specify the output bucket.
    */
   readonly outputSpecBucket?: IBucket;
+
+  /**
+   * Optional gateway responses for the API.
+   *
+   * Note that Type Safe API automatically configures request validation for you, and defines a
+   * default BAD_REQUEST_BODY gateway response which returns the validation error message. You can
+   * use this property to override this gateway response if desired.
+   *
+   * @see https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-gatewayResponse-definition.html
+   */
+  readonly gatewayResponses?: GatewayResponseOptions[];
 }
 
 /**
@@ -339,6 +351,7 @@ export class TypeSafeRestApi extends Construct {
       corsOptions: serializedCorsOptions,
       operationLookup,
       apiKeyOptions: options.apiKeyOptions,
+      gatewayResponses: options.gatewayResponses,
     };
 
     // Spec preparation will happen in a custom resource lambda so that references to lambda integrations etc can be

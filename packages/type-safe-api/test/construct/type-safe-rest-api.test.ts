@@ -3,7 +3,11 @@ SPDX-License-Identifier: Apache-2.0 */
 import { PDKNag } from "@aws/pdk-nag";
 import { App, CfnOutput, Size, Stack } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
-import { ApiKeySourceType, Cors } from "aws-cdk-lib/aws-apigateway";
+import {
+  ApiKeySourceType,
+  Cors,
+  ResponseType,
+} from "aws-cdk-lib/aws-apigateway";
 import { UserPool } from "aws-cdk-lib/aws-cognito";
 import { Code, Function, Runtime } from "aws-cdk-lib/aws-lambda";
 import { BlockPublicAccess, Bucket } from "aws-cdk-lib/aws-s3";
@@ -1572,6 +1576,52 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
         },
       });
 
+      snapshotExtendedSpec(api);
+    });
+  });
+
+  it("With Gateway Responses", () => {
+    const stack = new Stack();
+    const func = new Function(stack, "Lambda", {
+      code: Code.fromInline("code"),
+      handler: "handler",
+      runtime: Runtime.NODEJS_16_X,
+    });
+    withTempSpec(sampleSpec, (specPath) => {
+      const api = new TypeSafeRestApi(stack, "ApiTest", {
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            integration: Integrations.lambda(func),
+          },
+        },
+        gatewayResponses: [
+          {
+            type: ResponseType.DEFAULT_4XX,
+            responseHeaders: {
+              "Access-Control-Allow-Origin": "'*'",
+              "x-request-id": "method.request.header.x-request-id",
+            },
+            templates: {
+              "application/json":
+                '{"message": "$context.error.message", "requestId": "$context.requestId"}',
+            },
+          },
+          {
+            type: ResponseType.UNAUTHORIZED,
+            statusCode: "401",
+            responseHeaders: {
+              "Access-Control-Allow-Origin": "'*'",
+            },
+            templates: {
+              "application/json":
+                '{"message": "Authentication required", "requestId": "$context.requestId"}',
+            },
+          },
+        ],
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
       snapshotExtendedSpec(api);
     });
   });

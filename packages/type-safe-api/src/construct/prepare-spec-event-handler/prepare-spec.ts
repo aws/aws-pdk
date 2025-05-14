@@ -1,5 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { GatewayResponseOptions } from "aws-cdk-lib/aws-apigateway";
 import type { OpenAPIV3 } from "openapi-types";
 import { DefaultAuthorizerIds, HttpMethods } from "./constants";
 import { ApiGatewayIntegration } from "../integrations";
@@ -80,6 +81,11 @@ export interface PrepareApiSpecOptions {
    * Default options for API keys
    */
   readonly apiKeyOptions?: SerializedApiKeyOptions;
+  /**
+   * Optional gateway responses for the API
+   * @see https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-gatewayResponse-definition.html
+   */
+  readonly gatewayResponses?: GatewayResponseOptions[];
 }
 
 /**
@@ -505,6 +511,31 @@ const findHeaderParameters = (spec: OpenAPIV3.Document): string[] => {
 };
 
 /**
+ * Generate a gateway response snippet
+ * @see https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-gateway-responses.gatewayResponse.html
+ */
+export const generateGatewayResponse = ({
+  statusCode,
+  templates,
+  responseHeaders,
+}: GatewayResponseOptions) => {
+  return {
+    statusCode,
+    ...(responseHeaders
+      ? {
+          responseParameters: Object.fromEntries(
+            Object.entries(responseHeaders).map(([header, value]) => [
+              `gatewayresponse.header.${header}`,
+              value,
+            ])
+          ),
+        }
+      : {}),
+    responseTemplates: templates,
+  };
+};
+
+/**
  * Prepares the api spec for deployment by adding integrations, configuring auth, etc
  */
 export const prepareApiSpec = (
@@ -576,6 +607,12 @@ export const prepareApiSpec = (
             }
           : {}),
       },
+      ...Object.fromEntries(
+        (options.gatewayResponses ?? []).map((gatewayResponse) => [
+          gatewayResponse.type.responseType,
+          generateGatewayResponse(gatewayResponse),
+        ])
+      ),
     },
     paths: {
       ...Object.fromEntries(
