@@ -1,5 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { ResponseType } from "aws-cdk-lib/aws-apigateway";
 import _ from "lodash";
 import { ApiGatewayIntegration } from "../../../src/construct/integrations";
 import {
@@ -123,6 +124,18 @@ describe("prepare-spec-event-handler index.ts", () => {
           source: "HEADER",
           requiredByDefault: true, // Boolean property that might be converted to string
         },
+        gatewayResponses: [
+          {
+            type: ResponseType.DEFAULT_5XX,
+            statusCode: "500",
+            responseHeaders: {
+              "x-foo": "'bar'",
+            },
+            templates: {
+              "application/json": '{ "message": "internal error" }',
+            },
+          },
+        ],
       };
 
     it("should coerce string values back to their appropriate types", () => {
