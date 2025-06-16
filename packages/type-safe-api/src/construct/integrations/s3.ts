@@ -40,6 +40,20 @@ export interface S3IntegrationProps {
    * @default - a combination of IntegrationResponseSets.defaultPassthrough() and IntegrationResponseSets.s3JsonErrorMessage()
    */
   readonly integrationResponseSet?: IntegrationResponseSet;
+
+  /**
+   * Specifies additional query string request parameters to be passed to the integration request.
+   * These parameters will be mapped to path parameters in order to allow for dynamic S3 bucket paths.
+   * @default - no additional query string request parameters
+   */
+  readonly queryStringRequestParameters?: string[];
+
+  /**
+   * Specifies additional header request parameters to be passed to the integration request.
+   * These parameters will be mapped to path parameters in order to allow for dynamic S3 bucket paths.
+   *  @default - no additional header request parameters
+   */
+  readonly headerRequestParameters?: string[];
 }
 
 /**
@@ -51,6 +65,9 @@ export class S3Integration extends Integration {
   private readonly method?: Method;
   private readonly path?: string;
   private readonly integrationResponseSet?: IntegrationResponseSet;
+  private readonly additionalRequestParameters?: {
+    [property: string]: string;
+  };
 
   private readonly executionRoleId = "S3IntegrationsExecutionRole";
 
@@ -61,6 +78,16 @@ export class S3Integration extends Integration {
     this.method = props.method;
     this.path = props.path;
     this.integrationResponseSet = props.integrationResponseSet;
+    this.additionalRequestParameters = Object.fromEntries([
+      ...(props.queryStringRequestParameters ?? []).map((param) => [
+        `integration.request.path.${param}`,
+        `method.request.querystring.${param}`,
+      ]),
+      ...(props.headerRequestParameters ?? []).map((header) => [
+        `integration.request.path.${header}`,
+        `method.request.header.${header}`,
+      ]),
+    ]);
   }
 
   private isRole(construct: IConstruct): construct is IRole {
@@ -102,6 +129,7 @@ export class S3Integration extends Integration {
               `method.request.path.${param}`,
             ])
         ),
+        ...this.additionalRequestParameters,
       },
       responses: {
         ...(
