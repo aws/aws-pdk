@@ -43,14 +43,12 @@ export interface S3IntegrationProps {
 
   /**
    * Specifies additional query string request parameters to be passed to the integration request.
-   * These parameters will be mapped to path parameters in order to allow for dynamic S3 bucket paths.
    * @default - no additional query string request parameters
    */
   readonly queryStringRequestParameters?: string[];
 
   /**
    * Specifies additional header request parameters to be passed to the integration request.
-   * These parameters will be mapped to path parameters in order to allow for dynamic S3 bucket paths.
    *  @default - no additional header request parameters
    */
   readonly headerRequestParameters?: string[];
