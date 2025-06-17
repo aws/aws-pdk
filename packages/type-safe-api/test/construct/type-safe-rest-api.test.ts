@@ -397,6 +397,29 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
     });
   });
 
+  it("With S3 Integration and additional request parameters", () => {
+    const stack = new Stack();
+    withTempSpec(sampleSpec, (specPath) => {
+      const api = new TypeSafeRestApi(stack, "ApiTest", {
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            integration: Integrations.s3({
+              bucket: new Bucket(stack, "Bucket"),
+              method: "get",
+              path: "/my-pets/{petId}/custom/{x-custom-header}.json",
+              queryStringRequestParameters: ["petId"],
+              headerRequestParameters: ["x-custom-header"],
+            }),
+          },
+        },
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+      snapshotExtendedSpec(api);
+    });
+  });
+
   it("With S3 Integration and custom error responses", () => {
     const stack = new Stack();
     withTempSpec(sampleSpec, (specPath) => {
