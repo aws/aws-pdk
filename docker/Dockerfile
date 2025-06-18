@@ -181,7 +181,7 @@ RUN set -ex \
 # ===== PDK dependencies =====
 
 # Package managers
-RUN npm install -g @aws/pdk aws-cdk bun pnpm@8 projen yarn
+RUN npm install -g @aws/pdk aws-cdk bun pnpm@10 projen yarn
 
 # Poetry setup
 RUN curl -sSL https://install.python-poetry.org | python

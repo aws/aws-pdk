@@ -226,8 +226,7 @@ export class MonorepoTsProject
       }
       case NodePackageManager.PNPM: {
         // https://pnpm.io/package_json
-        // https://github.com/pnpm/pnpm/releases/tag/v8.0.0
-        this.package.addEngine("pnpm", ">=8 <9");
+        this.package.addEngine("pnpm", ">=8");
         break;
       }
       case NodePackageManager.YARN_CLASSIC:
