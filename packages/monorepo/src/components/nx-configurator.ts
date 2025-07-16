@@ -458,8 +458,8 @@ export class NxConfigurator extends Component implements INxProjectCore {
         obj: {
           devDependencies: {
             ...this.nxPlugins,
-            nx: "^19",
-            "@nx/devkit": "^19",
+            nx: "19.8.14",
+            "@nx/devkit": "19.8.14",
           },
           private: true,
           engines: {
