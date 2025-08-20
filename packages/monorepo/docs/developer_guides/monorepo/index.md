@@ -73,10 +73,10 @@ To get started, run the following command in an empty directory to create your M
     This will bootstrap your project given the above structure and contain the _.projenrc.ts_ file with your project definition which should contain the following:
 
     ```ts
-    import { MonorepoTsProject } from "@aws/pdk/monorepo";
-    const project = new MonorepoTsProject({
-      defaultReleaseBranch: "main",
-      name: "ts-bootstrap",
+    import { monorepo } from "@aws/pdk";
+    const project = new monorepo.MonorepoTsProject({
+      devDeps: ["@aws/pdk"],
+      name: "projen",
       projenrcTs: true,
     });
     project.synth();
