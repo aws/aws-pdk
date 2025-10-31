@@ -240,7 +240,7 @@ export class TypeSafeRestApi extends Construct {
     // Create a custom resource for preparing the spec for deployment (adding integrations, authorizers, etc)
     const prepareSpec = new LambdaFunction(this, "PrepareSpecHandler", {
       handler: "index.handler",
-      runtime: Runtime.NODEJS_18_X,
+      runtime: Runtime.NODEJS_20_X,
       code: Code.fromAsset(
         path.join(__dirname, "./prepare-spec-event-handler")
       ),
