@@ -197,7 +197,7 @@ export class ApiLayer extends Construct {
     this.helloHandler = new lambda.Function(this, "HelloHandler", {
       code: lambda.Code.fromInline('module.exports.handler = () => "hello";'),
       handler: "index.handler",
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       environment: {
         BUCKET: props.bucket.bucketName,
         DB: props.db.instanceArn,
@@ -211,7 +211,7 @@ export class ApiLayer extends Construct {
     this.worldHandler = new lambda.Function(this, "WorldHandler", {
       code: lambda.Code.fromInline('module.exports.handler = () => "world";'),
       handler: "index.handler",
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
     });
     world.addMethod("GET", new apigateway.LambdaIntegration(this.worldHandler));
   }
@@ -235,7 +235,7 @@ export class Website extends Construct {
         'module.exports.handler = () => "do something to provide config";'
       ),
       handler: "index.handler",
-      runtime: lambda.Runtime.NODEJS_14_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       environment: {
         BUCKET_ARN: this.sourceBucket.bucketArn,
         BUCKET_NAME: this.sourceBucket.bucketName,
@@ -291,7 +291,7 @@ export class EdgeCases extends Construct {
     new lambda.Function(this, "LambdaWithAlias", {
       code: lambda.Code.fromInline('module.exports.handler = () => "foobar";'),
       handler: "index.handler",
-      runtime: lambda.Runtime.NODEJS_14_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
     }).addAlias("Test");
 
     // External (imported) resources

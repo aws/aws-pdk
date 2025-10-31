@@ -182,7 +182,7 @@ export class CloudfrontWebAcl extends Construct {
         role: onEventHandlerRole,
         functionName: onEventHandlerName,
         handler: "index.onEvent",
-        runtime: Runtime.NODEJS_18_X,
+        runtime: Runtime.NODEJS_20_X,
         timeout: Duration.seconds(300),
       }
     );
