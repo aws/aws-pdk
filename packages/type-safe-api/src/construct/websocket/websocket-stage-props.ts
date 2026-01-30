@@ -17,11 +17,24 @@ export interface WebSocketStageProps {
    */
   readonly throttle?: aws_apigatewayv2.ThrottleSettings;
   /**
+   * Stage variables for the stage. These are key-value pairs that you can define and use in your API routes.
+   * The allowed characters for variable names and the required pattern for variable values are specified here: https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-apigateway-stage.html#cfn-apigateway-stage-variables
+   * @default - No stage variables
+   * @stability stable
+   */
+  readonly stageVariables?: Record<string, string>;
+  /**
    * The options for custom domain and api mapping.
    * @default - no custom domain and api mapping configuration
    * @stability stable
    */
   readonly domainMapping?: aws_apigatewayv2.DomainMappingOptions;
+  /**
+   * Specifies whether detailed metrics are enabled.
+   * @default false
+   * @stability stable
+   */
+  readonly detailedMetricsEnabled?: boolean;
   /**
    * The description for the API stage.
    * @default - no description
@@ -34,4 +47,10 @@ export interface WebSocketStageProps {
    * @stability stable
    */
   readonly autoDeploy?: boolean;
+  /**
+   * Settings for access logging.
+   * @default - No access logging
+   * @stability stable
+   */
+  readonly accessLogSettings?: aws_apigatewayv2.IAccessLogSettings;
 }

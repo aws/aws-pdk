@@ -6,6 +6,18 @@ import type { aws_apigatewayv2 } from 'aws-cdk-lib';
  */
 export interface WebSocketApiProps {
   /**
+   * The IP address types that can invoke the API.
+   * @default undefined - AWS default is IPV4
+   * @stability stable
+   */
+  readonly ipAddressType?: aws_apigatewayv2.IpAddressType;
+  /**
+   * Avoid validating models when creating a deployment.
+   * @default false
+   * @stability stable
+   */
+  readonly disableSchemaValidation?: boolean;
+  /**
    * The description of the API.
    * @default - none
    * @stability stable

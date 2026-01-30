@@ -8,7 +8,8 @@ export interface AwsCdkPythonAppOptions {
   /**
    * Python sources directory.
    * @default "tests"
-   * @stability experimental
+   * @deprecated Use `sampleTestdir` instead.
+   * @stability deprecated
    */
   readonly testdir?: string;
   /**
@@ -51,6 +52,16 @@ export interface AwsCdkPythonAppOptions {
    */
   readonly cdkDependencies?: Array<string>;
   /**
+   * Version range of the AWS CDK CLI to depend on.
+   * Can be either a specific version, or an NPM version range.
+   *
+   * By default, the latest 2.x version will be installed; you can use this
+   * option to restrict it to a specific version or version range.
+   * @default "^2"
+   * @stability experimental
+   */
+  readonly cdkCliVersion?: string;
+  /**
    * Install the assertions library?
    * Only needed for CDK 1.x. If using CDK 2.x then
    * assertions is already included in 'aws-cdk-lib'
@@ -92,11 +103,14 @@ export interface AwsCdkPythonAppOptions {
    */
   readonly requireApproval?: awscdk.ApprovalLevel;
   /**
-   * Include all feature flags in cdk.json.
-   * @default true
+   * Feature flags that should be enabled in `cdk.json`.
+   * Make sure to double-check any changes to feature flags in `cdk.json` before deploying.
+   * Unexpected changes may cause breaking changes in your CDK app.
+   * You can overwrite any feature flag by passing it into the context field.
+   * @default - no feature flags are enabled by default
    * @stability experimental
    */
-  readonly featureFlags?: boolean;
+  readonly featureFlags?: awscdk.ICdkFeatureFlags;
   /**
    * Additional context to include in `cdk.json`.
    * @default - no additional context
@@ -119,12 +133,26 @@ export interface AwsCdkPythonAppOptions {
    */
   readonly buildCommand?: string;
   /**
+   * Use uv to manage your project dependencies, virtual environment, and (optional) packaging/publishing.
+   * @default false
+   * @stability experimental
+   * @featured true
+   */
+  readonly uv?: boolean;
+  /**
    * Use setuptools with a setup.py script for packaging and publishing.
    * @default - true, unless poetry is true, then false
    * @stability experimental
    * @featured true
    */
   readonly setuptools?: boolean;
+  /**
+   * Location of sample tests.
+   * Typically the same directory where project tests will be located.
+   * @default "tests"
+   * @stability experimental
+   */
+  readonly sampleTestdir?: string;
   /**
    * Include sample code and test if the relevant directories don't exist.
    * @default true
@@ -183,6 +211,11 @@ export interface AwsCdkPythonAppOptions {
    * @stability experimental
    */
   readonly pythonExec?: string;
+  /**
+   * Additional options to set for uv if using uv.
+   * @stability experimental
+   */
+  readonly uvOptions?: python.UvOptions;
   /**
    * Additional fields to pass in the setup() function if using setuptools.
    * @stability experimental
@@ -385,6 +418,12 @@ export interface AwsCdkPythonAppOptions {
    * @stability experimental
    */
   readonly projenCommand?: string;
+  /**
+   * Generate a project tree file (`.projen/tree.json`) that shows all components and their relationships. Useful for understanding your project structure and debugging.
+   * @default false
+   * @stability experimental
+   */
+  readonly projectTree?: boolean;
   /**
    * The parent project, if this project is part of a bigger project.
    * @stability experimental

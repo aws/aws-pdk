@@ -6,12 +6,26 @@ import type { github, GitOptions, IgnoreFileOptions, LoggerOptions, Project, Pro
  */
 export interface PythonProjectOptions {
   /**
+   * Use uv to manage your project dependencies, virtual environment, and (optional) packaging/publishing.
+   * @default false
+   * @stability experimental
+   * @featured true
+   */
+  readonly uv?: boolean;
+  /**
    * Use setuptools with a setup.py script for packaging and publishing.
    * @default - true, unless poetry is true, then false
    * @stability experimental
    * @featured true
    */
   readonly setuptools?: boolean;
+  /**
+   * Location of sample tests.
+   * Typically the same directory where project tests will be located.
+   * @default "tests"
+   * @stability experimental
+   */
+  readonly sampleTestdir?: string;
   /**
    * Include sample code and test if the relevant directories don't exist.
    * @default true
@@ -70,6 +84,11 @@ export interface PythonProjectOptions {
    * @stability experimental
    */
   readonly pythonExec?: string;
+  /**
+   * Additional options to set for uv if using uv.
+   * @stability experimental
+   */
+  readonly uvOptions?: python.UvOptions;
   /**
    * Additional fields to pass in the setup() function if using setuptools.
    * @stability experimental
@@ -272,6 +291,12 @@ export interface PythonProjectOptions {
    * @stability experimental
    */
   readonly projenCommand?: string;
+  /**
+   * Generate a project tree file (`.projen/tree.json`) that shows all components and their relationships. Useful for understanding your project structure and debugging.
+   * @default false
+   * @stability experimental
+   */
+  readonly projectTree?: boolean;
   /**
    * The parent project, if this project is part of a bigger project.
    * @stability experimental

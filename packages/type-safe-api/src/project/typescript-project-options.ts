@@ -84,7 +84,7 @@ export interface TypeScriptProjectOptions {
   readonly eslintOptions?: javascript.EslintOptions;
   /**
    * Setup eslint.
-   * @default true
+   * @default - true, unless biome is enabled
    * @stability experimental
    */
   readonly eslint?: boolean;
@@ -125,14 +125,15 @@ export interface TypeScriptProjectOptions {
    */
   readonly workflowPackageCache?: boolean;
   /**
-   * The node version to use in GitHub workflows.
-   * @default - same as `minNodeVersion`
+   * The node version used in GitHub Actions workflows.
+   * Always use this option if your GitHub Actions workflows require a specific to run.
+   * @default - `minNodeVersion` if set, otherwise `lts/*`.
    * @stability experimental
    */
   readonly workflowNodeVersion?: string;
   /**
    * The git identity to use in workflows.
-   * @default - GitHub Actions
+   * @default - default GitHub Actions user
    * @stability experimental
    */
   readonly workflowGitIdentity?: github.GitIdentity;
@@ -270,7 +271,7 @@ export interface TypeScriptProjectOptions {
   /**
    * Use tasks and github workflows to handle dependency upgrades.
    * Cannot be used in conjunction with `dependabot`.
-   * @default true
+   * @default - `true` for root projects, `false` for subprojects
    * @stability experimental
    */
   readonly depsUpgrade?: boolean;
@@ -300,13 +301,13 @@ export interface TypeScriptProjectOptions {
    */
   readonly copyrightOwner?: string;
   /**
-   * Define the secret name for a specified https://codecov.io/ token A secret is required to send coverage for private repositories.
-   * @default - if this option is not specified, only public repositories are supported
+   * Define the secret name for a specified https://codecov.io/ token.
+   * @default - OIDC auth is used
    * @stability experimental
    */
   readonly codeCovTokenSecret?: string;
   /**
-   * Define a GitHub workflow step for sending code coverage metrics to https://codecov.io/ Uses codecov/codecov-action@v4 A secret is required for private repos. Configured with `@codeCovTokenSecret`.
+   * Define a GitHub workflow step for sending code coverage metrics to https://codecov.io/ Uses codecov/codecov-action@v5 By default, OIDC auth is used. Alternatively a token can be provided via `codeCovTokenSecret`.
    * @default false
    * @stability experimental
    */
@@ -342,12 +343,39 @@ export interface TypeScriptProjectOptions {
    */
   readonly buildWorkflow?: boolean;
   /**
-   * Automatically approve deps upgrade PRs, allowing them to be merged by mergify (if configued).
+   * Biome options.
+   * @default - default options
+   * @stability experimental
+   */
+  readonly biomeOptions?: javascript.BiomeOptions;
+  /**
+   * Setup Biome.
+   * @default false
+   * @stability experimental
+   */
+  readonly biome?: boolean;
+  /**
+   * Automatically approve deps upgrade PRs, allowing them to be merged by mergify (if configured).
    * Throw if set to true but `autoApproveOptions` are not defined.
    * @default - true
    * @stability experimental
    */
   readonly autoApproveUpgrades?: boolean;
+  /**
+   * Security audit options.
+   * @default - default options
+   * @stability experimental
+   */
+  readonly auditDepsOptions?: javascript.AuditOptions;
+  /**
+   * Run security audit on dependencies.
+   * When enabled, creates an "audit" task that checks for known security vulnerabilities
+   * in dependencies. By default, runs during every build and checks for "high" severity
+   * vulnerabilities or above in all dependencies (including dev dependencies).
+   * @default false
+   * @stability experimental
+   */
+  readonly auditDeps?: boolean;
   /**
    * A directory which will contain build artifacts.
    * @default "dist"
@@ -382,7 +410,7 @@ export interface TypeScriptProjectOptions {
    */
   readonly workflowContainerImage?: string;
   /**
-   * Custom configuration used when creating changelog with standard-version package.
+   * Custom configuration used when creating changelog with commit-and-tag-version package.
    * Given values either append to default configuration or overwrite values in it.
    * @default - standard configuration applicable for GitHub repositories
    * @stability experimental
@@ -399,6 +427,12 @@ export interface TypeScriptProjectOptions {
    * @stability experimental
    */
   readonly releaseWorkflowName?: string;
+  /**
+   * Build environment variables for release workflows.
+   * @default {}
+   * @stability experimental
+   */
+  readonly releaseWorkflowEnv?: Record<string, string>;
   /**
    * The release trigger to use.
    * @default - Continuous releases (`ReleaseTrigger.continuous()`)
@@ -442,6 +476,17 @@ export interface TypeScriptProjectOptions {
    * @stability deprecated
    */
   readonly releaseEveryCommit?: boolean;
+  /**
+   * The GitHub Actions environment used for the release.
+   * This can be used to add an explicit approval step to the release
+   * or limit who can initiate a release through environment protection rules.
+   *
+   * When multiple artifacts are released, the environment can be overwritten
+   * on a per artifact basis.
+   * @default - no environment used, unless set at the artifact level
+   * @stability experimental
+   */
+  readonly releaseEnvironment?: string;
   /**
    * Defines additional release branches.
    * A workflow will be created for each
@@ -496,6 +541,30 @@ export interface TypeScriptProjectOptions {
    */
   readonly npmDistTag?: string;
   /**
+   * A shell command to control the next version to release.
+   * If present, this shell command will be run before the bump is executed, and
+   * it determines what version to release. It will be executed in the following
+   * environment:
+   *
+   * - Working directory: the project directory.
+   * - `$VERSION`: the current version. Looks like `1.2.3`.
+   * - `$LATEST_TAG`: the most recent tag. Looks like `prefix-v1.2.3`, or may be unset.
+   * - `$SUGGESTED_BUMP`: the suggested bump action based on commits. One of `major|minor|patch|none`.
+   *
+   * The command should print one of the following to `stdout`:
+   *
+   * - Nothing: the next version number will be determined based on commit history.
+   * - `x.y.z`: the next version number will be `x.y.z`.
+   * - `major|minor|patch`: the next version number will be the current version number
+   *   with the indicated component bumped.
+   *
+   * This setting cannot be specified together with `minMajorVersion`; the invoked
+   * script can be used to achieve the effects of `minMajorVersion`.
+   * @default - The next version will be determined based on the commit history and project settings.
+   * @stability experimental
+   */
+  readonly nextVersionCommand?: string;
+  /**
    * Minimal Major version to release.
    * This can be useful to set to 1, as breaking changes before the 1.x major
    * release are not incrementing the major version number.
@@ -519,6 +588,13 @@ export interface TypeScriptProjectOptions {
    * @stability experimental
    */
   readonly jsiiReleaseVersion?: string;
+  /**
+   * The `commit-and-tag-version` compatible package used to bump the package version, as a dependency string.
+   * This can be any compatible package version, including the deprecated `standard-version@9`.
+   * @default - A recent version of "commit-and-tag-version"
+   * @stability experimental
+   */
+  readonly bumpPackage?: string;
   /**
    * Options for Yarn Berry.
    * @default - Yarn Berry v4 with all default options
@@ -559,7 +635,7 @@ export interface TypeScriptProjectOptions {
   readonly repository?: string;
   /**
    * The version of PNPM to use if using PNPM as a package manager.
-   * @default "7"
+   * @default "9"
    * @stability experimental
    */
   readonly pnpmVersion?: string;
@@ -601,6 +677,12 @@ export interface TypeScriptProjectOptions {
    */
   readonly packageManager?: javascript.NodePackageManager;
   /**
+   * Use trusted publishing for publishing to npmjs.com Needs to be pre-configured on npm.js to work.
+   * @default - false
+   * @stability experimental
+   */
+  readonly npmTrustedPublishing?: boolean;
+  /**
    * GitHub secret which contains the NPM token to use when publishing packages.
    * @default "NPM_TOKEN"
    * @stability experimental
@@ -640,14 +722,28 @@ export interface TypeScriptProjectOptions {
    */
   readonly npmAccess?: javascript.NpmAccess;
   /**
-   * Minimum Node.js version to require via package.json `engines` (inclusive).
-   * @default - no "engines" specified
+   * The minimum node version required by this package to function. Most projects should not use this option.
+   * The value indicates that the package is incompatible with any older versions of node.
+   * This requirement is enforced via the engines field.
+   *
+   * You will normally not need to set this option, even if your package is incompatible with EOL versions of node.
+   * Consider this option only if your package depends on a specific feature, that is not available in other LTS versions.
+   * Setting this option has very high impact on the consumers of your package,
+   * as package managers will actively prevent usage with node versions you have marked as incompatible.
+   *
+   * To change the node version of your CI/CD workflows, use `workflowNodeVersion`.
+   * @default - no minimum version is enforced
    * @stability experimental
    */
   readonly minNodeVersion?: string;
   /**
-   * Minimum node.js version to require via `engines` (inclusive).
-   * @default - no max
+   * The maximum node version supported by this package. Most projects should not use this option.
+   * The value indicates that the package is incompatible with any newer versions of node.
+   * This requirement is enforced via the engines field.
+   *
+   * You will normally not need to set this option.
+   * Consider this option only if your package is known to not function with newer versions of node.
+   * @default - no maximum version is enforced
    * @stability experimental
    */
   readonly maxNodeVersion?: string;
@@ -727,6 +823,12 @@ export interface TypeScriptProjectOptions {
    * @stability experimental
    */
   readonly codeArtifactOptions?: javascript.CodeArtifactOptions;
+  /**
+   * The version of Bun to use if using Bun as a package manager.
+   * @default "latest"
+   * @stability experimental
+   */
+  readonly bunVersion?: string;
   /**
    * List of dependencies to bundle into this module.
    * These modules will be
@@ -941,6 +1043,12 @@ export interface TypeScriptProjectOptions {
    * @stability experimental
    */
   readonly projenCommand?: string;
+  /**
+   * Generate a project tree file (`.projen/tree.json`) that shows all components and their relationships. Useful for understanding your project structure and debugging.
+   * @default false
+   * @stability experimental
+   */
+  readonly projectTree?: boolean;
   /**
    * The parent project, if this project is part of a bigger project.
    * @stability experimental

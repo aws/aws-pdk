@@ -6,6 +6,12 @@ import type { aws_codepipeline, aws_iam, aws_s3, pipelines } from 'aws-cdk-lib';
  */
 export interface CodePipelineProps {
   /**
+   * Use pipeline service role for actions if no action role configured.
+   * @default - false
+   * @stability stable
+   */
+  readonly usePipelineRoleForActions?: boolean;
+  /**
    * Deploy every stack by creating a change set and executing it.
    * When enabled, creates a "Prepare" and "Execute" action for each stack. Disable
    * to deploy the stack in one pipeline action.
@@ -62,6 +68,13 @@ export interface CodePipelineProps {
    * @stability stable
    */
   readonly publishAssetsInParallel?: boolean;
+  /**
+   * Type of the pipeline.
+   * @default - PipelineType.V2 if the feature flag `CODEPIPELINE_DEFAULT_PIPELINE_TYPE_TO_V2`
+is true, PipelineType.V1 otherwise
+   * @stability stable
+   */
+  readonly pipelineType?: aws_codepipeline.PipelineType;
   /**
    * The name of the CodePipeline pipeline.
    * @default - Automatically generated
@@ -156,7 +169,7 @@ export interface CodePipelineProps {
    */
   readonly codeBuildDefaults?: pipelines.CodeBuildOptions;
   /**
-   * CDK CLI version to use in self-mutation and asset publishing steps.
+   * CDK CLI version to use in self-mutation step.
    * If you want to lock the CDK CLI version used in the pipeline, by steps
    * that are automatically generated for you, specify the version here.
    *
@@ -176,6 +189,17 @@ export interface CodePipelineProps {
    * @stability stable
    */
   readonly cliVersion?: string;
+  /**
+   * CDK CLI version to use in asset publishing steps.
+   * If you want to lock the `cdk-assets` version used in the pipeline, by steps
+   * that are automatically generated for you, specify the version here.
+   *
+   * We recommend you do not specify this value, as not specifying it always
+   * uses the latest CLI version which is backwards compatible with old versions.
+   * @default - Latest version
+   * @stability stable
+   */
+  readonly cdkAssetsCliVersion?: string;
   /**
    * Additional customizations to apply to the asset publishing CodeBuild projects.
    * @default - Only `codeBuildDefaults` are applied
