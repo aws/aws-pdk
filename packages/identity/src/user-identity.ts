@@ -1,13 +1,13 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { addMetric } from "@aws/monorepo";
+import { CfnOutput } from "aws-cdk-lib";
+import { UserPool, UserPoolClient } from "aws-cdk-lib/aws-cognito";
 import {
   IdentityPool,
   IdentityPoolProps,
   UserPoolAuthenticationProvider,
-} from "@aws-cdk/aws-cognito-identitypool-alpha";
-import { CfnOutput } from "aws-cdk-lib";
-import { UserPool, UserPoolClient } from "aws-cdk-lib/aws-cognito";
+} from "aws-cdk-lib/aws-cognito-identitypool";
 import { Construct } from "constructs";
 import { UserPoolWithMfa } from "./userpool-with-mfa";
 

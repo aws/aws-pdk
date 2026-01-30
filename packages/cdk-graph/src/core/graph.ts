@@ -989,8 +989,9 @@ export class Reference extends Edge {
   resolveTargets(): Node[] {
     if (OutputNode.isOutputNode(this.target)) {
       function resolveOutputTarget(_target: Node): Node[] {
-        if (OutputNode.isOutputNode(_target))
+        if (OutputNode.isOutputNode(_target)) {
           return resolveOutputTarget(_target);
+        }
         return [_target];
       }
       return (this.target as OutputNode).referenceLinks.flatMap((ref) =>

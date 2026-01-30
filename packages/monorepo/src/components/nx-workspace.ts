@@ -7,10 +7,10 @@ import {
   JsonFile,
   Project,
 } from "projen";
-import { Obj } from "projen/lib/util";
+import { deepMerge, Obj } from "projen/lib/util";
 import { Nx } from "../nx-types";
 import { ProjectUtils } from "../utils";
-import { asUndefinedIfEmpty, deepMerge } from "../utils/common";
+import { asUndefinedIfEmpty } from "../utils/common";
 
 const ALWAYS_IGNORE: string[] = [".tmp", ".env", ".pytest_cache"];
 
@@ -225,7 +225,7 @@ export class NxWorkspace extends Component {
   ): void {
     this.targetDefaults[name] = deepMerge(
       [merge ? this.targetDefaults[name] || {} : {}, target],
-      { append: true }
+      { mergeArrays: true }
     );
   }
 

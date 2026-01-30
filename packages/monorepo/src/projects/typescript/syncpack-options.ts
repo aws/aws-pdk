@@ -82,7 +82,7 @@ export namespace Syncpack {
     // all into `string`, where we'd lose any editor autocomplete for the other
     // more specific fields, using (string & {}) stops that from happening.
     //
-    // eslint-disable-next-line @typescript-eslint/ban-types
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     | (string & {});
 
   // NB: for brevity we use "string" instead of re-defining all the different specifier types here:

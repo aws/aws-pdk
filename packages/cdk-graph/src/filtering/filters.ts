@@ -202,8 +202,9 @@ export class Filters {
                 if (node.nodeType !== NodeTypeEnum.DEFAULT) return false;
                 if (!node.isLeaf) return false;
                 if (node.cfnType) return false;
-                if (node.constructInfoFqn?.startsWith("aws-cdk-lib."))
+                if (node.constructInfoFqn?.startsWith("aws-cdk-lib.")) {
                   return false;
+                }
                 return true;
               },
             },

@@ -190,12 +190,7 @@ export class MonorepoTsProject
       },
       peerDeps: ["nx@^19", ...(options.peerDeps || [])],
       devDeps: ["nx@^19", "@aws/pdk@^0", ...(options.devDeps || [])],
-      deps: [
-        "aws-cdk-lib",
-        "cdk-nag",
-        "@aws-cdk/aws-cognito-identitypool-alpha@latest",
-        ...(options.deps || []),
-      ],
+      deps: ["aws-cdk-lib", "cdk-nag", ...(options.deps || [])],
       projenVersion: options.projenVersion ?? DEFAULT_PROJEN_VERSION,
     });
 

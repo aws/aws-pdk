@@ -5,11 +5,11 @@ import { Component, JsonFile, Project } from "projen";
 import { JavaProject } from "projen/lib/java";
 import { NodePackageManager } from "projen/lib/javascript";
 import { Poetry, PythonProject } from "projen/lib/python";
-import { Obj } from "projen/lib/util";
+import { deepMerge, Obj } from "projen/lib/util";
 import { inferBuildTarget } from "./targets";
 import { Nx } from "../../nx-types";
 import { NodePackageUtils, ProjectUtils } from "../../utils";
-import { asUndefinedIfEmpty, deepMerge } from "../../utils/common";
+import { asUndefinedIfEmpty } from "../../utils/common";
 import { NxWorkspace } from "../nx-workspace";
 
 // List of tasks that are excluded from nx tasks for node projects
@@ -87,10 +87,11 @@ export class NxProject extends Component {
 
   constructor(project: Project) {
     // Make sure we only ever have 1 instance of NxProject component per project
-    if (NxProject.of(project))
+    if (NxProject.of(project)) {
       throw new Error(
         `Project ${project.name} already has associated NxProject component.`
       );
+    }
 
     const _existingFile = project.tryFindObjectFile("project.json");
     if (
@@ -282,7 +283,7 @@ export class NxProject extends Component {
       }
     }
     const mergedTarget: Nx.IProjectTarget = deepMerge([_default, target], {
-      append: true,
+      mergeArrays: true,
     });
     this.targets[name] = {
       ...mergedTarget,
