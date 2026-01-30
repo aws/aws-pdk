@@ -26,7 +26,6 @@ export class AwsArchProject extends PDKProject {
         "@types/unzipper",
         "@types/xml-flow",
         "execa@5.1.1",
-        "fs-extra",
         "lodash",
         "node-fetch@^2.6.7",
         "projen",
@@ -35,6 +34,7 @@ export class AwsArchProject extends PDKProject {
         "unzipper",
         "xml-flow",
       ],
+      bundledDeps: ["fs-extra"],
       peerDeps: ["projen", "constructs"],
       stability: Stability.STABLE,
     });

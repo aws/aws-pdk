@@ -17,20 +17,8 @@ export class IdentityProject extends PDKProject {
       name: "identity",
       keywords: ["aws", "pdk", "jsii", "projen"],
       repositoryUrl: "https://github.com/aws/aws-pdk",
-      devDeps: [
-        "projen",
-        "aws-cdk-lib",
-        "constructs",
-        "cdk-nag",
-        "@aws-cdk/aws-cognito-identitypool-alpha",
-      ],
-      peerDeps: [
-        "projen",
-        "aws-cdk-lib",
-        "constructs",
-        "cdk-nag",
-        "@aws-cdk/aws-cognito-identitypool-alpha",
-      ],
+      devDeps: ["projen", "aws-cdk-lib", "constructs", "cdk-nag"],
+      peerDeps: ["projen", "aws-cdk-lib", "constructs", "cdk-nag"],
       deps: [`${PDK_NAMESPACE}pdk-nag@^0.x`, `${PDK_NAMESPACE}monorepo@^0.x`],
       stability: Stability.STABLE,
     });

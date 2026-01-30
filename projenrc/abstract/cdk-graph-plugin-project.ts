@@ -49,7 +49,6 @@ export abstract class CdkGraphPluginProject extends PDKProject {
         "projen",
         "aws-cdk-lib",
         "constructs",
-        "fs-extra",
         `${PDK_NAMESPACE}aws-arch@^0.x`,
         `${PDK_NAMESPACE}cdk-graph@^0.x`,
         ...(options.devDeps || []),

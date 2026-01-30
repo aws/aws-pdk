@@ -24,7 +24,6 @@ export class PDKNagProject extends PDKProject {
         "@types/fs-extra",
         "@types/mustache",
         "mustache",
-        "fs-extra",
         "ts-node",
       ],
       deps: [`${PDK_NAMESPACE}monorepo@^0.x`],

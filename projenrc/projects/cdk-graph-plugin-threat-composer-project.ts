@@ -13,13 +13,8 @@ export class CdkGraphPluginThreatComposerProject extends CdkGraphPluginProject {
     super({
       parent,
       pluginName: "threat-composer",
-      devDeps: [
-        `${PDK_NAMESPACE}pdk-nag@^0.x`,
-        "cdk-nag",
-        "@types/lodash",
-        "fs-extra",
-      ],
-      bundledDeps: ["lodash"],
+      devDeps: [`${PDK_NAMESPACE}pdk-nag@^0.x`, "cdk-nag", "@types/lodash"],
+      bundledDeps: ["fs-extra", "lodash"],
       peerDeps: [`${PDK_NAMESPACE}pdk-nag@^0.x`, "cdk-nag"],
       stability: Stability.EXPERIMENTAL,
     });

@@ -33,7 +33,6 @@ export class CdkGraphPluginDiagramProject extends CdkGraphPluginProject {
         "@types/to-px",
         "@types/traverse",
         "lodash",
-        "ts-node",
         "downlevel-dts",
         "jest-image-snapshot",
       ],
