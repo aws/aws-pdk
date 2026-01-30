@@ -276,20 +276,22 @@ export class PDKDocgen {
     project.addDevDeps("jsii-docgen");
 
     const docsBasePath = "docs/api";
+    const nodePath = "${NX_WORKSPACE_ROOT:-$PWD/../..}/node_modules";
+    const jsiiDocgen = `NODE_PATH=${nodePath} jsii-docgen`;
 
     const docgen = project.addTask("docgen", {
       description: "Generate API docs from .jsii manifest",
-      exec: `mkdir -p ${docsBasePath}/typescript && jsii-docgen -r=false -o ${docsBasePath}/typescript/index.md && sed -i'' -e 's/@aws\\//@aws\\/pdk\\//g' ${docsBasePath}/typescript/index.md`,
+      exec: `mkdir -p ${docsBasePath}/typescript && ${jsiiDocgen} -r=false -o ${docsBasePath}/typescript/index.md && sed -i'' -e 's/@aws\\//@aws\\/pdk\\//g' ${docsBasePath}/typescript/index.md`,
     });
 
     docgen.exec(
-      `mkdir -p ${docsBasePath}/python && jsii-docgen -l python -r=false -o ${docsBasePath}/python/index.md && sed -i'' -e 's/aws.pdk/aws.pdk.${this.toSnakeCase(
+      `mkdir -p ${docsBasePath}/python && ${jsiiDocgen} -l python -r=false -o ${docsBasePath}/python/index.md && sed -i'' -e 's/aws.pdk/aws.pdk.${this.toSnakeCase(
         project
       )}/g' ${docsBasePath}/python/index.md`
     );
 
     docgen.exec(
-      `mkdir -p ${docsBasePath}/java && jsii-docgen -l java -r=false -o ${docsBasePath}/java/index.md && sed -i'' -e 's/software.aws.pdk/software.aws.pdk.${this.toSnakeCase(
+      `mkdir -p ${docsBasePath}/java && ${jsiiDocgen} -l java -r=false -o ${docsBasePath}/java/index.md && sed -i'' -e 's/software.aws.pdk/software.aws.pdk.${this.toSnakeCase(
         project
       )}/g' ${docsBasePath}/java/index.md`
     );

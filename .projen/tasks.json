@@ -96,7 +96,7 @@
       },
       "steps": [
         {
-          "exec": "eslint --fix --no-error-on-unmatched-pattern $(git diff --name-only --relative --staged HEAD . | grep -E '.(ts|tsx)$' | grep -v -E '^packages/' | xargs)"
+          "exec": "bash -c 'files=$(git diff --name-only --relative --staged HEAD . | grep -E \".(ts|tsx)$\" | grep -v -E \"^packages/\"); if [ -n \"$files\" ]; then eslint --fix --no-error-on-unmatched-pattern $files; fi'"
         }
       ]
     },
