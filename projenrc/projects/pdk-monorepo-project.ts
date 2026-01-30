@@ -85,10 +85,14 @@ export class PDKMonorepoProject extends MonorepoTsProject {
         "Run eslint against the workspace staged files only; excluding ./packages/ files.",
       steps: [
         {
-          // exlcude package files as they are run by the packages directly
-          exec: "eslint --fix --no-error-on-unmatched-pattern $(git diff --name-only --relative --staged HEAD . | grep -E '.(ts|tsx)$' | grep -v -E '^packages/' | xargs)",
+          // exclude package files as they are run by the packages directly
+          exec: 'bash -c \'files=$(git diff --name-only --relative --staged HEAD . | grep -E ".(ts|tsx)$" | grep -v -E "^packages/"); if [ -n "$files" ]; then eslint --fix --no-error-on-unmatched-pattern $files; fi\'',
         },
       ],
+      env: {
+        ESLINT_USE_FLAT_CONFIG: "false",
+        NODE_NO_WARNINGS: "1",
+      },
     });
 
     this.addTask("prepare", {

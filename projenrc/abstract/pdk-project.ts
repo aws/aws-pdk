@@ -121,15 +121,21 @@ export abstract class PDKProject extends JsiiProject {
         `eslint --ext .ts,.tsx \${CI:-'--fix'} --no-error-on-unmatched-pattern ${this.srcdir} ${this.testdir}`,
         { receiveArgs: true }
       );
+      eslintTask?.env("ESLINT_USE_FLAT_CONFIG", "false");
+      eslintTask?.env("NODE_NO_WARNINGS", "1");
       eslintTask && this.testTask.spawn(eslintTask);
 
       this.addTask("eslint-staged", {
         description: "Run eslint against the staged files only",
         steps: [
           {
-            exec: "eslint --fix --no-error-on-unmatched-pattern $(git diff --name-only --relative --staged HEAD . | grep -E '.(ts|tsx)$' | grep -v 'samples/*' | xargs)",
+            exec: 'bash -c \'files=$(git diff --name-only --relative --staged HEAD . | grep -E ".(ts|tsx)$" | grep -v "samples/*"); if [ -n "$files" ]; then eslint --fix --no-error-on-unmatched-pattern $files; fi\'',
           },
         ],
+        env: {
+          ESLINT_USE_FLAT_CONFIG: "false",
+          NODE_NO_WARNINGS: "1",
+        },
       });
       this.packageTask.spawn(eslintTask!);
     }
