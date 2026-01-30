@@ -63,6 +63,8 @@ export class PDKMonorepoProject extends MonorepoTsProject {
       },
     });
 
+    this.npmrc.addConfig("node-linker", "hoisted");
+
     // Turn on automatic target inference for this repo
     this.nx.autoInferProjectTargets = true;
     // This is OK to be stored given its read only and the repository is public
