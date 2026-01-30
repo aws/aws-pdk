@@ -272,7 +272,7 @@ class PDKRelease extends Release {
         "--summary",
         "--production",
         "--onlyAllow",
-        "'MIT;Apache-2.0;Unlicense;BSD;BSD-2-Clause;BSD-3-Clause;ISC;'"
+        "'MIT;Apache-2.0;Unlicense;BSD;BSD-2-Clause;BSD-3-Clause;ISC;Python-2.0;'"
       )
     );
     project.packageTask.exec(
