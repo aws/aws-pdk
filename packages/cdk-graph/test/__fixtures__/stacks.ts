@@ -63,7 +63,7 @@ export class DependentFixtureStack extends Stack {
     this.lambda = new lambda.Function(nestedStack, "LambdaFunction", {
       code: lambda.Code.fromInline('module.console.log("test")'),
       handler: "index.handler",
-      runtime: lambda.Runtime.NODEJS_20_X,
+      runtime: lambda.Runtime.NODEJS_24_X,
       environment: {
         BUCKET_ARN: props.depStack.dataLayer.bucket.bucketArn,
         BUCKET_NAME: props.depStack.dataLayer.bucket.bucketName,

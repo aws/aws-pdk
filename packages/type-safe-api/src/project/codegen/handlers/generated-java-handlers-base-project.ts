@@ -64,7 +64,7 @@ export abstract class GeneratedJavaHandlersBaseProject extends JavaProject {
     });
     TypeSafeApiCommandEnvironment.ensure(this);
     this.options = options;
-    this.runtimeVersion = options.runtimeVersion ?? JavaVersion.JAVA_17;
+    this.runtimeVersion = options.runtimeVersion ?? JavaVersion.JAVA_25;
     this.packageName = `${this.pom.groupId}.${this.name}.handlers`;
     this.srcDir = path.join(
       "src",

@@ -210,7 +210,7 @@ export interface GeneratedTypeScriptHandlersOptions
 
   /**
    * Runtime version to target for the handlers
-   * @default NodeVersion.NODE_22
+   * @default NodeVersion.NODE_24
    */
   readonly runtimeVersion?: NodeVersion;
 }
@@ -231,7 +231,7 @@ export interface GeneratedPythonHandlersOptions
 
   /**
    * Runtime version to target for the handlers
-   * @default PythonVersion.PYTHON_3_13
+   * @default PythonVersion.PYTHON_3_14
    */
   readonly runtimeVersion?: PythonVersion;
 }
@@ -244,7 +244,7 @@ export interface GeneratedJavaHandlersOptions
     GeneratedProjectOptions {
   /**
    * Runtime version to target for the handlers
-   * @default JavaVersion.JAVA_17
+   * @default JavaVersion.JAVA_25
    */
   readonly runtimeVersion?: JavaVersion;
 }

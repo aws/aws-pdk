@@ -41,9 +41,9 @@ describe("TypeScript ESM Generator Tests", () => {
                 "x-handlers-typescript-asset-path": "test/ts/dist",
                 "x-handlers-python-asset-path": "test/py/dist",
                 "x-handlers-java-asset-path": "test/java/dist",
-                "x-handlers-node-lambda-runtime-version": "NODEJS_22_X",
-                "x-handlers-python-lambda-runtime-version": "PYTHON_3_13",
-                "x-handlers-java-lambda-runtime-version": "JAVA_21",
+                "x-handlers-node-lambda-runtime-version": "NODEJS_24_X",
+                "x-handlers-python-lambda-runtime-version": "PYTHON_3_14",
+                "x-handlers-java-lambda-runtime-version": "JAVA_25",
               }
             )}'`,
             {

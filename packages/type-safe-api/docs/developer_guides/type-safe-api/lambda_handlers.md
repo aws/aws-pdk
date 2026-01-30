@@ -373,7 +373,6 @@ The `x86_64` architecture is targetted by default, but you can target `arm64` as
 
 If your lambda handlers rely on native dependencies, you will need to ensure you target the appropriate architecture when building the lambda distributable. For convenience when using the Python handlers project, you can select your target architecture by configuring your `TypeSafeApiProject`'s handler options in your `.projenrc`, for example:
 
-
 === "TS"
 
     ```ts
@@ -444,13 +443,13 @@ For example:
         languages: [Language.PYTHON, Language.JAVA, Language.TYPESCRIPT],
         options: {
           python: {
-            runtimeVersion: PythonVersion.PYTHON_3_12,
+            runtimeVersion: PythonVersion.PYTHON_3_14,
           },
           java: {
-            runtimeVersion: JavaVersion.JAVA_21,
+            runtimeVersion: JavaVersion.JAVA_25,
           },
           typescript: {
-            runtimeVersion: NodeVersion.NODE_20,
+            runtimeVersion: NodeVersion.NODE_24,
           },
         }
       }
@@ -466,13 +465,13 @@ For example:
                     .languages(Arrays.asList(Language.PYTHON))
                     .options(GeneratedHandlersCodeOptions.builder()
                             .python(GeneratedPythonHandlersOptions.builder()
-                                    .runtimeVersion(PythonVersion.PYTHON_3_12)
+                                    .runtimeVersion(PythonVersion.PYTHON_3_14)
                                     .build())
                             .java(GeneratedJavaHandlersOptions.builder()
-                                    .runtimeVersion(JavaVersion.JAVA_21)
+                                    .runtimeVersion(JavaVersion.JAVA_25)
                                     .build())
                             .typescript(GeneratedTypeScriptHandlersOptions.builder()
-                                    .runtimeVersion(NodeVersion.NODE_20)
+                                    .runtimeVersion(NodeVersion.NODE_24)
                                     .build())
                             .build())
                     .build())
@@ -489,13 +488,13 @@ For example:
             languages=[Language.PYTHON],
             options=GeneratedHandlersCodeOptions(
                 python=GeneratedPythonHandlersOptions(
-                    runtime_version=PythonVersion.PYTHON_3_12
+                    runtime_version=PythonVersion.PYTHON_3_14
                 ),
                 java=GeneratedJavaHandlersOptions(
-                    runtime_version=JavaVersion.JAVA_21
+                    runtime_version=JavaVersion.JAVA_25
                 ),
                 typescript=GeneratedTypeScriptHandlersOptions(
-                    runtime_version=NodeVersion.NODE_20
+                    runtime_version=NodeVersion.NODE_24
                 ),
             )
         ),
@@ -504,7 +503,6 @@ For example:
 
 !!!note
     You will need to have the specified runtime version (or greater) installed on your system in order to make use of it.
-
 
 ## Handler Router
 

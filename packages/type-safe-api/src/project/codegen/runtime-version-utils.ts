@@ -14,6 +14,8 @@ class JavaRuntimeVersionUtils {
     runtimeVersion?: JavaVersion
   ): MavenCompileOptions => {
     switch (runtimeVersion) {
+      case JavaVersion.JAVA_25:
+        return { source: "25", target: "25" };
       case JavaVersion.JAVA_21:
         return { source: "21", target: "21" };
       case JavaVersion.JAVA_17:
@@ -42,6 +44,8 @@ class JavaRuntimeVersionUtils {
         return "JAVA_17";
       case JavaVersion.JAVA_21:
         return "JAVA_21";
+      case JavaVersion.JAVA_25:
+        return "JAVA_25";
       default:
         throw new Error(`Unsupported java runtime ${runtimeVersion}`);
     }
@@ -64,6 +68,8 @@ class NodeRuntimeVersionUtils {
         return "NODEJS_20_X";
       case NodeVersion.NODE_22:
         return "NODEJS_22_X";
+      case NodeVersion.NODE_24:
+        return "NODEJS_24_X";
       default:
         throw new Error(`Unsupported node runtime ${runtimeVersion}`);
     }
@@ -77,6 +83,8 @@ class NodeRuntimeVersionUtils {
     runtimeVersion: NodeVersion
   ): string => {
     switch (runtimeVersion) {
+      case NodeVersion.NODE_24:
+        return "node24";
       case NodeVersion.NODE_22:
         return "node22";
       case NodeVersion.NODE_20:
@@ -105,6 +113,8 @@ class PythonRuntimeVersionUtils {
         return "PYTHON_3_12";
       case PythonVersion.PYTHON_3_13:
         return "PYTHON_3_13";
+      case PythonVersion.PYTHON_3_14:
+        return "PYTHON_3_14";
       default:
         throw new Error(`Unsupported python runtime ${runtimeVersion}`);
     }
@@ -137,6 +147,8 @@ class PythonRuntimeVersionUtils {
     runtimeVersion: PythonVersion
   ): string => {
     switch (runtimeVersion) {
+      case PythonVersion.PYTHON_3_14:
+        return "3.14";
       case PythonVersion.PYTHON_3_13:
         return "3.13";
       case PythonVersion.PYTHON_3_12:

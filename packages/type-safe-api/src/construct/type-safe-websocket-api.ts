@@ -300,7 +300,7 @@ export class TypeSafeWebsocketApi extends Construct {
     // Function for managing schemas/models associated with routes
     const schemaHandler = new LambdaFunction(this, "SchemaHandler", {
       handler: "websocket-schema-handler.handler",
-      runtime: Runtime.NODEJS_22_X,
+      runtime: Runtime.NODEJS_24_X,
       code: Code.fromAsset(
         path.join(__dirname, "./prepare-spec-event-handler")
       ),
@@ -316,10 +316,6 @@ export class TypeSafeWebsocketApi extends Construct {
             reason: `AWSLambdaBasicExecutionRole grants minimal permissions required for lambda execution`,
           })
         ),
-        {
-          id: "AwsSolutions-L1",
-          reason: "Runtime.NODEJS_22_X is used which is the latest runtime",
-        },
       ],
       true
     );

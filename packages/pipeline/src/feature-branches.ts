@@ -163,7 +163,7 @@ export class FeatureBranches extends Construct {
       this,
       "LambdaTriggerCreateBranch",
       {
-        runtime: Runtime.PYTHON_3_13,
+        runtime: Runtime.PYTHON_3_14,
         code: Code.fromAsset(path.join(__dirname, "lambda/create_branch")),
         handler: "create_branch.handler",
         environment: {
@@ -181,26 +181,11 @@ export class FeatureBranches extends Construct {
       })
     );
 
-    NagSuppressions.addResourceSuppressions(
-      createFeatureBranchFunction,
-      [
-        {
-          id: "AwsSolutions-L1",
-          reason: "Runtime.PYTHON_3_13 is used which is the latest runtime",
-        },
-        {
-          id: "AwsPrototyping-LambdaLatestVersion",
-          reason: "Runtime.PYTHON_3_13 is used which is the latest runtime",
-        },
-      ],
-      true
-    );
-
     const destroyFeatureBranchFunction = new Function(
       this,
       "LambdaTriggerDestroyBranch",
       {
-        runtime: Runtime.PYTHON_3_13,
+        runtime: Runtime.PYTHON_3_14,
         code: Code.fromAsset(path.join(__dirname, "lambda/destroy_branch")),
         handler: "destroy_branch.handler",
         environment: {
@@ -226,21 +211,6 @@ export class FeatureBranches extends Construct {
           },
         },
       })
-    );
-
-    NagSuppressions.addResourceSuppressions(
-      destroyFeatureBranchFunction,
-      [
-        {
-          id: "AwsSolutions-L1",
-          reason: "Runtime.PYTHON_3_13 is used which is the latest runtime",
-        },
-        {
-          id: "AwsPrototyping-LambdaLatestVersion",
-          reason: "Runtime.PYTHON_3_13 is used which is the latest runtime",
-        },
-      ],
-      true
     );
 
     destroyFeatureBranchFunction.addToRolePolicy(

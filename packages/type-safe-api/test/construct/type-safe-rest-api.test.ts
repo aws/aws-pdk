@@ -134,7 +134,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
     const func = new Function(stack, "Lambda", {
       code: Code.fromInline("code"),
       handler: "handler",
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_24_X,
     });
     withTempSpec(sampleSpec, (specPath) => {
       const api = new TypeSafeRestApi(stack, "ApiTest", {
@@ -170,7 +170,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
     const func = new Function(stack, "Lambda", {
       code: Code.fromInline("code"),
       handler: "handler",
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_24_X,
     });
     withTempSpec(sampleSpec, (specPath) => {
       const api = new TypeSafeRestApi(stack, "ApiTest", {
@@ -209,7 +209,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
     const func = new Function(stack, "Lambda", {
       code: Code.fromInline("code"),
       handler: "handler",
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_24_X,
     });
     withTempSpec(sampleSpec, (specPath) => {
       new TypeSafeRestApi(stack, "ApiTest1", {
@@ -253,7 +253,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
     const func = new Function(stack, "Lambda", {
       code: Code.fromInline("code"),
       handler: "handler",
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_24_X,
     });
 
     const spec = {
@@ -542,7 +542,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
               new Function(stack, "Lambda", {
                 code: Code.fromInline("code"),
                 handler: "handler",
-                runtime: Runtime.NODEJS_20_X,
+                runtime: Runtime.NODEJS_24_X,
               })
             ),
           },
@@ -572,7 +572,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
               new Function(stack, "Lambda", {
                 code: Code.fromInline("code"),
                 handler: "handler",
-                runtime: Runtime.NODEJS_20_X,
+                runtime: Runtime.NODEJS_24_X,
               })
             ),
           },
@@ -591,7 +591,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
       function: new Function(stack, "Authorizer", {
         code: Code.fromInline("code"),
         handler: "handler",
-        runtime: Runtime.NODEJS_20_X,
+        runtime: Runtime.NODEJS_24_X,
       }),
     });
 
@@ -606,7 +606,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
               new Function(stack, "Lambda", {
                 code: Code.fromInline("code"),
                 handler: "handler",
-                runtime: Runtime.NODEJS_20_X,
+                runtime: Runtime.NODEJS_24_X,
               })
             ),
           },
@@ -624,13 +624,13 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
       new Function(stack, `LambdaIntegration${id}`, {
         code: Code.fromInline("integration"),
         handler: "handler",
-        runtime: Runtime.NODEJS_20_X,
+        runtime: Runtime.NODEJS_24_X,
       });
 
     const lambdaAuthorizer = new Function(stack, "LambdaAuthorizer", {
       code: Code.fromInline("auth"),
       handler: "handler",
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_24_X,
     });
 
     // Request type custom authorizer
@@ -704,7 +704,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
               function: new Function(stack, "LambdaAuthorizer", {
                 code: Code.fromInline("auth"),
                 handler: "handler",
-                runtime: Runtime.NODEJS_20_X,
+                runtime: Runtime.NODEJS_24_X,
               }),
               // Query param, not a header
               identitySource: "method.request.querystring.QueryString1",
@@ -717,7 +717,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
                   new Function(stack, "Lambda", {
                     code: Code.fromInline("code"),
                     handler: "handler",
-                    runtime: Runtime.NODEJS_20_X,
+                    runtime: Runtime.NODEJS_24_X,
                   })
                 ),
               },
@@ -734,7 +734,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
     const func = new Function(stack, "Lambda", {
       code: Code.fromInline("code"),
       handler: "handler",
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_24_X,
     });
     withTempSpec(sampleSpec, (specPath) => {
       new TypeSafeRestApi(stack, "ApiTest", {
@@ -758,7 +758,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
     const func = new Function(stack, "Lambda", {
       code: Code.fromInline("code"),
       handler: "handler",
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_24_X,
     });
     withTempSpec(sampleSpec, (specPath) => {
       new TypeSafeRestApi(stack, "ApiTest", {
@@ -785,7 +785,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
     const func = new Function(stack, "Lambda", {
       code: Code.fromInline("code"),
       handler: "handler",
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_24_X,
     });
     withTempSpec(sampleSpec, (specPath) => {
       new TypeSafeRestApi(stack, "ApiTest", {
@@ -815,7 +815,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
     const func = new Function(stack, "Lambda", {
       code: Code.fromInline("code"),
       handler: "handler",
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_24_X,
     });
     withTempSpec(sampleSpec, (specPath) => {
       new TypeSafeRestApi(stack, "ApiTest", {
@@ -850,7 +850,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
     const func = new Function(stack, "Lambda", {
       code: Code.fromInline("code"),
       handler: "handler",
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_24_X,
     });
 
     withTempSpec(sampleSpec, (specPath) => {
@@ -883,7 +883,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
     const func = new Function(stack, "Lambda", {
       code: Code.fromInline("code"),
       handler: "handler",
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_24_X,
     });
     withTempSpec(sampleSpec, (specPath) => {
       new TypeSafeRestApi(stack, "ApiTest", {
@@ -905,7 +905,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
     const func = new Function(stack, "Lambda", {
       code: Code.fromInline("code"),
       handler: "handler",
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_24_X,
     });
     const spec = {
       ...sampleSpec,
@@ -993,7 +993,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
       const func = new Function(stack, "Lambda", {
         code: Code.fromInline("code"),
         handler: "handler",
-        runtime: Runtime.NODEJS_20_X,
+        runtime: Runtime.NODEJS_24_X,
       });
       const spec = {
         ...sampleSpec,
@@ -1027,7 +1027,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
       const func = new Function(stack, "Lambda", {
         code: Code.fromInline("code"),
         handler: "handler",
-        runtime: Runtime.NODEJS_20_X,
+        runtime: Runtime.NODEJS_24_X,
       });
       const spec = {
         ...sampleSpec,
@@ -1062,7 +1062,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
     const func = new Function(stack, "Lambda", {
       code: Code.fromInline("code"),
       handler: "handler",
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_24_X,
     });
     const spec = {
       ...sampleSpec,
@@ -1099,7 +1099,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
     const func = new Function(stack, "Lambda", {
       code: Code.fromInline("code"),
       handler: "handler",
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_24_X,
     });
     const spec = {
       ...sampleSpec,
@@ -1139,7 +1139,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
       new Function(stack, `Lambda${id}`, {
         code: Code.fromInline("code"),
         handler: "handler",
-        runtime: Runtime.NODEJS_20_X,
+        runtime: Runtime.NODEJS_24_X,
       });
     const spec = {
       ...sampleSpec,
@@ -1197,7 +1197,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
       new Function(stack, `Lambda${id}`, {
         code: Code.fromInline("code"),
         handler: "handler",
-        runtime: Runtime.NODEJS_20_X,
+        runtime: Runtime.NODEJS_24_X,
       });
     const spec = {
       ...sampleSpec,
@@ -1351,7 +1351,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
                 new Function(stack, "Lambda", {
                   code: Code.fromInline("code"),
                   handler: "handler",
-                  runtime: Runtime.NODEJS_20_X,
+                  runtime: Runtime.NODEJS_24_X,
                 })
               ),
               authorizer: testCase.methodAuthorizer,
@@ -1398,7 +1398,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
                   new Function(stack, "Lambda", {
                     code: Code.fromInline("code"),
                     handler: "handler",
-                    runtime: Runtime.NODEJS_20_X,
+                    runtime: Runtime.NODEJS_24_X,
                   })
                 ),
                 authorizer: testCase.methodAuthorizer,
@@ -1416,7 +1416,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
     const func = new Function(stack, "Lambda", {
       code: Code.fromInline("code"),
       handler: "handler",
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_24_X,
     });
     withTempSpec(sampleSpec, (specPath) => {
       new TypeSafeRestApi(stack, "ApiTest", {
@@ -1438,12 +1438,12 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
     const func1 = new Function(stack, "Lambda1", {
       code: Code.fromInline("code"),
       handler: "handler",
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_24_X,
     });
     const func2 = new Function(stack, "Lambda2", {
       code: Code.fromInline("code"),
       handler: "handler",
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_24_X,
     });
     withTempSpec(multiOperationSpec, (specPath) => {
       new TypeSafeRestApi(stack, "ApiTest", {
@@ -1537,7 +1537,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
               new Function(stack, "Lambda1", {
                 code: Code.fromInline("code"),
                 handler: "handler",
-                runtime: Runtime.NODEJS_20_X,
+                runtime: Runtime.NODEJS_24_X,
               })
             ),
           },
@@ -1546,7 +1546,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
               new Function(stack, "Lambda2", {
                 code: Code.fromInline("code"),
                 handler: "handler",
-                runtime: Runtime.NODEJS_20_X,
+                runtime: Runtime.NODEJS_24_X,
               })
             ),
           },
@@ -1555,7 +1555,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
               new Function(stack, "Lambda3", {
                 code: Code.fromInline("code"),
                 handler: "handler",
-                runtime: Runtime.NODEJS_20_X,
+                runtime: Runtime.NODEJS_24_X,
               })
             ),
           },
@@ -1564,7 +1564,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
               new Function(stack, "Lambda4", {
                 code: Code.fromInline("code"),
                 handler: "handler",
-                runtime: Runtime.NODEJS_20_X,
+                runtime: Runtime.NODEJS_24_X,
               })
             ),
           },
@@ -1608,7 +1608,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
     const func = new Function(stack, "Lambda", {
       code: Code.fromInline("code"),
       handler: "handler",
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_24_X,
     });
     withTempSpec(sampleSpec, (specPath) => {
       const api = new TypeSafeRestApi(stack, "ApiTest", {
@@ -1660,7 +1660,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
     const func = new Function(stack, "Lambda", {
       code: Code.fromInline("code"),
       handler: "handler",
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_24_X,
     });
     withTempSpec(sampleSpec, (specPath) => {
       new TypeSafeRestApi(stack, "ApiTest", {
