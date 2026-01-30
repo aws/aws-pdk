@@ -40,7 +40,7 @@ export class PDKMonorepoProject extends MonorepoTsProject {
         "@commitlint/config-conventional",
         "commitizen",
         "cz-conventional-changelog",
-        "eslint-plugin-header",
+        "eslint-plugin-header@npm:@tony.ganchev/eslint-plugin-header",
         "husky",
         "got@^11.8.5",
         "@jsii/spec",
@@ -159,7 +159,9 @@ export class PDKMonorepoProject extends MonorepoTsProject {
 
   configureEsLint(project: any) {
     if (project.eslint) {
-      project.addDevDeps("eslint-plugin-header");
+      project.addDevDeps(
+        "eslint-plugin-header@npm:@tony.ganchev/eslint-plugin-header"
+      );
       project.eslint.addPlugins("header");
       project.eslint.addRules(HEADER_RULE);
     }
