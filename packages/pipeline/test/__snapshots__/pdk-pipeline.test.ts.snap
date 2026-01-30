@@ -3,130 +3,6 @@
 exports[`PDK Pipeline Unit Tests CrossAccount - using AwsPrototyping NagPack 1`] = `
 {
   "Description": "(uksb-cqzupzpfff) (version:0.0.0) (tag:c2)",
-  "Mappings": {
-    "LatestNodeRuntimeMap": {
-      "af-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-east-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-4": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-5": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-7": {
-        "value": "nodejs20.x",
-      },
-      "ca-central-1": {
-        "value": "nodejs20.x",
-      },
-      "ca-west-1": {
-        "value": "nodejs20.x",
-      },
-      "cn-north-1": {
-        "value": "nodejs18.x",
-      },
-      "cn-northwest-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-central-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-central-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-isoe-west-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-north-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-3": {
-        "value": "nodejs20.x",
-      },
-      "il-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-south-1": {
-        "value": "nodejs20.x",
-      },
-      "mx-central-1": {
-        "value": "nodejs20.x",
-      },
-      "sa-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-2": {
-        "value": "nodejs20.x",
-      },
-      "us-gov-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-gov-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-isob-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-west-1": {
-        "value": "nodejs20.x",
-      },
-      "us-west-2": {
-        "value": "nodejs20.x",
-      },
-    },
-  },
   "Outputs": {
     "CrossAccountCodeRepositoryGRCUrlA496E759": {
       "Value": {
@@ -862,7 +738,7 @@ exports[`PDK Pipeline Unit Tests CrossAccount - using AwsPrototyping NagPack 1`]
         "Cache": {
           "Type": "NO_CACHE",
         },
-        "Description": "Pipeline step Default/CodePipeline/Assets/FileAsset1",
+        "Description": "Pipeline step Default/CodePipeline/Assets/Asset",
         "EncryptionKey": {
           "Fn::GetAtt": [
             "CrossAccountArtifactKey7D4916D3",
@@ -893,7 +769,7 @@ exports[`PDK Pipeline Unit Tests CrossAccount - using AwsPrototyping NagPack 1`]
     },
     "build": {
       "commands": [
-        "cdk-assets --path \\"assembly-Stage/StageAppStack7618C9EF.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region\\""
+        "cdk-assets --path \\"assembly-Stage/StageAppStack7618C9EF.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region-61dff0e0\\""
       ]
     }
   }
@@ -1909,7 +1785,7 @@ exports[`PDK Pipeline Unit Tests CrossAccount - using AwsPrototyping NagPack 1`]
                     "Name": "Synth_Output",
                   },
                 ],
-                "Name": "FileAsset1",
+                "Name": "Asset",
                 "RoleArn": {
                   "Fn::GetAtt": [
                     "CrossAccountCodeBuildActionRoleAD915E6A",
@@ -2268,19 +2144,9 @@ exports[`PDK Pipeline Unit Tests CrossAccount - using AwsPrototyping NagPack 1`]
               "Effect": "Allow",
               "Principal": {
                 "AWS": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":iam::",
-                      {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":root",
-                    ],
+                  "Fn::GetAtt": [
+                    "CrossAccountCodePipelineRole6867FC22",
+                    "Arn",
                   ],
                 },
               },
@@ -3601,15 +3467,7 @@ exports[`PDK Pipeline Unit Tests CrossAccount - using AwsPrototyping NagPack 1`]
             "Arn",
           ],
         },
-        "Runtime": {
-          "Fn::FindInMap": [
-            "LatestNodeRuntimeMap",
-            {
-              "Ref": "AWS::Region",
-            },
-            "value",
-          ],
-        },
+        "Runtime": "nodejs22.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -3670,130 +3528,6 @@ exports[`PDK Pipeline Unit Tests CrossAccount - using AwsPrototyping NagPack 1`]
 exports[`PDK Pipeline Unit Tests CrossAccount 1`] = `
 {
   "Description": "(uksb-cqzupzpfff) (version:0.0.0) (tag:c2)",
-  "Mappings": {
-    "LatestNodeRuntimeMap": {
-      "af-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-east-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-4": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-5": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-7": {
-        "value": "nodejs20.x",
-      },
-      "ca-central-1": {
-        "value": "nodejs20.x",
-      },
-      "ca-west-1": {
-        "value": "nodejs20.x",
-      },
-      "cn-north-1": {
-        "value": "nodejs18.x",
-      },
-      "cn-northwest-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-central-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-central-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-isoe-west-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-north-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-3": {
-        "value": "nodejs20.x",
-      },
-      "il-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-south-1": {
-        "value": "nodejs20.x",
-      },
-      "mx-central-1": {
-        "value": "nodejs20.x",
-      },
-      "sa-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-2": {
-        "value": "nodejs20.x",
-      },
-      "us-gov-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-gov-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-isob-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-west-1": {
-        "value": "nodejs20.x",
-      },
-      "us-west-2": {
-        "value": "nodejs20.x",
-      },
-    },
-  },
   "Outputs": {
     "CrossAccountCodeRepositoryGRCUrlA496E759": {
       "Value": {
@@ -4529,7 +4263,7 @@ exports[`PDK Pipeline Unit Tests CrossAccount 1`] = `
         "Cache": {
           "Type": "NO_CACHE",
         },
-        "Description": "Pipeline step Default/CodePipeline/Assets/FileAsset1",
+        "Description": "Pipeline step Default/CodePipeline/Assets/Asset",
         "EncryptionKey": {
           "Fn::GetAtt": [
             "CrossAccountArtifactKey7D4916D3",
@@ -4560,7 +4294,7 @@ exports[`PDK Pipeline Unit Tests CrossAccount 1`] = `
     },
     "build": {
       "commands": [
-        "cdk-assets --path \\"assembly-Stage/StageAppStack7618C9EF.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region\\""
+        "cdk-assets --path \\"assembly-Stage/StageAppStack7618C9EF.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region-61dff0e0\\""
       ]
     }
   }
@@ -5576,7 +5310,7 @@ exports[`PDK Pipeline Unit Tests CrossAccount 1`] = `
                     "Name": "Synth_Output",
                   },
                 ],
-                "Name": "FileAsset1",
+                "Name": "Asset",
                 "RoleArn": {
                   "Fn::GetAtt": [
                     "CrossAccountCodeBuildActionRoleAD915E6A",
@@ -5935,19 +5669,9 @@ exports[`PDK Pipeline Unit Tests CrossAccount 1`] = `
               "Effect": "Allow",
               "Principal": {
                 "AWS": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":iam::",
-                      {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":root",
-                    ],
+                  "Fn::GetAtt": [
+                    "CrossAccountCodePipelineRole6867FC22",
+                    "Arn",
                   ],
                 },
               },
@@ -7268,15 +6992,7 @@ exports[`PDK Pipeline Unit Tests CrossAccount 1`] = `
             "Arn",
           ],
         },
-        "Runtime": {
-          "Fn::FindInMap": [
-            "LatestNodeRuntimeMap",
-            {
-              "Ref": "AWS::Region",
-            },
-            "value",
-          ],
-        },
+        "Runtime": "nodejs22.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -7337,130 +7053,6 @@ exports[`PDK Pipeline Unit Tests CrossAccount 1`] = `
 exports[`PDK Pipeline Unit Tests Defaults - using AwsPrototyping NagPack 1`] = `
 {
   "Description": "(uksb-cqzupzpfff) (version:0.0.0) (tag:c2)",
-  "Mappings": {
-    "LatestNodeRuntimeMap": {
-      "af-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-east-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-4": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-5": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-7": {
-        "value": "nodejs20.x",
-      },
-      "ca-central-1": {
-        "value": "nodejs20.x",
-      },
-      "ca-west-1": {
-        "value": "nodejs20.x",
-      },
-      "cn-north-1": {
-        "value": "nodejs18.x",
-      },
-      "cn-northwest-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-central-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-central-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-isoe-west-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-north-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-3": {
-        "value": "nodejs20.x",
-      },
-      "il-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-south-1": {
-        "value": "nodejs20.x",
-      },
-      "mx-central-1": {
-        "value": "nodejs20.x",
-      },
-      "sa-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-2": {
-        "value": "nodejs20.x",
-      },
-      "us-gov-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-gov-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-isob-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-west-1": {
-        "value": "nodejs20.x",
-      },
-      "us-west-2": {
-        "value": "nodejs20.x",
-      },
-    },
-  },
   "Outputs": {
     "DefaultsCodeRepositoryGRCUrlF9B2453F": {
       "Value": {
@@ -7527,15 +7119,7 @@ exports[`PDK Pipeline Unit Tests Defaults - using AwsPrototyping NagPack 1`] = `
             "Arn",
           ],
         },
-        "Runtime": {
-          "Fn::FindInMap": [
-            "LatestNodeRuntimeMap",
-            {
-              "Ref": "AWS::Region",
-            },
-            "value",
-          ],
-        },
+        "Runtime": "nodejs22.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -8157,7 +7741,7 @@ exports[`PDK Pipeline Unit Tests Defaults - using AwsPrototyping NagPack 1`] = `
         "Cache": {
           "Type": "NO_CACHE",
         },
-        "Description": "Pipeline step Default/CodePipeline/Assets/FileAsset1",
+        "Description": "Pipeline step Default/CodePipeline/Assets/Asset",
         "EncryptionKey": "alias/aws/s3",
         "Environment": {
           "ComputeType": "BUILD_GENERAL1_SMALL",
@@ -8183,7 +7767,7 @@ exports[`PDK Pipeline Unit Tests Defaults - using AwsPrototyping NagPack 1`] = `
     },
     "build": {
       "commands": [
-        "cdk-assets --path \\"assembly-Stage/StageAppStack7618C9EF.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region\\""
+        "cdk-assets --path \\"assembly-Stage/StageAppStack7618C9EF.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region-61dff0e0\\""
       ]
     }
   }
@@ -9021,7 +8605,7 @@ exports[`PDK Pipeline Unit Tests Defaults - using AwsPrototyping NagPack 1`] = `
                     "Name": "Synth_Output",
                   },
                 ],
-                "Name": "FileAsset1",
+                "Name": "Asset",
                 "RoleArn": {
                   "Fn::GetAtt": [
                     "DefaultsCodeBuildActionRole26049CBA",
@@ -9484,19 +9068,9 @@ exports[`PDK Pipeline Unit Tests Defaults - using AwsPrototyping NagPack 1`] = `
               "Effect": "Allow",
               "Principal": {
                 "AWS": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":iam::",
-                      {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":root",
-                    ],
+                  "Fn::GetAtt": [
+                    "DefaultsCodePipelineRoleF466C0E3",
+                    "Arn",
                   ],
                 },
               },
@@ -10758,130 +10332,6 @@ exports[`PDK Pipeline Unit Tests Defaults - using AwsPrototyping NagPack 1`] = `
 exports[`PDK Pipeline Unit Tests Defaults 1`] = `
 {
   "Description": "(uksb-cqzupzpfff) (version:0.0.0) (tag:c2)",
-  "Mappings": {
-    "LatestNodeRuntimeMap": {
-      "af-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-east-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-4": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-5": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-7": {
-        "value": "nodejs20.x",
-      },
-      "ca-central-1": {
-        "value": "nodejs20.x",
-      },
-      "ca-west-1": {
-        "value": "nodejs20.x",
-      },
-      "cn-north-1": {
-        "value": "nodejs18.x",
-      },
-      "cn-northwest-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-central-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-central-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-isoe-west-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-north-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-3": {
-        "value": "nodejs20.x",
-      },
-      "il-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-south-1": {
-        "value": "nodejs20.x",
-      },
-      "mx-central-1": {
-        "value": "nodejs20.x",
-      },
-      "sa-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-2": {
-        "value": "nodejs20.x",
-      },
-      "us-gov-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-gov-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-isob-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-west-1": {
-        "value": "nodejs20.x",
-      },
-      "us-west-2": {
-        "value": "nodejs20.x",
-      },
-    },
-  },
   "Outputs": {
     "DefaultsCodeRepositoryGRCUrlF9B2453F": {
       "Value": {
@@ -10948,15 +10398,7 @@ exports[`PDK Pipeline Unit Tests Defaults 1`] = `
             "Arn",
           ],
         },
-        "Runtime": {
-          "Fn::FindInMap": [
-            "LatestNodeRuntimeMap",
-            {
-              "Ref": "AWS::Region",
-            },
-            "value",
-          ],
-        },
+        "Runtime": "nodejs22.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -11578,7 +11020,7 @@ exports[`PDK Pipeline Unit Tests Defaults 1`] = `
         "Cache": {
           "Type": "NO_CACHE",
         },
-        "Description": "Pipeline step Default/CodePipeline/Assets/FileAsset1",
+        "Description": "Pipeline step Default/CodePipeline/Assets/Asset",
         "EncryptionKey": "alias/aws/s3",
         "Environment": {
           "ComputeType": "BUILD_GENERAL1_SMALL",
@@ -11604,7 +11046,7 @@ exports[`PDK Pipeline Unit Tests Defaults 1`] = `
     },
     "build": {
       "commands": [
-        "cdk-assets --path \\"assembly-Stage/StageAppStack7618C9EF.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region\\""
+        "cdk-assets --path \\"assembly-Stage/StageAppStack7618C9EF.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region-61dff0e0\\""
       ]
     }
   }
@@ -12442,7 +11884,7 @@ exports[`PDK Pipeline Unit Tests Defaults 1`] = `
                     "Name": "Synth_Output",
                   },
                 ],
-                "Name": "FileAsset1",
+                "Name": "Asset",
                 "RoleArn": {
                   "Fn::GetAtt": [
                     "DefaultsCodeBuildActionRole26049CBA",
@@ -12905,19 +12347,9 @@ exports[`PDK Pipeline Unit Tests Defaults 1`] = `
               "Effect": "Allow",
               "Principal": {
                 "AWS": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":iam::",
-                      {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":root",
-                    ],
+                  "Fn::GetAtt": [
+                    "DefaultsCodePipelineRoleF466C0E3",
+                    "Arn",
                   ],
                 },
               },
@@ -14179,130 +13611,6 @@ exports[`PDK Pipeline Unit Tests Defaults 1`] = `
 exports[`PDK Pipeline Unit Tests Feature Branches - feature/new-feature_branch - using AwsPrototyping NagPack 1`] = `
 {
   "Description": "(uksb-cqzupzpfff) (version:0.0.0) (tag:c2)",
-  "Mappings": {
-    "LatestNodeRuntimeMap": {
-      "af-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-east-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-4": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-5": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-7": {
-        "value": "nodejs20.x",
-      },
-      "ca-central-1": {
-        "value": "nodejs20.x",
-      },
-      "ca-west-1": {
-        "value": "nodejs20.x",
-      },
-      "cn-north-1": {
-        "value": "nodejs18.x",
-      },
-      "cn-northwest-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-central-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-central-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-isoe-west-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-north-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-3": {
-        "value": "nodejs20.x",
-      },
-      "il-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-south-1": {
-        "value": "nodejs20.x",
-      },
-      "mx-central-1": {
-        "value": "nodejs20.x",
-      },
-      "sa-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-2": {
-        "value": "nodejs20.x",
-      },
-      "us-gov-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-gov-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-isob-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-west-1": {
-        "value": "nodejs20.x",
-      },
-      "us-west-2": {
-        "value": "nodejs20.x",
-      },
-    },
-  },
   "Outputs": {
     "featurenewfeaturebranchFeatureBranchesCodeRepositoryGRCUrl47F29C59": {
       "Value": {
@@ -14369,6 +13677,16 @@ exports[`PDK Pipeline Unit Tests Feature Branches - feature/new-feature_branch -
           ],
         },
         "State": "ENABLED",
+        "Tags": [
+          {
+            "Key": "FeatureBranch",
+            "Value": "feature/new-feature_branch",
+          },
+          {
+            "Key": "RepoName",
+            "Value": "FeatureBranches",
+          },
+        ],
         "Targets": [
           {
             "Arn": {
@@ -14437,15 +13755,7 @@ exports[`PDK Pipeline Unit Tests Feature Branches - feature/new-feature_branch -
             "Arn",
           ],
         },
-        "Runtime": {
-          "Fn::FindInMap": [
-            "LatestNodeRuntimeMap",
-            {
-              "Ref": "AWS::Region",
-            },
-            "value",
-          ],
-        },
+        "Runtime": "nodejs22.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -15083,7 +14393,7 @@ exports[`PDK Pipeline Unit Tests Feature Branches - feature/new-feature_branch -
         "Cache": {
           "Type": "NO_CACHE",
         },
-        "Description": "Pipeline step Default/CodePipeline/Assets/FileAsset1",
+        "Description": "Pipeline step Default/CodePipeline/Assets/Asset",
         "EncryptionKey": "alias/aws/s3",
         "Environment": {
           "ComputeType": "BUILD_GENERAL1_SMALL",
@@ -15109,7 +14419,7 @@ exports[`PDK Pipeline Unit Tests Feature Branches - feature/new-feature_branch -
     },
     "build": {
       "commands": [
-        "cdk-assets --path \\"assembly-feature-new-feature-branch-Stage/featurenewfeaturebranchStageAppStack9BC96CAD.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region\\""
+        "cdk-assets --path \\"assembly-feature-new-feature-branch-Stage/featurenewfeaturebranchStageAppStack9BC96CAD.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region-61dff0e0\\""
       ]
     }
   }
@@ -15659,7 +14969,7 @@ exports[`PDK Pipeline Unit Tests Feature Branches - feature/new-feature_branch -
                     "Name": "Synth_Output",
                   },
                 ],
-                "Name": "FileAsset1",
+                "Name": "Asset",
                 "RoleArn": {
                   "Fn::GetAtt": [
                     "featurenewfeaturebranchFeatureBranchesCodeBuildActionRole003FB4DB",
@@ -16488,19 +15798,9 @@ exports[`PDK Pipeline Unit Tests Feature Branches - feature/new-feature_branch -
               "Effect": "Allow",
               "Principal": {
                 "AWS": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":iam::",
-                      {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":root",
-                    ],
+                  "Fn::GetAtt": [
+                    "featurenewfeaturebranchFeatureBranchesCodePipelineRoleC185E2E1",
+                    "Arn",
                   ],
                 },
               },
@@ -17011,130 +16311,6 @@ exports[`PDK Pipeline Unit Tests Feature Branches - feature/new-feature_branch -
 exports[`PDK Pipeline Unit Tests Feature Branches - feature/new-feature_branch 1`] = `
 {
   "Description": "(uksb-cqzupzpfff) (version:0.0.0) (tag:c2)",
-  "Mappings": {
-    "LatestNodeRuntimeMap": {
-      "af-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-east-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-4": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-5": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-7": {
-        "value": "nodejs20.x",
-      },
-      "ca-central-1": {
-        "value": "nodejs20.x",
-      },
-      "ca-west-1": {
-        "value": "nodejs20.x",
-      },
-      "cn-north-1": {
-        "value": "nodejs18.x",
-      },
-      "cn-northwest-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-central-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-central-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-isoe-west-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-north-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-3": {
-        "value": "nodejs20.x",
-      },
-      "il-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-south-1": {
-        "value": "nodejs20.x",
-      },
-      "mx-central-1": {
-        "value": "nodejs20.x",
-      },
-      "sa-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-2": {
-        "value": "nodejs20.x",
-      },
-      "us-gov-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-gov-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-isob-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-west-1": {
-        "value": "nodejs20.x",
-      },
-      "us-west-2": {
-        "value": "nodejs20.x",
-      },
-    },
-  },
   "Outputs": {
     "featurenewfeaturebranchFeatureBranchesCodeRepositoryGRCUrl47F29C59": {
       "Value": {
@@ -17201,6 +16377,16 @@ exports[`PDK Pipeline Unit Tests Feature Branches - feature/new-feature_branch 1
           ],
         },
         "State": "ENABLED",
+        "Tags": [
+          {
+            "Key": "FeatureBranch",
+            "Value": "feature/new-feature_branch",
+          },
+          {
+            "Key": "RepoName",
+            "Value": "FeatureBranches",
+          },
+        ],
         "Targets": [
           {
             "Arn": {
@@ -17269,15 +16455,7 @@ exports[`PDK Pipeline Unit Tests Feature Branches - feature/new-feature_branch 1
             "Arn",
           ],
         },
-        "Runtime": {
-          "Fn::FindInMap": [
-            "LatestNodeRuntimeMap",
-            {
-              "Ref": "AWS::Region",
-            },
-            "value",
-          ],
-        },
+        "Runtime": "nodejs22.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -17915,7 +17093,7 @@ exports[`PDK Pipeline Unit Tests Feature Branches - feature/new-feature_branch 1
         "Cache": {
           "Type": "NO_CACHE",
         },
-        "Description": "Pipeline step Default/CodePipeline/Assets/FileAsset1",
+        "Description": "Pipeline step Default/CodePipeline/Assets/Asset",
         "EncryptionKey": "alias/aws/s3",
         "Environment": {
           "ComputeType": "BUILD_GENERAL1_SMALL",
@@ -17941,7 +17119,7 @@ exports[`PDK Pipeline Unit Tests Feature Branches - feature/new-feature_branch 1
     },
     "build": {
       "commands": [
-        "cdk-assets --path \\"assembly-feature-new-feature-branch-Stage/featurenewfeaturebranchStageAppStack9BC96CAD.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region\\""
+        "cdk-assets --path \\"assembly-feature-new-feature-branch-Stage/featurenewfeaturebranchStageAppStack9BC96CAD.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region-61dff0e0\\""
       ]
     }
   }
@@ -18491,7 +17669,7 @@ exports[`PDK Pipeline Unit Tests Feature Branches - feature/new-feature_branch 1
                     "Name": "Synth_Output",
                   },
                 ],
-                "Name": "FileAsset1",
+                "Name": "Asset",
                 "RoleArn": {
                   "Fn::GetAtt": [
                     "featurenewfeaturebranchFeatureBranchesCodeBuildActionRole003FB4DB",
@@ -19320,19 +18498,9 @@ exports[`PDK Pipeline Unit Tests Feature Branches - feature/new-feature_branch 1
               "Effect": "Allow",
               "Principal": {
                 "AWS": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":iam::",
-                      {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":root",
-                    ],
+                  "Fn::GetAtt": [
+                    "featurenewfeaturebranchFeatureBranchesCodePipelineRoleC185E2E1",
+                    "Arn",
                   ],
                 },
               },
@@ -19843,130 +19011,6 @@ exports[`PDK Pipeline Unit Tests Feature Branches - feature/new-feature_branch 1
 exports[`PDK Pipeline Unit Tests Feature Branches - mainline - using AwsPrototyping NagPack 1`] = `
 {
   "Description": "(uksb-cqzupzpfff) (version:0.0.0) (tag:c2)",
-  "Mappings": {
-    "LatestNodeRuntimeMap": {
-      "af-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-east-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-4": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-5": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-7": {
-        "value": "nodejs20.x",
-      },
-      "ca-central-1": {
-        "value": "nodejs20.x",
-      },
-      "ca-west-1": {
-        "value": "nodejs20.x",
-      },
-      "cn-north-1": {
-        "value": "nodejs18.x",
-      },
-      "cn-northwest-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-central-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-central-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-isoe-west-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-north-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-3": {
-        "value": "nodejs20.x",
-      },
-      "il-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-south-1": {
-        "value": "nodejs20.x",
-      },
-      "mx-central-1": {
-        "value": "nodejs20.x",
-      },
-      "sa-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-2": {
-        "value": "nodejs20.x",
-      },
-      "us-gov-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-gov-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-isob-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-west-1": {
-        "value": "nodejs20.x",
-      },
-      "us-west-2": {
-        "value": "nodejs20.x",
-      },
-    },
-  },
   "Outputs": {
     "FeatureBranchesCodeRepositoryGRCUrlA78583F8": {
       "Value": {
@@ -20028,15 +19072,7 @@ exports[`PDK Pipeline Unit Tests Feature Branches - mainline - using AwsPrototyp
             "Arn",
           ],
         },
-        "Runtime": {
-          "Fn::FindInMap": [
-            "LatestNodeRuntimeMap",
-            {
-              "Ref": "AWS::Region",
-            },
-            "value",
-          ],
-        },
+        "Runtime": "nodejs22.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -20658,7 +19694,7 @@ exports[`PDK Pipeline Unit Tests Feature Branches - mainline - using AwsPrototyp
         "Cache": {
           "Type": "NO_CACHE",
         },
-        "Description": "Pipeline step Default/CodePipeline/Assets/FileAsset1",
+        "Description": "Pipeline step Default/CodePipeline/Assets/Asset",
         "EncryptionKey": "alias/aws/s3",
         "Environment": {
           "ComputeType": "BUILD_GENERAL1_SMALL",
@@ -20684,7 +19720,7 @@ exports[`PDK Pipeline Unit Tests Feature Branches - mainline - using AwsPrototyp
     },
     "build": {
       "commands": [
-        "cdk-assets --path \\"assembly-Stage/StageAppStack7618C9EF.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region\\""
+        "cdk-assets --path \\"assembly-Stage/StageAppStack7618C9EF.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region-61dff0e0\\""
       ]
     }
   }
@@ -21529,7 +20565,7 @@ exports[`PDK Pipeline Unit Tests Feature Branches - mainline - using AwsPrototyp
                     "Name": "Synth_Output",
                   },
                 ],
-                "Name": "FileAsset1",
+                "Name": "Asset",
                 "RoleArn": {
                   "Fn::GetAtt": [
                     "FeatureBranchesCodeBuildActionRole5632928F",
@@ -22091,19 +21127,9 @@ exports[`PDK Pipeline Unit Tests Feature Branches - mainline - using AwsPrototyp
               "Effect": "Allow",
               "Principal": {
                 "AWS": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":iam::",
-                      {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":root",
-                    ],
+                  "Fn::GetAtt": [
+                    "FeatureBranchesCodePipelineRole25A9A50B",
+                    "Arn",
                   ],
                 },
               },
@@ -22948,6 +21974,14 @@ artifacts:
         "cdk_nag": {
           "rules_to_suppress": [
             {
+              "id": "AwsSolutions-L1",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
               "applies_to": [
                 {
                   "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
@@ -23014,7 +22048,7 @@ artifacts:
             "Arn",
           ],
         },
-        "Runtime": "python3.12",
+        "Runtime": "python3.13",
       },
       "Type": "AWS::Lambda::Function",
     },
@@ -23022,6 +22056,14 @@ artifacts:
       "Metadata": {
         "cdk_nag": {
           "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
             {
               "applies_to": [
                 {
@@ -23102,6 +22144,14 @@ artifacts:
         "cdk_nag": {
           "rules_to_suppress": [
             {
+              "id": "AwsSolutions-L1",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
               "applies_to": [
                 {
                   "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
@@ -23180,6 +22230,14 @@ artifacts:
         "cdk_nag": {
           "rules_to_suppress": [
             {
+              "id": "AwsSolutions-L1",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
               "applies_to": [
                 {
                   "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
@@ -23249,7 +22307,7 @@ artifacts:
             "Arn",
           ],
         },
-        "Runtime": "python3.12",
+        "Runtime": "python3.13",
       },
       "Type": "AWS::Lambda::Function",
     },
@@ -23257,6 +22315,14 @@ artifacts:
       "Metadata": {
         "cdk_nag": {
           "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
             {
               "applies_to": [
                 {
@@ -23368,6 +22434,14 @@ artifacts:
       "Metadata": {
         "cdk_nag": {
           "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
             {
               "applies_to": [
                 {
@@ -23854,130 +22928,6 @@ artifacts:
 exports[`PDK Pipeline Unit Tests Feature Branches - mainline 1`] = `
 {
   "Description": "(uksb-cqzupzpfff) (version:0.0.0) (tag:c2)",
-  "Mappings": {
-    "LatestNodeRuntimeMap": {
-      "af-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-east-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-4": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-5": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-7": {
-        "value": "nodejs20.x",
-      },
-      "ca-central-1": {
-        "value": "nodejs20.x",
-      },
-      "ca-west-1": {
-        "value": "nodejs20.x",
-      },
-      "cn-north-1": {
-        "value": "nodejs18.x",
-      },
-      "cn-northwest-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-central-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-central-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-isoe-west-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-north-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-3": {
-        "value": "nodejs20.x",
-      },
-      "il-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-south-1": {
-        "value": "nodejs20.x",
-      },
-      "mx-central-1": {
-        "value": "nodejs20.x",
-      },
-      "sa-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-2": {
-        "value": "nodejs20.x",
-      },
-      "us-gov-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-gov-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-isob-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-west-1": {
-        "value": "nodejs20.x",
-      },
-      "us-west-2": {
-        "value": "nodejs20.x",
-      },
-    },
-  },
   "Outputs": {
     "FeatureBranchesCodeRepositoryGRCUrlA78583F8": {
       "Value": {
@@ -24039,15 +22989,7 @@ exports[`PDK Pipeline Unit Tests Feature Branches - mainline 1`] = `
             "Arn",
           ],
         },
-        "Runtime": {
-          "Fn::FindInMap": [
-            "LatestNodeRuntimeMap",
-            {
-              "Ref": "AWS::Region",
-            },
-            "value",
-          ],
-        },
+        "Runtime": "nodejs22.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -24669,7 +23611,7 @@ exports[`PDK Pipeline Unit Tests Feature Branches - mainline 1`] = `
         "Cache": {
           "Type": "NO_CACHE",
         },
-        "Description": "Pipeline step Default/CodePipeline/Assets/FileAsset1",
+        "Description": "Pipeline step Default/CodePipeline/Assets/Asset",
         "EncryptionKey": "alias/aws/s3",
         "Environment": {
           "ComputeType": "BUILD_GENERAL1_SMALL",
@@ -24695,7 +23637,7 @@ exports[`PDK Pipeline Unit Tests Feature Branches - mainline 1`] = `
     },
     "build": {
       "commands": [
-        "cdk-assets --path \\"assembly-Stage/StageAppStack7618C9EF.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region\\""
+        "cdk-assets --path \\"assembly-Stage/StageAppStack7618C9EF.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region-61dff0e0\\""
       ]
     }
   }
@@ -25540,7 +24482,7 @@ exports[`PDK Pipeline Unit Tests Feature Branches - mainline 1`] = `
                     "Name": "Synth_Output",
                   },
                 ],
-                "Name": "FileAsset1",
+                "Name": "Asset",
                 "RoleArn": {
                   "Fn::GetAtt": [
                     "FeatureBranchesCodeBuildActionRole5632928F",
@@ -26102,19 +25044,9 @@ exports[`PDK Pipeline Unit Tests Feature Branches - mainline 1`] = `
               "Effect": "Allow",
               "Principal": {
                 "AWS": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":iam::",
-                      {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":root",
-                    ],
+                  "Fn::GetAtt": [
+                    "FeatureBranchesCodePipelineRole25A9A50B",
+                    "Arn",
                   ],
                 },
               },
@@ -26959,6 +25891,14 @@ artifacts:
         "cdk_nag": {
           "rules_to_suppress": [
             {
+              "id": "AwsSolutions-L1",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
               "applies_to": [
                 {
                   "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
@@ -27025,7 +25965,7 @@ artifacts:
             "Arn",
           ],
         },
-        "Runtime": "python3.12",
+        "Runtime": "python3.13",
       },
       "Type": "AWS::Lambda::Function",
     },
@@ -27033,6 +25973,14 @@ artifacts:
       "Metadata": {
         "cdk_nag": {
           "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
             {
               "applies_to": [
                 {
@@ -27113,6 +26061,14 @@ artifacts:
         "cdk_nag": {
           "rules_to_suppress": [
             {
+              "id": "AwsSolutions-L1",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
               "applies_to": [
                 {
                   "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
@@ -27191,6 +26147,14 @@ artifacts:
         "cdk_nag": {
           "rules_to_suppress": [
             {
+              "id": "AwsSolutions-L1",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
               "applies_to": [
                 {
                   "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
@@ -27260,7 +26224,7 @@ artifacts:
             "Arn",
           ],
         },
-        "Runtime": "python3.12",
+        "Runtime": "python3.13",
       },
       "Type": "AWS::Lambda::Function",
     },
@@ -27268,6 +26232,14 @@ artifacts:
       "Metadata": {
         "cdk_nag": {
           "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
             {
               "applies_to": [
                 {
@@ -27379,6 +26351,14 @@ artifacts:
       "Metadata": {
         "cdk_nag": {
           "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
             {
               "applies_to": [
                 {
@@ -27865,130 +26845,6 @@ artifacts:
 exports[`PDK Pipeline Unit Tests Feature Branches - using AwsPrototyping NagPack 1`] = `
 {
   "Description": "(uksb-cqzupzpfff) (version:0.0.0) (tag:c2)",
-  "Mappings": {
-    "LatestNodeRuntimeMap": {
-      "af-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-east-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-4": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-5": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-7": {
-        "value": "nodejs20.x",
-      },
-      "ca-central-1": {
-        "value": "nodejs20.x",
-      },
-      "ca-west-1": {
-        "value": "nodejs20.x",
-      },
-      "cn-north-1": {
-        "value": "nodejs18.x",
-      },
-      "cn-northwest-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-central-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-central-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-isoe-west-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-north-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-3": {
-        "value": "nodejs20.x",
-      },
-      "il-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-south-1": {
-        "value": "nodejs20.x",
-      },
-      "mx-central-1": {
-        "value": "nodejs20.x",
-      },
-      "sa-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-2": {
-        "value": "nodejs20.x",
-      },
-      "us-gov-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-gov-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-isob-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-west-1": {
-        "value": "nodejs20.x",
-      },
-      "us-west-2": {
-        "value": "nodejs20.x",
-      },
-    },
-  },
   "Outputs": {
     "FeatureBranchesCodeRepositoryGRCUrlA78583F8": {
       "Value": {
@@ -28050,15 +26906,7 @@ exports[`PDK Pipeline Unit Tests Feature Branches - using AwsPrototyping NagPack
             "Arn",
           ],
         },
-        "Runtime": {
-          "Fn::FindInMap": [
-            "LatestNodeRuntimeMap",
-            {
-              "Ref": "AWS::Region",
-            },
-            "value",
-          ],
-        },
+        "Runtime": "nodejs22.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -28680,7 +27528,7 @@ exports[`PDK Pipeline Unit Tests Feature Branches - using AwsPrototyping NagPack
         "Cache": {
           "Type": "NO_CACHE",
         },
-        "Description": "Pipeline step Default/CodePipeline/Assets/FileAsset1",
+        "Description": "Pipeline step Default/CodePipeline/Assets/Asset",
         "EncryptionKey": "alias/aws/s3",
         "Environment": {
           "ComputeType": "BUILD_GENERAL1_SMALL",
@@ -28706,7 +27554,7 @@ exports[`PDK Pipeline Unit Tests Feature Branches - using AwsPrototyping NagPack
     },
     "build": {
       "commands": [
-        "cdk-assets --path \\"assembly-Stage/StageAppStack7618C9EF.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region\\""
+        "cdk-assets --path \\"assembly-Stage/StageAppStack7618C9EF.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region-61dff0e0\\""
       ]
     }
   }
@@ -29551,7 +28399,7 @@ exports[`PDK Pipeline Unit Tests Feature Branches - using AwsPrototyping NagPack
                     "Name": "Synth_Output",
                   },
                 ],
-                "Name": "FileAsset1",
+                "Name": "Asset",
                 "RoleArn": {
                   "Fn::GetAtt": [
                     "FeatureBranchesCodeBuildActionRole5632928F",
@@ -30113,19 +28961,9 @@ exports[`PDK Pipeline Unit Tests Feature Branches - using AwsPrototyping NagPack
               "Effect": "Allow",
               "Principal": {
                 "AWS": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":iam::",
-                      {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":root",
-                    ],
+                  "Fn::GetAtt": [
+                    "FeatureBranchesCodePipelineRole25A9A50B",
+                    "Arn",
                   ],
                 },
               },
@@ -30970,6 +29808,14 @@ artifacts:
         "cdk_nag": {
           "rules_to_suppress": [
             {
+              "id": "AwsSolutions-L1",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
               "applies_to": [
                 {
                   "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
@@ -31036,7 +29882,7 @@ artifacts:
             "Arn",
           ],
         },
-        "Runtime": "python3.12",
+        "Runtime": "python3.13",
       },
       "Type": "AWS::Lambda::Function",
     },
@@ -31044,6 +29890,14 @@ artifacts:
       "Metadata": {
         "cdk_nag": {
           "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
             {
               "applies_to": [
                 {
@@ -31124,6 +29978,14 @@ artifacts:
         "cdk_nag": {
           "rules_to_suppress": [
             {
+              "id": "AwsSolutions-L1",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
               "applies_to": [
                 {
                   "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
@@ -31202,6 +30064,14 @@ artifacts:
         "cdk_nag": {
           "rules_to_suppress": [
             {
+              "id": "AwsSolutions-L1",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
               "applies_to": [
                 {
                   "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
@@ -31271,7 +30141,7 @@ artifacts:
             "Arn",
           ],
         },
-        "Runtime": "python3.12",
+        "Runtime": "python3.13",
       },
       "Type": "AWS::Lambda::Function",
     },
@@ -31279,6 +30149,14 @@ artifacts:
       "Metadata": {
         "cdk_nag": {
           "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
             {
               "applies_to": [
                 {
@@ -31390,6 +30268,14 @@ artifacts:
       "Metadata": {
         "cdk_nag": {
           "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
             {
               "applies_to": [
                 {
@@ -31876,130 +30762,6 @@ artifacts:
 exports[`PDK Pipeline Unit Tests Feature Branches 1`] = `
 {
   "Description": "(uksb-cqzupzpfff) (version:0.0.0) (tag:c2)",
-  "Mappings": {
-    "LatestNodeRuntimeMap": {
-      "af-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-east-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-4": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-5": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-7": {
-        "value": "nodejs20.x",
-      },
-      "ca-central-1": {
-        "value": "nodejs20.x",
-      },
-      "ca-west-1": {
-        "value": "nodejs20.x",
-      },
-      "cn-north-1": {
-        "value": "nodejs18.x",
-      },
-      "cn-northwest-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-central-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-central-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-isoe-west-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-north-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-3": {
-        "value": "nodejs20.x",
-      },
-      "il-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-south-1": {
-        "value": "nodejs20.x",
-      },
-      "mx-central-1": {
-        "value": "nodejs20.x",
-      },
-      "sa-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-2": {
-        "value": "nodejs20.x",
-      },
-      "us-gov-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-gov-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-isob-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-west-1": {
-        "value": "nodejs20.x",
-      },
-      "us-west-2": {
-        "value": "nodejs20.x",
-      },
-    },
-  },
   "Outputs": {
     "FeatureBranchesCodeRepositoryGRCUrlA78583F8": {
       "Value": {
@@ -32061,15 +30823,7 @@ exports[`PDK Pipeline Unit Tests Feature Branches 1`] = `
             "Arn",
           ],
         },
-        "Runtime": {
-          "Fn::FindInMap": [
-            "LatestNodeRuntimeMap",
-            {
-              "Ref": "AWS::Region",
-            },
-            "value",
-          ],
-        },
+        "Runtime": "nodejs22.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -32691,7 +31445,7 @@ exports[`PDK Pipeline Unit Tests Feature Branches 1`] = `
         "Cache": {
           "Type": "NO_CACHE",
         },
-        "Description": "Pipeline step Default/CodePipeline/Assets/FileAsset1",
+        "Description": "Pipeline step Default/CodePipeline/Assets/Asset",
         "EncryptionKey": "alias/aws/s3",
         "Environment": {
           "ComputeType": "BUILD_GENERAL1_SMALL",
@@ -32717,7 +31471,7 @@ exports[`PDK Pipeline Unit Tests Feature Branches 1`] = `
     },
     "build": {
       "commands": [
-        "cdk-assets --path \\"assembly-Stage/StageAppStack7618C9EF.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region\\""
+        "cdk-assets --path \\"assembly-Stage/StageAppStack7618C9EF.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region-61dff0e0\\""
       ]
     }
   }
@@ -33562,7 +32316,7 @@ exports[`PDK Pipeline Unit Tests Feature Branches 1`] = `
                     "Name": "Synth_Output",
                   },
                 ],
-                "Name": "FileAsset1",
+                "Name": "Asset",
                 "RoleArn": {
                   "Fn::GetAtt": [
                     "FeatureBranchesCodeBuildActionRole5632928F",
@@ -34124,19 +32878,9 @@ exports[`PDK Pipeline Unit Tests Feature Branches 1`] = `
               "Effect": "Allow",
               "Principal": {
                 "AWS": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":iam::",
-                      {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":root",
-                    ],
+                  "Fn::GetAtt": [
+                    "FeatureBranchesCodePipelineRole25A9A50B",
+                    "Arn",
                   ],
                 },
               },
@@ -34981,6 +33725,14 @@ artifacts:
         "cdk_nag": {
           "rules_to_suppress": [
             {
+              "id": "AwsSolutions-L1",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
               "applies_to": [
                 {
                   "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
@@ -35047,7 +33799,7 @@ artifacts:
             "Arn",
           ],
         },
-        "Runtime": "python3.12",
+        "Runtime": "python3.13",
       },
       "Type": "AWS::Lambda::Function",
     },
@@ -35055,6 +33807,14 @@ artifacts:
       "Metadata": {
         "cdk_nag": {
           "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
             {
               "applies_to": [
                 {
@@ -35135,6 +33895,14 @@ artifacts:
         "cdk_nag": {
           "rules_to_suppress": [
             {
+              "id": "AwsSolutions-L1",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
               "applies_to": [
                 {
                   "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
@@ -35213,6 +33981,14 @@ artifacts:
         "cdk_nag": {
           "rules_to_suppress": [
             {
+              "id": "AwsSolutions-L1",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
               "applies_to": [
                 {
                   "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
@@ -35282,7 +34058,7 @@ artifacts:
             "Arn",
           ],
         },
-        "Runtime": "python3.12",
+        "Runtime": "python3.13",
       },
       "Type": "AWS::Lambda::Function",
     },
@@ -35290,6 +34066,14 @@ artifacts:
       "Metadata": {
         "cdk_nag": {
           "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
             {
               "applies_to": [
                 {
@@ -35401,6 +34185,14 @@ artifacts:
       "Metadata": {
         "cdk_nag": {
           "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Runtime.PYTHON_3_13 is used which is the latest runtime",
+            },
             {
               "applies_to": [
                 {
@@ -35887,130 +34679,6 @@ artifacts:
 exports[`PDK Pipeline Unit Tests PDKPipelineWithCodeConnection - CrossAccount 1`] = `
 {
   "Description": "(uksb-cqzupzpfff) (version:0.0.0) (tag:c2)",
-  "Mappings": {
-    "LatestNodeRuntimeMap": {
-      "af-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-east-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-4": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-5": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-7": {
-        "value": "nodejs20.x",
-      },
-      "ca-central-1": {
-        "value": "nodejs20.x",
-      },
-      "ca-west-1": {
-        "value": "nodejs20.x",
-      },
-      "cn-north-1": {
-        "value": "nodejs18.x",
-      },
-      "cn-northwest-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-central-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-central-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-isoe-west-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-north-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-3": {
-        "value": "nodejs20.x",
-      },
-      "il-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-south-1": {
-        "value": "nodejs20.x",
-      },
-      "mx-central-1": {
-        "value": "nodejs20.x",
-      },
-      "sa-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-2": {
-        "value": "nodejs20.x",
-      },
-      "us-gov-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-gov-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-isob-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-west-1": {
-        "value": "nodejs20.x",
-      },
-      "us-west-2": {
-        "value": "nodejs20.x",
-      },
-    },
-  },
   "Outputs": {
     "PDKPipelineWithCodeConnectionCrossAccountSonarCodeScannerSonarqubeSecretArn186A6940": {
       "Value": {
@@ -36057,15 +34725,7 @@ exports[`PDK Pipeline Unit Tests PDKPipelineWithCodeConnection - CrossAccount 1`
             "Arn",
           ],
         },
-        "Runtime": {
-          "Fn::FindInMap": [
-            "LatestNodeRuntimeMap",
-            {
-              "Ref": "AWS::Region",
-            },
-            "value",
-          ],
-        },
+        "Runtime": "nodejs22.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -36792,7 +35452,7 @@ exports[`PDK Pipeline Unit Tests PDKPipelineWithCodeConnection - CrossAccount 1`
         "Cache": {
           "Type": "NO_CACHE",
         },
-        "Description": "Pipeline step Default/CodePipeline/Assets/FileAsset1",
+        "Description": "Pipeline step Default/CodePipeline/Assets/Asset",
         "EncryptionKey": {
           "Fn::GetAtt": [
             "PDKPipelineWithCodeConnectionCrossAccountArtifactKeyBD00D6B2",
@@ -36823,7 +35483,7 @@ exports[`PDK Pipeline Unit Tests PDKPipelineWithCodeConnection - CrossAccount 1`
     },
     "build": {
       "commands": [
-        "cdk-assets --path \\"assembly-Stage/StageAppStack7618C9EF.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region\\""
+        "cdk-assets --path \\"assembly-Stage/StageAppStack7618C9EF.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region-61dff0e0\\""
       ]
     }
   }
@@ -37365,7 +36025,7 @@ exports[`PDK Pipeline Unit Tests PDKPipelineWithCodeConnection - CrossAccount 1`
                     "Name": "Synth_Output",
                   },
                 ],
-                "Name": "FileAsset1",
+                "Name": "Asset",
                 "RoleArn": {
                   "Fn::GetAtt": [
                     "PDKPipelineWithCodeConnectionCrossAccountCodeBuildActionRole7C6D5EA6",
@@ -38068,19 +36728,9 @@ exports[`PDK Pipeline Unit Tests PDKPipelineWithCodeConnection - CrossAccount 1`
               "Effect": "Allow",
               "Principal": {
                 "AWS": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":iam::",
-                      {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":root",
-                    ],
+                  "Fn::GetAtt": [
+                    "PDKPipelineWithCodeConnectionCrossAccountCodePipelineRoleA536E1A6",
+                    "Arn",
                   ],
                 },
               },
@@ -39281,130 +37931,6 @@ exports[`PDK Pipeline Unit Tests PDKPipelineWithCodeConnection - CrossAccount 1`
 exports[`PDK Pipeline Unit Tests PDKPipelineWithCodeConnection - using AwsPrototyping NagPack 1`] = `
 {
   "Description": "(uksb-cqzupzpfff) (version:0.0.0) (tag:c2)",
-  "Mappings": {
-    "LatestNodeRuntimeMap": {
-      "af-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-east-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-4": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-5": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-7": {
-        "value": "nodejs20.x",
-      },
-      "ca-central-1": {
-        "value": "nodejs20.x",
-      },
-      "ca-west-1": {
-        "value": "nodejs20.x",
-      },
-      "cn-north-1": {
-        "value": "nodejs18.x",
-      },
-      "cn-northwest-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-central-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-central-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-isoe-west-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-north-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-3": {
-        "value": "nodejs20.x",
-      },
-      "il-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-south-1": {
-        "value": "nodejs20.x",
-      },
-      "mx-central-1": {
-        "value": "nodejs20.x",
-      },
-      "sa-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-2": {
-        "value": "nodejs20.x",
-      },
-      "us-gov-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-gov-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-isob-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-west-1": {
-        "value": "nodejs20.x",
-      },
-      "us-west-2": {
-        "value": "nodejs20.x",
-      },
-    },
-  },
   "Outputs": {
     "PDKPipelineWithCodeConnectionUsingAwsPrototypingNagPackSonarCodeScannerSonarqubeSecretArnB2FB65EC": {
       "Value": {
@@ -39451,15 +37977,7 @@ exports[`PDK Pipeline Unit Tests PDKPipelineWithCodeConnection - using AwsProtot
             "Arn",
           ],
         },
-        "Runtime": {
-          "Fn::FindInMap": [
-            "LatestNodeRuntimeMap",
-            {
-              "Ref": "AWS::Region",
-            },
-            "value",
-          ],
-        },
+        "Runtime": "nodejs22.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -40081,7 +38599,7 @@ exports[`PDK Pipeline Unit Tests PDKPipelineWithCodeConnection - using AwsProtot
         "Cache": {
           "Type": "NO_CACHE",
         },
-        "Description": "Pipeline step Default/CodePipeline/Assets/FileAsset1",
+        "Description": "Pipeline step Default/CodePipeline/Assets/Asset",
         "EncryptionKey": "alias/aws/s3",
         "Environment": {
           "ComputeType": "BUILD_GENERAL1_SMALL",
@@ -40107,7 +38625,7 @@ exports[`PDK Pipeline Unit Tests PDKPipelineWithCodeConnection - using AwsProtot
     },
     "build": {
       "commands": [
-        "cdk-assets --path \\"assembly-Stage/StageAppStack7618C9EF.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region\\""
+        "cdk-assets --path \\"assembly-Stage/StageAppStack7618C9EF.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region-61dff0e0\\""
       ]
     }
   }
@@ -40627,7 +39145,7 @@ exports[`PDK Pipeline Unit Tests PDKPipelineWithCodeConnection - using AwsProtot
                     "Name": "Synth_Output",
                   },
                 ],
-                "Name": "FileAsset1",
+                "Name": "Asset",
                 "RoleArn": {
                   "Fn::GetAtt": [
                     "PDKPipelineWithCodeConnectionUsingAwsPrototypingNagPackCodeBuildActionRole0ABC6218",
@@ -41278,19 +39796,9 @@ exports[`PDK Pipeline Unit Tests PDKPipelineWithCodeConnection - using AwsProtot
               "Effect": "Allow",
               "Principal": {
                 "AWS": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":iam::",
-                      {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":root",
-                    ],
+                  "Fn::GetAtt": [
+                    "PDKPipelineWithCodeConnectionUsingAwsPrototypingNagPackCodePipelineRole03FB6993",
+                    "Arn",
                   ],
                 },
               },
@@ -42429,130 +40937,6 @@ exports[`PDK Pipeline Unit Tests PDKPipelineWithCodeConnection - using AwsProtot
 exports[`PDK Pipeline Unit Tests PDKPipelineWithCodeConnection - using a CodeConnections As Source 1`] = `
 {
   "Description": "(uksb-cqzupzpfff) (version:0.0.0) (tag:c2)",
-  "Mappings": {
-    "LatestNodeRuntimeMap": {
-      "af-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-east-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-northeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-south-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-1": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-2": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-3": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-4": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-5": {
-        "value": "nodejs20.x",
-      },
-      "ap-southeast-7": {
-        "value": "nodejs20.x",
-      },
-      "ca-central-1": {
-        "value": "nodejs20.x",
-      },
-      "ca-west-1": {
-        "value": "nodejs20.x",
-      },
-      "cn-north-1": {
-        "value": "nodejs18.x",
-      },
-      "cn-northwest-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-central-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-central-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-isoe-west-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-north-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-south-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-1": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-2": {
-        "value": "nodejs20.x",
-      },
-      "eu-west-3": {
-        "value": "nodejs20.x",
-      },
-      "il-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-central-1": {
-        "value": "nodejs20.x",
-      },
-      "me-south-1": {
-        "value": "nodejs20.x",
-      },
-      "mx-central-1": {
-        "value": "nodejs20.x",
-      },
-      "sa-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-1": {
-        "value": "nodejs20.x",
-      },
-      "us-east-2": {
-        "value": "nodejs20.x",
-      },
-      "us-gov-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-gov-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-isob-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-west-1": {
-        "value": "nodejs20.x",
-      },
-      "us-west-2": {
-        "value": "nodejs20.x",
-      },
-    },
-  },
   "Outputs": {
     "PDKPipelineWithCodeConnectionDefaultsSonarCodeScannerSonarqubeSecretArn27854762": {
       "Value": {
@@ -42599,15 +40983,7 @@ exports[`PDK Pipeline Unit Tests PDKPipelineWithCodeConnection - using a CodeCon
             "Arn",
           ],
         },
-        "Runtime": {
-          "Fn::FindInMap": [
-            "LatestNodeRuntimeMap",
-            {
-              "Ref": "AWS::Region",
-            },
-            "value",
-          ],
-        },
+        "Runtime": "nodejs22.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -43229,7 +41605,7 @@ exports[`PDK Pipeline Unit Tests PDKPipelineWithCodeConnection - using a CodeCon
         "Cache": {
           "Type": "NO_CACHE",
         },
-        "Description": "Pipeline step Default/CodePipeline/Assets/FileAsset1",
+        "Description": "Pipeline step Default/CodePipeline/Assets/Asset",
         "EncryptionKey": "alias/aws/s3",
         "Environment": {
           "ComputeType": "BUILD_GENERAL1_SMALL",
@@ -43255,7 +41631,7 @@ exports[`PDK Pipeline Unit Tests PDKPipelineWithCodeConnection - using a CodeCon
     },
     "build": {
       "commands": [
-        "cdk-assets --path \\"assembly-Stage/StageAppStack7618C9EF.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region\\""
+        "cdk-assets --path \\"assembly-Stage/StageAppStack7618C9EF.assets.json\\" --verbose publish \\"38dc425850928ffe31ff589b67807f701cdd38a1b12cbeaea92e4e99befbe0b5:current_account-current_region-61dff0e0\\""
       ]
     }
   }
@@ -43775,7 +42151,7 @@ exports[`PDK Pipeline Unit Tests PDKPipelineWithCodeConnection - using a CodeCon
                     "Name": "Synth_Output",
                   },
                 ],
-                "Name": "FileAsset1",
+                "Name": "Asset",
                 "RoleArn": {
                   "Fn::GetAtt": [
                     "PDKPipelineWithCodeConnectionDefaultsCodeBuildActionRole834B05A3",
@@ -44426,19 +42802,9 @@ exports[`PDK Pipeline Unit Tests PDKPipelineWithCodeConnection - using a CodeCon
               "Effect": "Allow",
               "Principal": {
                 "AWS": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":iam::",
-                      {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":root",
-                    ],
+                  "Fn::GetAtt": [
+                    "PDKPipelineWithCodeConnectionDefaultsCodePipelineRoleB8330931",
+                    "Arn",
                   ],
                 },
               },
