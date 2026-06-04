@@ -11,7 +11,7 @@ The AWS PDK lets you define your projects programatically via the expressive pow
 - Build polyglot monorepos, with build caching, cross-language build dependencies, dependency visualization and much more.
 - Leverage codified patterns which vend project and infrastructure (CDK) code.
 
-The AWS PDK is built on top of [Projen](https://github.com/projen/projen) and as such all constructs that you compose together need to be defined via a [projenrc](https://projen.io/programmatic-api.html) file.
+The AWS PDK is built on top of [Projen](https://github.com/projen/projen) and as such all constructs that you compose together need to be defined via a [projenrc](https://projen.io/docs/introduction/getting-started/#project-configuration) file.
 
 ## Why use the AWS PDK?
 
