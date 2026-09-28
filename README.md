@@ -1,3 +1,12 @@
+> [!IMPORTANT]
+> **The AWS PDK is no longer supported. We recommend migrating to the [Nx Plugin for AWS](https://awslabs.github.io/nx-plugin-for-aws/) ([GitHub](https://github.com/awslabs/nx-plugin-for-aws/)).**
+>
+> The Nx Plugin for AWS shares the same core goals as the PDK, but takes a different approach, which is more compatible with AI coding assistants. Customer feedback indicated that the PDK abstracted away too much detail and that its learning curve was too steep. As a library, it also placed its maintainers in the critical path: when a project required a setting the library did not expose, the only options were workarounds, duplicating library code, or waiting for the library to be extended.
+>
+> Rather than a library you depend on at runtime, the Nx Plugin for AWS generates code directly into your repository. You own that code from the moment it is generated, there is no runtime dependency on the plugin, and any change the generators did not anticipate is an ordinary code edit. To preserve the upgrade path a library provides, the plugin includes migrations, so you can continue to adopt updates as they are released.
+>
+> Please refer to the [migration guide](https://awslabs.github.io/nx-plugin-for-aws/en/blog/migrating-from-aws-pdk/).
+
 # Getting started
 
 ## What is the AWS PDK?
