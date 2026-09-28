@@ -45,9 +45,21 @@ export function generateConsistentUUID(
   return prefix + shorthash(JSON.stringify(value));
 }
 
-/** Get UUID for a given construct */
+/**
+ * Get UUID for a given construct.
+ *
+ * The UUID keys the construct's node in the graph store, so it must be unique across the entire
+ * construct tree. `Names.uniqueResourceName` is not: it is scoped to a single stack, slicing the
+ * construct path at the innermost stack and representing that stack by its `stackName`. That is
+ * right for a physical resource name but wrong for a graph-wide identity, because two stacks that
+ * share a `stackName` in different stages or environments collapse to the same value. Sharing a
+ * name that way is legal (a CloudFormation stack name only has to be unique per account and
+ * region), and when it happens the second `StackNode` resolves its owning stack to the first and
+ * throws its `stack === self` invariant ("Stack.stack is not self"). `Names.uniqueId` keys off the
+ * full construct path instead, so same-named stacks across stages or environments stay distinct.
+ */
 export function getConstructUUID(construct: IConstruct): string {
-  return Names.uniqueResourceName(construct, {});
+  return Names.uniqueId(construct);
 }
 
 /** Try to get *logicalId* for given construct */
